@@ -20,36 +20,45 @@ import java.util.Date;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 import org.naxitrale.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityBody;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
+import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 
 /**
  *
  * @author mgubaidullin
  */
-public class ActivityInstancesPanel extends TablePanel {
+public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
 
     public ActivityInstancesPanel() {
         super();
+        initTableUI();
+//        refreshTable();
     }
 
-    public void refreshTable() {
-        try {
-            table.removeAllItems();
-            table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
-            table.addContainerProperty("name", String.class, null, "Имя шага", null, null);
-            table.addContainerProperty("type", String.class, null, "Тип", null, null);
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionActivityName"), null, null);
+        table.addContainerProperty("type", String.class, null, messages.getString("tableCaptionType"), null, null);
 //            table.addContainerProperty("performer", String.class, null, "Исполнитель", null, null);
-            table.addContainerProperty("readyDate", Date.class, null, "Дата создания", null, null);
-            table.addContainerProperty("startedDate", Date.class, null, "Дата начала", null, null);
-            table.addContainerProperty("endDate", Date.class, null, "Дата завершения", null, null);
+        table.addContainerProperty("readyDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
+        table.addContainerProperty("startedDate", Date.class, null, messages.getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("endDate", Date.class, null, messages.getString("tableCaptionFinishedDate"), null, null);
 //            table.addContainerProperty("iteration", String.class, null, "Итерация", null, null);
-            table.addContainerProperty("status", String.class, null, "Статус", null, null);
-            table.addContainerProperty("operation", Button.class, null, "Операции", null, null);
+        table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("actions", TableExecButton.class, null, messages.getString("tableCaptionActions"), null, null);
+    }
 
+    @Override
+    public void refreshTable() {
+        table.removeAllItems();
+        try {
             Set<ActivityInstance<ActivityBody>> ais = adminModule.getActivityInstances();
             for (ActivityInstance<ActivityBody> ai : ais) {
                 Item woItem = table.addItem(ai);
@@ -58,43 +67,35 @@ public class ActivityInstancesPanel extends TablePanel {
                 woItem.getItemProperty("readyDate").setValue(ai.getBody().getReadyDate());
                 woItem.getItemProperty("startedDate").setValue(ai.getBody().getStartedDate());
                 woItem.getItemProperty("endDate").setValue(ai.getBody().getEndedDate());
-                woItem.getItemProperty("status").setValue(ai.getBody().getState());
+                woItem.getItemProperty("state").setValue(ai.getBody().getState());
 //                woItem.getItemProperty("iteration").setValue(ai.);
                 woItem.getItemProperty("type").setValue(adminModule.getProcessActivityDefinition(ai).getPerformer() == null ? "Автомат" : "Задача");
-                woItem.getItemProperty("operation").setValue(doSomething("Открыть", "icons/Gear2.gif", ai));
+                if ((ai.getBody().getState().equals(ActivityState.EXECUTING) || ai.getBody().getState().equals(ActivityState.READY)) && adminModule.getProcessActivityDefinition(ai).getPerformer() != null) {
+                    woItem.getItemProperty("actions").setValue(new TableExecButton("Открыть", "icons/Gear2.gif", ai, this, Constants.ACTION_OPEN));
+                }
             }
             table.setSortContainerPropertyId("readyDate");
             table.setSortAscending(false);
             table.sort();
             table.setColumnWidth("UUID", 30);
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.toString());
         }
-
     }
 
-    public TableExecButton doSomething(String description, String iconName, Object t) {
-        TableExecButton startBtn = new TableExecButton(description, iconName, t, new ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                try {
-                    ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
-                    ActivityWindow activityWindow = adminModule.getActivityWindow(task);
-                    activityWindow.addListener(new Window.CloseListener() {
-
-                        public void windowClose(CloseEvent e) {
-                            refreshTable();
-                        }
-                    });
-                    getApplication().getMainWindow().addWindow(activityWindow);
-
-                    refreshTable();
-                } catch (Exception ex) {
-                    Logger.getLogger(ActivityInstancesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-                    getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
-                }
+    @Override
+    public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
+        if (event.getButton() instanceof TableExecButton) {
+            try {
+                ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
+                ActivityWindow activityWindow = adminModule.getActivityWindow(task);
+                activityWindow.addListener((Window.CloseListener) this);
+                getApplication().getMainWindow().addWindow(activityWindow);
+            } catch (Exception ex) {
+                Logger.getLogger(ActivityInstancesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+                showError(ex.toString());
             }
-        });
-        return startBtn;
+        }
     }
 }

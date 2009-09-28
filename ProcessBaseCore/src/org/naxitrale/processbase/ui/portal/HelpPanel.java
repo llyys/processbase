@@ -5,6 +5,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import java.util.ResourceBundle;
+import org.naxitrale.processbase.ProcessBase;
 import org.naxitrale.processbase.ui.portal.ActiveLink.LinkActivatedListener;
 
 /**
@@ -13,6 +15,7 @@ import org.naxitrale.processbase.ui.portal.ActiveLink.LinkActivatedListener;
  */
 public class HelpPanel extends Panel {
 
+    protected ResourceBundle messages = ResourceBundle.getBundle("resources/MessagesBundle", ((ProcessBase) getApplication()).getCurrent().getLocale());
     private VerticalLayout layout = new VerticalLayout();
     private Link link = null;
     private Label topLabel = null;
@@ -41,7 +44,7 @@ public class HelpPanel extends Panel {
         setStyleName("sample-view");
         addStyleName("feature-info");
         setWidth("369px");
-        setCaption("Справка");
+        setCaption(messages.getString("btnHelp"));
         if (topText != null) {
             topLabel = new Label("<span>" + topText + "</span>", Label.CONTENT_XHTML);
             addComponent(topLabel);

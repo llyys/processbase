@@ -38,16 +38,16 @@ public class TasksDonePanel extends TablePanel {
 
     @Override
     public void initTableUI() {
-        table.addContainerProperty("name", String.class, null, "Задача", null, null);
-        table.addContainerProperty("createdDate", Date.class, null, "Дата начала", null, null);
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
-        table.addContainerProperty("dueDate", Date.class, null, "Срок", null, null);
+        table.addContainerProperty("dueDate", Date.class, null, messages.getString("tableCaptionDueDate"), null, null);
         table.addGeneratedColumn("dueDate", new PbColumnGenerator());
-        table.addContainerProperty("endDate", Date.class, null, "Дата завершения", null, null);
+        table.addContainerProperty("endDate", Date.class, null, messages.getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
-        table.addContainerProperty("candidates", String.class, null, "Исполнители", null, null);
-        table.addContainerProperty("endedBy", String.class, null, "Выполнил", null, null);
-        table.addContainerProperty("operation", Button.class, null, "Операции", null, null);
+        table.addContainerProperty("candidates", String.class, null, messages.getString("tableCaptionCandidates"), null, null);
+        table.addContainerProperty("endedBy", String.class, null, messages.getString("tableCaptionTaskUser"), null, null);
+        table.addContainerProperty("actions", Button.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class TasksDonePanel extends TablePanel {
                 woItem.getItemProperty("dueDate").setValue(task.getBody().getDueDate());
                 woItem.getItemProperty("endDate").setValue(task.getBody().getEndedDate());
                 woItem.getItemProperty("endedBy").setValue(task.getBody().getEndedBy());
-                woItem.getItemProperty("operation").setValue(startButton(task));
+                woItem.getItemProperty("actions").setValue(startButton(task));
             } catch (Exception ex) {
                 Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
@@ -77,7 +77,7 @@ public class TasksDonePanel extends TablePanel {
     }
 
     private Button startButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton("Информация", "icons/Form.gif", tableValue, new Button.ClickListener() {
+        TableExecButton startB = new TableExecButton(messages.getString("btnInformation"), "icons/Form.gif", tableValue, new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();

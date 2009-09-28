@@ -18,7 +18,7 @@
     <property name="pbtype" type="string">
       <column length="10" name="PBTYPE" not-null="true"/>
     </property>
-    <set name="pbusers" table="PBUSERGROUPS">
+    <set name="pbusers" schema="PROCESSBASE" table="PBUSERGROUPS">
       <key>
         <column name="PBGROUP_ID" precision="10" scale="0"/>
       </key>

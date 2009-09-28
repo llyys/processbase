@@ -53,7 +53,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 //        mainPanel = new MainPanel();
 //        tabSheet.addTab(mainPanel, "ProcessBase", null);
         workListPanel = new WorkListPanel();
-        tabSheet.addTab(workListPanel, messages.getString("tabCaptionTasks"), null);
+        tabSheet.addTab(workListPanel, messages.getString("tabCaptionWorkList"), null);
         if (ProcessBase.getCurrent().getUser().isBpmAdmin()) {
             adminPanel = new BPMAdminPanel();
             tabSheet.addTab(adminPanel, messages.getString("tabCaptionProcesses"), null);

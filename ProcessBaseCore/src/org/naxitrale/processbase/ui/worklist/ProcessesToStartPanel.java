@@ -12,8 +12,6 @@ package org.naxitrale.processbase.ui.worklist;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.naxitrale.processbase.ui.template.TableExecButton;
@@ -21,6 +19,7 @@ import org.naxitrale.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.naxitrale.processbase.ui.template.TaskWindow;
 import java.util.*;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.ProcessBase;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
@@ -43,13 +42,15 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
     public void initTableUI() {
         super.initTableUI();
 //        table.addContainerProperty("ID", String.class, null, "ID", null, null);
-        table.addContainerProperty("name", String.class, null, "Имя процесса", null, null);
-        table.addContainerProperty("desc", String.class, null, "Описание", null, null);
-        table.addContainerProperty("version", String.class, null, "Версия", null, null);
-        table.addContainerProperty("author", String.class, null, "Автор", null, null);
-        table.addContainerProperty("state", String.class, null, "Состояние", null, null);
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("desc", String.class, null, messages.getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("version", String.class, null, messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("author", String.class, null, messages.getString("tableCaptionAuthor"), null, null);
+        table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
+        table.setColumnWidth("state", 75);
 //        table.addContainerProperty("status", String.class, null, "Статус", null, null);
-        table.addContainerProperty("operation", Button.class, null, "Операции", null, null);
+        table.addContainerProperty("actions", Button.class, null, messages.getString("tableCaptionActions"), null, null);
+        table.setColumnWidth("actions", 75);
     }
 
     @Override
@@ -69,10 +70,10 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
                 woItem.getItemProperty("desc").setValue(pd.getDescription());
                 woItem.getItemProperty("state").setValue(pd.getState());
 //            woItem.getItemProperty("status").setValue(pd.getPublicationStatus());
-                woItem.getItemProperty("operation").setValue(new TableExecButton("Старт", "icons/Play.png", pd, this));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnStart"), "icons/Play.png", pd, this, Constants.ACTION_START));
             } catch (Exception ex) {
                 Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-                getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                showError(ex.getMessage());
             }
         }
         table.setSortContainerPropertyId("name");
@@ -84,14 +85,14 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
     @Override
     public void buttonClick(ClickEvent event) {
         super.buttonClick(event);
-        if (event.getButton() instanceof TableExecButton && event.getButton().getDescription().equals("Старт")) {
+        if (event.getButton() instanceof TableExecButton && ((TableExecButton) event.getButton()).getAction().equals(Constants.ACTION_START)) {
             try {
                 ProcessDefinition procd = (ProcessDefinition) ((TableExecButton) event.getButton()).getTableValue();
                 TaskWindow taskWindow = worklistModule.getStartWindow(procd);
                 getApplication().getMainWindow().addWindow(taskWindow);
             } catch (Exception ex) {
                 Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-                getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                showError(ex.getMessage());
             }
         }
     }

@@ -41,7 +41,7 @@ public class UploadPackageWindow extends PbWindow implements
         Upload.FailedListener,
         Upload.Receiver {
 
-    private Upload upload = new Upload("Загрузить", this);
+    private Upload upload = new Upload("", this);
     private AdminModule adminModule = new AdminModule();
     private File file;
     private String MIMEType;
@@ -49,18 +49,19 @@ public class UploadPackageWindow extends PbWindow implements
     private PackageDefinitionUUID pdUUID = null;
 
     public UploadPackageWindow(PackageDefinitionUUID pdUUID) {
-        super("Загрузка");
+        super();
         this.pdUUID = pdUUID;
         initUI();
     }
 
     private void initUI() {
         setModal(true);
+        setCaption(messages.getString("btnUpload"));
         VerticalLayout layout = (VerticalLayout) this.getContent();
         layout.setMargin(true);
         layout.setSpacing(true);
         layout.setSizeUndefined();
-        upload.setButtonCaption("Загрузить");
+        upload.setButtonCaption(messages.getString("btnUpload"));
         upload.addListener((Upload.SucceededListener) this);
         upload.addListener((Upload.FailedListener) this);
         this.addComponent(upload);
@@ -83,7 +84,7 @@ public class UploadPackageWindow extends PbWindow implements
                 deployResult = adminModule.deployXpdl(readData);
             }
             fis.close();
-            showNotification("Загружены : ", deployResult.keySet().toString(), Notification.TYPE_HUMANIZED_MESSAGE);
+            //showNotification("Загружены : ", deployResult.keySet().toString(), Notification.TYPE_HUMANIZED_MESSAGE);
             close();
             getApplication().getMainWindow().removeWindow(this);
         } catch (IOException ex) {
@@ -94,7 +95,7 @@ public class UploadPackageWindow extends PbWindow implements
     }
 
     public void uploadFailed(FailedEvent event) {
-        showNotification("Ошибка!", event.getReason().getLocalizedMessage(), Notification.TYPE_ERROR_MESSAGE);
+        showError(event.getReason().getMessage());
     }
 
     public OutputStream receiveUpload(
@@ -102,8 +103,7 @@ public class UploadPackageWindow extends PbWindow implements
         this.MIMEType = MIMEType;
         this.filename = filename;
         FileOutputStream fos = null;
-        file =
-                new File(filename);
+        file = new File(filename);
         try {
             fos = new FileOutputStream(file);
         } catch (final java.io.FileNotFoundException e) {

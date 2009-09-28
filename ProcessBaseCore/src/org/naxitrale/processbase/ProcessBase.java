@@ -35,7 +35,7 @@ public class ProcessBase extends Application implements TransactionListener {
     @Override
     public void init() {
         setTheme("processbase");
-
+        Locale.setDefault(Locale.ENGLISH);
         WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
         this.setLocale(applicationContext.getBrowser().getLocale());
         this.messages = ResourceBundle.getBundle("resources/MessagesBundle", this.getLocale());

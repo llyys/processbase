@@ -21,13 +21,13 @@
             </key>
             <many-to-many class="org.naxitrale.processbase.persistence.entity.Pbgroup" column="PBGROUP_ID"/>
         </set>
-        <set name="pbusers" table="PBUSERROLES">
+        <set name="pbusers" schema="PROCESSBASE" table="PBUSERROLES">
             <key>
                 <column name="PBROLE_ID" precision="10" scale="0"/>
             </key>
             <many-to-many class="org.naxitrale.processbase.persistence.entity.Pbuser" column="PBUSER_ID"/>
         </set>
-        <set name="processes" table="PBROLEPROCESSES" sort="natural">
+        <set name="processes" schema="PROCESSBASE" table="PBROLEPROCESSES" sort="natural">
             <key column="PBROLE_ID"/>
             <element column="PROCESSID" type="string"/>
         </set>

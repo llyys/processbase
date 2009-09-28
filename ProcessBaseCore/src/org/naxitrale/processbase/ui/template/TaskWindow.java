@@ -27,7 +27,7 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
  *
  * @author mgubaidullin
  */
-public class TaskWindow extends Window {
+public class TaskWindow extends PbWindow {
 
     protected ProcessDefinition processDefinition = null;
     protected ActivityInstance<TaskInstance> task = null;
@@ -35,8 +35,8 @@ public class TaskWindow extends Window {
     protected Set<DataFieldDefinition> dfds = null;
     protected WorklistModule worklistModule = new WorklistModule();
     protected HorizontalLayout buttons = new HorizontalLayout();
-    protected Button cancelBtn = new Button("Отменить");
-    protected Button applyBtn = new Button("OK");
+    protected Button cancelBtn = new Button(messages.getString("btnCancel"));
+    protected Button applyBtn = new Button(messages.getString("btnOK"));
     protected boolean isNew = true;
 
     public TaskWindow() {
@@ -59,7 +59,7 @@ public class TaskWindow extends Window {
     public void exec() {
         try {
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }

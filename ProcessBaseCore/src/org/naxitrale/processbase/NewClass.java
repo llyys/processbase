@@ -12,8 +12,13 @@ package org.naxitrale.processbase;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.naxitrale.processbase.persistence.controller.HibernateUtil;
+import org.naxitrale.processbase.persistence.entity.Pbuser;
 
 /**
  *
@@ -22,9 +27,13 @@ import java.util.ResourceBundle;
 public class NewClass {
 
     public static void main(String[] arg) throws FileNotFoundException, ClassNotFoundException, Exception {
-        System.out.println(ResourceBundle.getBundle("resources/MessagesBundle", new Locale("en_US")).getString("loginWindowCaption"));
-        System.out.println(ResourceBundle.getBundle("resources/MessagesBundle", new Locale("ru")).getString("loginWindowCaption"));
-    }
+        Locale.setDefault(Locale.ENGLISH);
+        Locale locale = new Locale("fr");
+
+        ResourceBundle messages = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        System.out.println(messages.getString("btnDelete"));
+        System.out.println(Locale.getDefault());
+        }
 
     public static String createXML(String classname, Object object) {
         XStream xstream = new XStream(new DomDriver());

@@ -22,8 +22,8 @@ public class BPMAdminPanel extends FirstLevelPanel {
     }
 
     private void initUI() {
-        tabSheet.addTab(new PackageDefinitionsPanel(), "Процессы", null);
-        tabSheet.addTab(new ProcessInstancesPanel(), "Экземпляры процессов", null);
-        tabSheet.addTab(new ActivityInstancesPanel(), "Активности", null);
+        tabSheet.addTab(new PackageDefinitionsPanel(), messages.getString("tabCaptionProcessDefinition"), null);
+        tabSheet.addTab(new ProcessInstancesPanel(), messages.getString("tabCaptionProcessInstances"), null);
+        tabSheet.addTab(new ActivityInstancesPanel(), messages.getString("tabCaptionProcessActivities"), null);
     }
 }

@@ -23,10 +23,10 @@ public class ACLPanel extends FirstLevelPanel {
     }
 
     private void initUI() {
-        tabSheet.addTab(new UsersPanel(), "Пользователи", null);
-        tabSheet.addTab(new GroupsPanel(), "Группы", null);
-        tabSheet.addTab(new RolesPanel(), "Роли", null);
-        tabSheet.addTab(new OrgUnitsPanel(), "Организационная структура", null);
+        tabSheet.addTab(new UsersPanel(), messages.getString("tabCaptionACLUsers"), null);
+        tabSheet.addTab(new GroupsPanel(), messages.getString("tabCaptionACLGroups"), null);
+        tabSheet.addTab(new RolesPanel(), messages.getString("tabCaptionACLRoles"), null);
+        tabSheet.addTab(new OrgUnitsPanel(), messages.getString("tabCaptionACLOrg"), null);
 
     }
 

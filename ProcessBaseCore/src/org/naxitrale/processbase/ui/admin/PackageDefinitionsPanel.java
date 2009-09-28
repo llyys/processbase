@@ -14,9 +14,9 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.Notification;
 import java.util.Set;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 import org.naxitrale.processbase.ui.template.TableExecButtonBar;
 import org.naxitrale.processbase.ui.template.TablePanel;
@@ -27,43 +27,34 @@ import org.ow2.bonita.facade.uuid.PackageDefinitionUUID;
  *
  * @author mgubaidullin
  */
-public class PackageDefinitionsPanel extends TablePanel {
+public class PackageDefinitionsPanel extends TablePanel implements Button.ClickListener, Window.CloseListener {
 
-    Button deployBtn = new Button("Загрузить");
+    Button deployBtn = new Button(messages.getString("btnUpload"));
 
     public PackageDefinitionsPanel() {
         super();
         buttonBar.addComponent(deployBtn, 1);
         buttonBar.setComponentAlignment(deployBtn, Alignment.MIDDLE_LEFT);
-        deployBtn.addListener(new Button.ClickListener() {
-
-            public void buttonClick(Button.ClickEvent event) {
-                UploadPackageWindow uploadPackageWindow = new UploadPackageWindow(null);
-                uploadPackageWindow.addListener(new Window.CloseListener() {
-
-                    public void windowClose(CloseEvent e) {
-                        refreshTable();
-                    }
-                });
-
-                getApplication().getMainWindow().addWindow(uploadPackageWindow);
-
-            }
-        });
+        deployBtn.addListener(this);
+        initTableUI();
         refreshTable();
+    }
+
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("version", String.class, null, messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("author", String.class, null, messages.getString("tableCaptionAuthor"), null, null);
+        table.addContainerProperty("desc", String.class, null, messages.getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("status", String.class, null, messages.getString("tableCaptionStatus"), null, null);
+        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
     public void refreshTable() {
         table.removeAllItems();
-        table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
-        table.addContainerProperty("name", String.class, null, "Имя процесса", null, null);
-        table.addContainerProperty("version", String.class, null, "Версия", null, null);
-        table.addContainerProperty("author", String.class, null, "Автор", null, null);
-        table.addContainerProperty("desc", String.class, null, "Описание", null, null);
-        table.addContainerProperty("status", String.class, null, "Статус", null, null);
-        table.addContainerProperty("operation", TableExecButtonBar.class, null, "Операции", null, null);
-
         Set<PackageDefinition> pds = adminModule.getPackageDefinitions();
         for (PackageDefinition pd : pds) {
             Item woItem = table.addItem(pd);
@@ -75,9 +66,10 @@ public class PackageDefinitionsPanel extends TablePanel {
             woItem.getItemProperty("status").setValue(pd.getState());
             TableExecButtonBar tebb = new TableExecButtonBar();
 //            tebb.addButton((TableExecButton) addResourceButton(pd));
-            tebb.addButton((TableExecButton) deleteInstancesButton(pd));
-            tebb.addButton((TableExecButton) deleteAllButton(pd));
-            woItem.getItemProperty("operation").setValue(tebb);
+            tebb.addButton(new TableExecButton(messages.getString("btnDeleteInstances"), "icons/cross.png", pd, this, Constants.ACTION_DELETE_INSTANCES));
+            tebb.addButton(new TableExecButton(messages.getString("btnDeteleProcessAndInstances"), "icons/Delete.png", pd, this, Constants.ACTION_DELETE_PROCESS_AND_INSTANCES));
+
+            woItem.getItemProperty("actions").setValue(tebb);
         }
         table.setSortContainerPropertyId("name");
         table.setSortAscending(false);
@@ -85,61 +77,36 @@ public class PackageDefinitionsPanel extends TablePanel {
 
     }
 
-    private Button deleteAllButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton("Удалить шаблон и все экземпляры", "icons/Delete.png", tableValue, new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
+    @Override
+    public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
+        if (event.getButton().equals(deployBtn)) {
+            UploadPackageWindow uploadPackageWindow = new UploadPackageWindow(null);
+            uploadPackageWindow.addListener((Window.CloseListener) this);
+            getApplication().getMainWindow().addWindow(uploadPackageWindow);
+        } else if (event.getButton() instanceof TableExecButton) {
+            TableExecButton execBtn = (TableExecButton) event.getButton();
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE_PROCESS_AND_INSTANCES)) {
                 try {
-                    PackageDefinition pd = (PackageDefinition) ((TableExecButton) event.getButton()).getTableValue();
+                    PackageDefinition pd = (PackageDefinition) execBtn.getTableValue();
                     PackageDefinitionUUID pdUUID = pd.getUUID();
                     adminModule.deletePackage(pdUUID);
                     refreshTable();
-                    getWindow().showNotification("Внимание", "Удаление завершено успешно", Notification.TYPE_HUMANIZED_MESSAGE);
+                    getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
-                    getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                    showError(ex.toString());
                 }
-            }
-        });
-
-        return startB;
-    }
-
-    private Button deleteInstancesButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton("Удалить все экземпляры", "icons/cross.png", tableValue, new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
+            } else if (execBtn.getAction().equals(Constants.ACTION_DELETE_INSTANCES)) {
                 try {
-                    PackageDefinition pd = (PackageDefinition) ((TableExecButton) event.getButton()).getTableValue();
+                    PackageDefinition pd = (PackageDefinition) execBtn.getTableValue();
                     PackageDefinitionUUID pdUUID = pd.getUUID();
                     adminModule.deleteAllProcessInstances(pdUUID);
                     refreshTable();
-                    getWindow().showNotification("Внимание", "Удаление завершено успешно", Notification.TYPE_HUMANIZED_MESSAGE);
+                    getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
-                    getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                    showError(ex.toString());
                 }
             }
-        });
-
-        return startB;
-    }
-
-    private Button addResourceButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton("Добавить ресурс", "icons/Edit.gif", tableValue, new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                PackageDefinition pd = (PackageDefinition) ((TableExecButton) event.getButton()).getTableValue();
-                PackageDefinitionUUID pdUUID = pd.getUUID();
-                UploadPackageWindow uploadPackageWindow = new UploadPackageWindow(pdUUID);
-                uploadPackageWindow.addListener(new Window.CloseListener() {
-
-                    public void windowClose(CloseEvent e) {
-                        refreshTable();
-                    }
-                });
-
-                getApplication().getMainWindow().addWindow(uploadPackageWindow);
-            }
-        });
-        return startB;
+        }
     }
 }

@@ -45,6 +45,10 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
     public void refreshTable() {
     }
 
+    public TableExecButton getExecBtn(String description, String iconName, Object t, String action) {
+        return new TableExecButton(description, iconName, t, this, action);
+    }
+
     @Override
     public void buttonClick(ClickEvent event) {
         super.buttonClick(event);

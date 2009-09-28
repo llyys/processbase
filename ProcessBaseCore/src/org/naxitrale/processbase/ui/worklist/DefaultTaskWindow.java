@@ -57,10 +57,10 @@ public class DefaultTaskWindow extends TaskWindow {
     public void exec() {
         try {
             if (this.isNew) {
-                setCaption("Новый процесс : " + (processDefinition.getDescription() != null ? this.processDefinition.getDescription() : processDefinition.getProcessId()));
+                setCaption(messages.getString("defaultTaskWindowCaption1") + " " + (processDefinition.getDescription() != null ? this.processDefinition.getDescription() : processDefinition.getProcessId()));
             } else {
                 String taskName = worklistModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityId()).getDescription();
-                setCaption("Задание: " + (taskName != null ? taskName : task.getActivityId()));
+                setCaption(messages.getString("defaultTaskWindowCaption2") + " " + (taskName != null ? taskName : task.getActivityId()));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -74,7 +74,7 @@ public class DefaultTaskWindow extends TaskWindow {
             form.getLayout().addComponent(buttons);
             setResizable(false);
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -153,8 +153,8 @@ public class DefaultTaskWindow extends TaskWindow {
                 worklistModule.finishTask(task.getBody().getUUID(), true);
             }
             close();
-        } catch (Exception e) {
-            getWindow().showNotification("Ошибка", e.toString(), Notification.TYPE_ERROR_MESSAGE);
+        } catch (Exception ex) {
+            showError(ex.getMessage());
         }
     }
 

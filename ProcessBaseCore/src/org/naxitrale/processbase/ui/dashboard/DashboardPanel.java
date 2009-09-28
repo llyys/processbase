@@ -24,8 +24,8 @@ public class DashboardPanel extends FirstLevelPanel {
     }
 
     private void initUI() {
-        tabSheet.addTab(new ProcessDashboardPanel(), "Процессы", null);
-        tabSheet.addTab(new ProcessDashboardPanel(), "Задачи", null);
+        tabSheet.addTab(new ProcessDashboardPanel(), messages.getString("tabCaptionProcesses"), null);
+        tabSheet.addTab(new ProcessDashboardPanel(), messages.getString("tabCaptionWorkList"), null);
     }
 
     @Override

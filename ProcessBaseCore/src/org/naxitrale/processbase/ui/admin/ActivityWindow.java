@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.naxitrale.processbase.bpm.AdminModule;
+import org.naxitrale.processbase.ui.template.PbWindow;
 import org.ow2.bonita.facade.def.dataType.BasicTypeDefinition;
 import org.ow2.bonita.facade.def.dataType.DataTypeDefinition;
 import org.ow2.bonita.facade.def.dataType.EnumerationTypeDefinition;
@@ -48,7 +49,7 @@ import org.ow2.bonita.facade.runtime.var.Enumeration;
  *
  * @author mgubaidullin
  */
-public class ActivityWindow extends Window implements ClickListener {
+public class ActivityWindow extends PbWindow implements ClickListener {
 
     VerticalLayout layout = (VerticalLayout) this.getContent();
     HorizontalLayout hlayout = new HorizontalLayout();
@@ -58,12 +59,12 @@ public class ActivityWindow extends Window implements ClickListener {
     public Set<DataFieldDefinition> dfds = null;
     public AdminModule adminModule = new AdminModule();
     public HorizontalLayout buttons = new HorizontalLayout();
-    public Button cancelBtn = new Button("Закрыть", this);
-    public Button applyBtn = new Button("OK", this);
-    public Button reassignBtn = new Button("Переназначить", this);
+    public Button cancelBtn = new Button(messages.getString("btnCancel"), this);
+    public Button applyBtn = new Button(messages.getString("btnOK"), this);
+    public Button reassignBtn = new Button(messages.getString("btnReassign"), this);
     private Form variablesForm = new Form();
-    private Panel variablesPanel = new Panel("Переменные процесса");
-    private Panel participantPanel = new Panel("Назначение задание");
+    private Panel variablesPanel = new Panel(messages.getString("processVariables"));
+    private Panel participantPanel = new Panel(messages.getString("taskPerformer"));
 
     public ActivityWindow(ProcessDefinition pd, ActivityInstance<TaskInstance> t) {
         super();
@@ -84,7 +85,7 @@ public class ActivityWindow extends Window implements ClickListener {
 
     public void exec() {
         try {
-            setCaption("Задание: " + task.getActivityId());
+            setCaption(messages.getString("defaultTaskWindowCaption2") + " " + task.getActivityId());
             setModal(true);
             layout.setMargin(true);
             layout.setSpacing(true);
@@ -101,7 +102,7 @@ public class ActivityWindow extends Window implements ClickListener {
             layout.addComponent(buttons);
             setResizable(false);
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -170,11 +171,11 @@ public class ActivityWindow extends Window implements ClickListener {
         Label performerField = new Label(participantDefinition.getParticipantType().name() + " = <b>" + participantDefinition.getName() + "</b>");
         performerField.setContentMode(Label.CONTENT_XHTML);
         performerField.setWidth("300px");
-        TextField candidatesField = new TextField("Кандидаты");
+        TextField candidatesField = new TextField(messages.getString("candidates"));
         candidatesField.setValue(task.getBody().getTaskCandidates() != null ? task.getBody().getTaskCandidates().toString() : "");
         candidatesField.setRows(2);
         candidatesField.setWidth("300px");
-        TextField starterField = new TextField("Выполняет", task.getBody().getStartedBy());
+        TextField starterField = new TextField(messages.getString("tableCaptionTaskUser"), task.getBody().getStartedBy());
         starterField.setWidth("300px");
         starterField.setNullRepresentation("");
 
@@ -206,7 +207,7 @@ public class ActivityWindow extends Window implements ClickListener {
                 addParticipantInfo();
             } catch (Exception ex) {
                 Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-                getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                showError(ex.getMessage());
             }
         }
     }

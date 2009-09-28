@@ -15,6 +15,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
 import java.util.Date;
 import java.util.Set;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 import org.naxitrale.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
@@ -24,25 +25,30 @@ import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
  *
  * @author mgubaidullin
  */
-public class ProcessInstancesPanel extends TablePanel {
-
+public class ProcessInstancesPanel extends TablePanel implements Button.ClickListener{
 
     public ProcessInstancesPanel() {
         super();
+        initTableUI();
+        refreshTable();
+    }
+
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("startedDate", Date.class, null, messages.getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("endDate", Date.class, null, messages.getString("tableCaptionEndedDate"), null, null);
+        table.addContainerProperty("initiator", String.class, null, messages.getString("tableCaptionInitiator"), null, null);
+        table.addContainerProperty("status", String.class, null, messages.getString("tableCaptionStatus"), null, null);
+        table.addContainerProperty("actions", Button.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
     public void refreshTable() {
         try {
             table.removeAllItems();
-            table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
-            table.addContainerProperty("name", String.class, null, "Имя процесса", null, null);
-            table.addContainerProperty("startedDate", Date.class, null, "Дата начала", null, null);
-            table.addContainerProperty("endDate", Date.class, null, "Дата завершения", null, null);
-            table.addContainerProperty("initiator", String.class, null, "Инициатор", null, null);
-            table.addContainerProperty("status", String.class, null, "Статус", null, null);
-            table.addContainerProperty("operation", Button.class, null, "Операции", null, null);
-
             Set<ProcessInstance> pis = adminModule.getProcessInstances();
             for (ProcessInstance pi : pis) {
                 Item woItem = table.addItem(pi);
@@ -52,33 +58,32 @@ public class ProcessInstancesPanel extends TablePanel {
                 woItem.getItemProperty("endDate").setValue(pi.getEndedDate());
                 woItem.getItemProperty("initiator").setValue(pi.getStartedBy());
                 woItem.getItemProperty("status").setValue(pi.getInstanceState());
-                woItem.getItemProperty("operation").setValue(deleteProcess(pi));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDeleteProcessInstance"), "icons/Delete.png", pi, this, Constants.ACTION_DELETE_PROCESS_INSTANCE));
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
-
     }
 
-    private Button deleteProcess(Object tableValue) {
-        TableExecButton startB = new TableExecButton("Удалить экземпляр процесса", "icons/Delete.png", tableValue, new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
+    @Override
+    public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
+        if (event.getButton() instanceof TableExecButton) {
+            TableExecButton execBtn = (TableExecButton) event.getButton();
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE_PROCESS_INSTANCE)) {
                 try {
-                    ProcessInstance pi = (ProcessInstance) ((TableExecButton) event.getButton()).getTableValue();
+                    ProcessInstance pi = (ProcessInstance) execBtn.getTableValue();
                     ProcessInstanceUUID piUUID = pi.getUUID();
                     adminModule.deleteProcessInstance(piUUID);
                     refreshTable();
-                    getWindow().showNotification("Внимание", "Удаление завершено успешно!", Notification.TYPE_HUMANIZED_MESSAGE);
+                    getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
-                    getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                    showError(ex.getMessage());
                 }
             }
-        });
-
-        return startB;
+        }
     }
 }

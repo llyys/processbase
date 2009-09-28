@@ -21,6 +21,7 @@ import com.vaadin.ui.Window.Notification;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbrole;
 import org.naxitrale.processbase.ui.template.TableExecButton;
@@ -31,39 +32,30 @@ import org.naxitrale.processbase.ui.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class RolesPanel extends TablePanel {
+public class RolesPanel extends TablePanel implements Button.ClickListener, Window.CloseListener {
 
-    Button addBtn = new Button("Новая");
+    Button addBtn = new Button(messages.getString("btnAdd"));
 
     public RolesPanel() {
         super();
         buttonBar.addComponent(addBtn, 0);
         buttonBar.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
-        addBtn.addListener(new Button.ClickListener() {
-
-            public void buttonClick(Button.ClickEvent event) {
-                RoleWindow roleWindow = new RoleWindow(null);
-                roleWindow.exec();
-                roleWindow.addListener(new Window.CloseListener() {
-
-                    public void windowClose(CloseEvent e) {
-                        refreshTable();
-                    }
-                });
-
-                getApplication().getMainWindow().addWindow(roleWindow);
-
-            }
-        });
+        addBtn.addListener(this);
+        initTableUI();
         refreshTable();
+    }
+
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionRoleName"), null, null);
+        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
     public void refreshTable() {
         try {
             table.removeAllItems();
-            table.addContainerProperty("name", String.class, null, "Имя роли", null, null);
-            table.addContainerProperty("operation", TableExecButtonBar.class, null, "Операции", null, null);
             HibernateUtil hutil = new HibernateUtil();
             List<Pbrole> roles = hutil.findAllPbroles("APP");
             roles.addAll(hutil.findAllPbroles("SYSTEM"));
@@ -71,45 +63,51 @@ public class RolesPanel extends TablePanel {
                 Item woItem = table.addItem(role);
                 woItem.getItemProperty("name").setValue(role.getRolename());
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(new TableExecButton("Участники", "icons/MembershipSelector.gif", role, this));
-                tebb.addButton(new TableExecButton("Процессы", "icons/process.gif", role, this));
+                tebb.addButton(new TableExecButton(messages.getString("btnParticipants"), "icons/MembershipSelector.gif", role, this, Constants.ACTION_EDIT_PARTICIPANTS));
+                tebb.addButton(new TableExecButton(messages.getString("btnProcesses"), "icons/process.gif", role, this, Constants.ACTION_EDIT_PROCESSES));
                 if (!role.getPbtype().equalsIgnoreCase("SYSTEM")) {
-                    tebb.addButton(new TableExecButton("Редактировать", "icons/Edit.gif", role, this));
-                    tebb.addButton(new TableExecButton("Удалить", "icons/Delete.png", role, this));
+                    tebb.addButton(new TableExecButton(messages.getString("btnEdit"), "icons/Edit.gif", role, this, Constants.ACTION_EDIT));
+                    tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", role, this, Constants.ACTION_DELETE));
                 }
-                woItem.getItemProperty("operation").setValue(tebb);
+                woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {
             Logger.getLogger(RolesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.toString());
         }
     }
 
     @Override
     public void buttonClick(ClickEvent event) {
         super.buttonClick(event);
-        if (event.getButton().equals(refreshBtn)) {
+        if (event.getButton().equals(addBtn)) {
+            RoleWindow roleWindow = new RoleWindow(null);
+            roleWindow.exec();
+            roleWindow.addListener((CloseListener) this);
+            getApplication().getMainWindow().addWindow(roleWindow);
+        } else if (event.getButton().equals(refreshBtn)) {
             refreshTable();
         } else if (event.getButton() instanceof TableExecButton) {
             try {
+                TableExecButton execBtn = (TableExecButton) event.getButton();
                 Pbrole r = (Pbrole) ((TableExecButton) event.getButton()).getTableValue();
-                if (event.getButton().getDescription().equalsIgnoreCase("Удалить")) {
+                if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                     HibernateUtil hutil = new HibernateUtil();
                     hutil.delete(r);
-                } else if (event.getButton().getDescription().equalsIgnoreCase("Редактировать")) {
+                } else if (execBtn.getAction().equals(Constants.ACTION_EDIT)) {
                     RoleWindow roleWindow = new RoleWindow(r);
                     roleWindow.exec();
                     roleWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(roleWindow);
-                } else if (event.getButton().getDescription().equalsIgnoreCase("Участники")) {
+                } else if (execBtn.getAction().equals(Constants.ACTION_EDIT_PARTICIPANTS)) {
                     RoleMembershipWindow roleMembershipWindow = new RoleMembershipWindow(r);
                     roleMembershipWindow.exec();
                     roleMembershipWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(roleMembershipWindow);
-                } else if (event.getButton().getDescription().equalsIgnoreCase("Процессы")) {
+                } else if (execBtn.getAction().equals(Constants.ACTION_EDIT_PROCESSES)) {
                     RoleProcessesWindow roleProcessesWindow = new RoleProcessesWindow(r);
                     roleProcessesWindow.exec();
                     roleProcessesWindow.addListener((CloseListener) this);
@@ -118,7 +116,7 @@ public class RolesPanel extends TablePanel {
                 refreshTable();
             } catch (Exception ex) {
                 Logger.getLogger(RolesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-                getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                showError(ex.toString());
             }
         }
     }

@@ -25,24 +25,26 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbgroup;
 import org.naxitrale.processbase.persistence.entity.Pbrole;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
+import org.naxitrale.processbase.ui.template.PbWindow;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 
 /**
  *
  * @author mgubaidullin
  */
-public class RoleMembershipWindow extends Window implements ClickListener {
+public class RoleMembershipWindow extends PbWindow implements ClickListener {
 
     private Pbrole role = null;
     private HorizontalLayout buttons = new HorizontalLayout();
-    private Button cancelBtn = new Button("Закрыть", this);
-    private Button applyBtn = new Button("Добавить", this);
+    private Button cancelBtn = new Button(messages.getString("btnClose"), this);
+    private Button applyBtn = new Button(messages.getString("btnAdd"), this);
     private Table membersTable = new Table();
-    private Label selectLabel = new Label("Кандидаты");
+    private Label selectLabel = new Label(messages.getString("candidates"));
     private Select memberSelector = new Select();
     private HibernateUtil hutil = new HibernateUtil();
 
@@ -53,7 +55,7 @@ public class RoleMembershipWindow extends Window implements ClickListener {
 
     public void exec() {
         try {
-            setCaption("Участники роли \"" + role.getRolename() + "\"");
+            setCaption(messages.getString("roleMembershipWondowCaption") + role.getRolename() + "\"");
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -81,7 +83,7 @@ public class RoleMembershipWindow extends Window implements ClickListener {
             setResizable(false);
         } catch (Exception ex) {
             Logger.getLogger(RoleMembershipWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -92,20 +94,17 @@ public class RoleMembershipWindow extends Window implements ClickListener {
         IndexedContainer container = new IndexedContainer();
         container.addContainerProperty("membername", String.class, null);
         container.addContainerProperty("membertype", String.class, null);
-
         List<Pbuser> users = hutil.getUsersNotInRole(role);
         for (Pbuser user : users) {
             Item item = container.addItem(user);
             item.getItemProperty("membername").setValue(user.toString());
-            item.getItemProperty("membertype").setValue("Пользователь");
-
+            item.getItemProperty("membertype").setValue(messages.getString("user"));
         }
         List<Pbgroup> groups = hutil.getGroupsNotInRole(role);
         for (Pbgroup group : groups) {
             Item item = container.addItem(group);
             item.getItemProperty("membername").setValue(group.toString());
-            item.getItemProperty("membertype").setValue("Группа");
-
+            item.getItemProperty("membertype").setValue(messages.getString("group"));
         }
         container.sort(new Object[]{"membername"}, new boolean[]{true});
         memberSelector.setContainerDataSource(container);
@@ -114,26 +113,26 @@ public class RoleMembershipWindow extends Window implements ClickListener {
     public void refreshTable() {
         try {
             membersTable.removeAllItems();
-            membersTable.addContainerProperty("membername", String.class, null, "Имя участника", null, null);
-            membersTable.addContainerProperty("membertype", String.class, null, "Тип", null, null);
-            membersTable.addContainerProperty("email", String.class, null, "Email", null, null);
-            membersTable.addContainerProperty("operation", Button.class, null, "Операции", null, null);
+            membersTable.addContainerProperty("membername", String.class, null, messages.getString("participantName"), null, null);
+            membersTable.addContainerProperty("membertype", String.class, null, messages.getString("type"), null, null);
+            membersTable.addContainerProperty("email", String.class, null, messages.getString("email"), null, null);
+            membersTable.addContainerProperty("actions", Button.class, null, messages.getString("tableCaptionActions"), null, null);
 
             Set<Pbuser> users = hutil.getUsersByRole(role);
             for (Pbuser user : users) {
                 Item woItem = membersTable.addItem(user);
                 woItem.getItemProperty("membername").setValue(user.toString());
-                woItem.getItemProperty("membertype").setValue("Пользователь");
+                woItem.getItemProperty("membertype").setValue(messages.getString("user"));
                 woItem.getItemProperty("email").setValue(user.getEmail());
                 if (!user.getUsername().equalsIgnoreCase("admin")) {
-                    woItem.getItemProperty("operation").setValue(new TableExecButton("Удалить", "icons/Delete.png", user, this));
+                    woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", user, this, Constants.ACTION_DELETE));
                 }
             }
             Set<Pbgroup> groups = hutil.getGroupsByRole(role);
             for (Pbgroup group : groups) {
                 Item woItem = membersTable.addItem(group);
                 woItem.getItemProperty("membername").setValue(group.getGroupname());
-                woItem.getItemProperty("membertype").setValue("Группа");
+                woItem.getItemProperty("membertype").setValue(messages.getString("group"));
                 woItem.getItemProperty("email").setValue(group.getGroupemail());
                 woItem.getItemProperty("operation").setValue(new TableExecButton("Удалить", "icons/Delete.png", group, this));
             }
@@ -141,7 +140,7 @@ public class RoleMembershipWindow extends Window implements ClickListener {
             membersTable.setSortAscending(false);
             membersTable.sort();
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
@@ -155,10 +154,11 @@ public class RoleMembershipWindow extends Window implements ClickListener {
                 }
                 refreshTable();
                 refreshMemberSelector();
-            } else if (event.getButton() instanceof TableExecButton && event.getButton().getDescription().equalsIgnoreCase("Удалить")) {
-                if (((TableExecButton) event.getButton()).getTableValue() instanceof Pbuser) {
+            } else if (event.getButton() instanceof TableExecButton) {
+                TableExecButton execBtn = (TableExecButton) event.getButton();
+                if (execBtn.getAction().equals(Constants.ACTION_DELETE) && execBtn.getTableValue() instanceof Pbuser) {
                     hutil.deleteUserFromRole(role, (Pbuser) ((TableExecButton) event.getButton()).getTableValue());
-                } else if (((TableExecButton) event.getButton()).getTableValue() instanceof Pbgroup) {
+                } else if (execBtn.getAction().equals(Constants.ACTION_DELETE) && execBtn.getTableValue() instanceof Pbgroup) {
                     hutil.deleteGroupFromRole(role, (Pbgroup) ((TableExecButton) event.getButton()).getTableValue());
                 }
                 refreshTable();
@@ -168,7 +168,7 @@ public class RoleMembershipWindow extends Window implements ClickListener {
             }
         } catch (Exception ex) {
             Logger.getLogger(RoleMembershipWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 }

@@ -15,20 +15,14 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.hibernate.Session;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.naxitrale.processbase.bpm.AdminModule;
 import org.naxitrale.processbase.persistence.entity.Pbgroup;
 import org.naxitrale.processbase.persistence.entity.Pborg;
 import org.naxitrale.processbase.persistence.entity.Pbrole;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
 import org.naxitrale.processbase.util.PasswordService;
-import org.ow2.bonita.env.GlobalEnvironmentFactory;
-import org.ow2.bonita.pvm.env.Environment;
-import org.ow2.bonita.pvm.internal.env.PvmEnvironment;
-import org.ow2.bonita.pvm.internal.hibernate.HibernateJobDbSession;
 
 /**
  *
@@ -73,17 +67,17 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List users = session.createSQLQuery("SELECT 1 " +
-                    "FROM PBUSERS u, PBROLES r, PBUSERROLES ur " +
-                    "WHERE u.id = ur.pbuser_id " +
-                    "AND ur.pbrole_id = r.ID " +
-                    "AND r.ROLENAME = :roleName and u.username = :userName " +
-                    "UNION " +
-                    "SELECT 1 " +
-                    "FROM PBUSERS u, PBROLES r, PBROLEGROUPS gr, PBUSERGROUPS ug " +
-                    "WHERE u.id = ug.pbuser_id " +
-                    "AND ug.pbgroup_id = gr.pbgroup_id " +
-                    "AND gr.pbrole_id = r.ID " +
-                    "AND r.rolename = :roleName and u.username = :userName").setString("userName", userName).setString("roleName", roleName).list();
+                    " FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBUSERROLES ur " +
+                    " WHERE u.id = ur.pbuser_id " +
+                    " AND ur.pbrole_id = r.ID " +
+                    " AND r.ROLENAME = :roleName and u.username = :userName " +
+                    " UNION " +
+                    " SELECT 1 " +
+                    " FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBROLEGROUPS gr, PROCESSBASE.PBUSERGROUPS ug " +
+                    " WHERE u.id = ug.pbuser_id " +
+                    " AND ug.pbgroup_id = gr.pbgroup_id " +
+                    " AND gr.pbrole_id = r.ID " +
+                    " AND r.rolename = :roleName and u.username = :userName").setString("userName", userName).setString("roleName", roleName).list();
             tx.commit();
             return users.size() == 0 ? false : true;
         } finally {
@@ -100,13 +94,13 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<String> result = (List<String>) session.createSQLQuery("SELECT u.username " +
-                    "FROM PBUSERS u, PBROLES r, PBUSERROLES ur " +
+                    "FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBUSERROLES ur " +
                     "WHERE u.id = ur.pbuser_id " +
                     "AND ur.pbrole_id = r.ID " +
                     "AND r.rolename = :roleName " +
                     "UNION " +
                     "SELECT u.username " +
-                    "FROM PBUSERS u, PBROLES r, PBROLEGROUPS gr, PBUSERGROUPS ug " +
+                    "FROM PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBROLEGROUPS gr, PROCESSBASE.PBUSERGROUPS ug " +
                     "WHERE u.id = ug.pbuser_id " +
                     "AND ug.pbgroup_id = gr.pbgroup_id " +
                     "AND gr.pbrole_id = r.ID " +
@@ -127,7 +121,7 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<String> result = session.createSQLQuery("select u.username " +
-                    "from PBUSERS u " +
+                    "from PROCESSBASE.PBUSERS u " +
                     "where u.pborg_id in " +
                     "(select o.id " +
                     "from Pborgs o " +
@@ -165,7 +159,7 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<Pborg> result = (List<Pborg>) session.createSQLQuery(
-                    "select {Pborg.*} from PBORGS {Pborg} " +
+                    "select {Pborg.*} from PROCESSBASE.PBORGS {Pborg} " +
                     "CONNECT BY PRIOR id = pborg_id " +
                     "START WITH pborg_id is null").addEntity("Pborg", Pborg.class).list();
             tx.commit();
@@ -571,11 +565,11 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             result.addAll(session.createSQLQuery("select p.processid " +
-                    " from pbusers u, pbroles r, pbuserroles ur, pbroleprocesses p" +
+                    " from PROCESSBASE.pbusers u, PROCESSBASE.pbroles r, PROCESSBASE.pbuserroles ur, PROCESSBASE.pbroleprocesses p" +
                     " where u.id = ur.pbuser_id and r.id = ur.pbrole_id and p.pbrole_id = r.id and u.id = :userId" +
                     " union " +
                     " select p.processid " +
-                    " from pbusers u, pbrolegroups rg, pbusergroups ug, pbroleprocesses p" +
+                    " from PROCESSBASE.pbusers u, PROCESSBASE.pbrolegroups rg, PROCESSBASE.pbusergroups ug, PROCESSBASE.pbroleprocesses p" +
                     " where u.id = ug.pbuser_id and ug.pbgroup_id = rg.pbgroup_id and p.pbrole_id = rg.pbrole_id and u.id = :userId").setLong("userId", u.getId()).list());
             tx.commit();
         } finally {
