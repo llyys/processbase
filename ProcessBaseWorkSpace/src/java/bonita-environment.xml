@@ -27,7 +27,7 @@
       <!-- Start of hibernate-configuration:core-->
       <!-- Description: Configuration of the Hibernate session factory used by engine. -->
       <hibernate-configuration name='hibernate-configuration:core' >
-        <properties resource='hibernate-core-pool.properties' />
+        <properties resource='hibernate-core-h2.properties' />
         <mappings resource='bonita.runtime.mappings.hbm.xml' />
         <mappings resource='bonita.querier.mappings.hbm.xml' />
         <cache-configuration resource='bonita.querier.cache.xml' usage='read-write' />
@@ -37,7 +37,7 @@
       <!-- Start of hibernate-configuration:history-->
       <!-- Description: Configuration of the Hibernate session factory used by db history. -->
       <hibernate-configuration name='hibernate-configuration:history' >
-        <properties resource='hibernate-history-pool.properties' />
+        <properties resource='hibernate-history-h2.properties' />
         <mappings resource='bonita.history.mappings.hbm.xml' />
         <mappings resource='bonita.querier.mappings.hbm.xml' />
         <cache-configuration resource='bonita.querier.cache.xml' usage='read-write' />

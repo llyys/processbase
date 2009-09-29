@@ -7,7 +7,7 @@
     </context-param>
     <servlet>
         <servlet-name>ProcessBase</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+        <servlet-class>org.naxitrale.processbase.ProcessbaseServlet</servlet-class>
         <init-param>
             <description>Vaadin application class to start</description>
             <param-name>application</param-name>
