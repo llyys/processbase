@@ -21,8 +21,10 @@ import com.vaadin.ui.Select;
 import com.vaadin.ui.TextField;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.ProcessBase;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pborg;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
@@ -33,8 +35,14 @@ import org.naxitrale.processbase.persistence.entity.Pbuser;
  */
 public class ACLFieldFactory implements FormFieldFactory {
 
+    protected ResourceBundle messages = null;
     private Form currentForm = null;
     private HibernateUtil hutil = new HibernateUtil();
+
+    public ACLFieldFactory(ResourceBundle messages) {
+        super();
+        this.messages = messages;
+    }
 
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if (uiContext instanceof Form) {
@@ -42,35 +50,37 @@ public class ACLFieldFactory implements FormFieldFactory {
         }
         String pid = (String) propertyId;
         if (pid.equals("lastname")) {
-            return getTextField("Фамилия", "", true);
+            return getTextField(messages.getString("fieldLastname"), "", true);
         } else if (pid.equals("middlename")) {
-            return getTextField("Отчество", "", false);
+            return getTextField(messages.getString("fieldMiddlename"), "", false);
         } else if (pid.equals("firstname")) {
-            return getTextField("Имя", "", true);
+            return getTextField(messages.getString("fieldFirstname"), "", true);
         } else if (pid.equals("username")) {
-            return getTextField("Имя пользователя", "", true);
+            return getTextField(messages.getString("fieldUsername"), "", true);
         } else if (pid.equals("password")) {
-            TextField password = getTextField("Пароль", "", true);
+            TextField password = getTextField(messages.getString("fieldPassword"), "", true);
             password.setSecret(true);
             return password;
         } else if (pid.equals("birthdate")) {
-            return getDateField("Дата рождения", "", true);
+            return getDateField(messages.getString("fieldBirthdate"), "", true);
         } else if (pid.equals("email")) {
-            return getTextField("Email", "", true);
+            return getTextField(messages.getString("fieldEmail"), "", true);
         } else if (pid.equals("groupemail")) {
-            return getTextField("Email", "", true);
+            return getTextField(messages.getString("fieldEmail"), "", true);
         } else if (pid.equals("groupname")) {
-            return getTextField("Название группы", "", true);
+            return getTextField(messages.getString("fieldGroupname"), "", true);
         } else if (pid.equals("rolename")) {
-            return getTextField("Название роли", "", true);
+            return getTextField(messages.getString("fieldRolename"), "", true);
         } else if (pid.equals("position")) {
-            return getTextField("Должность", "", false);
+            return getTextField(messages.getString("fieldPosition"), "", false);
         } else if (pid.equals("orgName")) {
-            return getTextField("Название подразделения", "", true);
+            return getTextField(messages.getString("fieldOrgUnit"), "", true);
         } else if (pid.equals("pbusers")) {
-            return getUserSelector("Руководитель", true);
+            return getUserSelector(messages.getString("fieldManager"), true);
         } else if (pid.equals("pborgs")) {
-            return getOrgSelector("Подразделение", item, true);
+            return getOrgSelector(messages.getString("fieldOrgUnit"), item, true);
+        } else if (pid.equals("language")) {
+            return getTextField(messages.getString("fieldLanguage"), "", true);
         }
         return null;
     }
@@ -81,7 +91,7 @@ public class ACLFieldFactory implements FormFieldFactory {
         tf.setWidth("250px");
         if (required) {
             tf.setRequired(true);
-            tf.setRequiredError("Обязательное поле!");
+            tf.setRequiredError(messages.getString("fieldRequired"));
         }
         return tf;
     }
@@ -92,7 +102,7 @@ public class ACLFieldFactory implements FormFieldFactory {
             df.setResolution(DateField.RESOLUTION_DAY);
             df.setValue(new Date());
             df.setRequired(true);
-            df.setRequiredError("Обязательное поле!");
+            df.setRequiredError(messages.getString("fieldRequired"));
             return df;
         } else {
             TextField tf = new TextField(caption, value);
@@ -111,7 +121,7 @@ public class ACLFieldFactory implements FormFieldFactory {
             userSelector.setWidth("250px");
             if (required) {
                 userSelector.setRequired(true);
-                userSelector.setRequiredError("Обязательное поле!");
+                userSelector.setRequiredError(messages.getString("fieldRequired"));
             }
             userSelector.removeAllItems();
             List<Pbuser> users = hutil.findAllPbusers("APP");
@@ -136,7 +146,7 @@ public class ACLFieldFactory implements FormFieldFactory {
             orgSelector.setWidth("250px");
             if (required) {
                 orgSelector.setRequired(true);
-                orgSelector.setRequiredError("Обязательное поле!");
+                orgSelector.setRequiredError(messages.getString("fieldRequired"));
             }
             Pborg currentOrg = null;
             if (((BeanItem) item).getBean() instanceof Pbuser) {

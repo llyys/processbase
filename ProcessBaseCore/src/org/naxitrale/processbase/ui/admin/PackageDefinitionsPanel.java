@@ -17,10 +17,12 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import java.util.Set;
 import org.naxitrale.processbase.Constants;
+import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 import org.naxitrale.processbase.ui.template.TableExecButtonBar;
 import org.naxitrale.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.PackageDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.uuid.PackageDefinitionUUID;
 
 /**
@@ -30,6 +32,7 @@ import org.ow2.bonita.facade.uuid.PackageDefinitionUUID;
 public class PackageDefinitionsPanel extends TablePanel implements Button.ClickListener, Window.CloseListener {
 
     Button deployBtn = new Button(messages.getString("btnUpload"));
+    HibernateUtil hutil = new HibernateUtil();
 
     public PackageDefinitionsPanel() {
         super();
@@ -90,6 +93,8 @@ public class PackageDefinitionsPanel extends TablePanel implements Button.ClickL
                 try {
                     PackageDefinition pd = (PackageDefinition) execBtn.getTableValue();
                     PackageDefinitionUUID pdUUID = pd.getUUID();
+                    ProcessDefinition procDef = adminModule.getProcessDefinition(pd);
+                    hutil.deleteProcessFromRoles(procDef.getProcessDefinitionUUID().toString());
                     adminModule.deletePackage(pdUUID);
                     refreshTable();
                     getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);

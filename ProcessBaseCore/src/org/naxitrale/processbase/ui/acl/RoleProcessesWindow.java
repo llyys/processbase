@@ -25,11 +25,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.bpm.WorklistModule;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbgroup;
 import org.naxitrale.processbase.persistence.entity.Pbrole;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
+import org.naxitrale.processbase.ui.template.PbWindow;
 import org.naxitrale.processbase.ui.template.TableExecButton;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
@@ -38,14 +40,14 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
  *
  * @author mgubaidullin
  */
-public class RoleProcessesWindow extends Window implements ClickListener {
+public class RoleProcessesWindow extends PbWindow implements ClickListener {
 
     private Pbrole role = null;
     private HorizontalLayout buttons = new HorizontalLayout();
-    private Button cancelBtn = new Button("Закрыть", this);
-    private Button applyBtn = new Button("Добавить", this);
+    private Button cancelBtn = new Button(messages.getString("btnClose"), this);
+    private Button applyBtn = new Button(messages.getString("btnAdd"), this);
     private Table membersTable = new Table();
-    private Label selectLabel = new Label("Кандидаты");
+    private Label selectLabel = new Label(messages.getString("candidates"));
     private Select memberSelector = new Select();
     private HibernateUtil hutil = new HibernateUtil();
     protected WorklistModule worklistModule = new WorklistModule();
@@ -57,7 +59,7 @@ public class RoleProcessesWindow extends Window implements ClickListener {
 
     public void exec() {
         try {
-            setCaption("Процессы доступные роли \"" + role.getRolename() + "\"");
+            setCaption(messages.getString("captionAvailableProcesses") + " \"" + role.getRolename() + "\"");
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -85,7 +87,7 @@ public class RoleProcessesWindow extends Window implements ClickListener {
             setResizable(false);
         } catch (Exception ex) {
             Logger.getLogger(RoleProcessesWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -108,10 +110,10 @@ public class RoleProcessesWindow extends Window implements ClickListener {
     public void refreshTable() {
         try {
             membersTable.removeAllItems();
-            membersTable.addContainerProperty("processID", String.class, null, "ID процесса", null, null);
-            membersTable.addContainerProperty("proccessName", String.class, null, "Наименование", null, null);
-            membersTable.addContainerProperty("version", String.class, null, "Версия", null, null);
-            membersTable.addContainerProperty("operation", Button.class, null, "Операции", null, null);
+            membersTable.addContainerProperty("processID", String.class, null, messages.getString("tableCaptionProcessID"), null, null);
+            membersTable.addContainerProperty("proccessName", String.class, null, messages.getString("tableCaptionProcessName"), null, null);
+            membersTable.addContainerProperty("version", String.class, null, messages.getString("tableCaptionVersion"), null, null);
+            membersTable.addContainerProperty("actions", Button.class, null, messages.getString("tableCaptionActions"), null, null);
 
             Set<String> processes = hutil.getRoleProcesses(role);
             for (String process : processes) {
@@ -121,13 +123,13 @@ public class RoleProcessesWindow extends Window implements ClickListener {
                 woItem.getItemProperty("processID").setValue(pd.getProcessDefinitionUUID());
                 woItem.getItemProperty("proccessName").setValue(pd.getName());
                 woItem.getItemProperty("version").setValue(pd.getVersion());
-                woItem.getItemProperty("operation").setValue(new TableExecButton("Удалить", "icons/Delete.png", pd, this));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", pd, this, Constants.ACTION_DELETE));
             }
             membersTable.setSortContainerPropertyId("processID");
             membersTable.setSortAscending(false);
             membersTable.sort();
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
@@ -138,17 +140,20 @@ public class RoleProcessesWindow extends Window implements ClickListener {
                 hutil.addProcessToRole(role, pdUUID);
                 refreshTable();
                 refreshMemberSelector();
-            } else if (event.getButton() instanceof TableExecButton && event.getButton().getDescription().equalsIgnoreCase("Удалить")) {
-                String pdUUID = ((ProcessDefinition) ((TableExecButton) event.getButton()).getTableValue()).getUUID().toString();
-                hutil.deleteProcessFromRole(role, pdUUID);
-                refreshTable();
-                refreshMemberSelector();
+            } else if (event.getButton() instanceof TableExecButton) {
+                TableExecButton execBtn = (TableExecButton) event.getButton();
+                if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+                    String pdUUID = ((ProcessDefinition) execBtn.getTableValue()).getUUID().toString();
+                    hutil.deleteProcessFromRole(role, pdUUID);
+                    refreshTable();
+                    refreshMemberSelector();
+                }
             } else {
                 close();
             }
         } catch (Exception ex) {
             Logger.getLogger(RoleProcessesWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 }

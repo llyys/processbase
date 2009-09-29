@@ -18,6 +18,7 @@ import com.vaadin.ui.Window.Notification;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
 import org.naxitrale.processbase.ui.template.TableExecButton;
@@ -30,27 +31,33 @@ import org.naxitrale.processbase.ui.template.TablePanel;
  */
 public class UsersPanel extends TablePanel {
 
-    private Button addBtn = new Button("Новый", this);
+    private Button addBtn = new Button(messages.getString("btnAdd"), this);
     private HibernateUtil hutil = new HibernateUtil();
 
     public UsersPanel() {
         super();
         buttonBar.addComponent(addBtn, 0);
+        initTableUI();
         refreshTable();
+    }
+
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionUsername"), null, null);
+        table.addContainerProperty("lastName", String.class, null, messages.getString("tableCaptionLastname"), null, null);
+        table.addContainerProperty("firstName", String.class, null, messages.getString("tableCaptionFirstname"), null, null);
+        table.addContainerProperty("middleName", String.class, null, messages.getString("tableCaptionMiddlename"), null, null);
+        table.addContainerProperty("birthday", String.class, null, messages.getString("tableCaptionBirthdate"), null, null);
+        table.addContainerProperty("email", String.class, null, messages.getString("tableCaptionEmail"), null, null);
+        table.addContainerProperty("position", String.class, null, messages.getString("tableCaptionPosition"), null, null);
+        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
     public void refreshTable() {
         try {
             table.removeAllItems();
-            table.addContainerProperty("name", String.class, null, "Имя пользователя", null, null);
-            table.addContainerProperty("lastName", String.class, null, "Имя роли", null, null);
-            table.addContainerProperty("firstName", String.class, null, "Имя", null, null);
-            table.addContainerProperty("middleName", String.class, null, "Отчество", null, null);
-            table.addContainerProperty("birthday", String.class, null, "Дата рождения", null, null);
-            table.addContainerProperty("email", String.class, null, "E-mail", null, null);
-            table.addContainerProperty("position", String.class, null, "должность", null, null);
-            table.addContainerProperty("operation", TableExecButtonBar.class, null, "Операции", null, null);
             List<Pbuser> users = hutil.findAllPbusers("APP");
             for (Pbuser user : users) {
                 Item woItem = table.addItem(user);
@@ -62,16 +69,16 @@ public class UsersPanel extends TablePanel {
                 woItem.getItemProperty("email").setValue(user.getEmail());
                 woItem.getItemProperty("position").setValue(user.getPosition());
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(new TableExecButton("Редактировать", "icons/Edit.gif", user, this));
-                tebb.addButton(new TableExecButton("Удалить", "icons/Delete.png", user, this));
-                woItem.getItemProperty("operation").setValue(tebb);
+                tebb.addButton(new TableExecButton(messages.getString("btnEdit"), "icons/Edit.gif", user, this, Constants.ACTION_EDIT));
+                tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", user, this, Constants.ACTION_DELETE));
+                woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {
             Logger.getLogger(UsersPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
@@ -84,20 +91,22 @@ public class UsersPanel extends TablePanel {
                 userWindow.exec();
                 userWindow.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(userWindow);
-            } else if (event.getButton() instanceof TableExecButton && event.getButton().getDescription().equalsIgnoreCase("Удалить")) {
-                Pbuser u = (Pbuser) ((TableExecButton) event.getButton()).getTableValue();
-                hutil.delete(u);
-                refreshTable();
-            } else if (event.getButton() instanceof TableExecButton && event.getButton().getDescription().equalsIgnoreCase("Редактировать")) {
-                Pbuser u = (Pbuser) ((TableExecButton) event.getButton()).getTableValue();
-                UserWindow userWindow = new UserWindow(u);
-                userWindow.addListener((Window.CloseListener) this);
-                userWindow.exec();
-                getApplication().getMainWindow().addWindow(userWindow);
+            } else if (event.getButton() instanceof TableExecButton) {
+                TableExecButton execBtn = (TableExecButton) event.getButton();
+                Pbuser u = (Pbuser) execBtn.getTableValue();
+                if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+                    hutil.delete(u);
+                    refreshTable();
+                } else if (execBtn.getAction().equals(Constants.ACTION_EDIT)) {
+                    UserWindow userWindow = new UserWindow(u);
+                    userWindow.addListener((Window.CloseListener) this);
+                    userWindow.exec();
+                    getApplication().getMainWindow().addWindow(userWindow);
+                }
             }
         } catch (Exception ex) {
             Logger.getLogger(UsersPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 

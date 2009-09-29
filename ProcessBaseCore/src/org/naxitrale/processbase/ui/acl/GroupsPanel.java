@@ -13,13 +13,9 @@ import com.vaadin.data.Item;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.Notification;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.naxitrale.processbase.Constants;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbgroup;
 import org.naxitrale.processbase.ui.template.TableExecButton;
@@ -30,41 +26,31 @@ import org.naxitrale.processbase.ui.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class GroupsPanel extends TablePanel {
+public class GroupsPanel extends TablePanel implements Button.ClickListener {
 
-    Button addBtn = new Button("Новый");
+    Button addBtn = new Button(messages.getString("btnAdd"));
 
     public GroupsPanel() {
         super();
         buttonBar.addComponent(addBtn, 0);
         buttonBar.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
-        addBtn.addListener(new Button.ClickListener() {
-
-            public void buttonClick(Button.ClickEvent event) {
-                GroupWindow groupWindow = new GroupWindow(null);
-                groupWindow.exec();
-                groupWindow.addListener(new Window.CloseListener() {
-
-                    public void windowClose(CloseEvent e) {
-                        refreshTable();
-                    }
-                });
-
-                getApplication().getMainWindow().addWindow(groupWindow);
-
-            }
-        });
+        addBtn.addListener(this);
+        initTableUI();
         refreshTable();
+    }
+
+    @Override
+    public void initTableUI() {
+        super.initTableUI();
+        table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionGroupname"), null, null);
+        table.addContainerProperty("email", String.class, null, messages.getString("tableCaptionEmail"), null, null);
+        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
     public void refreshTable() {
         try {
             table.removeAllItems();
-            table.addContainerProperty("name", String.class, null, "Имя группы", null, null);
-            table.addContainerProperty("email", String.class, null, "Email", null, null);
-            table.addContainerProperty("operation", TableExecButtonBar.class, null, "Операции", null, null);
-
             HibernateUtil hutil = new HibernateUtil();
             List<Pbgroup> groups = hutil.findAllGroups("APP");
             for (Pbgroup group : groups) {
@@ -72,56 +58,45 @@ public class GroupsPanel extends TablePanel {
                 woItem.getItemProperty("name").setValue(group.getGroupname());
                 woItem.getItemProperty("email").setValue(group.getGroupemail());
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(getExecBtn("Участники", "icons/MembershipSelector.gif", group));
-                tebb.addButton(getExecBtn("Редактировать", "icons/Edit.gif", group));
-                tebb.addButton(getExecBtn("Удалить", "icons/Delete.png", group));
-                woItem.getItemProperty("operation").setValue(tebb);
+                tebb.addButton(new TableExecButton(messages.getString("btnParticipants"), "icons/MembershipSelector.gif", group, this, Constants.ACTION_EDIT_PARTICIPANTS));
+                tebb.addButton(new TableExecButton(messages.getString("btnEdit"), "icons/Edit.gif", group, this, Constants.ACTION_EDIT));
+                tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", group, this, Constants.ACTION_DELETE));
+                woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
-    public TableExecButton getExecBtn(String description, String iconName, Pbgroup group) {
-        TableExecButton execBtn = new TableExecButton(description, iconName, group, new ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                try {
-                    Pbgroup g = (Pbgroup) ((TableExecButton) event.getButton()).getTableValue();
-                    if (event.getButton().getDescription().equalsIgnoreCase("Удалить")) {
-                        HibernateUtil hutil = new HibernateUtil();
-                        hutil.delete(g);
-                    } else if (event.getButton().getDescription().equalsIgnoreCase("Редактировать")) {
-                        GroupWindow groupWindow = new GroupWindow(g);
-                        groupWindow.exec();
-                        groupWindow.addListener(new Window.CloseListener() {
-
-                            public void windowClose(CloseEvent e) {
-                                refreshTable();
-                            }
-                        });
-                        getApplication().getMainWindow().addWindow(groupWindow);
-                    } else if (event.getButton().getDescription().equalsIgnoreCase("Участники")) {
-                        GroupMembershipWindow groupMembershipWindow = new GroupMembershipWindow(g);
-                        groupMembershipWindow.exec();
-                        groupMembershipWindow.addListener(new Window.CloseListener() {
-
-                            public void windowClose(CloseEvent e) {
-                                refreshTable();
-                            }
-                        });
-                        getApplication().getMainWindow().addWindow(groupMembershipWindow);
-                    }
-                    refreshTable();
-                } catch (Exception ex) {
-                    Logger.getLogger(GroupsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-                    getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
-                }
+   @Override
+    public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
+        if (event.getButton().equals(addBtn)) {
+            GroupWindow groupWindow = new GroupWindow(null);
+            groupWindow.exec();
+            groupWindow.addListener((Window.CloseListener) this);
+            getApplication().getMainWindow().addWindow(groupWindow);
+        } else if (event.getButton() instanceof TableExecButton) {
+            TableExecButton execBtn = (TableExecButton) event.getButton();
+            Pbgroup g = (Pbgroup) execBtn.getTableValue();
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+                HibernateUtil hutil = new HibernateUtil();
+                hutil.delete(g);
+            } else if (execBtn.getAction().equals(Constants.ACTION_EDIT)) {
+                GroupWindow groupWindow = new GroupWindow(g);
+                groupWindow.exec();
+                groupWindow.addListener((Window.CloseListener) this);
+                getApplication().getMainWindow().addWindow(groupWindow);
+            } else if (execBtn.getAction().equals(Constants.ACTION_EDIT_PARTICIPANTS)) {
+                GroupMembershipWindow groupMembershipWindow = new GroupMembershipWindow(g);
+                groupMembershipWindow.exec();
+                groupMembershipWindow.addListener((Window.CloseListener) this);
+                getApplication().getMainWindow().addWindow(groupMembershipWindow);
             }
-        });
-        return execBtn;
+            refreshTable();
+        }
     }
 }

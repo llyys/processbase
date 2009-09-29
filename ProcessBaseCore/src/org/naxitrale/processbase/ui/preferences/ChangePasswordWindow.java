@@ -16,29 +16,29 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
+import org.naxitrale.processbase.ui.template.PbWindow;
 import org.naxitrale.processbase.util.PasswordService;
 
 /**
  *
  * @author mgubaidullin
  */
-public class ChangePasswordWindow extends Window implements ClickListener {
+public class ChangePasswordWindow extends PbWindow implements ClickListener {
 
     private Pbuser user = null;
     private HorizontalLayout buttons = new HorizontalLayout();
-    private Button cancelBtn = new Button("Отменить", this);
-    private Button applyBtn = new Button("OK", this);
+    private Button cancelBtn = new Button(messages.getString("btnCancel"), this);
+    private Button applyBtn = new Button(messages.getString("btnOK"), this);
     private BeanItem userBean = null;
     private HibernateUtil hutil = new HibernateUtil();
-    private TextField currentPassword = new TextField("Текущий пароль");
-    private TextField newPassword1 = new TextField("Новый пароль");
-    private TextField newPassword2 = new TextField("Повтор нового пароля");
+    private TextField currentPassword = new TextField(messages.getString("fieldCurrentPassword"));
+    private TextField newPassword1 = new TextField(messages.getString("fieldNewPassword"));
+    private TextField newPassword2 = new TextField(messages.getString("fieldConfirmPassword"));
     private FormLayout formLayout = new FormLayout();
 
     public ChangePasswordWindow(Pbuser user) {
@@ -48,7 +48,7 @@ public class ChangePasswordWindow extends Window implements ClickListener {
 
     public void exec() {
         try {
-            setCaption("Смена пароля");
+            setCaption(messages.getString("captionChangePassword"));
             setContent(formLayout);
             formLayout.setMargin(true);
             formLayout.setSpacing(true);
@@ -69,7 +69,7 @@ public class ChangePasswordWindow extends Window implements ClickListener {
             setModal(true);
         } catch (Exception ex) {
             Logger.getLogger(ChangePasswordWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -84,19 +84,19 @@ public class ChangePasswordWindow extends Window implements ClickListener {
                             user.setPassword(newPassword1.getValue().toString());
                             hutil.mergeUser(user);
                         } else {
-                            throw new Exception("Новый и повтор пароля должны совпадать!");
+                            throw new Exception(messages.getString("changePwdException1"));
                         }
                     } else {
-                        throw new Exception("Старый и новый пароль не должны совпадать!");
+                        throw new Exception(messages.getString("changePwdException2"));
                     }
                 } else {
-                    throw new Exception("Неверный текущий пароль!");
+                    throw new Exception(messages.getString("changePwdException3"));
                 }
             }
             close();
         } catch (Exception ex) {
             Logger.getLogger(ChangePasswordWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }

@@ -17,7 +17,6 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import java.util.Collection;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -26,24 +25,24 @@ import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pborg;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
 import org.naxitrale.processbase.ui.template.ACLFieldFactory;
+import org.naxitrale.processbase.ui.template.PbWindow;
 
 /**
  *
  * @author mgubaidullin
  */
-public class UserWindow extends Window implements ClickListener {
+public class UserWindow extends PbWindow implements ClickListener {
 
     private Pbuser user = null;
     private HorizontalLayout buttons = new HorizontalLayout();
-    private Button cancelBtn = new Button("Отменить", this);
-    private Button applyBtn = new Button("OK", this);
+    private Button cancelBtn = new Button(messages.getString("btnCancel"), this);
+    private Button applyBtn = new Button(messages.getString("btnOK"), this);
     private boolean isNew = true;
     private BeanItem userBean = null;
     private Vector order = new Vector();
     private Vector fields = new Vector();
     private Form form = new Form();
     private HibernateUtil hutil = new HibernateUtil();
-
 
     public UserWindow(Pbuser user) {
         super();
@@ -58,7 +57,7 @@ public class UserWindow extends Window implements ClickListener {
             if (isNew) {
                 user = new Pbuser();
             }
-            setCaption("Пользователь");
+            setCaption(messages.getString("user"));
             order.add("username");
             order.add("password");
             order.add("lastname");
@@ -71,7 +70,7 @@ public class UserWindow extends Window implements ClickListener {
             fields.addAll(order);
             userBean = new BeanItem(user, fields);
             form.setItemDataSource(userBean);
-            form.setFormFieldFactory(new ACLFieldFactory());
+            form.setFormFieldFactory(new ACLFieldFactory(messages));
             form.setVisibleItemProperties(order);
             if (user.getPborgs() != null) {
                 Collection<Pborg> c = ((Select) form.getField("pborgs")).getItemIds();
@@ -96,7 +95,7 @@ public class UserWindow extends Window implements ClickListener {
             setResizable(false);
         } catch (Exception ex) {
             Logger.getLogger(UserWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }
@@ -109,12 +108,16 @@ public class UserWindow extends Window implements ClickListener {
                 form.commit();
                 user.setPbtype("APP");
                 user.setLanguage("RU");
-                hutil.mergeUser(user);
+                if (isNew) {
+                    hutil.saveUser(user);
+                } else {
+                    hutil.mergeUser(user);
+                }
             }
             close();
         } catch (Exception ex) {
             Logger.getLogger(UserWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }

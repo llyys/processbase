@@ -68,6 +68,10 @@ public class AdminModule {
         return queryDefinitionAPI.getProcesses();
     }
 
+    public ProcessDefinition getProcessDefinition(PackageDefinition pd) throws PackageNotFoundException {
+        return queryDefinitionAPI.getPackageProcesses(pd.getPackageDefinitionUUID()).iterator().next();
+    }
+
     public Map<String, ProcessDefinition> deployXpdl(byte[] bar) throws DeploymentException {
         return managementAPI.deployXpdl(bar);
 

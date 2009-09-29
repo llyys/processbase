@@ -29,9 +29,9 @@ import org.ow2.bonita.facade.runtime.InstanceState;
  *
  * @author mgubaidullin
  */
-public class ProcessDashboardPanel extends AnalyticPanel {
+public class ProcessDashboardPanel_RU extends AnalyticPanel {
 
-    public ProcessDashboardPanel() {
+    public ProcessDashboardPanel_RU() {
         super();
     }
 
@@ -39,17 +39,17 @@ public class ProcessDashboardPanel extends AnalyticPanel {
     public void refreshDashboard() {
         try {
             grid.removeAllComponents();
-            grid.addComponent(getMeterImage("Processes Errors", adminModule.getProcessInstancesByStatus(InstanceState.ABORTED).size()), 0, 1, 0, 1);
+            grid.addComponent(getMeterImage("Ошибки процессов", adminModule.getProcessInstancesByStatus(InstanceState.ABORTED).size()), 0, 1, 0, 1);
 
             ArrayList<BarValue> values = new ArrayList<BarValue>();
-            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.INITIAL).size(), "Init", ""));
-            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.CANCELLED).size(), "Canceled", ""));
-            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.FINISHED).size(), "Finished", ""));
-            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.ABORTED).size(), "Rejected", ""));
-            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.STARTED).size(), "Ecexuted", ""));
-            grid.addComponent(getBarImage("Processes by status", values), 1, 1, 1, 1);
+            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.INITIAL).size(), "Инициализация", ""));
+            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.CANCELLED).size(), "Отменен", ""));
+            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.FINISHED).size(), "Завершен", ""));
+            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.ABORTED).size(), "Прекращен", ""));
+            values.add(new BarValue(adminModule.getProcessInstancesByStatus(InstanceState.STARTED).size(), "Выполняется", ""));
+            grid.addComponent(getBarImage("Процессы по статусам", values), 1, 1, 1, 1);
 
-            grid.addComponent(getBar3DImage("Processes by status", values), 2, 1, 2, 1);
+            grid.addComponent(getBar3DImage("Процессы по статусам", values), 2, 1, 2, 1);
 
             ArrayList<PieValue> pvs = new ArrayList<PieValue>();
             Map<String, Integer> res = analyticModule.countPIbyType(InstanceState.STARTED);
@@ -57,7 +57,7 @@ public class ProcessDashboardPanel extends AnalyticPanel {
                 String pName = i.next().toString();
                 pvs.add(new PieValue(pName, res.get(pName)));
             }
-            grid.addComponent(getPieImage("Processes by types  (executed)", pvs), 1, 2, 1, 2);
+            grid.addComponent(getPieImage("Процессы по типам (запущено)", pvs), 1, 2, 1, 2);
 
             ArrayList<PieValue> pvs2 = new ArrayList<PieValue>();
             Map<String, Integer> res2 = analyticModule.countPIbyType(InstanceState.FINISHED);
@@ -65,9 +65,9 @@ public class ProcessDashboardPanel extends AnalyticPanel {
                 String pName = i.next().toString();
                 pvs2.add(new PieValue(pName, res2.get(pName)));
             }
-            grid.addComponent(getPie3DImage("Processes by types (finished)", pvs2), 2, 2, 2, 2);
+            grid.addComponent(getPie3DImage("Процессы по типам (завершено)", pvs2), 2, 2, 2, 2);
 
-            grid.addComponent(getDialImage("Current time"), 0, 2, 0, 2);
+            grid.addComponent(getDialImage("Текущее время"), 0, 2, 0, 2);
         } catch (Exception ex) {
             showError(ex.toString());
         }
@@ -76,9 +76,9 @@ public class ProcessDashboardPanel extends AnalyticPanel {
 
     private Component getMeterImage(String caption, Number value) {
         ArrayList<MeterInterval> mis = new ArrayList<MeterInterval>();
-        mis.add(new MeterInterval("OK", new Range(-1, 0), Color.GREEN, new BasicStroke(4), null));
-        mis.add(new MeterInterval("Attention", new Range(0, 5), Color.YELLOW, new BasicStroke(4), null));
-        mis.add(new MeterInterval("Alarm", new Range(5, 10), Color.RED, new BasicStroke(4), null));
+        mis.add(new MeterInterval("Норма", new Range(-1, 0), Color.GREEN, new BasicStroke(4), null));
+        mis.add(new MeterInterval("Внимание", new Range(0, 5), Color.YELLOW, new BasicStroke(4), null));
+        mis.add(new MeterInterval("Тревога", new Range(5, 10), Color.RED, new BasicStroke(4), null));
         StreamResource.StreamSource imagesource = new MeterImageSource(new Range(-1, 10), mis, "", null);
         ((MeterImageSource) imagesource).setValue(value);
         @SuppressWarnings("static-access")

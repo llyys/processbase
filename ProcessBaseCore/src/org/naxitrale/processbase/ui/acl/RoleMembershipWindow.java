@@ -55,7 +55,7 @@ public class RoleMembershipWindow extends PbWindow implements ClickListener {
 
     public void exec() {
         try {
-            setCaption(messages.getString("roleMembershipWondowCaption") + role.getRolename() + "\"");
+            setCaption(messages.getString("roleMembershipWindowCaption") + role.getRolename() + "\"");
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -134,7 +134,7 @@ public class RoleMembershipWindow extends PbWindow implements ClickListener {
                 woItem.getItemProperty("membername").setValue(group.getGroupname());
                 woItem.getItemProperty("membertype").setValue(messages.getString("group"));
                 woItem.getItemProperty("email").setValue(group.getGroupemail());
-                woItem.getItemProperty("operation").setValue(new TableExecButton("Удалить", "icons/Delete.png", group, this));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", group, this, Constants.ACTION_DELETE));
             }
             membersTable.setSortContainerPropertyId("membername");
             membersTable.setSortAscending(false);

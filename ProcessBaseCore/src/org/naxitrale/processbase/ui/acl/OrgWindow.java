@@ -28,25 +28,26 @@ import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pborg;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
 import org.naxitrale.processbase.ui.template.ACLFieldFactory;
+import org.naxitrale.processbase.ui.template.PbWindow;
 
 /**
  *
  * @author mgubaidullin
  */
-public class OrgWindow extends Window implements ClickListener {
+public class OrgWindow extends PbWindow implements ClickListener {
 
     public Pborg org = null;
     public Pborg parent = null;
     public HorizontalLayout buttons = new HorizontalLayout();
-    public Button cancelBtn = new Button("Отменить", this);
-    public Button applyBtn = new Button("OK", this);
+    public Button cancelBtn = new Button(messages.getString("btnCancel"), this);
+    public Button applyBtn = new Button(messages.getString("btnOK"), this);
     public boolean isNew = true;
     public BeanItem orgBean = null;
     private Vector order = new Vector();
     private Vector fields = new Vector();
     private Form form = new Form();
     private HibernateUtil hutil = new HibernateUtil();
-    private Select managerSelector = new Select("Руководитель");
+    private Select managerSelector = new Select(messages.getString("fieldManager"));
 
     public OrgWindow(Pborg org, Pborg parent) {
         super();
@@ -62,10 +63,10 @@ public class OrgWindow extends Window implements ClickListener {
             if (isNew) {
                 org = new Pborg();
                 org.setPborgs(parent);
-                setCaption("Новое подразделение");
-                addComponent(new Label("в подразделении \"" + parent.getOrgName() + "\""));
+                setCaption(messages.getString("captionNewOrgUnit"));
+                addComponent(new Label(messages.getString("inOrgUnit") + " \"" + parent.getOrgName() + "\""));
             } else {
-                setCaption("Подразделение");
+                setCaption(messages.getString("captionOrgUnit"));
             }
             fields.add("orgName");
             orgBean = new BeanItem(org, fields);
@@ -73,7 +74,7 @@ public class OrgWindow extends Window implements ClickListener {
             form.setItemDataSource(orgBean);
             order.add("orgName");
 //            order.add("pbusers");
-            form.setFormFieldFactory(new ACLFieldFactory());
+            form.setFormFieldFactory(new ACLFieldFactory(messages));
             form.setVisibleItemProperties(order);
             form.setWriteThrough(false);
             form.setInvalidCommitted(false);
@@ -82,7 +83,7 @@ public class OrgWindow extends Window implements ClickListener {
             managerSelector.setNullSelectionAllowed(false);
             managerSelector.setWidth("250px");
             managerSelector.setRequired(true);
-            managerSelector.setRequiredError("Обязательное поле!");
+            managerSelector.setRequiredError(messages.getString("fieldRequired"));
             managerSelector.removeAllItems();
             List<Pbuser> users = hutil.findAllPbusers("APP");
             for (Pbuser user : users) {
@@ -106,7 +107,7 @@ public class OrgWindow extends Window implements ClickListener {
             setResizable(false);
         } catch (Exception ex) {
             Logger.getLogger(OrgWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification("Ошибка", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
 
     }

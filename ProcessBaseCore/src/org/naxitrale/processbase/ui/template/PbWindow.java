@@ -12,6 +12,8 @@ package org.naxitrale.processbase.ui.template;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Window;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.naxitrale.processbase.ProcessBase;
 
 /**
@@ -39,6 +41,7 @@ public class PbWindow extends Window {
     }
 
     public void showError(String description) {
+//        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, description);
         showNotification(messages.getString("exceptionCaption"), description, Notification.TYPE_ERROR_MESSAGE);
     }
 }

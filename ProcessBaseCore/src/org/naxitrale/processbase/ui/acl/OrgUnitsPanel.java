@@ -18,17 +18,12 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.Notification;
 import java.util.List;
 import java.util.Set;
 import org.naxitrale.processbase.persistence.controller.HibernateUtil;
@@ -45,8 +40,9 @@ public class OrgUnitsPanel extends WorkPanel implements ClickListener, Window.Cl
     private VerticalLayout orgDetailLayout = new VerticalLayout();
     private Tree tree = new Tree();
     private HierarchicalContainer hierContainer = new HierarchicalContainer();
-    private Button addBtn = new Button("Новое", this);
-    private Button updateBtn = new Button("Изменить", this);
+    private Button addBtn = new Button(messages.getString("btnAdd"), this);
+    private Button updateBtn = new Button(messages.getString("btnEdit"), this);
+    private Button deleteBtn = new Button(messages.getString("btnDelete"), this);
     private Table employeeTable = new Table();
     private HibernateUtil hutil = new HibernateUtil();
     private Label managerField = new Label();
@@ -58,6 +54,7 @@ public class OrgUnitsPanel extends WorkPanel implements ClickListener, Window.Cl
 
     public void initUI() {
         buttonBar.addComponent(addBtn, 0);
+        buttonBar.addComponent(deleteBtn, 0);
         buttonBar.addComponent(updateBtn, 0);
 
         tree.setSizeFull();
@@ -106,19 +103,19 @@ public class OrgUnitsPanel extends WorkPanel implements ClickListener, Window.Cl
             }
             tree.setValue(orgs.get(0));
         } catch (Exception ex) {
-            getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
     public void refreshOrgDetails() {
         if (tree.getValue() != null) {
             try {
-                managerField.setValue("Руководитель <b>" + ((Pborg) tree.getValue()).getPbusers() + "</b>");
+                managerField.setValue(messages.getString("fieldManager") + " <b>" + ((Pborg) tree.getValue()).getPbusers() + "</b>");
                 employeeTable.removeAllItems();
-                employeeTable.addContainerProperty("username", String.class, null, "Имя пользователя", null, null);
-                employeeTable.addContainerProperty("lastname", String.class, null, "Фамилия", null, null);
-                employeeTable.addContainerProperty("firstname", String.class, null, "Имя", null, null);
-                employeeTable.addContainerProperty("email", String.class, null, "Email", null, null);
+                employeeTable.addContainerProperty("username", String.class, null, messages.getString("tableCaptionUsername"), null, null);
+                employeeTable.addContainerProperty("lastname", String.class, null, messages.getString("tableCaptionLastname"), null, null);
+                employeeTable.addContainerProperty("firstname", String.class, null, messages.getString("tableCaptionFirstname"), null, null);
+                employeeTable.addContainerProperty("email", String.class, null, messages.getString("tableCaptionEmail"), null, null);
                 Set<Pbuser> users = hutil.getUsersByOrg((Pborg) tree.getValue());
                 for (Pbuser user : users) {
                     Item woItem = employeeTable.addItem(user);
@@ -131,7 +128,7 @@ public class OrgUnitsPanel extends WorkPanel implements ClickListener, Window.Cl
                 employeeTable.setSortAscending(false);
                 employeeTable.sort();
             } catch (Exception ex) {
-                getWindow().showNotification("Ошибка", ex.toString(), Notification.TYPE_ERROR_MESSAGE);
+                showError(ex.getMessage());
             }
         }
     }
@@ -151,6 +148,14 @@ public class OrgUnitsPanel extends WorkPanel implements ClickListener, Window.Cl
             orgWindow.exec();
             orgWindow.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(orgWindow);
+        } else if (event.getButton().equals(deleteBtn) && tree.getValue() != null) {
+            try {
+                Pborg pborg = (Pborg) tree.getValue();
+                hutil.delete(pborg);
+            } catch (Exception ex) {
+                showError(ex.getMessage());
+            }
+            refreshTree();
         }
     }
 

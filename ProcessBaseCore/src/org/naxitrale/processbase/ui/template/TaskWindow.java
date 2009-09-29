@@ -11,7 +11,6 @@ package org.naxitrale.processbase.ui.template;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Window;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

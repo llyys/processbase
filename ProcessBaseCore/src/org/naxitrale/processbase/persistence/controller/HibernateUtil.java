@@ -9,6 +9,7 @@
  **/
 package org.naxitrale.processbase.persistence.controller;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,13 +68,13 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List users = session.createSQLQuery("SELECT 1 " +
-                    " FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBUSERROLES ur " +
+                    " FROM PBUSERS u, PBROLES r, PBUSERROLES ur " +
                     " WHERE u.id = ur.pbuser_id " +
                     " AND ur.pbrole_id = r.ID " +
                     " AND r.ROLENAME = :roleName and u.username = :userName " +
                     " UNION " +
                     " SELECT 1 " +
-                    " FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBROLEGROUPS gr, PROCESSBASE.PBUSERGROUPS ug " +
+                    " FROM PBUSERS u, PBROLES r, PBROLEGROUPS gr, PBUSERGROUPS ug " +
                     " WHERE u.id = ug.pbuser_id " +
                     " AND ug.pbgroup_id = gr.pbgroup_id " +
                     " AND gr.pbrole_id = r.ID " +
@@ -94,13 +95,13 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<String> result = (List<String>) session.createSQLQuery("SELECT u.username " +
-                    "FROM PROCESSBASE.PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBUSERROLES ur " +
+                    "FROM PBUSERS u, PBROLES r, PBUSERROLES ur " +
                     "WHERE u.id = ur.pbuser_id " +
                     "AND ur.pbrole_id = r.ID " +
                     "AND r.rolename = :roleName " +
                     "UNION " +
                     "SELECT u.username " +
-                    "FROM PBUSERS u, PROCESSBASE.PBROLES r, PROCESSBASE.PBROLEGROUPS gr, PROCESSBASE.PBUSERGROUPS ug " +
+                    "FROM PBUSERS u, PBROLES r, PBROLEGROUPS gr, PBUSERGROUPS ug " +
                     "WHERE u.id = ug.pbuser_id " +
                     "AND ug.pbgroup_id = gr.pbgroup_id " +
                     "AND gr.pbrole_id = r.ID " +
@@ -121,7 +122,7 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<String> result = session.createSQLQuery("select u.username " +
-                    "from PROCESSBASE.PBUSERS u " +
+                    "from PBUSERS u " +
                     "where u.pborg_id in " +
                     "(select o.id " +
                     "from Pborgs o " +
@@ -159,9 +160,10 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             List<Pborg> result = (List<Pborg>) session.createSQLQuery(
-                    "select {Pborg.*} from PROCESSBASE.PBORGS {Pborg} " +
-                    "CONNECT BY PRIOR id = pborg_id " +
-                    "START WITH pborg_id is null").addEntity("Pborg", Pborg.class).list();
+                    "select {Pborg.*} from PBORGS {Pborg} " 
+//                    + "CONNECT BY PRIOR id = pborg_id "
+//                    + "START WITH pborg_id is null"
+                    ).addEntity("Pborg", Pborg.class).list();
             tx.commit();
             return result;
         } finally {
@@ -228,6 +230,27 @@ public class HibernateUtil {
             if (!user.getPassword().equals(currentUser.getPassword())) {
                 user.setPassword(PasswordService.encrypt(user.getPassword()));
             }
+            session.merge(user);
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            Logger.getLogger(HibernateUtil.class.getName()).log(Level.SEVERE, ex.getMessage());
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void saveUser(Pbuser user) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            user.setPassword(PasswordService.encrypt(user.getPassword()));
             session.merge(user);
             tx.commit();
         } catch (Exception ex) {
@@ -565,11 +588,11 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             result.addAll(session.createSQLQuery("select p.processid " +
-                    " from PROCESSBASE.pbusers u, PROCESSBASE.pbroles r, PROCESSBASE.pbuserroles ur, PROCESSBASE.pbroleprocesses p" +
+                    " from pbusers u, pbroles r, pbuserroles ur, pbroleprocesses p" +
                     " where u.id = ur.pbuser_id and r.id = ur.pbrole_id and p.pbrole_id = r.id and u.id = :userId" +
                     " union " +
                     " select p.processid " +
-                    " from PROCESSBASE.pbusers u, PROCESSBASE.pbrolegroups rg, PROCESSBASE.pbusergroups ug, PROCESSBASE.pbroleprocesses p" +
+                    " from pbusers u, pbrolegroups rg, pbusergroups ug, pbroleprocesses p" +
                     " where u.id = ug.pbuser_id and ug.pbgroup_id = rg.pbgroup_id and p.pbrole_id = rg.pbrole_id and u.id = :userId").setLong("userId", u.getId()).list());
             tx.commit();
         } finally {
@@ -578,6 +601,101 @@ public class HibernateUtil {
             }
             session.close();
             return result;
+        }
+    }
+
+    public boolean isInstalled() {
+        boolean result = false;
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            List admins = session.createQuery("from Pbuser as user where user.username = :username").setString("username", "admin").list();
+            if (admins.size() == 1) {
+                result = true;
+            }
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+        return result;
+    }
+
+    public void createNewProcessbaseSchema() {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            Pbuser admin = new Pbuser();
+            admin.setId(0);
+            admin.setUsername("admin");
+            admin.setPassword(PasswordService.encrypt("admin"));
+            admin.setFirstname("Administrator");
+            admin.setLastname("Processbase");
+            admin.setPbtype("SYSTEM");
+            admin.setBirthdate(new Date());
+            admin.setPosition("Administrator");
+            admin.setLanguage("en");
+            admin.setEmail("admin@naxitrale.org");
+            admin.setPborgs(null);
+            session.save(admin);
+
+            Pborg org = new Pborg(0, "Company Name");
+            org.setPbusers(admin);
+            session.save(org);
+
+            Pbrole bpmAdmin = new Pbrole(0, "BPMAdmin", "SYSTEM");
+            session.save(bpmAdmin);
+            Pbrole aclAdmin = new Pbrole(1, "ACLAdmin", "SYSTEM");
+            session.save(aclAdmin);
+            Pbrole dashboardAdmin = new Pbrole(2, "DashboardAdmin", "SYSTEM");
+            session.save(dashboardAdmin);
+
+            admin.getPbroles().add(bpmAdmin);
+            admin.getPbroles().add(aclAdmin);
+            admin.getPbroles().add(dashboardAdmin);
+            admin.setPborgs(org);
+            session.merge(admin);
+
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            Logger.getLogger(HibernateUtil.class.getName()).log(Level.SEVERE, ex.getMessage());
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void deleteProcessFromRoles(String processId) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            List<Pbrole> roleList = (List<Pbrole>) session.createQuery("from Pbrole as role").list();
+            for (int i = 0; i< roleList.size(); i++){
+                Pbrole role = roleList.get(i);
+                role.getProcesses().remove(processId);
+                session.merge(role);
+            }
+            tx.commit();
+            
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
         }
     }
 }

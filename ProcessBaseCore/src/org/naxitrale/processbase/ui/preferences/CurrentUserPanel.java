@@ -9,20 +9,15 @@
  **/
 package org.naxitrale.processbase.ui.preferences;
 
-import org.naxitrale.processbase.ui.acl.*;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Form;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import java.util.Vector;
 import org.naxitrale.processbase.ProcessBase;
-import org.naxitrale.processbase.persistence.controller.HibernateUtil;
 import org.naxitrale.processbase.persistence.entity.Pbuser;
-import org.naxitrale.processbase.ui.portal.HelpPanel;
 import org.naxitrale.processbase.ui.template.ACLFieldFactory;
 import org.naxitrale.processbase.ui.template.WorkPanel;
 
@@ -37,8 +32,8 @@ public class CurrentUserPanel extends WorkPanel {
     private Form userForm = new Form();
     private BeanItem userBean = null;
     private Pbuser user = ((ProcessBase) getApplication()).getCurrent().getUser().getPbuser();
-    private Button changePwdBtn = new Button("Сменить пароль", this);
-    
+    private Button changePwdBtn = new Button(messages.getString("btnChangePassword"), this);
+
     public CurrentUserPanel() {
         super();
         initUI();
@@ -54,22 +49,24 @@ public class CurrentUserPanel extends WorkPanel {
         order.add("email");
         order.add("position");
         order.add("pborgs");
+//        order.add("language");
         fields.addAll(order);
         userForm.setReadOnly(true);
         userBean = new BeanItem(user, fields);
         userForm.setItemDataSource(userBean);
-        userForm.setFormFieldFactory(new ACLFieldFactory());
+        userForm.setFormFieldFactory(new ACLFieldFactory(messages));
         userForm.setVisibleItemProperties(order);
         ((TextField) userForm.getField("pborgs")).setValue(user.getPborgs().getOrgName());
         userForm.setReadOnly(true);
         // add user panel
+        horizontalLayout.setMargin(false, true, true, true);
+//        horizontalLayout.setSpacing(true);
         horizontalLayout.addComponent(userForm);
         horizontalLayout.setComponentAlignment(userForm, Alignment.TOP_LEFT);
         horizontalLayout.setExpandRatio(userForm, 1);
-        
+
         buttonBar.removeButton(refreshBtn);
         buttonBar.addButton(changePwdBtn, 0);
-
     }
 
     @Override

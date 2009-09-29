@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated 02.09.2009 14:59:35 by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
-  <class name="org.naxitrale.processbase.persistence.entity.Pbuser" schema="PROCESSBASE" table="PBUSERS">
+  <class name="org.naxitrale.processbase.persistence.entity.Pbuser" table="PBUSERS">
     <id name="id" type="long">
       <column name="ID" precision="10" scale="0"/>
       <generator class="sequence">
@@ -48,13 +48,13 @@
       </key>
       <one-to-many class="org.naxitrale.processbase.persistence.entity.Pborg"/>
     </set>
-    <set name="pbgroups" schema="PROCESSBASE" table="PBUSERGROUPS">
+    <set name="pbgroups" table="PBUSERGROUPS">
       <key>
         <column name="PBUSER_ID" precision="10" scale="0"/>
       </key>
       <many-to-many class="org.naxitrale.processbase.persistence.entity.Pbgroup" column="PBGROUP_ID"/>
     </set>
-    <set name="pbroles" schema="PROCESSBASE" table="PBUSERROLES">
+    <set name="pbroles" table="PBUSERROLES">
       <key>
         <column name="PBUSER_ID" precision="10" scale="0"/>
       </key>

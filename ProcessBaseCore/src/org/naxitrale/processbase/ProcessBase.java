@@ -83,7 +83,7 @@ public class ProcessBase extends Application implements TransactionListener {
             user.setAclAdmin(hutil.isUserInRole(pbuser.getUsername(), "ACLAdmin"));
             user.setDashboardAdmin(hutil.isUserInRole(pbuser.getUsername(), "DashboardAdmin"));
             this.setUser(user);
-            this.setLocale(new Locale(pbuser.getLanguage()));
+//            this.setLocale(new Locale(pbuser.getLanguage()));
         } else {
             throw new Exception(messages.getString("loginWindowException1"));
         }
