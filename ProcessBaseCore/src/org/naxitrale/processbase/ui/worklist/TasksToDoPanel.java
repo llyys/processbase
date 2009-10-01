@@ -135,16 +135,18 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 if (execBtn.getAction().equals(Constants.ACTION_START)) {
                     worklistModule.assignTask(task.getBody().getUUID(), getApplication().getUser().toString());
                     worklistModule.startTask(task.getBody().getUUID(), true);
+                    refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                     TaskWindow taskWindow = worklistModule.getTaskWindow(task);
                     taskWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(taskWindow);
                 } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
                     worklistModule.suspendTask(task.getBody().getUUID(), true);
+                    refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_RESUME)) {
                     worklistModule.resumeTask(task.getBody().getUUID(), true);
+                    refreshTable();
                 }
-                refreshTable();
             } catch (Exception ex) {
                 Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
                 showError(ex.toString());

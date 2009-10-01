@@ -99,6 +99,13 @@ public class WorklistModule {
         runtimeAPI.finishTask(taskUUID, b);
     }
 
+    public void finishTask(ActivityInstance<TaskInstance> task, boolean b, Map<String, Object> vars) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException {
+        for (String varKey : vars.keySet()) {
+            setProcessInstanceVariable(task.getProcessInstanceUUID(), varKey, vars.get(varKey));
+        }
+        runtimeAPI.finishTask(task.getBody().getUUID(), b);
+    }
+
     public void assignTask(TaskUUID taskUUID, String user) throws TaskNotFoundException, IllegalTaskStateException {
         runtimeAPI.assignTask(taskUUID, user);
     }
