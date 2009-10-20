@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 02.09.2009 14:59:35 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class name="org.processbase.acl.persistence.Pbgroup" table="PBGROUPS">
+    <id name="id" type="long">
+      <column name="ID" precision="10" scale="0"/>
+      <generator class="sequence">
+        <param name="sequence">PB_SEQUENCE</param>
+      </generator>
+    </id>
+    <property name="groupname" type="string">
+      <column name="GROUPNAME" not-null="true"/>
+    </property>
+    <property name="groupemail" type="string">
+      <column name="GROUPEMAIL"/>
+    </property>
+    <property name="pbtype" type="string">
+      <column length="10" name="PBTYPE" not-null="true"/>
+    </property>
+    <set name="pbusers" table="PBUSERGROUPS">
+      <key>
+        <column name="PBGROUP_ID" precision="10" scale="0"/>
+      </key>
+      <many-to-many class="org.processbase.acl.persistence.Pbuser" column="PBUSER_ID"/>
+    </set>
+  </class>
+</hibernate-mapping>
