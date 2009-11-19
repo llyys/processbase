@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 12.11.2009 11:45:19 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class name="org.processbase.util.db.PbObject" table="PB_OBJECTS">
+    <id name="id" type="string">
+      <column length="100" name="ID"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="proccessUuid" type="string">
+      <column length="200" name="PROCCESS_UUID"/>
+    </property>
+    <property name="activityUuid" type="string">
+      <column length="200" name="ACTIVITY_UUID"/>
+    </property>
+    <property name="className" type="string">
+      <column length="200" name="CLASS_NAME"/>
+    </property>
+    <property name="objectBody" type="binary">
+      <column name="OBJECT_BODY"/>
+    </property>
+    <property name="varName" type="string">
+      <column length="200" name="VAR_NAME"/>
+    </property>
+  </class>
+</hibernate-mapping>
