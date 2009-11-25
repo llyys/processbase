@@ -17,13 +17,17 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.exception.PackageNotFoundException;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityBody;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 
 /**
  *
@@ -31,7 +35,7 @@ import org.processbase.Constants;
  */
 public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
 
-    protected BPMModule bpmModule = new BPMModule();
+    protected BPMModule bpmModule = new BPMModule(ProcessBase.getCurrent().getUser().getUid());
 
     public ActivityInstancesPanel() {
         super();
@@ -69,7 +73,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 ActivityDefinition activityDefinition = bpmModule.getProcessActivityDefinition(ai);
                 woItem.getItemProperty("type").setValue(activityDefinition.getPerformer() == null ? messages.getString("automatic") : messages.getString("task"));
                 if (!activityDefinition.isRoute()) {
-                    woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnOpen"), "icons/Gear2.gif", ai, this, Constants.ACTION_OPEN));
+                    woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnOpen"), "icons/document-txt.png", ai, this, Constants.ACTION_OPEN));
                 }
             }
             table.setSortContainerPropertyId("readyDate");
@@ -91,7 +95,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 if (bpmModule.getProcessActivityDefinition(activity).getPerformer() != null) {
                     task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
                 }
-                ActivityWindow activityWindow = bpmModule.getActivityWindow(activity, task);
+                ActivityWindow activityWindow = getActivityWindow(activity, task);
 //                activityWindow.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(activityWindow);
             } catch (Exception ex) {
@@ -99,5 +103,11 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 showError(ex.toString());
             }
         }
+    }
+
+    public ActivityWindow getActivityWindow(ActivityInstance<ActivityBody> activity, ActivityInstance<TaskInstance> task) throws ProcessNotFoundException, PackageNotFoundException, Exception {
+        ProcessDefinition procd = bpmModule.getProcessDefinition(activity.getProcessDefinitionUUID());
+        ActivityWindow activityWindow = new ActivityWindow(procd, activity, task);
+        return activityWindow;
     }
 }

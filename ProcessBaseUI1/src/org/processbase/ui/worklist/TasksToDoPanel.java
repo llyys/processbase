@@ -10,16 +10,19 @@
 package org.processbase.ui.worklist;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.Window.CloseListener;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
@@ -28,10 +31,13 @@ import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.processbase.ui.template.TaskWindow;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.MainWindow;
 import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
+import org.processbase.util.ProcessBaseClassLoader;
+import org.processbase.util.db.HibernateUtil;
+import org.processbase.util.db.PbActivityUi;
 
 /**
  *
@@ -49,8 +55,11 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
     @Override
     public void initTableUI() {
         super.initTableUI();
+        table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
+        table.addContainerProperty("accepted", ThemeResource.class, null);
+        table.setItemIconPropertyId("accepted");
         table.addContainerProperty("name", Component.class, null, messages.getString("tableCaptionTask"), null, null);
-//        table.setColumnWidth("name", 250);
+        table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("customID", String.class, null, messages.getString("tableCaptionCustomId"), null, null);
         table.setColumnWidth("customID", 150);
         table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
@@ -66,9 +75,10 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
 //        table.addContainerProperty("startedBy", String.class, null, "Выполняет", null, null);
 //        table.addContainerProperty("taskUser", String.class, null, messages.getString("tableCaptionTaskUser"), null, null);
         table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
-        table.setColumnWidth("state", 75);
+        table.setColumnWidth("state", 90);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 95);
+        table.setVisibleColumns(new Object[]{"name", "customID", "createdDate", "startedDate", "state", "actions"});
     }
 
     @Override
@@ -83,6 +93,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 Item woItem = table.addItem(task);
                 String taskName = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityId()).getName();
                 String name = taskName != null ? taskName : task.getActivityId();
+                woItem.getItemProperty("accepted").setValue(task.getBody().isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
                 woItem.getItemProperty("name").setValue(getTaskLink(name, messages.getString("btnOpen"), task, Constants.ACTION_OPEN));
                 Map<String, Object> processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID(), false);
                 woItem.getItemProperty("customID").setValue(processVars.containsKey("customID") ? processVars.get("customID").toString() : "");
@@ -90,14 +101,18 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 woItem.getItemProperty("createdDate").setValue(task.getBody().getCreatedDate());
                 woItem.getItemProperty("startedDate").setValue(task.getBody().getStartedDate());
 //                woItem.getItemProperty("dueDate").setValue(task.getBody().getDueDate());
-                woItem.getItemProperty("state").setValue(task.getBody().getState().toString());
+                woItem.getItemProperty("state").setValue(messages.getString(task.getBody().getState().toString()));
 //                woItem.getItemProperty("startedBy").setValue(task.getBody().getStartedBy());
 //                woItem.getItemProperty("taskUser").setValue(task.getBody().isTaskAssigned() ? task.getBody().getTaskUser() : "");
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(getExecBtn(messages.getString("btnStart"), "icons/start.png", task, Constants.ACTION_START));
-                tebb.addButton(getExecBtn(messages.getString("btnOpen"), "icons/document.gif", task, Constants.ACTION_OPEN));
-                tebb.addButton(getExecBtn(messages.getString("btnSuspend"), "icons/Pause.png", task, Constants.ACTION_SUSPEND));
-                tebb.addButton(getExecBtn(messages.getString("btnResume"), "icons/Play.png", task, Constants.ACTION_RESUME));
+                if (!task.getBody().isTaskAssigned()) {
+                    tebb.addButton(getExecBtn(messages.getString("btnAccept"), "icons/accept.png", task, Constants.ACTION_ACCEPT));
+                } else {
+                    tebb.addButton(getExecBtn(messages.getString("btnReturn"), "icons/return.png", task, Constants.ACTION_RETURN));
+                }
+                tebb.addButton(getExecBtn(messages.getString("btnExecute"), "icons/start.png", task, Constants.ACTION_START));
+                tebb.addButton(getExecBtn(messages.getString("btnSuspend"), "icons/pause.png", task, Constants.ACTION_SUSPEND));
+                tebb.addButton(getExecBtn(messages.getString("btnOpen"), "icons/document-txt.png", task, Constants.ACTION_OPEN));
                 tebb.addButton(getExecBtn(messages.getString("btnHelp"), "icons/help.png", task, Constants.ACTION_HELP));
                 woItem.getItemProperty("actions").setValue(tebb);
             }
@@ -114,16 +129,14 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
     public TableExecButton getExecBtn(String description, String iconName, Object t, String action) {
         TableExecButton execBtn = new TableExecButton(description, iconName, t, this, action);
         execBtn.setEnabled(false);
-        ActivityInstance<TaskInstance> ti = (ActivityInstance<TaskInstance>) t;
-        if (ti.getBody().getState().equals(ActivityState.READY) && execBtn.getAction().equals(Constants.ACTION_START)) {
+        ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) t;
+        if (execBtn.getAction().equals(Constants.ACTION_START) && task.getBody().isTaskAssigned() && (task.getBody().getState().equals(ActivityState.READY) || task.getBody().getState().equals(ActivityState.SUSPENDED))) {
             execBtn.setEnabled(true);
-        } else if (ti.getBody().getState().equals(ActivityState.EXECUTING) && execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+        } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getBody().getState().equals(ActivityState.EXECUTING) && task.getBody().isTaskAssigned()) {
             execBtn.setEnabled(true);
-        } else if (ti.getBody().getState().equals(ActivityState.EXECUTING) && execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
+        } else if (execBtn.getAction().equals(Constants.ACTION_ACCEPT) || execBtn.getAction().equals(Constants.ACTION_HELP) || execBtn.getAction().equals(Constants.ACTION_RETURN)) {
             execBtn.setEnabled(true);
-        } else if (ti.getBody().getState().equals(ActivityState.SUSPENDED) && execBtn.getAction().equals(Constants.ACTION_RESUME)) {
-            execBtn.setEnabled(true);
-        } else if (execBtn.getAction().equals(Constants.ACTION_HELP)) {
+        } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND) && task.getBody().getState().equals(ActivityState.EXECUTING) && task.getBody().isTaskAssigned()) {
             execBtn.setEnabled(true);
         }
         return execBtn;
@@ -131,7 +144,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
 
     public Component getTaskLink(String caption, String description, Object t, String action) {
         ActivityInstance<TaskInstance> ti = (ActivityInstance<TaskInstance>) t;
-        if (ti.getBody().getState().equals(ActivityState.EXECUTING)) {
+        if (ti.getBody().isTaskAssigned() && ti.getBody().getState().equals(ActivityState.EXECUTING)) {
             return new TableExecButton(caption, description, null, t, this, action);
         } else {
             return new Label(caption);
@@ -145,19 +158,24 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
             try {
                 TableExecButton execBtn = (TableExecButton) event.getButton();
                 ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
-                if (execBtn.getAction().equals(Constants.ACTION_START)) {
-                    bpmModule.assignTask(task.getBody().getUUID(), ((ProcessBase)getApplication()).getUser().getUid());
+                if (execBtn.getAction().equals(Constants.ACTION_ACCEPT)) {
+                    bpmModule.assignTask(task.getBody().getUUID(), ((ProcessBase) getApplication()).getUser().getUid());
+                    refreshTable();
+                } else if (execBtn.getAction().equals(Constants.ACTION_RETURN)) {
+                    bpmModule.unassignTask(task.getBody().getUUID());
+                    refreshTable();
+                } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getBody().getState().equals(ActivityState.READY)) {
                     bpmModule.startTask(task.getBody().getUUID(), true);
                     refreshTable();
+                } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getBody().getState().equals(ActivityState.SUSPENDED)) {
+                    bpmModule.resumeTask(task.getBody().getUUID(), true);
+                    refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                    TaskWindow taskWindow = bpmModule.getTaskWindow(task, (ProcessBase) getApplication());
+                    TaskWindow taskWindow = getTaskWindow(task);
                     taskWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(taskWindow);
                 } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
                     bpmModule.suspendTask(task.getBody().getUUID(), true);
-                    refreshTable();
-                } else if (execBtn.getAction().equals(Constants.ACTION_RESUME)) {
-                    bpmModule.resumeTask(task.getBody().getUUID(), true);
                     refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_HELP)) {
                     String activityDefinitionUUID = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityId()).getUUID().toString();
@@ -167,6 +185,25 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
                 showError(ex.toString());
             }
+        }
+    }
+
+    public TaskWindow getTaskWindow(ActivityInstance<TaskInstance> task) {
+        ProcessDefinition procd = null;
+        try {
+            procd = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
+            HibernateUtil hutil = new HibernateUtil();
+            PbActivityUi pbActivityUi = hutil.findPbActivityUi(task.getUUID().toString());
+            Class b = ProcessBaseClassLoader.getCurrent().loadClass(pbActivityUi.getUiClass());
+            TaskWindow taskWindow = (TaskWindow) b.newInstance();
+            taskWindow.setTaskInfo(procd, task);
+            taskWindow.exec();
+            return taskWindow;
+        } catch (Exception ex) {
+            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(procd, task);
+            defaultTaskWindow.exec();
+            return defaultTaskWindow;
         }
     }
 }

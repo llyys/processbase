@@ -29,7 +29,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.processbase.util.ProcessBaseClassLoader;
@@ -83,7 +83,7 @@ public class JarsPanel extends TablePanel implements
                 Item woItem = table.addItem(f);
                 woItem.getItemProperty("name").setValue(f.getName());
                 woItem.getItemProperty("size").setValue(new Long(f.length()));
-                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", f, this, Constants.ACTION_DELETE));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/document-delete.png", f, this, Constants.ACTION_DELETE));
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(true);

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.util.ldap.Group;

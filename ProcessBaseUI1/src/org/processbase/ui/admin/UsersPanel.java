@@ -17,7 +17,7 @@ import com.vaadin.ui.Window.CloseEvent;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;

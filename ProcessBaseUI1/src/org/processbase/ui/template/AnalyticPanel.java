@@ -23,7 +23,7 @@ import org.processbase.bpm.BPMModule;
 public class AnalyticPanel extends WorkPanel {
 
     protected GridLayout grid = new GridLayout(3, 3);
-    protected BPMModule bpmModule = new BPMModule();
+    protected BPMModule bpmModule = new BPMModule(ProcessBase.getCurrent().getUser().getUid());
     protected AnalyticModule analyticModule = new AnalyticModule();
 
     public AnalyticPanel() {

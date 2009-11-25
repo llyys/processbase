@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.util.db.HibernateUtil;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.TableExecButton;

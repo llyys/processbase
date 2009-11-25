@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
@@ -101,7 +101,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
 //            tebb.addButton((TableExecButton) addResourceButton(pd));
             tebb.addButton(new TableExecButton(messages.getString("btnParticipants"), "icons/users.png", pd, this, Constants.ACTION_EDIT_PARTICIPANTS));
             tebb.addButton(new TableExecButton(messages.getString("btnUI"), "icons/settings.png", pd, this, Constants.ACTION_ADD_UI));
-            tebb.addButton(new TableExecButton(messages.getString("btnDeleteInstances"), "icons/document-delete.png", pd, this, Constants.ACTION_DELETE_INSTANCES));
+            tebb.addButton(new TableExecButton(messages.getString("btnDeleteInstances"), "icons/folder-delete.png", pd, this, Constants.ACTION_DELETE_INSTANCES));
             tebb.addButton(new TableExecButton(messages.getString("btnDeteleProcessAndInstances"), "icons/cancel.png", pd, this, Constants.ACTION_DELETE_PROCESS_AND_INSTANCES));
             woItem.getItemProperty("actions").setValue(tebb);
         }

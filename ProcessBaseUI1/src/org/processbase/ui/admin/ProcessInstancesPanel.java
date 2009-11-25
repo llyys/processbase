@@ -15,7 +15,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
 import java.util.Date;
 import java.util.Set;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
@@ -61,7 +61,7 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
                 woItem.getItemProperty("endDate").setValue(pi.getEndedDate());
                 woItem.getItemProperty("initiator").setValue(pi.getStartedBy());
                 woItem.getItemProperty("status").setValue(pi.getInstanceState());
-                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDeleteProcessInstance"), "icons/Delete.png", pi, this, Constants.ACTION_DELETE_PROCESS_INSTANCE));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDeleteProcessInstance"), "icons/document-delete.png", pi, this, Constants.ACTION_DELETE_PROCESS_INSTANCE));
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);

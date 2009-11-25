@@ -9,6 +9,7 @@
  **/
 package org.processbase;
 
+import org.processbase.util.ProcessBaseClassLoader;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -32,7 +33,6 @@ import org.processbase.ui.template.WorkPanel;
 import org.processbase.ui.worklist.ProcessesToStartPanel;
 import org.processbase.ui.worklist.TasksDonePanel;
 import org.processbase.ui.worklist.TasksToDoPanel;
-import org.processbase.util.ProcessBaseClassLoader;
 
 /**
  *

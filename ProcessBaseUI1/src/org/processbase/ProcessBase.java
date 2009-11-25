@@ -13,6 +13,7 @@ package org.processbase;
  *
  * @author mgubaidullin
  */
+import org.processbase.util.Constants;
 import org.processbase.util.ldap.User;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 
@@ -75,7 +76,7 @@ public class ProcessBase extends Application implements TransactionListener {
     public void authenticate(String login, String password) throws Exception {
         LdapUtils ldapUtils = new LdapUtils(login, null, password);
         this.setUser(ldapUtils.authenticate());
-        this.bpmModule = new BPMModule();
+        this.bpmModule = new BPMModule(login);
         setMainWindow(this.getPBMainWindow());
     }
 

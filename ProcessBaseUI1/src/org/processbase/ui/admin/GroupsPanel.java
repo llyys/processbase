@@ -15,7 +15,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;

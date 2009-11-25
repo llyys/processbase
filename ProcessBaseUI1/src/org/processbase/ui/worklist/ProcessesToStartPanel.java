@@ -22,13 +22,15 @@ import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.ui.template.TaskWindow;
 import java.util.*;
-import org.processbase.Constants;
+import org.processbase.util.Constants;
 import org.processbase.ProcessBase;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.MainWindow;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.TableExecButtonBar;
+import org.processbase.util.ProcessBaseClassLoader;
 import org.processbase.util.db.HibernateUtil;
+import org.processbase.util.db.PbActivityUi;
 import org.processbase.util.db.PbProcessAcl;
 import org.processbase.util.ldap.LdapUtils;
 import org.processbase.util.ldap.User;
@@ -104,7 +106,7 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
             if (((TableExecButton) event.getButton()).getAction().equals(Constants.ACTION_START)) {
                 try {
                     ProcessDefinition procd = (ProcessDefinition) ((TableExecButton) event.getButton()).getTableValue();
-                    TaskWindow taskWindow = bpmModule.getStartWindow(procd, (ProcessBase) getApplication());
+                    TaskWindow taskWindow = getStartWindow(procd);
                     getApplication().getMainWindow().addWindow(taskWindow);
                 } catch (Exception ex) {
                     Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
@@ -114,6 +116,22 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
                 ProcessDefinition pd = (ProcessDefinition) ((TableExecButton) event.getButton()).getTableValue();
                 ((MainWindow) getWindow()).getWorkPanel().getHelpPanel().setHelp(pd.getUUID().toString());
             }
+        }
+    }
+
+    public TaskWindow getStartWindow(ProcessDefinition procd) {
+        try {
+            PbActivityUi pbActivityUi = hutil.findPbActivityUi(procd.getUUID().toString());
+            Class b = ProcessBaseClassLoader.getCurrent().loadClass(pbActivityUi.getUiClass());
+            TaskWindow taskWindow = (TaskWindow) b.newInstance();
+            taskWindow.setTaskInfo(procd, null);
+            taskWindow.exec();
+            return taskWindow;
+        } catch (Exception ex) {
+            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(procd, null);
+            defaultTaskWindow.exec();
+            return defaultTaskWindow;
         }
     }
 }

@@ -82,7 +82,7 @@ public class TasksDonePanel extends TablePanel {
     }
 
     private Button startButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton(messages.getString("btnInformation"), "icons/Form.gif", tableValue, new Button.ClickListener() {
+        TableExecButton startB = new TableExecButton(messages.getString("btnInformation"), "icons/document-txt.png", tableValue, new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 ActivityInstance<TaskInstance> task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
