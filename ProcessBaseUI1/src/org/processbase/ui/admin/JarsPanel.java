@@ -101,6 +101,7 @@ public class JarsPanel extends TablePanel implements
             if (event.getButton() instanceof TableExecButton) {
                 TableExecButton execBtn = (TableExecButton) event.getButton();
                 if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+                    ProcessBaseClassLoader.free();
                     File f = (File) execBtn.getTableValue();
                     f.delete();
                     ProcessBaseClassLoader.reset();
@@ -129,6 +130,7 @@ public class JarsPanel extends TablePanel implements
                 FileOutputStream fos = new FileOutputStream(new File(Constants.UI_LIBS_PATH, this.originalFilename));
                 fos.write(readData);
                 fos.close();
+                ProcessBaseClassLoader.reset();
                 ProcessBaseClassLoader.getCurrent().addFile(Constants.UI_LIBS_PATH + File.separator + this.originalFilename);
             }
             fis.close();
