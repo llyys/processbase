@@ -307,33 +307,57 @@ public class HibernateUtil {
             tx = session.beginTransaction();
             for (String key : pbVars.keySet()) {
                 Object object = pbVars.get(key);
-                // process level
-                if (activityUUID == null) {
+                if (activityUUID == null) { // new process
+                    // process level
                     PbObject pbObjectOfProcess = new PbObject(UUID.randomUUID().toString(), processInstanceUUID,
                             processInstanceUUID, key, object.getClass().getName(),
                             XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
                     session.save(pbObjectOfProcess);
-                } else {
+                    // activity level (field activityUUID = null)
+                    PbObject pbObjectActivity = new PbObject(UUID.randomUUID().toString(), processInstanceUUID,
+                            activityUUID, key, object.getClass().getName(),
+                            XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
+                    session.save(pbObjectActivity);
+                } else { // existing process
+                    // process level
                     List existPbObjects = (List) session.createQuery(
-                            "from PbObject as object " +
-                            "where object.proccessUuid = :proccessUuid " +
-                            "and object.activityUuid = :activityUuid " +
-                            "and object.varName = :varName").setString("proccessUuid", processInstanceUUID).setString("activityUuid", activityUUID).setString("varName", key).list();
-                    if (existPbObjects.size() > 0) {
-                        PbObject pbObjectSaved = (PbObject) existPbObjects.get(0);
-                        pbObjectSaved.setProccessUuid(processInstanceUUID);
-                        pbObjectSaved.setActivityUuid(activityUUID);
-                        pbObjectSaved.setVarName(key);
-                        pbObjectSaved.setClassName(object.getClass().getName());
-                        pbObjectSaved.setObjectBody(XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
-                        session.merge(pbObjectSaved);
+                            "from PbObject as obj " +
+                            "where obj.proccessUuid = :proccessUuid " +
+                            "and obj.activityUuid = :activityUuid " +
+                            "and obj.varName = :varName").setString("proccessUuid", processInstanceUUID)
+                            .setString("activityUuid", processInstanceUUID).setString("varName", key).list();
+                    PbObject pbObjectProcessLevel = null;
+                    if (existPbObjects.size() > 0) { // object exists in process
+                        pbObjectProcessLevel = (PbObject) existPbObjects.get(0);
+                    } else { // object doesn't exist in process
+                        pbObjectProcessLevel = new PbObject(UUID.randomUUID().toString());
                     }
+                    pbObjectProcessLevel.setProccessUuid(processInstanceUUID);
+                    pbObjectProcessLevel.setActivityUuid(processInstanceUUID);
+                    pbObjectProcessLevel.setVarName(key);
+                    pbObjectProcessLevel.setClassName(object.getClass().getName());
+                    pbObjectProcessLevel.setObjectBody(XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
+                    session.merge(pbObjectProcessLevel);
+
+                    // step level
+                    existPbObjects = (List) session.createQuery(
+                            "from PbObject as obj " +
+                            "where obj.proccessUuid = :proccessUuid " +
+                            "and obj.activityUuid = :activityUuid " +
+                            "and obj.varName = :varName").setString("proccessUuid", processInstanceUUID).setString("activityUuid", activityUUID).setString("varName", key).list();
+                    PbObject pbObjectActivityLevel = null;
+                    if (existPbObjects.size() > 0) { // object exists in process
+                        pbObjectActivityLevel = (PbObject) existPbObjects.get(0);
+                    } else { // object doesn't exist in process
+                        pbObjectActivityLevel = new PbObject(UUID.randomUUID().toString());
+                    }
+                    pbObjectActivityLevel.setProccessUuid(processInstanceUUID);
+                    pbObjectActivityLevel.setActivityUuid(activityUUID);
+                    pbObjectActivityLevel.setVarName(key);
+                    pbObjectActivityLevel.setClassName(object.getClass().getName());
+                    pbObjectActivityLevel.setObjectBody(XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
+                    session.merge(pbObjectActivityLevel);
                 }
-                // step level
-                PbObject pbObject = new PbObject(UUID.randomUUID().toString(), processInstanceUUID,
-                        activityUUID, key, object.getClass().getName(),
-                        XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
-                session.merge(pbObject);
             }
             tx.commit();
         } finally {
@@ -344,15 +368,17 @@ public class HibernateUtil {
         }
     }
 
-    public Map<String, Object> findObjects(String processInstanceUUID) throws UnsupportedEncodingException {
+    public Map<String, Object> findObjects(String processInstanceUUID, String activityUuid) throws UnsupportedEncodingException {
         Map<String, Object> pbVars = new HashMap<String, Object>();
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
             ArrayList<PbObject> queryResult = (ArrayList<PbObject>) session.createQuery(
-                    "from PbObject as o where o.proccessUuid = :proccessUuid")
-                    .setString("proccessUuid", processInstanceUUID).list();
+                    "from PbObject as obj where obj.proccessUuid = :proccessUuid" +
+                    " and obj.activityUuid = :activityUuid ")
+                    .setString("proccessUuid", processInstanceUUID)
+                    .setString("activityUuid", activityUuid).list();
             for (PbObject pbObject : queryResult) {
                 pbVars.put(pbObject.getVarName(), XMLManager.createObject(new String(pbObject.getObjectBody(), "UTF-8")));
             }

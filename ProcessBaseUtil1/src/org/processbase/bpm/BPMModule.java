@@ -78,7 +78,7 @@ public class BPMModule {
     public BPMModule(String currentUserUID) {
         this.currentUserUID = currentUserUID;
     }
-    
+
     public Set<ProcessDefinition> getProcessDefinitions() throws Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryDefinitionAPI.getProcesses();
@@ -100,6 +100,25 @@ public class BPMModule {
         HibernateUtil hutil = new HibernateUtil();
         hutil.saveObjects(puuid.toString(), null, pbVars);
         return puuid;
+    }
+
+    public void saveProcessVariables(ActivityInstance<TaskInstance> task, Map<String, Object> vars) throws ProcessNotFoundException, VariableNotFoundException, Exception {
+        Map<String, Object> bonitaVars = new HashMap<String, Object>();
+        Map<String, Object> pbVars = new HashMap<String, Object>();
+        for (String key : vars.keySet()) {
+            Object value = vars.get(key);
+            if (value instanceof String || value instanceof Enumeration || value instanceof Long || value instanceof Double || value instanceof Date) {
+                bonitaVars.put(key, value);
+            } else if (value != null) {
+                pbVars.put(key, value);
+            }
+        }
+        HibernateUtil hutil = new HibernateUtil();
+//        Logger.getLogger("DEBUG").log(Level.SEVERE, "pbVars = " + pbVars.keySet());
+        hutil.saveObjects(task.getProcessInstanceUUID().toString(), task.getUUID().toString(), pbVars);
+        for (String key : bonitaVars.keySet()) {
+            setProcessInstanceVariable(task.getProcessInstanceUUID(), key, vars.get(key));
+        }
     }
 
     public Set<DataFieldDefinition> getProcessDataFields(ProcessDefinitionUUID uuid) throws ProcessNotFoundException, Exception {
@@ -165,13 +184,13 @@ public class BPMModule {
         Map<String, Object> result = new HashMap<String, Object>();
         result.putAll(queryRuntimeAPI.getProcessInstanceVariables(piUUID));
         if (loadObject) {
-            Logger.getLogger("DEBUG").log(Level.SEVERE, "loadObject = " + loadObject);
+//            Logger.getLogger("DEBUG").log(Level.SEVERE, "loadObject = " + loadObject);
             HibernateUtil hutil = new HibernateUtil();
-            Logger.getLogger("DEBUG").log(Level.SEVERE, "hutil = " + hutil);
-            Map<String, Object> pbVars = hutil.findObjects(piUUID.toString());
-            Logger.getLogger("DEBUG").log(Level.SEVERE, "pbVars.size = " + pbVars.size());
+//            Logger.getLogger("DEBUG").log(Level.SEVERE, "hutil = " + hutil);
+            Map<String, Object> pbVars = hutil.findObjects(piUUID.toString(), piUUID.toString());
+//            Logger.getLogger("DEBUG").log(Level.SEVERE, "pbVars.size = " + pbVars.size());
             result.putAll(pbVars);
-            Logger.getLogger("DEBUG").log(Level.SEVERE, "result.size = " + result.size());
+//            Logger.getLogger("DEBUG").log(Level.SEVERE, "result.size = " + result.size());
         }
         return result;
     }
@@ -204,7 +223,6 @@ public class BPMModule {
 //            return defaultTaskWindow;
 //        }
 //    }
-
 //    public TaskWindow getTaskWindow(ActivityInstance<TaskInstance> task, Application application) {
 //        ProcessDefinition procd = null;
 //        try {
@@ -224,7 +242,6 @@ public class BPMModule {
 //            return defaultTaskWindow;
 //        }
 //    }
-
     public ActivityDefinition getProcessActivity(ActivityInstance<ActivityBody> ai) throws ProcessNotFoundException, ActivityNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryDefinitionAPI.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityId());
@@ -375,7 +392,6 @@ public class BPMModule {
 //        ActivityWindow activityWindow = new ActivityWindow(procd, activity, task);
 //        return activityWindow;
 //    }
-
     public void assignTask(TaskUUID taskUUID, Set<String> users) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         runtimeAPI.assignTask(taskUUID, users);
