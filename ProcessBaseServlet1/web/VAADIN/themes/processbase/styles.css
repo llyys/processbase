@@ -2817,7 +2817,7 @@ td.v-datefield-calendarpanel-nextyear {
 }
 .v-form fieldset {
     border: none;
-    border-top: 1px solid #babfc0;
+    /*border-top: 1px solid #babfc0;*/
 }
 .v-form legend {
     margin: 0;
