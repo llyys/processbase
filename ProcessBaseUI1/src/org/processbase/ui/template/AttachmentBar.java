@@ -31,12 +31,12 @@ public class AttachmentBar extends VerticalLayout {
     }
 
     public void load(String processUUID, String activityUUID) {
-        Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "processUUID = " + processUUID);
-        Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "activityUUID = " + activityUUID);
+//        Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "processUUID = " + processUUID);
+//        Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "activityUUID = " + activityUUID);
         HibernateUtil hutil = new HibernateUtil();
         ArrayList<PbAttachment> pbAttachments = hutil.findProcessPbAttachments(processUUID);
         for (PbAttachment pbAttachment : pbAttachments) {
-            Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "pbAttachments = " + pbAttachments);
+//            Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "pbAttachments = " + pbAttachments);
             this.addComponent(new AttachmentFileRow(pbAttachment));
         }
         this.addComponent(new AttachmentFileRow(null));

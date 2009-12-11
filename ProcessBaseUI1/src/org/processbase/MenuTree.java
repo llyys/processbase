@@ -91,12 +91,11 @@ public class MenuTree extends VerticalLayout implements ItemClickEvent.ItemClick
             addTreeItem(new PanelMenuItem(messages.getString("tabCaptionJars"), JarsPanel.class, null), administration, false);
 //            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionACLUsers"), UsersPanel.class, null), administration, false);
 //            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionACLGroups"), GroupsPanel.class, null), administration, false);
-
-            PanelMenuItem monitoring = new PanelMenuItem(messages.getString("tabCaptionMonitoring"), null, null);
-            addTreeItem(monitoring, "", true);
-            tree.expandItem(monitoring);
-            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionProcessInstances"), ProcessInstancesPanel.class, null), monitoring, false);
-            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionProcessActivities"), ActivityInstancesPanel.class, null), monitoring, false);
+//            PanelMenuItem monitoring = new PanelMenuItem(messages.getString("tabCaptionMonitoring"), null, null);
+//            addTreeItem(monitoring, "", true);
+//            tree.expandItem(monitoring);
+            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionProcessInstances"), ProcessInstancesPanel.class, null), administration, false);
+            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionProcessActivities"), ActivityInstancesPanel.class, null), administration, false);
         }
         if (((ProcessBase) getApplication()).getCurrent().getUser().isDashboardAdmin()) {
             PanelMenuItem analytics = new PanelMenuItem(messages.getString("tabCaptionAnalytics"), null, null);

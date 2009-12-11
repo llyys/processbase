@@ -15,6 +15,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
 import java.util.Date;
 import java.util.Set;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
@@ -55,8 +56,9 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
             Set<ProcessInstance> pis = bpmModule.getProcessInstances();
             for (ProcessInstance pi : pis) {
                 Item woItem = table.addItem(pi);
-                woItem.getItemProperty("UUID").setValue(pi.getPackageDefinitionUUID());
-                woItem.getItemProperty("name").setValue(bpmModule.getProcessDefinition(pi.getProcessDefinitionUUID()).getProcessId());
+                woItem.getItemProperty("UUID").setValue(pi.getProcessInstanceUUID());
+                ProcessDefinition pd = bpmModule.getProcessDefinition(pi.getProcessDefinitionUUID());
+                woItem.getItemProperty("name").setValue(pd.getName());
                 woItem.getItemProperty("startedDate").setValue(pi.getStartedDate());
                 woItem.getItemProperty("endDate").setValue(pi.getEndedDate());
                 woItem.getItemProperty("initiator").setValue(pi.getStartedBy());

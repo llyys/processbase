@@ -119,19 +119,28 @@ public class ProcessesToStartPanel extends TablePanel implements Button.ClickLis
         }
     }
 
-    public TaskWindow getStartWindow(ProcessDefinition procd) {
+    public TaskWindow getStartWindow(ProcessDefinition procd) throws InstanceNotFoundException, ProcessNotFoundException {
+        TaskWindow taskWindow = null;
         try {
             PbActivityUi pbActivityUi = hutil.findPbActivityUi(procd.getUUID().toString());
             Class b = ProcessBaseClassLoader.getCurrent().loadClass(pbActivityUi.getUiClass());
-            TaskWindow taskWindow = (TaskWindow) b.newInstance();
+            taskWindow = (TaskWindow) b.newInstance();
             taskWindow.setTaskInfo(procd, null);
+            return taskWindow;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, "ClassNotFoundException " + ex.getMessage());
+        } catch (InstantiationException ex) {
+            Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, "InstantiationException " + ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, "IllegalAccessException " + ex.getMessage());
+        } catch (Exception ex) {
+            Logger.getLogger(ProcessesToStartPanel.class.getName()).log(Level.SEVERE, "Exception " + ex.getMessage());
+        } finally {
+            if (taskWindow == null) {
+                taskWindow = new DefaultTaskWindow(procd, null);
+            }
             taskWindow.exec();
             return taskWindow;
-        } catch (Exception ex) {
-            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
-            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(procd, null);
-            defaultTaskWindow.exec();
-            return defaultTaskWindow;
         }
     }
 }

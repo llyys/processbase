@@ -84,14 +84,19 @@ public class ProcessBase extends Application implements TransactionListener {
         return new MainWindow();
     }
 
-//   public static SystemMessages getSystemMessages() {
-//        CustomizedSystemMessages m = new CustomizedSystemMessages();
-//        m.setSessionExpiredURL(null);
-//        m.setSessionExpiredNotificationEnabled(true);
-//        m.setSessionExpiredCaption(ProcessBase.getCurrent().messages.getString("exceptionCaption"));
-//        m.setSessionExpiredMessage(ProcessBase.getCurrent().messages.getString("sessionExpired"));
-//        return m;
-//    }
+    public static SystemMessages getSystemMessages() {
+        CustomizedSystemMessages m = new CustomizedSystemMessages();
+        m.setSessionExpiredURL(null);
+        m.setSessionExpiredNotificationEnabled(true);
+        m.setSessionExpiredCaption(null);
+        m.setSessionExpiredMessage("Время действия вашей сессии истекло!");
+        m.setCommunicationErrorCaption(null);
+        m.setCommunicationErrorMessage("Ошибка соединения!");
+        m.setOutOfSyncCaption(null);
+        m.setInternalErrorCaption(null);
+        m.setInternalErrorMessage("Внутренняя ошибка!");
+        return m;
+    }
 
     public void logout() {
         currentApplication.get().close();

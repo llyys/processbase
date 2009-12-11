@@ -17,6 +17,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window.CloseListener;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -166,9 +167,15 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                     refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getBody().getState().equals(ActivityState.READY)) {
                     bpmModule.startTask(task.getBody().getUUID(), true);
+                    TaskWindow taskWindow = getTaskWindow(task);
+                    taskWindow.addListener((CloseListener) this);
+                    getApplication().getMainWindow().addWindow(taskWindow);
                     refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getBody().getState().equals(ActivityState.SUSPENDED)) {
                     bpmModule.resumeTask(task.getBody().getUUID(), true);
+                    TaskWindow taskWindow = getTaskWindow(task);
+                    taskWindow.addListener((CloseListener) this);
+                    getApplication().getMainWindow().addWindow(taskWindow);
                     refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                     TaskWindow taskWindow = getTaskWindow(task);
@@ -200,7 +207,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
             taskWindow.exec();
             return taskWindow;
         } catch (Exception ex) {
-            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
             DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(procd, task);
             defaultTaskWindow.exec();
             return defaultTaskWindow;

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Properties;
+import org.processbase.util.db.HibernateUtil;
 
 /**
  *
@@ -30,5 +32,11 @@ public class Test {
 //        properties.setProperty("aaaa", "2222");
 //        properties.setProperty("bbb", "2222");
 //        properties.storeToXML(new FileOutputStream(new File("hello.properties")), "", "UTF-8");
+
+        HibernateUtil hutil = new HibernateUtil();
+            Map<String, Object> pbVars = hutil.findObjects("MortgageSamruk-1.2-MortgageSamruk-1.2$4461", "");
+            for (String key :pbVars.keySet()){
+                System.out.println(key + " = " + pbVars.get(key));
+            }
     }
 }

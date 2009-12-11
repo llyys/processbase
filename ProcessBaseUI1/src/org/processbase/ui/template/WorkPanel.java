@@ -31,7 +31,6 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     protected HorizontalLayout horizontalLayout = new HorizontalLayout();
     protected ButtonBar buttonBar = new ButtonBar();
     protected Button refreshBtn = new Button(messages.getString("btnRefresh"), this);
-
     protected HelpPanel helpPanel = new HelpPanel();
 
     public WorkPanel() {
@@ -60,7 +59,7 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     }
 
     public void showError(String errorMessage) {
-        getWindow().showNotification(messages.getString("exceptionCaption"), errorMessage, Notification.TYPE_ERROR_MESSAGE);
+        getWindow().showNotification(messages.getString("exceptionCaption"), "<br/>" + errorMessage, Notification.TYPE_ERROR_MESSAGE);
     }
 
     public void showMessageWindow(String message, int windowStyle) {
@@ -83,6 +82,4 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     public void setHelpPanel(HelpPanel helpPanel) {
         this.helpPanel = helpPanel;
     }
-
-    
 }

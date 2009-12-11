@@ -9,6 +9,9 @@
  **/
 package org.processbase;
 
+import com.vaadin.event.Action;
+import com.vaadin.event.Action.Handler;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
@@ -29,13 +32,14 @@ import java.util.ResourceBundle;
  * 
  * @author mgubaidullin
  */
-public class LoginWindow extends Window implements Button.ClickListener {
+public class LoginWindow extends Window implements Handler {
 
     private GridLayout grid = new GridLayout(3, 2);
     private Panel panel = new Panel();
     public FormLayout form = new FormLayout();
     private VerticalLayout vlayout = new VerticalLayout();
-    private Button btnLogin = new Button("Войти");
+    private Button btnLogin = null;
+    private Action action_ok = null;
     private TextField username = new TextField("Имя пользователя");
     private TextField password = new TextField("Пароль");
     private Label labelLeft = new Label("");
@@ -74,9 +78,10 @@ public class LoginWindow extends Window implements Button.ClickListener {
         password.setSizeFull();
         form.addComponent(password);
 
-        btnLogin.setCaption(messages.getString("btnLoginCaption"));
+        btnLogin = new Button(messages.getString("btnLoginCaption"), this, "okHandler");
+        action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
         form.addComponent(btnLogin);
-        btnLogin.addListener(this);
+//        btnLogin.addListener(this);
 
         createLogo();
         vlayout.addComponent(logo);
@@ -86,14 +91,26 @@ public class LoginWindow extends Window implements Button.ClickListener {
         vlayout.setMargin(true);
         vlayout.setSpacing(true);
         panel.setContent(vlayout);
+        panel.addActionHandler(this);
     }
 
     private void createLogo() {
         ThemeResource themeResource = new ThemeResource("icons/processbase2.png");
         logo = new Embedded("", themeResource);
+        logo.setType(Embedded.TYPE_IMAGE);
     }
 
-    public void buttonClick(ClickEvent event) {
+    public Action[] getActions(Object target, Object sender) {
+        return new Action[]{action_ok};
+    }
+
+    public void handleAction(Action action, Object sender, Object target) {
+        if (action == action_ok) {
+            okHandler();
+        }
+    }
+
+    public void okHandler() {
         try {
             ((ProcessBase) getApplication()).getCurrent().authenticate((String) username.getValue(), (String) password.getValue());
             open(new ExternalResource(((ProcessBase) getApplication()).getCurrent().getURL()));
