@@ -13,6 +13,7 @@ import com.sun.appserv.security.ProgrammaticLogin;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -301,7 +302,13 @@ public class BPMModule {
     public void deleteAllProcessInstances(PackageDefinition pd) throws PackageNotFoundException, ProcessNotFoundException, UndeletableInstanceException {
         Set<ProcessDefinition> pds = queryDefinitionAPI.getPackageProcesses(pd.getPackageDefinitionUUID());
         for (ProcessDefinition prd : pds) {
+            ArrayList<String> piUUIDs = new ArrayList<String>();
+            for (ProcessInstance pi : getProcessInstancesByUUID(prd.getProcessDefinitionUUID())) {
+                piUUIDs.add(pi.getProcessInstanceUUID().toString());
+            }
             runtimeAPI.deleteAllProcessInstances(prd.getProcessDefinitionUUID());
+            HibernateUtil hutil = new HibernateUtil();
+            hutil.deletePbObjects(piUUIDs);
         }
     }
 
@@ -354,6 +361,8 @@ public class BPMModule {
 
     public void deleteProcessInstance(ProcessInstanceUUID piUUID) throws InstanceNotFoundException, InstanceNotFoundException, InstanceNotFoundException, UndeletableInstanceException {
         runtimeAPI.deleteProcessInstance(piUUID);
+        HibernateUtil hutil = new HibernateUtil();
+        hutil.deletePbObjects(piUUID.toString());
     }
 
     public ProcessDefinition getProcessDefinition(ProcessDefinitionUUID pdUUID) throws ProcessNotFoundException, Exception {

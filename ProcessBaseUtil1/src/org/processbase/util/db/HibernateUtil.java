@@ -20,7 +20,6 @@ import org.hibernate.Session;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 import org.processbase.util.XMLManager;
 import org.processbase.util.ldap.User;
@@ -324,8 +323,7 @@ public class HibernateUtil {
                             "from PbObject as obj " +
                             "where obj.proccessUuid = :proccessUuid " +
                             "and obj.activityUuid = :activityUuid " +
-                            "and obj.varName = :varName").setString("proccessUuid", processInstanceUUID)
-                            .setString("activityUuid", processInstanceUUID).setString("varName", key).list();
+                            "and obj.varName = :varName").setString("proccessUuid", processInstanceUUID).setString("activityUuid", processInstanceUUID).setString("varName", key).list();
                     PbObject pbObjectProcessLevel = null;
                     if (existPbObjects.size() > 0) { // object exists in process
                         pbObjectProcessLevel = (PbObject) existPbObjects.get(0);
@@ -376,9 +374,7 @@ public class HibernateUtil {
             tx = session.beginTransaction();
             ArrayList<PbObject> queryResult = (ArrayList<PbObject>) session.createQuery(
                     "from PbObject as obj where obj.proccessUuid = :proccessUuid" +
-                    " and obj.activityUuid = :activityUuid ")
-                    .setString("proccessUuid", processInstanceUUID)
-                    .setString("activityUuid", activityUuid).list();
+                    " and obj.activityUuid = :activityUuid ").setString("proccessUuid", processInstanceUUID).setString("activityUuid", activityUuid).list();
             for (PbObject pbObject : queryResult) {
                 pbVars.put(pbObject.getVarName(), XMLManager.createObject(new String(pbObject.getObjectBody(), "UTF-8")));
             }
@@ -398,9 +394,50 @@ public class HibernateUtil {
         try {
             tx = session.beginTransaction();
             ArrayList<PbObject> queryResult = (ArrayList<PbObject>) session.createQuery(
-                    "from PbObject as object where object.proccessUuid = :proccessUuid").setString("proccessUuid", processInstanceUUID).list();
+                    "from PbObject as obj where obj.proccessUuid = :proccessUuid").setString("proccessUuid", processInstanceUUID).list();
             tx.commit();
             return queryResult;
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void deletePbObjects(String processInstanceUUID) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            ArrayList<PbObject> queryResult = (ArrayList<PbObject>) session.createQuery(
+                    "from PbObject as obj where obj.proccessUuid = :proccessUuid").setString("proccessUuid", processInstanceUUID).list();
+            for (PbObject obj : queryResult) {
+                session.delete(obj);
+            }
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void deletePbObjects(ArrayList<String> processInstanceUUIDs) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            ArrayList<PbObject> queryResult = new ArrayList<PbObject>();
+
+            if (processInstanceUUIDs.size() > 0) {
+                queryResult.addAll((ArrayList<PbObject>) session.createCriteria(PbObject.class).add(Restrictions.in("proccessUuid", processInstanceUUIDs)).list());
+            }
+            for (PbObject obj : queryResult) {
+                session.delete(obj);
+            }
+            tx.commit();
         } finally {
             if (tx.isActive()) {
                 tx.rollback();

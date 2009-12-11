@@ -51,6 +51,7 @@ public class ProcessBaseClassLoader extends URLClassLoader {
     public static void reset() {
         synchronized (LOCK) {
             current = new ProcessBaseClassLoader();
+            System.gc();
         }
     }
 
@@ -58,7 +59,7 @@ public class ProcessBaseClassLoader extends URLClassLoader {
         return uiLoaded;
     }
 
-    private void loadUIClasses() {
+    public void loadUIClasses() {
         File folder = new File(Constants.UI_LIBS_PATH);
         File[] files = folder.listFiles();
         for (File file : files) {
@@ -68,6 +69,7 @@ public class ProcessBaseClassLoader extends URLClassLoader {
                 Logger.getLogger(ProcessBaseClassLoader.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
         }
+//        current.uiLoaded = true;
     }
 
     public void addFile(String path) throws MalformedURLException {

@@ -13,5 +13,6 @@
     <mapping resource="org/processbase/util/db/PbHelp.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbAttachment.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbObject.hbm.xml"/>
+    <!--<mapping resource="org/processbase/util/db/PbDashboard.hbm.xml"/>-->
   </session-factory>
 </hibernate-configuration>
