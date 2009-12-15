@@ -20,13 +20,12 @@ import com.vaadin.ui.VerticalLayout;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.ui.admin.GroupsPanel;
 import org.processbase.ui.admin.JarsPanel;
-import org.processbase.ui.admin.UsersPanel;
 import org.processbase.ui.dashboard.ProcessDashboardPanel;
 import org.processbase.ui.admin.ActivityInstancesPanel;
 import org.processbase.ui.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.admin.ProcessInstancesPanel;
+import org.processbase.ui.admin.SectionsPanel;
 import org.processbase.ui.template.AnalyticPanel;
 import org.processbase.ui.template.TablePanel;
 import org.processbase.ui.template.WorkPanel;
@@ -50,12 +49,12 @@ public class MenuTree extends VerticalLayout implements ItemClickEvent.ItemClick
     public MenuTree() {
         super();
         prepareTrees();
-        startProcessTree.setContainerDataSource(startProcessTreeContainer);
-        startProcessTree.setItemCaptionPropertyId("name");
-        startProcessTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-        startProcessTree.setImmediate(true);
-        startProcessTree.addListener(this);
-        addComponent(startProcessTree);
+//        startProcessTree.setContainerDataSource(startProcessTreeContainer);
+//        startProcessTree.setItemCaptionPropertyId("name");
+//        startProcessTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+//        startProcessTree.setImmediate(true);
+//        startProcessTree.addListener(this);
+//        addComponent(startProcessTree);
         tree.setContainerDataSource(treeContainer);
         tree.setItemCaptionPropertyId("name");
         tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -70,27 +69,28 @@ public class MenuTree extends VerticalLayout implements ItemClickEvent.ItemClick
     }
 
     public void prepareTrees() {
-        startProcessTreeContainer.addContainerProperty("name", String.class, null);
-        PanelMenuItem panelMenuItem = new PanelMenuItem(messages.getString("tabCaptionTaskNew"), ProcessesToStartPanel.class, null);
-        Item item = startProcessTreeContainer.addItem(panelMenuItem);
-        item.getItemProperty("name").setValue(panelMenuItem.getName());
-        startProcessTreeContainer.setChildrenAllowed(panelMenuItem, false);
+//        startProcessTreeContainer.addContainerProperty("name", String.class, null);
+//        PanelMenuItem panelMenuItem = new PanelMenuItem(messages.getString("tabCaptionTaskNew"), ProcessesToStartPanel.class, null);
+//        Item item = startProcessTreeContainer.addItem(panelMenuItem);
+//        item.getItemProperty("name").setValue(panelMenuItem.getName());
+//        startProcessTreeContainer.setChildrenAllowed(panelMenuItem, false);
 
         treeContainer.addContainerProperty("name", String.class, null);
         PanelMenuItem workList = new PanelMenuItem(messages.getString("tabCaptionWorkList"), null, null);
         addTreeItem(workList, "", true);
         tree.expandItem(workList);
         addTreeItem(new PanelMenuItem(messages.getString("tabCaptionTaskInbox"), TasksToDoPanel.class, new TasksToDoPanel()), workList, false);
+        addTreeItem(new PanelMenuItem(messages.getString("tabCaptionTaskNew"), ProcessesToStartPanel.class, null), workList, false);
         addTreeItem(new PanelMenuItem(messages.getString("tabCaptionTaskFinished"), TasksDonePanel.class, null), workList, false);
 
         if (((ProcessBase) getApplication()).getCurrent().getUser().isBpmAdmin()) {
             PanelMenuItem administration = new PanelMenuItem(messages.getString("tabCaptionAdministration"), null, null);
             addTreeItem(administration, "", true);
             tree.expandItem(administration);
+            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionSections"), SectionsPanel.class, null), administration, false);
             addTreeItem(new PanelMenuItem(messages.getString("tabCaptionProcesses"), ProcessDefinitionsPanel.class, null), administration, false);
             addTreeItem(new PanelMenuItem(messages.getString("tabCaptionJars"), JarsPanel.class, null), administration, false);
-//            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionACLUsers"), UsersPanel.class, null), administration, false);
-//            addTreeItem(new PanelMenuItem(messages.getString("tabCaptionACLGroups"), GroupsPanel.class, null), administration, false);
+
 //            PanelMenuItem monitoring = new PanelMenuItem(messages.getString("tabCaptionMonitoring"), null, null);
 //            addTreeItem(monitoring, "", true);
 //            tree.expandItem(monitoring);

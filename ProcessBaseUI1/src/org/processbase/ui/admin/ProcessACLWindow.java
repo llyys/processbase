@@ -129,7 +129,7 @@ public class ProcessACLWindow extends PbWindow implements ClickListener {
             for (PbProcessAcl pbProcessAcl : pbProcessAcls) {
                 Item woItem = membersTable.addItem(pbProcessAcl);
                 woItem.getItemProperty("groupDN").setValue(pbProcessAcl.getGroupDn());
-                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/Delete.png", pbProcessAcl, this, Constants.ACTION_DELETE));
+                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnDelete"), "icons/cancel.png", pbProcessAcl, this, Constants.ACTION_DELETE));
             }
             membersTable.setSortContainerPropertyId("groupDN");
             membersTable.setSortAscending(false);

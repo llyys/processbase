@@ -11,6 +11,7 @@ package org.processbase.ui.template;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,7 @@ import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
+import org.processbase.util.ldap.User;
 
 /**
  *
@@ -43,6 +45,9 @@ public class TaskWindow extends PbWindow {
 
     public TaskWindow() {
         super();
+        Label emptyLabel = new Label("");
+        buttons.addComponent(emptyLabel);
+        buttons.setExpandRatio(emptyLabel, 1);
     }
 
     public void setTaskInfo(ProcessDefinition pd, ActivityInstance<TaskInstance> t) throws ProcessNotFoundException, InstanceNotFoundException, Exception {
@@ -74,5 +79,10 @@ public class TaskWindow extends PbWindow {
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("static-access")
+    public User getCurrenUser(){
+        return ((ProcessBase) getApplication()).getCurrent().getUser();
     }
 }

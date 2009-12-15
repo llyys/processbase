@@ -20,12 +20,19 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import java.util.Date;
+import java.util.ResourceBundle;
 
 /**
  *
  * @author mgubaidullin
  */
 public class PbFieldFactory implements FormFieldFactory {
+    protected ResourceBundle messages = null;
+
+    public PbFieldFactory(ResourceBundle messages) {
+        super();
+        this.messages = messages;
+    }
 
     public Field createField(Class type, Component uiContext) {
         return null;
@@ -37,7 +44,21 @@ public class PbFieldFactory implements FormFieldFactory {
 
     public Field createField(Item item, Object propertyId, Component uiContext) {
         String pid = (String) propertyId;
-        if (pid.equals("taskName") || pid.equals("name")) {
+        if (pid.equals("sectionName") ){
+           TextField tf = new TextField(messages.getString("sectionName"));
+            tf.setNullRepresentation("");
+            tf.setWidth("300px");
+            tf.setRequired(true);
+            tf.setRequiredError(messages.getString("requiredField"));
+            return tf;
+        } else if (pid.equals("sectionDesc") ){
+           TextField tf = new TextField(messages.getString("sectionDesc"));
+            tf.setNullRepresentation("");
+            tf.setWidth("150px");
+            tf.setRequired(true);
+            tf.setRequiredError(messages.getString("requiredField"));
+            return tf;
+        } else if (pid.equals("taskName") || pid.equals("name")) {
             TextField tf = new TextField(("taskName"));
             tf.setNullRepresentation("");
             tf.setSizeFull();

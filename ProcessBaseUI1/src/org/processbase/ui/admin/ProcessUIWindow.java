@@ -134,7 +134,7 @@ public class ProcessUIWindow extends PbWindow implements
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                hutil.mergeProcessUi(getCurrentTableValues());
+                hutil.mergeProcessUi(processUUID, getCurrentTableValues());
                 close();
             } else if (event.getButton().equals(downloadBtn)) {
                 download();
@@ -164,7 +164,6 @@ public class ProcessUIWindow extends PbWindow implements
         ArrayList<PbActivityUi> pbActivityUis = new ArrayList<PbActivityUi>();
         for (Object object : membersTable.getContainerDataSource().getItemIds()) {
             PbActivityUi pbActivityUi = new PbActivityUi();
-            pbActivityUi.setId(membersTable.getItem(object).getItemProperty("id").toString());
             pbActivityUi.setProccessUuid(this.processUUID);
             pbActivityUi.setActivityUuid(membersTable.getItem(object).getItemProperty("activityUUID").toString());
             pbActivityUi.setActivityDescription(membersTable.getItem(object).getItemProperty("activityDescription").toString());

@@ -59,7 +59,14 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     }
 
     public void showError(String errorMessage) {
-        getWindow().showNotification(messages.getString("exceptionCaption"), "<br/>" + errorMessage, Notification.TYPE_ERROR_MESSAGE);
+        ((PbWindow)getWindow()).showError(errorMessage);
+    }
+
+    public void showInformation(String infoMessage) {
+        ((PbWindow)getWindow()).showInformation(infoMessage);
+    }
+    public void showWarning(String warningMessage) {
+        ((PbWindow)getWindow()).showWarning(warningMessage);
     }
 
     public void showMessageWindow(String message, int windowStyle) {

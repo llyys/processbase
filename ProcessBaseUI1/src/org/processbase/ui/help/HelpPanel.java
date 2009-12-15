@@ -40,7 +40,7 @@ public class HelpPanel extends Panel implements Button.ClickListener {
         HibernateUtil hutil = new HibernateUtil();
         pbHelp = hutil.findPbHelp(uniqueUUID);
         if (pbHelp == null) {
-            pbHelp = new PbHelp(UUID.randomUUID().toString());
+            pbHelp = new PbHelp();
             pbHelp.setBlackText("".getBytes());
             pbHelp.setBlueText("".getBytes());
             pbHelp.setTopText("".getBytes());
@@ -52,12 +52,18 @@ public class HelpPanel extends Panel implements Button.ClickListener {
 
     public void setHelp(PbHelp pbHelp) {
         try {
-            topText = new String(pbHelp.getTopText(), "UTF-8");
-            blueText = new String(pbHelp.getBlueText(), "UTF-8");
-            blackText = new String(pbHelp.getBlackText(), "UTF-8");
+            if (pbHelp.getTopText() != null) {
+                topText = new String(pbHelp.getTopText(), "UTF-8");
+            }
+            if (pbHelp.getBlueText() != null) {
+                blueText = new String(pbHelp.getBlueText(), "UTF-8");
+            }
+            if (pbHelp.getBlackText() != null) {
+                blackText = new String(pbHelp.getBlackText(), "UTF-8");
+            }
             initUI();
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(HelpPanel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HelpPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
     }
 

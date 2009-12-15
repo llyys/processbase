@@ -13,9 +13,11 @@ import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -46,6 +48,8 @@ public class AttachmentFileRow extends HorizontalLayout
     private String MIMEType;
     private String filename;
     private boolean saved = false;
+    private TextField fileDesc = new TextField("Описание");
+    private ComboBox fileType = new ComboBox("Тип");
 
     public AttachmentFileRow(PbAttachment pbAttachments) {
         super();
@@ -61,6 +65,7 @@ public class AttachmentFileRow extends HorizontalLayout
 
     private void initUI() {
         setSizeFull();
+        this.setSpacing(true);
         emptyLabel.setWidth("20px");
         btnFileDownload.setStyleName(Button.STYLE_LINK);
         btnDelete.setStyleName(Button.STYLE_LINK);
@@ -69,7 +74,10 @@ public class AttachmentFileRow extends HorizontalLayout
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             upload.setImmediate(true);
+            this.addComponent(fileType);
+            this.addComponent(fileDesc);
             this.addComponent(upload);
+            setComponentAlignment(upload, Alignment.MIDDLE_CENTER);
             this.setExpandRatio(upload, 1);
         } else {
             btnFileDownload.setCaption(pbAttachments.getFileName());

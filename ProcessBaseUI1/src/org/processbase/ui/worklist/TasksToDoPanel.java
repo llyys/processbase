@@ -17,7 +17,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window.CloseListener;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -121,7 +120,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
             Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         table.setSortContainerPropertyId("createdDate");
-        table.setSortAscending(true);
+        table.setSortAscending(false);
         table.sort();
 
     }
@@ -162,6 +161,9 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 if (execBtn.getAction().equals(Constants.ACTION_ACCEPT)) {
                     bpmModule.assignTask(task.getBody().getUUID(), ((ProcessBase) getApplication()).getUser().getUid());
                     refreshTable();
+//                    table.setImmediate(true);
+//                    table.getContainerDataSource().getItem(task).getItemProperty("accepted").setValue(new ThemeResource("icons/accept.png"));
+//                    showWarning("" + table.getContainerDataSource().getItem(task));
                 } else if (execBtn.getAction().equals(Constants.ACTION_RETURN)) {
                     bpmModule.unassignTask(task.getBody().getUUID());
                     refreshTable();

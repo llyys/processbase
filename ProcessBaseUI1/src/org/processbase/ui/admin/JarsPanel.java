@@ -136,6 +136,7 @@ public class JarsPanel extends TablePanel implements
             fis.close();
             file.delete();
             refreshTable();
+            showWarning(messages.getString("jarUploaded")+": " + originalFilename);
         } catch (IOException ex) {
             Logger.getLogger(JarsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
             getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);

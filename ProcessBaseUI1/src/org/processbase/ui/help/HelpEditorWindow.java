@@ -60,7 +60,6 @@ public class HelpEditorWindow extends PbWindow implements
     private final RichTextArea topEditor = new RichTextArea();
     private final RichTextArea blueEditor = new RichTextArea();
     private final RichTextArea blackEditor = new RichTextArea();
-    
 
     public HelpEditorWindow(PbHelp pbHelp) {
         super();
@@ -74,13 +73,19 @@ public class HelpEditorWindow extends PbWindow implements
             layout.setSpacing(true);
             setContent(layout);
             layout.setSizeUndefined();
-            topEditor.setValue(new String(pbHelp.getTopText(), "UTF-8"));
+            if (pbHelp.getTopText() != null) {
+                topEditor.setValue(new String(pbHelp.getTopText(), "UTF-8"));
+            }
+            if (pbHelp.getBlueText() != null) {
+                blueEditor.setValue(new String(pbHelp.getBlueText(), "UTF-8"));
+            }
+            if (pbHelp.getBlackText() != null) {
+                blackEditor.setValue(new String(pbHelp.getBlackText(), "UTF-8"));
+            }
             topEditor.setHeight("150px");
             layout.addComponent(topEditor);
-            blueEditor.setValue(new String(pbHelp.getBlueText(), "UTF-8"));
             blueEditor.setHeight("150px");
             layout.addComponent(blueEditor);
-            blackEditor.setValue(new String(pbHelp.getBlackText(), "UTF-8"));
             blackEditor.setHeight("150px");
             layout.addComponent(blackEditor);
             upload.setButtonCaption(messages.getString("btnUpload"));

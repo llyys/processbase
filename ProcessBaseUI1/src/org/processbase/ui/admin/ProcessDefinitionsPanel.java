@@ -10,9 +10,12 @@
 package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -22,12 +25,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ow2.bonita.facade.exception.PackageNotFoundException;
 import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
@@ -37,7 +42,10 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.MessageWindow;
+import org.processbase.ui.template.TableComboBox;
 import org.processbase.util.ProcessBaseClassLoader;
+import org.processbase.util.db.HibernateUtil;
+import org.processbase.util.db.PbSection;
 
 /**
  *
@@ -61,6 +69,8 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public static String FILE_JAR = "FILE_JAR";
     private String fileType = null;
     protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
+    private ArrayList<PbSection> pbSections = null;
+    private HibernateUtil hutil = new HibernateUtil();
 
     public ProcessDefinitionsPanel() {
         super();
@@ -70,6 +80,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         upload.addListener((Upload.FailedListener) this);
         buttonBar.addComponent(upload, 1);
         buttonBar.setComponentAlignment(upload, Alignment.MIDDLE_LEFT);
+        pbSections = hutil.findPbSections();
         initTableUI();
     }
 
@@ -79,10 +90,12 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         table.addContainerProperty("UUID", String.class, null, "UUID", null, null);
         table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionProcessName"), null, null);
         table.addContainerProperty("version", String.class, null, messages.getString("tableCaptionVersion"), null, null);
+        table.setColumnWidth("version", 50);
         table.addContainerProperty("author", String.class, null, messages.getString("tableCaptionAuthor"), null, null);
-        table.addContainerProperty("desc", String.class, null, messages.getString("tableCaptionDescription"), null, null);
-        table.addContainerProperty("status", String.class, null, messages.getString("tableCaptionStatus"), null, null);
+//        table.addContainerProperty("desc", String.class, null, messages.getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("section", TableComboBox.class, null, messages.getString("tableCaptionSection"), null, null);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
+        table.setColumnWidth("actions", 85);
     }
 
     @Override
@@ -95,8 +108,8 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             woItem.getItemProperty("name").setValue(pd.getName());
             woItem.getItemProperty("version").setValue(pd.getVersion());
             woItem.getItemProperty("author").setValue(pd.getAuthor());
-            woItem.getItemProperty("desc").setValue(pd.getDescription());
-            woItem.getItemProperty("status").setValue(pd.getState());
+//            woItem.getItemProperty("desc").setValue(pd.getDescription());
+            woItem.getItemProperty("section").setValue(getProcessSection(pd));
             TableExecButtonBar tebb = new TableExecButtonBar();
 //            tebb.addButton((TableExecButton) addResourceButton(pd));
             tebb.addButton(new TableExecButton(messages.getString("btnParticipants"), "icons/users.png", pd, this, Constants.ACTION_EDIT_PARTICIPANTS));
@@ -177,17 +190,48 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             }
             file.delete();
             for (ProcessDefinition pd : deployResult.values()) {
-                getWindow().showNotification("Загружен : ", pd.getDescription(), Notification.TYPE_HUMANIZED_MESSAGE);
+                showWarning(messages.getString("processUploaded") + ": " + pd.getDescription());
             }
             refreshTable();
         } catch (Exception ex) {
             Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            showMessageWindow(ex.getMessage(), MessageWindow.ERROR_STYLE);
+            showError(ex.getMessage());
         }
     }
 
     public void uploadFailed(FailedEvent event) {
         showError(event.getReason().getMessage());
+    }
+
+    private TableComboBox getProcessSection(final PackageDefinition pd) {
+        TableComboBox result = new TableComboBox(pd);
+        result.addContainerProperty("id", Long.class, null);
+        result.addContainerProperty("name", String.class, null);
+        try {
+            final ProcessDefinition processDefinition = bpmModule.getProcessDefinition(pd);
+            PbSection currentSection = hutil.findPbSection(processDefinition.getUUID().toString());
+            for (PbSection section : pbSections) {
+                Item item = result.addItem(section);
+                item.getItemProperty("id").setValue(section.getId());
+                item.getItemProperty("name").setValue(section.getSectionName() + " - " + section.getSectionDesc());
+                if (currentSection != null && currentSection.getId() == section.getId()) {
+                    result.setValue(section);
+                }
+            }
+            result.setItemCaptionPropertyId("name");
+            result.setNewItemsAllowed(false);
+            result.setWidth("100%");
+            result.setImmediate(true);
+            result.addListener(new Property.ValueChangeListener() {
+
+                public void valueChange(ValueChangeEvent event) {
+                    hutil.setPbProcessSection(processDefinition.getUUID().toString(), (PbSection) event.getProperty().getValue());
+                }
+            });
+        } catch (PackageNotFoundException ex) {
+            Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+        return result;
     }
 
     public OutputStream receiveUpload(

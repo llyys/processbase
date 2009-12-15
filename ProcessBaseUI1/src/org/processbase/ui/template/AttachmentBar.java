@@ -13,9 +13,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.processbase.util.db.HibernateUtil;
 import org.processbase.util.db.PbAttachment;
 
@@ -55,14 +52,13 @@ public class AttachmentBar extends VerticalLayout {
                     && !((AttachmentFileRow) a).isSaved()
                     && ((AttachmentFileRow) a).getPbAttachments().getFileSize() != null) {
                 PbAttachment file = ((AttachmentFileRow) a).getPbAttachments();
-                file.setId(UUID.randomUUID().toString());
                 file.setProccessUuid(processUUID);
                 file.setActivityUuid(activityUUID);
                 pbAttachments.add(file);
             }
         }
         if (pbAttachments.size() > 0) {
-            hutil.mergeProcessPbAttachments(pbAttachments);
+            hutil.mergeProcessPbAttachments(pbAttachments, null);
         }
     }
 }
