@@ -171,10 +171,10 @@ public class LdapUtils {
         for (; userIDs.hasMore();) {
             NamingEnumeration<SearchResult> sr = ctx.search(Constants.BASE_PEOPLE_DN, userIDs.next().toString().replaceAll("," + Constants.BASE_PEOPLE_DN, ""), new SearchControls());
             SearchResult ldapUser = sr.next();
-            User user = new User(ldapUser.getAttributes().get("uid").toString(),
-                    ldapUser.getAttributes().get("sn").toString(),
-                    ldapUser.getAttributes().get("givenname").toString(),
-                    ldapUser.getAttributes().get("cn").toString(),
+            User user = new User(ldapUser.getAttributes().get("uid").get(0).toString(),
+                    ldapUser.getAttributes().get("sn").get(0).toString(),
+                    ldapUser.getAttributes().get("givenname").get(0).toString(),
+                    ldapUser.getAttributes().get("cn").get(0).toString(),
                     "", "");
             result.add(user);
         }

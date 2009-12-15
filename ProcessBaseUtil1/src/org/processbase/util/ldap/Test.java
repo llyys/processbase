@@ -25,9 +25,13 @@ public class Test {
 
     public static void main(String[] args) throws NamingException {
         Constants.loadConstants();
-        Test test = new Test();
-        test.LdapUtils("admin", null, "admin");
-        ArrayList<User> g = test.getUsers("Юрист");
+        LdapUtils ldapUtils = new LdapUtils("admin", null, "admin");
+            ArrayList<User> jurists = ldapUtils.getUsers("Юрист");
+            for (User user : jurists) {
+                System.out.println(user.getUid());
+                System.out.println(user.getGivenName());
+                System.out.println(user.getSn());
+            }
     }
 
     public void LdapUtils(String useruuid, String userDN, String password) throws NamingException {
@@ -47,20 +51,5 @@ public class Test {
         this.ctx = new InitialDirContext(this.env);
     }
 
-    public ArrayList<User> getUsers(String groupName) throws NamingException {
-        ArrayList<User> result = new ArrayList<User>();
-        NamingEnumeration<SearchResult> groupsSearch = ctx.search(Constants.BASE_GROUP_DN, "cn=" + groupName, new SearchControls());
-        NamingEnumeration userIDs = groupsSearch.next().getAttributes().get("uniqueMember").getAll();
-        for (; userIDs.hasMore();) {
-             NamingEnumeration<SearchResult> sr = ctx.search(Constants.BASE_PEOPLE_DN, userIDs.next().toString().replaceAll(","+Constants.BASE_PEOPLE_DN, ""), new SearchControls());
-            SearchResult ldapUser = sr.next();
-            User user = new User(ldapUser.getAttributes().get("uid").toString(),
-                    ldapUser.getAttributes().get("sn").toString(),
-                    ldapUser.getAttributes().get("givenname").toString(),
-                    ldapUser.getAttributes().get("cn").toString(),
-                    "", "");
-        }
-        ctx.close();
-        return result;
-    }
+   
 }

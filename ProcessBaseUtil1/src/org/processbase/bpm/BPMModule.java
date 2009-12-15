@@ -308,7 +308,7 @@ public class BPMModule {
             }
             runtimeAPI.deleteAllProcessInstances(prd.getProcessDefinitionUUID());
             HibernateUtil hutil = new HibernateUtil();
-            hutil.deletePbObjects(piUUIDs);
+            hutil.deletePbProcessess(piUUIDs);
         }
     }
 
@@ -362,7 +362,7 @@ public class BPMModule {
     public void deleteProcessInstance(ProcessInstanceUUID piUUID) throws InstanceNotFoundException, InstanceNotFoundException, InstanceNotFoundException, UndeletableInstanceException {
         runtimeAPI.deleteProcessInstance(piUUID);
         HibernateUtil hutil = new HibernateUtil();
-        hutil.deletePbObjects(piUUID.toString());
+        hutil.deletePbProcess(piUUID.toString());
     }
 
     public ProcessDefinition getProcessDefinition(ProcessDefinitionUUID pdUUID) throws ProcessNotFoundException, Exception {

@@ -121,6 +121,11 @@ public class HibernateUtil {
                 PbAttachment pbAttachment = (PbAttachment) iter.next();
                 session.delete(pbAttachment);
             }
+            ArrayList<PbObject> result5 = (ArrayList<PbObject>) session.createQuery("from PbObject as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (Iterator iter = result5.iterator(); iter.hasNext();) {
+                PbObject pbObject = (PbObject) iter.next();
+                session.delete(pbObject);
+            }
             tx.commit();
         } finally {
             if (tx.isActive()) {
@@ -430,19 +435,39 @@ public class HibernateUtil {
         }
     }
 
-    public void deletePbObjects(ArrayList<String> processInstanceUUIDs) {
+    public void deletePbProcessess(ArrayList<String> processInstanceUUIDs) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            ArrayList<PbObject> queryResult = new ArrayList<PbObject>();
+            for (String processUUID : processInstanceUUIDs) {
+                ArrayList<PbProcessAcl> result = (ArrayList<PbProcessAcl>) session.createQuery("from PbProcessAcl as acl where acl.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+                for (Iterator iter = result.iterator(); iter.hasNext();) {
+                    PbProcessAcl pbProcessAcl = (PbProcessAcl) iter.next();
+                    session.delete(pbProcessAcl);
+                }
+                ArrayList<PbActivityUi> result2 = (ArrayList<PbActivityUi>) session.createQuery("from PbActivityUi as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+                for (Iterator iter = result2.iterator(); iter.hasNext();) {
+                    PbActivityUi pbActivityUi = (PbActivityUi) iter.next();
+                    session.delete(pbActivityUi);
+                }
+                ArrayList<PbProcessSection> result3 = (ArrayList<PbProcessSection>) session.createQuery("from PbProcessSection as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+                for (Iterator iter = result3.iterator(); iter.hasNext();) {
+                    PbProcessSection pbProcessSection = (PbProcessSection) iter.next();
+                    session.delete(pbProcessSection);
+                }
+                ArrayList<PbAttachment> result4 = (ArrayList<PbAttachment>) session.createQuery("from PbAttachment as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+                for (Iterator iter = result4.iterator(); iter.hasNext();) {
+                    PbAttachment pbAttachment = (PbAttachment) iter.next();
+                    session.delete(pbAttachment);
+                }
+                ArrayList<PbObject> result5 = (ArrayList<PbObject>) session.createQuery("from PbObject as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+                for (Iterator iter = result5.iterator(); iter.hasNext();) {
+                    PbObject pbObject = (PbObject) iter.next();
+                    session.delete(pbObject);
+                }
+            }
 
-            if (processInstanceUUIDs.size() > 0) {
-                queryResult.addAll((ArrayList<PbObject>) session.createCriteria(PbObject.class).add(Restrictions.in("proccessUuid", processInstanceUUIDs)).list());
-            }
-            for (PbObject obj : queryResult) {
-                session.delete(obj);
-            }
             tx.commit();
         } finally {
             if (tx.isActive()) {
