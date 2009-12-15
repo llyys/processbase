@@ -11,6 +11,8 @@ package org.processbase.util.ldap;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -63,8 +65,7 @@ public class LdapUtils {
 //        env.put(Context.SECURITY_CREDENTIALS, this.password);
 //        this.ctx = new InitialDirContext(this.env);
 //    }
-
-    public User authenticate() throws Exception {
+    public User authenticate() throws NamingException, Exception {
         User user = null;
         try {
             NamingEnumeration<SearchResult> userSearch = ctx.search(Constants.BASE_PEOPLE_DN, Constants.DN_NAMIND_ATTRIBUTE + "=" + useruuid, new SearchControls());
@@ -83,8 +84,13 @@ public class LdapUtils {
                 user.setMail(userSR.getAttributes().get("mail").get().toString());
             }
             updateUserGroups(user);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+//        } catch (Exception e) {
+//            throw new Exception(e.getMessage());
+        } catch (NamingException ex) {
+            Logger.getLogger(LdapUtils.class.getName()).log(Level.SEVERE, null, ex);
+
+//        } catch (Exception e) {
+//            throw new Exception(e.getMessage());
         } finally {
             ctx.close();
         }
@@ -156,6 +162,24 @@ public class LdapUtils {
         mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userPassword", newPassword));
         ctx.modifyAttributes(userdn, mods);
         ctx.close();
+    }
+
+    public ArrayList<User> getUsers(String groupName) throws NamingException {
+        ArrayList<User> result = new ArrayList<User>();
+        NamingEnumeration<SearchResult> groupsSearch = ctx.search(Constants.BASE_GROUP_DN, "cn=" + groupName, new SearchControls());
+        NamingEnumeration userIDs = groupsSearch.next().getAttributes().get("uniqueMember").getAll();
+        for (; userIDs.hasMore();) {
+            NamingEnumeration<SearchResult> sr = ctx.search(Constants.BASE_PEOPLE_DN, userIDs.next().toString().replaceAll("," + Constants.BASE_PEOPLE_DN, ""), new SearchControls());
+            SearchResult ldapUser = sr.next();
+            User user = new User(ldapUser.getAttributes().get("uid").toString(),
+                    ldapUser.getAttributes().get("sn").toString(),
+                    ldapUser.getAttributes().get("givenname").toString(),
+                    ldapUser.getAttributes().get("cn").toString(),
+                    "", "");
+            result.add(user);
+        }
+        ctx.close();
+        return result;
     }
 //    public void deleteProcess(String processUUID, String login, String password) {
 //        try {

@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.hibernate.Session;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.SessionFactory;
@@ -36,17 +35,7 @@ public class HibernateUtil {
             // Create the SessionFactory from standard (hibernate.cfg.xml) 
             // config file.
             sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
-//            Configuration cfg = new Configuration()
-//                    .addClass(org.processbase.util.db.PbActivityUi.class)
-//                    .addClass(org.processbase.util.db.PbAttachment.class)
-//                    .addClass(org.processbase.util.db.PbHelp.class)
-//                    .addClass(org.processbase.util.db.PbProcessAcl.class)
-//                    .setProperty("hibernate.connection.datasource","jdbc/ProcessBase")
-//                    ;
-//
-//            sessionFactory = cfg.configure().buildSessionFactory();
         } catch (Throwable ex) {
-            // Log the exception. 
             System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
@@ -122,6 +111,16 @@ public class HibernateUtil {
                 PbActivityUi pbActivityUi = (PbActivityUi) iter.next();
                 session.delete(pbActivityUi);
             }
+            ArrayList<PbProcessSection> result3 = (ArrayList<PbProcessSection>) session.createQuery("from PbProcessSection as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (Iterator iter = result3.iterator(); iter.hasNext();) {
+                PbProcessSection pbProcessSection = (PbProcessSection) iter.next();
+                session.delete(pbProcessSection);
+            }
+            ArrayList<PbAttachment> result4 = (ArrayList<PbAttachment>) session.createQuery("from PbAttachment as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (Iterator iter = result4.iterator(); iter.hasNext();) {
+                PbAttachment pbAttachment = (PbAttachment) iter.next();
+                session.delete(pbAttachment);
+            }
             tx.commit();
         } finally {
             if (tx.isActive()) {
@@ -136,7 +135,7 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            PbProcessAcl result = new PbProcessAcl(UUID.randomUUID().toString(), processUUID, groupDN);
+            PbProcessAcl result = new PbProcessAcl(processUUID, groupDN);
             session.merge(result);
             tx.commit();
         } finally {
@@ -147,13 +146,17 @@ public class HibernateUtil {
         }
     }
 
-    public void mergeProcessUi(ArrayList<PbActivityUi> pbActivityUis) {
+    public void mergeProcessUi(String processUUID, ArrayList<PbActivityUi> pbActivityUis) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
+            ArrayList<PbActivityUi> oldPbActivityUis = (ArrayList<PbActivityUi>) session.createQuery("from PbActivityUi as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (PbActivityUi act : oldPbActivityUis) {
+                session.delete(act);
+            }
             for (PbActivityUi act : pbActivityUis) {
-                session.merge(act);
+                session.save(act);
             }
             tx.commit();
         } finally {
@@ -169,9 +172,9 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(new PbActivityUi(UUID.randomUUID().toString(), processUUID, processUUID, processDescription));
+            session.save(new PbActivityUi(processUUID, processUUID, null, processDescription));
             for (String actUUID : activities.keySet()) {
-                session.save(new PbActivityUi(UUID.randomUUID().toString(), processUUID, actUUID, activities.get(actUUID)));
+                session.save(new PbActivityUi(processUUID, actUUID, null, activities.get(actUUID)));
             }
             tx.commit();
         } finally {
@@ -230,13 +233,16 @@ public class HibernateUtil {
         }
     }
 
-    public void mergeProcessPbAttachments(ArrayList<PbAttachment> pbAttachments) {
+    public void mergeProcessPbAttachments(ArrayList<PbAttachment> toMerge, ArrayList<PbAttachment> toDelete) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            for (PbAttachment atch : pbAttachments) {
+            for (PbAttachment atch : toMerge) {
                 session.merge(atch);
+            }
+            for (PbAttachment atch : toDelete) {
+                session.delete(atch);
             }
             tx.commit();
         } finally {
@@ -308,12 +314,12 @@ public class HibernateUtil {
                 Object object = pbVars.get(key);
                 if (activityUUID == null) { // new process
                     // process level
-                    PbObject pbObjectOfProcess = new PbObject(UUID.randomUUID().toString(), processInstanceUUID,
+                    PbObject pbObjectOfProcess = new PbObject(processInstanceUUID,
                             processInstanceUUID, key, object.getClass().getName(),
                             XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
                     session.save(pbObjectOfProcess);
                     // activity level (field activityUUID = null)
-                    PbObject pbObjectActivity = new PbObject(UUID.randomUUID().toString(), processInstanceUUID,
+                    PbObject pbObjectActivity = new PbObject(processInstanceUUID,
                             activityUUID, key, object.getClass().getName(),
                             XMLManager.createXML(object.getClass().getName(), object).getBytes("UTF-8"));
                     session.save(pbObjectActivity);
@@ -328,7 +334,7 @@ public class HibernateUtil {
                     if (existPbObjects.size() > 0) { // object exists in process
                         pbObjectProcessLevel = (PbObject) existPbObjects.get(0);
                     } else { // object doesn't exist in process
-                        pbObjectProcessLevel = new PbObject(UUID.randomUUID().toString());
+                        pbObjectProcessLevel = new PbObject();
                     }
                     pbObjectProcessLevel.setProccessUuid(processInstanceUUID);
                     pbObjectProcessLevel.setActivityUuid(processInstanceUUID);
@@ -347,7 +353,7 @@ public class HibernateUtil {
                     if (existPbObjects.size() > 0) { // object exists in process
                         pbObjectActivityLevel = (PbObject) existPbObjects.get(0);
                     } else { // object doesn't exist in process
-                        pbObjectActivityLevel = new PbObject(UUID.randomUUID().toString());
+                        pbObjectActivityLevel = new PbObject();
                     }
                     pbObjectActivityLevel.setProccessUuid(processInstanceUUID);
                     pbObjectActivityLevel.setActivityUuid(activityUUID);
@@ -435,6 +441,132 @@ public class HibernateUtil {
                 queryResult.addAll((ArrayList<PbObject>) session.createCriteria(PbObject.class).add(Restrictions.in("proccessUuid", processInstanceUUIDs)).list());
             }
             for (PbObject obj : queryResult) {
+                session.delete(obj);
+            }
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public ArrayList<PbSection> findPbSections() {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            ArrayList<PbSection> queryResult = (ArrayList<PbSection>) session.createQuery(
+                    "from PbSection as obj").list();
+            tx.commit();
+            return queryResult;
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void deletePbSection(PbSection section) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.delete(section);
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public ArrayList<PbProcessSection> findPbProcessSections() {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            ArrayList<PbProcessSection> queryResult = (ArrayList<PbProcessSection>) session.createQuery(
+                    "from PbProcessSection as obj").list();
+            tx.commit();
+            return queryResult;
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public PbSection findPbSection(String processUUID) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        PbSection section = null;
+        try {
+            tx = session.beginTransaction();
+            PbProcessSection queryResult = (PbProcessSection) session.createQuery(
+                    "from PbProcessSection ps where ps.proccessUuid = :processUUID").setString("processUUID", processUUID).uniqueResult();
+            if (queryResult != null) {
+                section = queryResult.getPbSection();
+                section.toString();
+            }
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+        return section;
+    }
+
+    public void setPbProcessSection(String processUUID, PbSection section) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            PbProcessSection queryResult = (PbProcessSection) session.createQuery(
+                    "from PbProcessSection as ps where ps.proccessUuid = :processUUID").setString("processUUID", processUUID).uniqueResult();
+            if (queryResult != null) {
+                queryResult.setPbSection(section);
+                session.merge(queryResult);
+            } else {
+                PbProcessSection newps = new PbProcessSection(section, processUUID);
+                session.save(newps);
+            }
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void mergePbSection(PbSection pbSection) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.merge(pbSection);
+            tx.commit();
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
+    public void deletePbAttachments(ArrayList<PbAttachment> attachments) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            for (PbAttachment obj : attachments) {
                 session.delete(obj);
             }
             tx.commit();

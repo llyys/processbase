@@ -8,11 +8,15 @@
     <!--<property name="hibernate.connection.username">processbase</property>-->
     <!--<property name="hibernate.connection.password">processbase</property>-->
     <property name="hibernate.connection.datasource">jdbc/ProcessBase</property>
-    <mapping resource="org/processbase/util/db/PbActivityUi.hbm.xml"/>
+    <mapping resource="org/processbase/util/db/PbProcessSection.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbProcessAcl.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbHelp.hbm.xml"/>
+    <mapping resource="org/processbase/util/db/PbForm.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbAttachment.hbm.xml"/>
+    <mapping resource="org/processbase/util/db/PbActivityUi.hbm.xml"/>
+    <mapping resource="org/processbase/util/db/PbSection.hbm.xml"/>
     <mapping resource="org/processbase/util/db/PbObject.hbm.xml"/>
-    <!--<mapping resource="org/processbase/util/db/PbDashboard.hbm.xml"/>-->
+    <mapping resource="org/processbase/util/db/PbDashboard.hbm.xml"/>
+    <mapping resource="org/processbase/util/db/PbDashboardAcl.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

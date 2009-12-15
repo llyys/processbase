@@ -2,18 +2,18 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated 13.12.2009 22:19:21 by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
-  <class name="org.processbase.util.db.PbProcessAcl" table="PB_PROCESS_ACL">
+  <class name="org.processbase.util.db.PbSection" table="PB_SECTION">
     <id name="id" type="long">
       <column name="ID" precision="16" scale="0"/>
       <generator class="sequence">
         <param name="sequence">PB_SEQUENCE</param>
       </generator>
     </id>
-    <property name="proccessUuid" type="string">
-      <column length="1000" name="PROCCESS_UUID" not-null="true"/>
+    <property name="sectionName" type="string">
+      <column length="1000" name="SECTION_NAME" not-null="true"/>
     </property>
-    <property name="groupDn" type="string">
-      <column length="1000" name="GROUP_DN" not-null="true"/>
+    <property name="sectionDesc" type="string">
+      <column length="1000" name="SECTION_DESC" not-null="true"/>
     </property>
   </class>
 </hibernate-mapping>

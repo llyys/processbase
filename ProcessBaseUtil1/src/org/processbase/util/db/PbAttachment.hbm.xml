@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated 02.11.2009 11:03:33 by Hibernate Tools 3.2.1.GA -->
+<!-- Generated 13.12.2009 22:19:21 by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
   <class name="org.processbase.util.db.PbAttachment" table="PB_ATTACHMENTS">
-    <id name="id" type="string">
-      <column length="100" name="ID"/>
-      <generator class="assigned"/>
+    <id name="id" type="long">
+      <column name="ID" precision="16" scale="0"/>
+      <generator class="sequence">
+        <param name="sequence">PB_SEQUENCE</param>
+      </generator>
     </id>
     <property name="customId" type="string">
       <column length="200" name="CUSTOM_ID"/>
@@ -17,7 +19,7 @@
       <column length="200" name="ACTIVITY_UUID"/>
     </property>
     <property name="fileName" type="string">
-      <column length="200" name="FILE_NAME"/>
+      <column length="1000" name="FILE_NAME"/>
     </property>
     <property name="fileSize" type="java.lang.Long">
       <column name="FILE_SIZE" precision="10" scale="0"/>
@@ -29,7 +31,10 @@
       <column name="FILE_BODY"/>
     </property>
     <property name="fileDesc" type="string">
-      <column length="200" name="FILE_DESC"/>
+      <column length="1000" name="FILE_DESC"/>
+    </property>
+    <property name="fileType" type="string">
+      <column length="1000" name="FILE_TYPE"/>
     </property>
   </class>
 </hibernate-mapping>

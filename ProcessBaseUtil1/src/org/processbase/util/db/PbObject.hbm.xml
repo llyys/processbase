@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated 12.11.2009 11:45:19 by Hibernate Tools 3.2.1.GA -->
+<!-- Generated 13.12.2009 22:19:21 by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
   <class name="org.processbase.util.db.PbObject" table="PB_OBJECTS">
-    <id name="id" type="string">
-      <column length="100" name="ID"/>
-      <generator class="assigned"/>
+    <id name="id" type="long">
+      <column name="ID" precision="16" scale="0"/>
+      <generator class="sequence">
+        <param name="sequence">PB_SEQUENCE</param>
+      </generator>
     </id>
     <property name="proccessUuid" type="string">
       <column length="200" name="PROCCESS_UUID"/>

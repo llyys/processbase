@@ -2,24 +2,18 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated 13.12.2009 22:19:21 by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
-  <class name="org.processbase.util.db.PbActivityUi" table="PB_ACTIVITY_UI">
+  <class name="org.processbase.util.db.PbProcessSection" table="PB_PROCESS_SECTION">
     <id name="id" type="long">
       <column name="ID" precision="16" scale="0"/>
       <generator class="sequence">
         <param name="sequence">PB_SEQUENCE</param>
       </generator>
     </id>
+    <many-to-one class="org.processbase.util.db.PbSection" fetch="select" name="pbSection">
+      <column name="SECTION_ID" not-null="true" precision="16" scale="0"/>
+    </many-to-one>
     <property name="proccessUuid" type="string">
-      <column length="200" name="PROCCESS_UUID" not-null="true"/>
-    </property>
-    <property name="activityUuid" type="string">
-      <column length="200" name="ACTIVITY_UUID" not-null="true"/>
-    </property>
-    <property name="uiClass" type="string">
-      <column length="200" name="UI_CLASS"/>
-    </property>
-    <property name="activityDescription" type="string">
-      <column length="200" name="ACTIVITY_DESCRIPTION"/>
+      <column length="1000" name="PROCCESS_UUID" not-null="true"/>
     </property>
   </class>
 </hibernate-mapping>

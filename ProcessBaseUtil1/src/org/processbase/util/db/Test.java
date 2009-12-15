@@ -19,23 +19,23 @@ public class Test {
     public static void main(String[] args) throws URISyntaxException, IOException {
         Constants.loadConstants();
         HibernateUtil hutil = new HibernateUtil();
-         Map<String, Object> pbVars = hutil.findObjects("MortgageSamruk-1.2-MortgageSamruk-1.2$5621", "");
-
-         ClientExt client = (ClientExt) pbVars.get("client");
-         client.setMaritalStatus("DEV");
-         client.setDateBirth(new Date());
-         pbVars.put("client", client);
-
-         hutil.saveObjects("MortgageSamruk-1.2-MortgageSamruk-1.2$5621", "TEST", pbVars);
-//        Session session = hutil.getSessionFactory().openSession();
+        PbSection section = hutil.findPbSection("MortgageSamruk-1.2-MortgageSamruk-1.2");
+//        Session session = HibernateUtil.getSessionFactory().openSession();
 //        Transaction tx = null;
+//        try {
 //            tx = session.beginTransaction();
-//        List existPbObjects = (List) session.createQuery(
-//                            "from PbObject as obj " +
-//                            "where obj.proccessUuid = :proccessUuid " +
-//                            "and obj.activityUuid = :activityUuid " +
-//                            "and obj.varName = :varName").setString("proccessUuid", "")
-//                            .setString("activityUuid", "").setString("varName", "").list();
-        System.out.println(pbVars);
+//            PbProcessSection queryResult = (PbProcessSection) session.createQuery(
+//                    "from PbProcessSection ps where ps.proccessUuid = :processUUID" ).setString("processUUID", "MortgageSamruk-1.2-MortgageSamruk-1.2").uniqueResult();
+//            section = queryResult.getPbSection();
+//            System.out.println("1 " + section);
+//            tx.commit();
+//            System.out.println("2 " + section);
+//        } finally {
+//            if (tx.isActive()) {
+//                tx.rollback();
+//            }
+//            session.close();
+//        }
+        System.out.println("4 " + section);
     }
 }

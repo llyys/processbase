@@ -51,7 +51,6 @@ public class ProcessBaseClassLoader extends URLClassLoader {
     public static void reset() {
         synchronized (LOCK) {
             current = new ProcessBaseClassLoader();
-            System.gc();
         }
     }
 
