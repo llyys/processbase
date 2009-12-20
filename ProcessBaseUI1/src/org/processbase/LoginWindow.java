@@ -16,7 +16,6 @@ import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
@@ -71,11 +70,11 @@ public class LoginWindow extends Window implements Handler {
         username.setCaption(messages.getString("loginWindowUsername"));
         form.addComponent(username);
         username.focus();
-        username.setSizeFull();
+        username.setWidth("100%");
 
         password.setCaption(messages.getString("loginWindowPassword"));
         password.setSecret(true);
-        password.setSizeFull();
+        password.setWidth("100%");
         form.addComponent(password);
 
         btnLogin = new Button(messages.getString("btnLoginCaption"), this, "okHandler");
