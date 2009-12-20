@@ -95,7 +95,7 @@ public class ProcessBase extends Application implements TransactionListener {
         m.setSessionExpiredCaption(null);
         m.setSessionExpiredMessage("Время действия вашей сессии истекло!");
         m.setCommunicationErrorCaption(null);
-        m.setCommunicationErrorMessage("Ошибка соединения!");
+//        m.setCommunicationErrorMessage("Ошибка соединения!");
         m.setOutOfSyncCaption(null);
         m.setInternalErrorCaption(null);
         m.setInternalErrorMessage("Внутренняя ошибка!");

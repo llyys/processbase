@@ -121,25 +121,26 @@ public class JarsPanel extends TablePanel implements
 
     public void uploadSucceeded(SucceededEvent event) {
         try {
-            byte[] readData = new byte[new Long(event.getLength()).intValue()];
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            int i = fis.read(readData);
-            Map<String, ProcessDefinition> deployResult = new HashMap();
             if (this.fileType.equals(FILE_JAR)) {
+                byte[] readData = new byte[new Long(event.getLength()).intValue()];
+                FileInputStream fis = null;
+                fis = new FileInputStream(file);
+                fis.read(readData);
                 FileOutputStream fos = new FileOutputStream(new File(Constants.UI_LIBS_PATH, this.originalFilename));
                 fos.write(readData);
                 fos.close();
+                fis.close();
+                file.delete();
                 ProcessBaseClassLoader.reset();
                 ProcessBaseClassLoader.getCurrent().addFile(Constants.UI_LIBS_PATH + File.separator + this.originalFilename);
+                refreshTable();
+                showWarning(messages.getString("jarUploaded") + ": " + originalFilename);
+            } else {
+                showError(messages.getString("fileIsNotJar") + ": " + originalFilename);
             }
-            fis.close();
-            file.delete();
-            refreshTable();
-            showWarning(messages.getString("jarUploaded")+": " + originalFilename);
         } catch (IOException ex) {
             Logger.getLogger(JarsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
