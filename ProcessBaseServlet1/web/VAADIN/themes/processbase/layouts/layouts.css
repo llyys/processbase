@@ -1,0 +1,50 @@
+.v-orderedlayout-margin-top,
+.v-horizontallayout-margin-top,
+.v-verticallayout-margin-top {
+	padding-top: 18px;
+}
+.v-orderedlayout-margin-right,
+.v-horizontallayout-margin-right,
+.v-verticallayout-margin-right {
+	padding-right: 18px;
+}
+.v-orderedlayout-margin-bottom,
+.v-horizontallayout-margin-bottom,
+.v-verticallayout-margin-bottom {
+	padding-bottom: 18px;
+}
+.v-orderedlayout-margin-left,
+.v-horizontallayout-margin-left,
+.v-verticallayout-margin-left {
+	padding-left: 18px;
+}
+.v-orderedlayout-spacing-on,
+.v-horizontallayout-spacing-on,
+.v-verticallayout-spacing-on {
+	padding-top: 7px;
+	padding-left: 6px;
+}
+/* Blue background */
+.v-verticallayout-blue,
+.v-horizontallayout-blue,
+.v-orderedlayout-blue,
+.v-gridlayout-blue,
+.v-csslayout-blue,
+.v-formlayout-blue {
+	background-color: #bcd3de;
+}
+.v-panel-content > div.blue {
+	background-color: #bcd3de;
+}
+/* Black background */
+.v-verticallayout-black,
+.v-horizontallayout-black,
+.v-orderedlayout-black,
+.v-gridlayout-black,
+.v-csslayout-black,
+.v-formlayout-black {
+	background-color: #1e2022;
+}
+.v-panel-content > div.black {
+	background-color: #1e2022;
+}
