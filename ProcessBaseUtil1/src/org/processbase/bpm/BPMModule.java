@@ -122,6 +122,25 @@ public class BPMModule {
         }
     }
 
+    public void saveProcessVariables2(ActivityInstance<ActivityBody> activity, Map<String, Object> vars) throws ProcessNotFoundException, VariableNotFoundException, Exception {
+        Map<String, Object> bonitaVars = new HashMap<String, Object>();
+        Map<String, Object> pbVars = new HashMap<String, Object>();
+        for (String key : vars.keySet()) {
+            Object value = vars.get(key);
+            if (value instanceof String || value instanceof Enumeration || value instanceof Long || value instanceof Double || value instanceof Date) {
+                bonitaVars.put(key, value);
+            } else if (value != null) {
+                pbVars.put(key, value);
+            }
+        }
+        HibernateUtil hutil = new HibernateUtil();
+//        Logger.getLogger("DEBUG").log(Level.SEVERE, "pbVars = " + pbVars.keySet());
+        hutil.saveObjects(activity.getProcessInstanceUUID().toString(), activity.getUUID().toString(), pbVars);
+        for (String key : bonitaVars.keySet()) {
+            setProcessInstanceVariable(activity.getProcessInstanceUUID(), key, vars.get(key));
+        }
+    }
+
     public Set<DataFieldDefinition> getProcessDataFields(ProcessDefinitionUUID uuid) throws ProcessNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryDefinitionAPI.getProcessDataFields(uuid);

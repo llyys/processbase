@@ -2,12 +2,6 @@ package org.processbase.util.db;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import kz.temirbank.ws.retail.client.ClientExt;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.processbase.util.Constants;
 
 /**

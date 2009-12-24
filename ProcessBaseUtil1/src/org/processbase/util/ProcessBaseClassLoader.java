@@ -37,11 +37,12 @@ public class ProcessBaseClassLoader extends URLClassLoader {
         return current;
     }
 
-    public static void free()  {
+    public static void free() {
         synchronized (LOCK) {
             try {
                 current.finalize();
                 current = null;
+                System.gc();
             } catch (Throwable ex) {
                 Logger.getLogger(ProcessBaseClassLoader.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
@@ -59,14 +60,14 @@ public class ProcessBaseClassLoader extends URLClassLoader {
     }
 
     public void loadUIClasses() {
-        File folder = new File(Constants.UI_LIBS_PATH);
-        File[] files = folder.listFiles();
-        for (File file : files) {
-            try {
+        try {
+            File folder = new File(Constants.UI_LIBS_PATH);
+            File[] files = folder.listFiles();
+            for (File file : files) {
                 current.addFile(Constants.UI_LIBS_PATH + File.separator + file.getName());
-            } catch (Exception ex) {
-                Logger.getLogger(ProcessBaseClassLoader.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
+        } catch (Exception ex) {
+            Logger.getLogger(ProcessBaseClassLoader.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
 //        current.uiLoaded = true;
     }
