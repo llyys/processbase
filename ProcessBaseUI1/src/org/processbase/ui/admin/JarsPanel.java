@@ -17,18 +17,12 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.Notification;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
@@ -47,7 +41,7 @@ public class JarsPanel extends TablePanel implements
     private Upload upload = new Upload("", (Upload.Receiver) this);
     private File file;
     private String filename;
-    private String originalFilename;
+    private FileOutputStream fos = null;
     private String fileExt;
     public static String FILE_JAR = "FILE_JAR";
     private String fileType = null;
@@ -122,21 +116,13 @@ public class JarsPanel extends TablePanel implements
     public void uploadSucceeded(SucceededEvent event) {
         try {
             if (this.fileType.equals(FILE_JAR)) {
-                byte[] readData = new byte[new Long(event.getLength()).intValue()];
-                FileInputStream fis = null;
-                fis = new FileInputStream(file);
-                fis.read(readData);
-                FileOutputStream fos = new FileOutputStream(new File(Constants.UI_LIBS_PATH, this.originalFilename));
-                fos.write(readData);
                 fos.close();
-                fis.close();
-                file.delete();
                 ProcessBaseClassLoader.reset();
-                ProcessBaseClassLoader.getCurrent().addFile(Constants.UI_LIBS_PATH + File.separator + this.originalFilename);
+                ProcessBaseClassLoader.getCurrent().addFile(Constants.UI_LIBS_PATH + File.separator + this.filename);
                 refreshTable();
-                showWarning(messages.getString("jarUploaded") + ": " + originalFilename);
+                showWarning(messages.getString("jarUploaded") + ": " + filename);
             } else {
-                showError(messages.getString("fileIsNotJar") + ": " + originalFilename);
+                showError(messages.getString("fileIsNotJar") + ": " + filename);
             }
         } catch (IOException ex) {
             Logger.getLogger(JarsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
@@ -150,21 +136,23 @@ public class JarsPanel extends TablePanel implements
 
     public OutputStream receiveUpload(
             String filename, String MIMEType) {
-        this.originalFilename = filename;
-        this.filename = UUID.randomUUID().toString();
-        String[] fileNameParts = originalFilename.split("\\.");
-        this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
-        if (fileExt.equalsIgnoreCase("jar")) {
-            this.fileType = FILE_JAR;
-        }
-        FileOutputStream fos = null;
-        file = new File(this.filename);
         try {
-            fos = new FileOutputStream(file);
+            this.filename = filename;
+            String[] fileNameParts = filename.split("\\.");
+            this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
+            if (fileExt.equalsIgnoreCase("jar")) {
+                this.fileType = FILE_JAR;
+                ProcessBaseClassLoader.free();
+                file = new File(Constants.UI_LIBS_PATH + File.separator + this.filename);
+                if (file.exists()) {
+                    Logger.getLogger(JarsPanel.class.getName()).log(Level.SEVERE, "file delete = " + file.delete());
+                }
+                fos = new FileOutputStream(file, false);
+                return fos;
+            }
         } catch (final java.io.FileNotFoundException e) {
             Logger.getLogger(JarsPanel.class.getName()).log(Level.SEVERE, e.getMessage());
-            return null;
         }
-        return fos;
+        return null;
     }
 }
