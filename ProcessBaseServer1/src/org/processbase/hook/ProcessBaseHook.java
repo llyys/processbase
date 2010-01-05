@@ -3,8 +3,8 @@ package org.processbase.hook;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.ow2.bonita.definition.TxHook;
-import org.ow2.bonita.facade.APIAccessor;
+import org.ow2.bonita.definition.Hook;
+import org.ow2.bonita.facade.QueryAPIAccessor;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityBody;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
@@ -15,7 +15,7 @@ import org.processbase.util.Constants;
  *
  * @author mgubaidullin
  */
-public class ProcessBaseTxHook implements TxHook {
+public class ProcessBaseHook implements Hook {
 
     protected BPMModule bpmModule = null;
     protected Map<String, Object> processVars = new HashMap<String, Object>();
@@ -25,7 +25,7 @@ public class ProcessBaseTxHook implements TxHook {
         
     }
 
-    public void execute(APIAccessor apiAccessor, ActivityInstance<ActivityBody> activity) throws Exception {
+    public void execute(QueryAPIAccessor queryAPIAccessor, ActivityInstance<ActivityBody> activity) throws Exception {
 //        Logger.getLogger("DEBUG").log(Level.SEVERE, "1111111111111111111111111111111");
         Constants.loadConstants();
         bpmModule = new BPMModule("PROCESBASE");
@@ -60,6 +60,7 @@ public class ProcessBaseTxHook implements TxHook {
     public void setProcessVars(Map<String, Object> processVars) {
         this.processVars = processVars;
     }
+
 
     
 }
