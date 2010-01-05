@@ -141,7 +141,7 @@ public class AttachmentsPanel extends TablePanel
         TextField descTextField = new TextField();
         descTextField.setValue(attachment.getFileDesc());
         descTextField.setNullRepresentation("");
-        descTextField.setHeight("80%");
+//        descTextField.setHeight("80%");
         descTextField.setWidth("100%");
         return descTextField;
     }
