@@ -198,19 +198,19 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
     }
 
     public TaskWindow getTaskWindow(ActivityInstance<TaskInstance> task) {
-        ProcessDefinition procd = null;
+//        ProcessDefinition procd = null;
         try {
-            procd = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
+//            procd = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
             HibernateUtil hutil = new HibernateUtil();
             PbActivityUi pbActivityUi = hutil.findPbActivityUi(bpmModule.getTaskDefinition(task).getUUID().toString());
             Class b = ProcessBaseClassLoader.getCurrent().loadClass(pbActivityUi.getUiClass());
             TaskWindow taskWindow = (TaskWindow) b.newInstance();
-            taskWindow.setTaskInfo(procd, task);
+            taskWindow.setTaskInfo(null, task);
             taskWindow.exec();
             return taskWindow;
         } catch (Exception ex) {
             Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(procd, task);
+            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(null, task);
             defaultTaskWindow.exec();
             return defaultTaskWindow;
         }
