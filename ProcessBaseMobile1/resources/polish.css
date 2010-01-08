@@ -1,0 +1,277 @@
+colors {
+    bgColor: white;
+    pbGrey: #605D5C;
+    pbRed: #CC292B;
+    fontColor: black;
+    focusedFontColor: white;
+    /* the color which is used for overlays when a screen defines the repaint-previous-screen CSS attribute: */
+    overlay: argb( 150, 0, 0, 0 );
+}
+
+title {
+    padding-top: 1px;
+    padding-bottom: 2px;
+    font-color: fontColor;
+    font-size: small;
+    font-style: bold;
+    layout: expand | center;
+    border-type: bottom;
+    border-color: pbGrey;
+    border-width: 1px;
+    background-color: #CCCCCC;
+}
+
+label {
+    /*padding: 2;*/
+    font-color: fontColor;
+    font-size: small;
+    layout: expand | left;
+}
+
+.form {
+    background-color: bgColor;
+    title-style: title;
+    menu-style: menubar;
+    scrollbar-style: scrollbar;
+}
+
+.loginform extends form {
+    padding: 4;
+    layout: hcenter | vcenter;
+}
+
+.taskListform extends form {
+    padding: 0;
+    layout: expand;
+}
+
+.taskForm extends form{
+    padding: 0;
+    layout: expand;
+    /*screen-change-animation: right;*/
+    /*right-screen-change-animation-speed: 4;*/
+    /*right-screen-change-animation-move-previous: true;*/
+}
+
+.forminput {
+    label-style: inputLabel;
+    padding: 2px;
+    margin: 1px;
+    background-color: white;
+    font-color: fontColor;
+    layout: expand or left;
+    font-size: small;
+    border-color: #605D5C;
+    border-width: 1px;
+}
+
+.forminput:hover extends forminput{
+    label-style: inputLabel;
+    padding: 2px;
+    margin: 0px;
+    border-color: #CC292B;
+}
+
+.inputLabel{
+    font-color: fontColor;
+    font-size: small;
+    layout: left;
+    min-width: 25%;
+}
+
+info {
+    font-size:small;
+    layout: right;
+    background-color: #CCCCCC;
+}
+menubar {
+    font-color: fontColor;
+    font-size: small;
+    font-style: bold;
+    background-color:#CCCCCC;
+    border-type: top;
+    border-width: 1px;
+    border-color: pbGrey;
+    padding-bottom: 2px;
+}
+
+menu {
+    font-color: fontColor;
+    font-size: small;
+    font-style: bold;
+    background-color:white;
+    view-type: slide;
+    border-style: top;
+}
+
+menuitem {
+    padding: 2;
+    font-size: small;
+    command-child-indicator-width: 4;
+    command-child-indicator-height: 4;
+}
+
+menuitem:hover {
+    padding: 2;
+    font-size: small;
+    font-color: white;
+    command-child-indicator-width: 4;
+    command-child-indicator-height: 4;
+    background-color:pbGrey;
+    layout: left | horizontal-expand;
+}
+
+leftcommand {
+    padding-bottom: 2px;
+    font-size: small;
+    font-style: bold;
+    /*command-child-indicator-width: 4;*/
+    /*command-child-indicator-height: 4;*/
+}
+
+rightcommand extends leftcommand {
+    layout: right;
+}
+
+.loadingmessage {
+    border-type: round-rect;
+    border-arc: 5;
+    border-color: pbRed;
+    font-size: small;
+    font-color: black;
+    margin-top: 4px;
+    margin-right: 4px;
+    layout: right;
+}
+
+.taskchoice {
+    font-size: small;
+    padding-bottom: 2px;
+    border-type: top;
+    border-color: #CCCCCC;
+    border-width: 1px;
+    font-color: black;
+}
+taskchoice:hover {
+    font-size: small;
+    border-type: simple;
+    border-color: pbRed;
+    background-color: pbGrey;
+    font-color: white;
+}
+
+tciCaption {
+    layout: expand or right;
+    max-lines: 1;
+    font-size: small;
+    font-color: black;
+    label-style: tciLabel;
+}
+tciLabel extends tciCaption{
+    layout: left;
+    max-width: 75%;
+    min-width: 75%;
+}
+
+tciDesc {
+    /*icon-image: url( computer18.png );*/
+    icon-image-align: left;
+    icon-padding: 4;
+    layout: horizontal-expand;
+    text-layout: horizontal-expand;
+    max-lines: 1;
+    font-size: small;
+    font-color: black;
+}
+
+.taskformcaption {
+    font-color: black;
+    font-size: small;
+    layout: expand or right;
+    background-color: white;
+    label-style: taskformLabel;
+}
+taskformLabel {
+    font-color: black;
+    font-size: small;
+    font-style: bold;
+    layout: left;
+    max-width: 100%;
+    min-width: 100%;
+}
+
+taskformdesc{
+    margin: 2px;
+    font-color: black;
+    font-size: small;
+    layout: expand or left;
+    background-color: white;
+    /*    border-type: round-rect;
+        border-arc: 5;
+        border-color: pbRed;*/
+}
+
+scrollbar {
+    scrollbar-slider-color: pbGrey;
+    scrollbar-slider-width: 3;
+    background-color: #CCCCCC;
+    /* You can also define background, border, padding, etc */
+}
+
+.activityMonitor {
+}
+
+.messageAlert {
+    padding: 20px;
+    padding-top: 1px;
+    border-type: simple;
+    layout: horizontal-shrink | vertical-shrink | horizontal-center | vertical-center;
+    repaint-previous-screen: true;
+}
+
+.messageAlertTitle {
+    padding-top: 20px;
+    font-color: black;
+    font-style: bold;
+    font-size: small;
+    background-color: white;
+}
+
+alertcontent extends messageAlertTitle{
+    font-size: small;
+    font-style: normal;
+}
+
+.taskformChoice extends forminput{
+    label-style: choiceGroupLabel;
+    include-label: true;
+    layout: expand;
+}
+
+.choiceItem {
+    font-size: small;
+    text-wrap: false;
+}
+
+.choiceItem:hover {
+    font-size: small;
+    font-color: white;
+    background-color:pbGrey;
+    background-color:pbGrey;
+    layout: left | horizontal-expand;
+}
+
+.choiceGroupLabel {
+    font-size: small;
+    layout: horizontal-expand | left;
+}
+
+text {
+    always-include: true;
+    font-color: fontColor;
+    font-size: small;
+    layout: expand | left;
+}
+
+
+
