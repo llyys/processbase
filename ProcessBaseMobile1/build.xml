@@ -78,9 +78,9 @@
 
                 <!--<postcompiler name="java5" />-->
 <!-- obfuscator settings: do not obfuscate when the test-property is true -->
-                <!--<obfuscator name="ProGuard" unless="test or polish.blackberry">-->
-                    <!--<parameter name="optimize" value="true" />-->
-                <!--</obfuscator>-->
+                <obfuscator name="ProGuard" unless="test or polish.blackberry">
+                    <parameter name="optimize" value="true" />
+                </obfuscator>
 <!-- debug/log settings: only include debug setting when the test-property is true -->
                 <debug level="info" verbose="true" logTimestamp="true" >
                     <filter level="debug" package="org.processbase.mobile.client"/>

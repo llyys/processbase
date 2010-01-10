@@ -222,16 +222,23 @@ scrollbar {
 }
 
 .messageAlert {
-    padding: 20px;
-    padding-top: 1px;
-    border-type: simple;
-    layout: horizontal-shrink | vertical-shrink | horizontal-center | vertical-center;
+    title-style: messageAlertTitle;
+    margin-right: 10;
+    margin-left: 10;
+    margin-bottom: 5;
+    padding-left: 5;
+    padding-right: 5;
+    layout: horizontal-center | bottom | horizontal-shrink | vertical-shrink;
     repaint-previous-screen: true;
+    border-type: round-rect;
+    border-arc: 5;
+    border-color: pbRed;
+    font-size: small;
+    font-color: black;
+    background-color: white;
 }
 
 .messageAlertTitle {
-    padding-top: 20px;
-    font-color: black;
     font-style: bold;
     font-size: small;
     background-color: white;
@@ -272,6 +279,18 @@ text {
     font-size: small;
     layout: expand | left;
 }
+
+.busyIndicator {
+    layout: horizontal-center | bottom | horizontal-shrink | vertical-shrink;
+    view-type: gauge-cycling-icons;
+    gauge-cycling-icons-image: url( grey.png );
+    gauge-cycling-icons-highlight-image: url( red.png );
+    gauge-cycling-icons-highlight-center-image: url( red.png );
+    gauge-cycling-icons-count: 12;
+    gauge-cycling-icons-highlight-count: 3;
+    gauge-animation-speed: 7;
+}
+
 
 
 

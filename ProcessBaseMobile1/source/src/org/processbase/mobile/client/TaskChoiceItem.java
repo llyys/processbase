@@ -28,9 +28,9 @@ public class TaskChoiceItem extends CustomItem {
         //#style tciCaption
         this.captionItem = new StringItem(task.getCaption(), task.getCreatedDate());
         //#style tciDesc
-        this.descItem = new IconItem(task.getUuid(), null);
+        this.descItem = new IconItem(task.getDesc(), null);
         try {
-            this.descItem.setImage(task.isMobile() ? Image.createImage("/email_red.png") : null);
+            this.descItem.setImage(task.isMobile() ? Image.createImage("/m.png") : null);
         } catch (IOException ex) {
         }
     }

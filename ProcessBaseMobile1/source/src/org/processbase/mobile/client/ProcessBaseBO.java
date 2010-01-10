@@ -20,7 +20,7 @@ public class ProcessBaseBO implements Serializable {
 
     public ProcessBaseBO() {
         this.username = "admin";
-        this.url = "mgubaidullin:8080";
+        this.url = "172.25.8.169:8080";
         this.password = "admin";
     }
 
