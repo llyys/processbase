@@ -100,7 +100,7 @@ public class AttachmentsPanel extends TablePanel
                 Item woItem = table.addItem(attachment);
                 if (readonly) {
                     woItem.getItemProperty("id").setValue(attachment.getId());
-                    woItem.getItemProperty("type").setValue(attachment.getFileType());
+                    woItem.getItemProperty("type").setValue(fileTypesContainer.getItem(attachment.getFileType()).getItemProperty("name"));
                     woItem.getItemProperty("name").setValue(attachment.getFileName());
                     woItem.getItemProperty("desc").setValue(attachment.getFileDesc());
                     TableExecButtonBar tebb = new TableExecButtonBar();
