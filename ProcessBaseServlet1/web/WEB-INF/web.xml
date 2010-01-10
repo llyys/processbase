@@ -24,6 +24,20 @@
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ProcessBaseMobileServlet</servlet-name>
+        <servlet-class>org.processbase.mobile.ProcessBaseMobileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProcessBaseMobileServlet</servlet-name>
+        <url-pattern>/mobile/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
         <welcome-file>index.htm</welcome-file>

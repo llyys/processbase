@@ -379,12 +379,18 @@ exists or setup the property manually. For example like this:
         <ant antfile="${project.ProcessBaseUtil1}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
+        <ant antfile="${project.TestMobile}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
         <ant antfile="${project.ProcessBaseUI1}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
         <ant antfile="${project.ProcessBaseUtil1}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.TestMobile}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
     </target>
@@ -531,9 +537,11 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${libs.hibernate-support.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.hibernate-support.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.ejb3-persistence.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.ejb3-persistence.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.ProcessBaseUtil1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.ProcessBaseUtil1.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.J2MEPolish.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.J2MEPolish.classpath" todir="${dist.ear.dir}"/>
+        <copyfiles files="${reference.TestMobile.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.TestMobile.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.BonitaClient4.classpath} ${manifest.reference.ProcessBaseUI1.jar} ${manifest.libs.Vaadin.classpath} ${manifest.libs.JfreeChart.classpath} ${manifest.libs.Xstream.classpath} ${manifest.libs.hibernate-support.classpath} ${manifest.libs.ejb3-persistence.classpath} ${manifest.reference.ProcessBaseUtil1.jar} "/>
+            <attribute name="Class-Path" value="${manifest.libs.BonitaClient4.classpath} ${manifest.reference.ProcessBaseUI1.jar} ${manifest.libs.Vaadin.classpath} ${manifest.libs.JfreeChart.classpath} ${manifest.libs.Xstream.classpath} ${manifest.libs.hibernate-support.classpath} ${manifest.libs.ejb3-persistence.classpath} ${manifest.reference.ProcessBaseUtil1.jar} ${manifest.libs.J2MEPolish.classpath} ${manifest.reference.TestMobile.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -545,6 +553,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${libs.hibernate-support.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.ejb3-persistence.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.ProcessBaseUtil1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.J2MEPolish.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.TestMobile.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
@@ -836,6 +846,7 @@ exists or setup the property manually. For example like this:
     <target depends="init" if="no.dist.ear.dir" name="deps-clean" unless="no.deps">
         <ant antfile="${project.ProcessBaseUI1}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.ProcessBaseUtil1}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.TestMobile}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">
         <condition property="build.dir.to.clean" value="${build.web.dir}">
