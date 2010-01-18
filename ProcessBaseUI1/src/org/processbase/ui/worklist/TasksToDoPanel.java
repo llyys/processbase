@@ -144,7 +144,8 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
 
     public Component getTaskLink(String caption, String description, Object t, String action) {
         ActivityInstance<TaskInstance> ti = (ActivityInstance<TaskInstance>) t;
-        if (ti.getBody().isTaskAssigned() && ti.getBody().getState().equals(ActivityState.EXECUTING)) {
+        if (ti.getBody().isTaskAssigned() &&
+                (ti.getBody().getState().equals(ActivityState.EXECUTING) || ti.getBody().getState().equals(ActivityState.READY))) {
             return new TableExecButton(caption, description, null, t, this, action);
         } else {
             return new Label(caption);
@@ -179,7 +180,12 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                     taskWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(taskWindow);
                     refreshTable();
-                } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+                } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getBody().getState().equals(ActivityState.READY)) {
+                    bpmModule.startTask(task.getBody().getUUID(), true);
+                    TaskWindow taskWindow = getTaskWindow(task);
+                    taskWindow.addListener((CloseListener) this);
+                    getApplication().getMainWindow().addWindow(taskWindow);
+                } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && !task.getBody().getState().equals(ActivityState.READY)) {
                     TaskWindow taskWindow = getTaskWindow(task);
                     taskWindow.addListener((CloseListener) this);
                     getApplication().getMainWindow().addWindow(taskWindow);

@@ -135,7 +135,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                     refreshTable();
                     getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
-                    showError(ex.toString());
+                    showError(ex.getMessage());
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_DELETE_INSTANCES)) {
                 try {
@@ -194,8 +194,8 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             }
             refreshTable();
         } catch (Exception ex) {
-            Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            showError(ex.getMessage());
+            ex.printStackTrace();
+            showError(ex.getMessage().substring(0, 1000));
         }
     }
 
