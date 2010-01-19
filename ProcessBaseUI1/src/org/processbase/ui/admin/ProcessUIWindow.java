@@ -94,7 +94,7 @@ public class ProcessUIWindow extends PbWindow implements
             setWidth("70%");
             setResizable(false);
         } catch (Exception ex) {
-            Logger.getLogger(ProcessUIWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
@@ -127,6 +127,7 @@ public class ProcessUIWindow extends PbWindow implements
 //            membersTable.setSortAscending(false);
 //            membersTable.sort();
         } catch (Exception ex) {
+            ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
@@ -142,7 +143,7 @@ public class ProcessUIWindow extends PbWindow implements
                 close();
             }
         } catch (Exception ex) {
-            Logger.getLogger(ProcessUIWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
@@ -190,12 +191,13 @@ public class ProcessUIWindow extends PbWindow implements
             fis.close();
             file.delete();
         } catch (Exception ex) {
-            Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
             getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
 
     public void uploadFailed(FailedEvent event) {
+        event.getReason().printStackTrace();
         showError(event.getReason().getMessage());
     }
 
@@ -208,7 +210,7 @@ public class ProcessUIWindow extends PbWindow implements
             file = new File(this.filename);
             fos = new FileOutputStream(file);
         } catch (final java.io.FileNotFoundException e) {
-            Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
             return null;
         }
         return fos;
