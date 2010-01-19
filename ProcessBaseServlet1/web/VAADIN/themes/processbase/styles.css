@@ -1,3 +1,5 @@
+.v-theme-version:after {content:"6_2_1";}
+.v-theme-version-6_2_1 {display: none;}
 /* Automatically compiled css file from subdirectories. */
 
 .v-absolutelayout-wrapper {
@@ -233,6 +235,14 @@
 .v-app {
     height: 100%;
 }
+/* Force arrow cursor for all elements inside the app */
+.v-app,
+.v-window,
+.v-popupview-popup,
+.v-label,
+.v-caption {
+    cursor: default;
+}
 div.v-app-loading {
     /* You can use this to provide indication for the user that the application is loading. */
     /* It is applied to the same element as .v-app */
@@ -280,8 +290,8 @@ div.v-app-loading {
     margin: 0;
 }
 .v-disabled {
-    opacity: .6;
-    filter: alpha(opacity=30);
+    opacity: .5;
+    /*filter: alpha(opacity=20);*/
     cursor: default;
 }
 .v-disabled * {
@@ -365,6 +375,15 @@ div.v-app-loading {
 .v-label-undef-w {
     white-space: nowrap;
 }
+/* Revert line-height for heading elements inside labels */
+.v-label h1,
+.v-label h2,
+.v-label h3,
+.v-label h4,
+.v-label h5,
+.v-label h6 {
+    line-height: normal;
+} 
 /* Loading indicator states
  * Note: client side expects that loading indicator has a height. It depends on
  * this css property to ensure browsers have applied all required styles.
@@ -454,12 +473,16 @@ div.v-app-loading {
 
 .v-datefield {
     white-space: nowrap;
+    float: left; /* Force minimum width */
 }
 .v-datefield-textfield {
     vertical-align: top;
 }
 .v-datefield-button {
     cursor: pointer;
+}
+.v-readonly .v-datefield-button {
+    display: none;
 }
 .v-datefield-calendarpanel table {
     width: 100%;
@@ -518,8 +541,10 @@ div.v-app-loading {
 /* IE somehow loses generic v-disabled alpha. See #1960 */
 .v-ie6 .v-disabled .v-datefield-button,
 .v-ie6 .v-disabled .v-datefield-textfield,
+.v-ie6 .v-disabled.v-button,
 .v-ie7 .v-disabled .v-datefield-button,
-.v-ie7 .v-disabled .v-datefield-textfield {
+.v-ie7 .v-disabled .v-datefield-textfield,
+.v-ie7 .v-disabled.v-button {
     filter: alpha(opacity=30);
 }
 
@@ -617,42 +642,82 @@ div.v-app-loading {
     border:none;
 }
 
-.v-menubar table {
-    white-space: nowrap;
-    border-collapse: collapse;
-    padding: 0;
-    margin: 0;
+.v-app-loginpage .v-button,
+.v-app-loginpage .v-button {
+    float: left; /* Force minimum width for button */
 }
-.v-menubar table {
+
+.v-menubar {
+    float: left; /* Force minimum width */
     white-space: nowrap;
-    border-collapse: collapse;
-    padding: 0;
-    margin: 0;
 }
-.v-menubar .menuitem {
+.v-menubar .v-menubar-menuitem {
     cursor: default;
+    vertical-align: middle;
+    white-space: nowrap;
+    display: inline;
+    display: inline-block;
+    zoom: 1;
+}
+.v-menubar .v-menubar-menuitem-caption * {
+    vertical-align: middle;
+    white-space: nowrap;
 }
 .v-menubar-submenu {
     background: #fff;
 }
-.v-menubar-submenu table {
-    white-space: nowrap;
-    border-collapse: collapse;
-    padding: 0;
-    margin: 0;
-}
-.v-menubar-submenu table td {
-    white-space: nowrap;
-    padding: 0;
-    margin: 0;
-}
-.v-menubar .menuitem-selected,
-.v-menubar-submenu .menuitem-selected {
+.v-menubar-menuitem-selected {
     background: #333;
     color: #fff;
 }
-.v-menubar-submenu .menuitem {
+.v-menubar-submenu .v-menubar-menuitem {
     cursor: default;
+    display: block;
+    position: relative;
+    padding-right: 1.5em;
+}
+.v-menubar-submenu .v-menubar-menuitem-caption {
+    display: block;
+}
+.v-menubar-submenu .v-menubar-menuitem *,
+.v-menubar-submenu .v-menubar-menuitem-caption * {
+    white-space: nowrap;
+}
+.v-menubar-submenu-indicator {
+    display: none;
+    /* Arial has the most coverage for geometric entity characters */
+    font-family: arial, helvetica, sans-serif;
+}
+.v-menubar-submenu .v-menubar-submenu-indicator {
+    display: block;
+    position: absolute;
+    right: 0;
+    width: 1em;
+    height: 1em;
+    font-size: 0.9em;
+}
+.v-menubar-menuitem-disabled {
+    color: #999;
+}
+.v-menubar-more-menuitem {
+    /* Arial has the most coverage for geometric entity characters */
+    font-family: arial, helvetica, sans-serif;
+}
+.v-menubar-separator {
+    overflow: hidden;
+}
+.v-menubar-separator span {
+    display: block;
+    text-indent: -9999px;
+    font-size: 1px;
+    line-height: 1px;
+    border-top: 1px solid #ddd;
+    margin: 3px 0 2px;
+    overflow: hidden;
+}
+.v-menubar .v-icon,
+.v-menubar-submenu .v-icon {
+    margin-right: 3px;
 }
 
 .v-Notification {
@@ -661,28 +726,37 @@ div.v-app-loading {
     cursor: pointer;
     overflow: hidden;
     padding: 1em;
+    max-width:85%;
 }
 .v-Notification h1,
 .v-Notification p,
-.v-Notification.error h1,
-.v-Notification.error p,
-.v-Notification.warning h1,
-.v-Notification.warning p {
+.v-Notification-error h1,
+.v-Notification-error p,
+.v-Notification-warning h1,
+.v-Notification-warning p {
     display: inline;
-    white-space: nowrap;
     margin: 0 0.5em 0 0;
 }
-.v-Notification.warning {
+.v-Notification-warning {
     background: orange;
 }
-.v-Notification.error {
+.v-Notification-error {
     background: red;
 }
-.v-Notification.tray h1 {
+.v-Notification-tray h1 {
     display: block;
 }
-.v-Notification.tray p {
+.v-Notification-tray p {
     display: block;
+}
+.v-Notification-system {
+    background-color: red;
+    opacity: .7;
+    filter: alpha(opacity=70);
+}
+.v-Notification-system h1 {
+    display: block;
+    margin: 0;
 }
 .v-Notification.system {
     background-color: red;
@@ -778,7 +852,8 @@ div.v-app-loading {
 
 .v-popupview {
     cursor: pointer;
-    background: #aaa;
+    text-decoration: underline;
+    white-space: nowrap;
 }
 .v-popupview-popup {
     overflow: auto;
@@ -885,9 +960,16 @@ div.v-progressindicator-indeterminate-disabled {
 .v-filterselect-button {
     float: right;
     cursor: pointer;
+    width: 1em;
+    height: 1em;
+    background: transparent url(../base/common/img/sprites.png) no-repeat -5px -8px;
 }
 .v-filterselect.v-readonly .v-filterselect-button {
     display: none;
+}
+.v-filterselect.v-readonly,
+.v-filterselect.v-readonly .v-filterselect-input {
+    background: transparent;
 }
 .v-filterselect-suggestpopup {
     background: #fff;
@@ -1041,8 +1123,8 @@ div.v-progressindicator-indeterminate-disabled {
 .v-ie6 .v-shadow {
     background: #000;
     filter: progid:DXImageTransform.Microsoft.Blur(pixelRadius=2) alpha(opacity=20);
-    margin-top: -3px;
-    margin-left: -4px;
+    margin-top: -2px;
+    margin-left: -2px;
 }
 
 .v-slider {
@@ -1084,7 +1166,20 @@ div.v-progressindicator-indeterminate-disabled {
     font-size: 0;
     margin-left: -5px;
 }
-
+.v-slider-feedback {
+	padding: 2px 5px;
+	background: #444;
+	color: #fff;
+	font-size: 11px;
+	line-height: 13px;
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	margin: -2px 0 0 2px;
+	text-shadow: 0 1px 0 #000;
+}
 /* Disabled by default
 .v-slider-error .v-slider-base {
   background: #FFE0E0;
@@ -1341,6 +1436,9 @@ div.v-progressindicator-indeterminate-disabled {
 .v-ff2 .v-tabsheet-scroller {
     position: relative;
 }
+.v-disabled .v-tabsheet-scroller {
+	display: none;
+}
 .v-tabsheet-scrollerPrev,
 .v-tabsheet-scrollerNext,
 .v-tabsheet-scrollerPrev-disabled,
@@ -1360,15 +1458,48 @@ div.v-progressindicator-indeterminate-disabled {
 .v-tabsheet-tabs .v-caption span {
     white-space: nowrap;
 }
+.v-tabsheet-caption-close {
+	display: inline;
+	display: inline-block;
+	zoom: 1;
+	width: 16px;
+	height: 16px;
+	text-align: center;
+	font-weight: bold;
+	cursor: pointer;
+	vertical-align: middle;
+	user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+.v-tabsheet .v-disabled .v-tabsheet-caption-close {
+	cursor: default;
+	visibility: hidden;
+}
+.v-tabsheet-tabitemcell:hover .v-tabsheet-caption-close,
+.v-ie6 .v-tabsheet-caption-close {
+	visibility: visible;
+}
+.v-ie6 .v-tabsheet-caption-close {
+	float: right;
+}
 .v-tabsheet-tabitem {
     border: 1px solid #aaa;
     border-right: none;
     cursor: pointer;
     padding: 0.2em 0.5em;
 }
+.v-tabsheet-tabitem .v-caption {
+	cursor: pointer;
+}
 .v-tabsheet-tabitem-selected {
-    cursor: default;
-    border-bottom-color: #fff;
+	cursor: default;
+	border-bottom-color: #fff;
+}
+.v-tabsheet-tabitem-selected .v-caption {
+	cursor: default;
 }
 .v-tabsheet-content {
     border: 1px solid #aaa;
@@ -1405,12 +1536,15 @@ textarea.v-textarea-prompt {
 .v-textfield.v-readonly,
 .v-textarea.v-readonly {
     background: transparent;
-    color: #222;
+    /*color: #222;*/
     border: none;
 }
 .v-richtextarea {
     border: 1px solid #aaa;
     overflow: hidden;
+}
+.v-richtextarea .gwt-RichTextArea {
+	background: #fff;
 }
 .v-richtextarea .gwt-RichTextToolbar .gwt-ToggleButton,
 .v-richtextarea .gwt-RichTextToolbar .gwt-PushButton {
@@ -1533,7 +1667,7 @@ div.v-tree-node-leaf {
     font-weight: bold;
 }
 /* A more specific selector to make sure padding isn't so easily overridden */
-.div.v-window-header {
+div.v-window-header {
     white-space: nowrap;
     text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
@@ -1554,6 +1688,9 @@ div.v-tree-node-leaf {
 /* Target Firefox 3 (it doesn't need any trickery, so revert the previous) */
 .v-window-contents, x:-moz-any-link, x:default {
     overflow: visible;
+}
+.v-window-contents > div {
+	outline: none;
 }
 .v-window-footer {
     overflow: hidden;
@@ -2294,7 +2431,7 @@ div.v-tree-node-leaf {
     background-color: #fffcdd;
     border: 1px solid #b8b295;
     font-size: 11px;
-    line-height: 13px;
+    /*line-height: 13px;*/
     color: #222;
 }
 .v-tooltip-text {
@@ -2597,7 +2734,7 @@ td.v-datefield-calendarpanel-nextyear {
     padding: 8px 4px;
     border-radius: 3px;
     -webkit-border-radius: 3px;
-    -moz-border-radisu: 3px;
+    -moz-border-radius: 3px;
 }
 .v-sa .v-datefield-popup,
 .v-ff3 .v-datefield-popup,
@@ -2617,19 +2754,29 @@ td.v-datefield-calendarpanel-nextyear {
     width: 12em;
 }
 .v-datefield-popupcalendar .v-datefield-textfield {
-    border-right: none;
-    height: 18px;
+	border-right-width: 0;
+	height: 18px;
 }
-.v-ff .v-datefield-popupcalendar .v-datefield-textfield,
-.v-op .v-datefield-popupcalendar .v-datefield-textfield {
-    border-radius-topright: 0;
-    border-radius-bottomright: 0;
-    -moz-border-radius-topright: 0;
-    -moz-border-radius-bottomright: 0;
+.v-readonly .v-datefield-textfield {
+	border-right-width: 1px;
+}
+.v-ff .v-datefield-popupcalendar .v-datefield-textfield {
+	border-radius-topright: 0;
+	border-radius-bottomright: 0;
+	-moz-border-radius-topright: 0;
+	-moz-border-radius-bottomright: 0;
+}
+.v-ff .v-readonly .v-datefield-textfield {
+	border-radius: 3px;
+	-moz-border-radius: 3px;
 }
 .v-sa .v-datefield-popupcalendar .v-datefield-textfield,
 .v-ff35 .v-datefield-popupcalendar .v-datefield-textfield {
-    border-width: 0 0 0 3px;
+	border-width: 0 0 0 3px;
+}
+.v-sa .v-datefield-popupcalendar .v-textfield-readonly,
+.v-ff35 .v-datefield-popupcalendar .v-textfield-readonly {
+	border-width: 0 3px;
 }
 .v-datefield-popupcalendar .v-datefield-button {
     width: 24px;
@@ -2816,13 +2963,20 @@ td.v-datefield-calendarpanel-nextyear {
     background-image: url(common/icons/error-ie6.png);
 }
 .v-form fieldset {
-    border: none;
-    /*border-top: 1px solid #babfc0;*/
+	border: none;
+	border-top: 1px solid #babfc0;
+}
+.v-form-nocaption fieldset {
+	border: none;
+}
+.v-form-nocaption legend {
+	display: none;
 }
 .v-form legend {
-    margin: 0;
-    padding: 0 4px 0.3em 4px;
-    font-weight: bold;
+	margin: 0 0 0 20px;
+	padding: 0 5px;
+	font-weight: bold;
+	color: #222;
 }
 
 .v-label {
@@ -2950,60 +3104,70 @@ td.v-datefield-calendarpanel-nextyear {
 .v-panel-content > div.black {
     background-color: #1e2022;
 }
+.v-link a:link span {
+	color: #1b699f;
+}
+.v-link a:visited span {
+	color: #5c7485;
+}
+.v-link a:hover span {
+	color: #2483c4;
+}
 
 .v-menubar {
-    height: 23px;
-    overflow: hidden;
-    background: #323336 repeat-x;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -380px;
-    color: #d1d3d6;
-    text-shadow: rgba(0,0,0,.9) 0 1px 0;
+	height: 23px;
+	background: #323336 repeat-x;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -380px;
+	color: #d1d3d6;
+	text-shadow: rgba(0,0,0,.9) 0 1px 0;
+	padding: 0 8px;
 }
-.v-menubar table {
-    margin-left: 8px;
-    height: 23px;
-}
-.v-menubar .menuitem {
-    padding: 3px 8px;
-    height: 17px;
+.v-menubar .v-menubar-menuitem {
+	padding: 3px 8px;
+	height: 17px;
+	line-height: 16px;
 }
 .v-menubar-submenu {
-    background: #f8f8f9;
-    border: none;
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    overflow: hidden;
-    padding: 4px 0;
+	background: #f8f8f9;
+	border: none;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-o-border-radius: 3px;
+	overflow: hidden;
+	padding: 4px 0;
 }
-.v-menubar-submenu .menuitem {
-    padding: 1px 15px 1px 10px;
-    height: 16px;
+.v-menubar-submenu .v-menubar-menuitem {
+	padding: 1px 26px 1px 10px;
+	line-height: 16px;
 }
-.v-menubar .menuitem-selected,
-.v-menubar-submenu .menuitem-selected {
-    background: #4d749f repeat-x;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -403px;
-    color: #fff;
-    text-shadow: #3b5a7a 0 1px 0;
+.v-menubar-submenu .v-menubar-menuitem-caption * {
+	vertical-align: middle;
 }
-.v-menubar .menuitem-selected {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -423px;
+.v-menubar .v-menubar-menuitem-selected,
+.v-menubar-submenu .v-menubar-menuitem-selected {
+	background: #4d749f repeat-x;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -403px;
+	color: #fff;
+	text-shadow: 0 1px 0 #3b5a7a;
 }
-
-/* Submenu icon (remove after #2849 is fixed) */
-.v-menubar-submenu .menuitem img[align="right"] {
-    margin-right: -15px;
+.v-menubar .v-menubar-menuitem-selected {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -423px;
 }
-.v-ie .v-menubar-submenu .menuitem img[align="right"] {
-    margin-top: -14px;
+.v-menubar-submenu .v-menubar-submenu-indicator {
+	background: transparent url(menubar/img/submenu-icon.png) no-repeat right 70%;
+	width: 26px;
+	height: 16px;
+	text-indent: -999px;
+}
+.v-menubar-submenu .v-menubar-menuitem-selected .v-menubar-submenu-indicator {
+	background-image: url(menubar/img/submenu-icon-hover.png);
 }
 
 .v-Notification {
@@ -3018,28 +3182,31 @@ td.v-datefield-calendarpanel-nextyear {
 .v-Notification p {
     line-height: 1.3;
 }
-.v-Notification.warning {
+.v-Notification-warning {
     background: #fdf3b5;
     color: #ca9a61;
     border: 3px solid #fee3af;
 }
-.v-Notification.error {
+.v-Notification-error {
     background: #b40000 url(notification/img/error-close.png) no-repeat right top;
     border: 3px solid #ca3030;
 }
-.v-Notification.tray {
+.v-Notification-tray {
     margin: 0 5px 5px 0;
     background: #3b3c3e;
     border: 2px solid #585b5c;
     padding: 0.8em 0.9em;
 }
-.v-Notification.tray h1 {
+.v-Notification-tray h1 {
     font-size: 14px;
     line-height: 18px;
 }
-.v-Notification.tray p {
+.v-Notification-tray p {
     font-size: 12px;
     font-weight: normal;
+}
+.v-Notification-system {
+	background-color: #b40000;
 }
 
 .v-panel-caption,
@@ -3061,17 +3228,21 @@ td.v-datefield-calendarpanel-nextyear {
     border-bottom: none;
     border-top: none;
 }
+.blue .v-panel-caption,
+.blue .v-panel-nocaption,
 .blue .v-panel-content {
-    border-color: #a8bcc5;
+	border-color: #a8bcc5;
 }
 .v-sa .v-panel-content,
 .v-ff3 .v-panel-content {
-    border-color: rgba(0,0,0,.1);
+	border-color: rgba(0,0,0,.1);
 }
-.v-panel-content > div,
+.v-panel-content > div {
+	background: #fff;
+	min-height: 100%;
+}
 .v-ie6 .v-panel-content {
-    background: #fff;
-    min-height: 100%;
+	background: #fff;
 }
 .v-panel-deco {
     height: 1px;
@@ -3114,10 +3285,25 @@ td.v-datefield-calendarpanel-nextyear {
 .v-panel-content-light > div {
     background: transparent;
 }
-.v-panel-deco-light {
-    height: 0;
-    border: none;
+.v-ie6 .v-panel-content-light {
+	background: transparent;
 }
+.v-panel-deco-light {
+	height: 0;
+	border: none;
+}
+
+.v-popupview {
+	color: #1b699f;
+}
+.v-popupview:hover {
+	color: #2483c4;
+}
+.v-popupview-popup {
+	background: #fff;
+	padding: 3px;
+}
+
 
 .v-progressindicator-wrapper {
     background: #dfe2e4 url(progressindicator/img/base.gif) repeat-x;
@@ -3471,8 +3657,9 @@ td.v-datefield-calendarpanel-nextyear {
 }
 
 /* Twincolselect needs a little tweak in IE6 */
-.v-ie6 .v-select-twincol-buttons {
-    overflow: hidden;
+.v-ie6 .v-select-twincol-buttons .v-button {
+	padding-left: 12px;
+	padding-right: 12px;
 }
 
 .v-slider {
@@ -3496,7 +3683,7 @@ td.v-datefield-calendarpanel-nextyear {
     height: 10px;
     margin-top: -5px;
 }
-.v-slider-handle:active {
+.v-slider-handle-active {
     background-image: url(common/img/vertical-sprites.png);
     -background-image: url(common/img/vertical-sprites-ie6.png);
     background-position: left -895px;
@@ -3523,13 +3710,13 @@ td.v-datefield-calendarpanel-nextyear {
 
 .v-splitpanel-hsplitter,
 .v-splitpanel-hsplitter-locked {
-    width: 0px;
+    width: 7px;
     background-repeat: repeat-y;
     background-image: url(common/img/horizontal-sprites.png);
     background-position: -0px top;
 }
 .v-splitpanel-hsplitter div {
-    width: 0px;
+    width: 7px;
     background: transparent;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -3555,7 +3742,7 @@ td.v-datefield-calendarpanel-nextyear {
 }
 
 /* Small style */
-.v-panel-hsplitter-small,
+.v-splitpanel-hsplitter-small,
 .v-splitpanel-hsplitter-small-locked {
     width: 0px;
     background: #949698;
@@ -3566,12 +3753,12 @@ td.v-datefield-calendarpanel-nextyear {
     background: #949698;
 }
 .v-splitpanel-hsplitter-small div {
-    width: 0px;
+    width: 3px;
     margin-left: -2px;
     background: transparent;
 }
 .v-splitpanel-vsplitter-small div {
-    height: 0px;
+    height: 3px;
     margin-top: -2px;
     background: transparent;
 }
@@ -3651,6 +3838,12 @@ td.v-datefield-calendarpanel-nextyear {
 }
 .v-table-row-odd {
     background: #eff0f1;
+}
+.v-table-cell-content:last-child {
+	border-right-color: #fff;
+}
+.v-table-row-odd .v-table-cell-content:last-child {
+	border-right-color: #eff0f1;
 }
 .v-table .v-selected,
 .black .v-table .v-selected {
@@ -3923,39 +4116,89 @@ td.v-datefield-calendarpanel-nextyear {
     background-position: right -1304px;
     padding: 9px 8px 0 6px;
 }
+.v-tabsheet-tabitem .v-caption-closable {
+	padding-right: 0;
+	padding-left: 17px;
+}
 .v-tabsheet-tabitem .v-captiontext {
-    height: 16px;
-    line-height: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+.v-tabsheet-caption-close {
+	float: right;
+	width: 19px;
+	height: 18px;
+	margin: -1px -1px 0;
+	padding-left: 2px;
+	background: transparent;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1336px;
+	cursor: default;
+	text-indent: -999px;
+	overflow: hidden;
+}
+.v-ff .v-tabsheet-caption-close,
+.v-ie7 .v-tabsheet-caption-close {
+	margin-top: -17px;
+}
+.v-ie6 .v-tabsheet-caption-close {
+	float: none;
+}
+.v-tabsheet-caption-close:hover {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1354px;
+}
+.v-tabsheet-caption-close:active {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1372px;
+}
+.v-tabsheet-tabitem-selected .v-tabsheet-caption-close {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1390px;
+}
+.v-tabsheet-tabitem-selected .v-tabsheet-caption-close:hover {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1408px;
+}
+.v-tabsheet-tabitem-selected .v-tabsheet-caption-close:active {
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1426px;
 }
 .v-tabsheet-tabitemcell-selected {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1336px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1444px;
 }
 .v-tabsheet-tabitemcell-selected-first {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1368px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1476px;
 }
 .v-tabsheet-tabitem-selected {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1400px;
-    color: #232930;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1508px;
+	color: #232930;
 }
 .v-tabsheet-tabitem-selected .v-caption {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: right -1432px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: right -1540px;
 }
 .v-tabsheet-spacertd div {
-    margin-right: 4px;
+	margin-right: 4px;
 }
 .v-tabsheet-spacertd {
-    background: transparent no-repeat right top;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: right -1464px;
+	background: transparent no-repeat right top;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: right -1572px;
 }
 .v-tabsheet-content {
     border: 1px solid #dcdcdc;
@@ -3989,100 +4232,106 @@ td.v-datefield-calendarpanel-nextyear {
     border-top-color: rgba(0,0,0,.1);
     background: rgba(0,0,0,.08);
 }
+/* Icons & error indicators */
+
+.v-tabsheet-tabs .v-icon,
+.v-tabsheet-tabs .v-captiontext,
+.v-tabsheet-tabs .v-errorindicator {
+	display: inline;
+	float: none;
+}
+.v-sa .v-tabsheet-tabs .v-captiontext {
+	display: inline-block;
+}
+.v-tabsheet-tabs .v-icon {
+	width: 16px !important;
+	height: 16px !important;
+}
+.v-tabsheet-tabs .v-errorindicator {
+	display: inline-block;
+	width: 13px;
+	height: 16px;
+	background: transparent url(common/icons/error.png) no-repeat 50%;
+}
+.v-ff2 .v-tabsheet-tabs .v-icon,
+.v-ff2 .v-tabsheet-tabs .v-errorindicator {
+	display: -moz-inline-stack;
+}
+.v-ie6 .v-tabsheet-tabs .v-errorindicator {
+	background-image: url(common/icons/error-ie6.png);
+}
+.v-ie .v-tabsheet-tabs .v-errorindicator {
+	zoom: 1;
+	display: inline;
+}
+.v-ie8 .v-tabsheet-tabs .v-errorindicator {
+	display: inline-block;
+}
+
+/* Tabsheet scroller styles */
+
 .v-tabsheet-scroller {
-    height: 31px;
-    margin-top: -31px;
-    padding-right: 3px;
-    border-right: 1px solid #afafaf;
-    position: relative;
-    float: right;
+	height: 31px;
+	margin-top: -31px;
+	padding: 0 3px 0 4px;
+	border-right: 1px solid #c2c2c2;
+	border-left: 1px solid #cfcfcf;
+	position: relative;
+	float: right;
+	background: transparent url(tabsheet/img/framed/tab-bg.png) repeat-x left -1px;
+	width: 36px;
 }
 .v-tabsheet-scroller button {
-    margin-top: 7px;
+	margin-top: 7px;
 }
 .v-tabsheet-scrollerPrev,
 .v-tabsheet-scrollerNext,
 .v-tabsheet-scrollerPrev-disabled,
 .v-tabsheet-scrollerNext-disabled {
-    border: none;
-    background: transparent;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1496px;
-    width: 18px;
-    height: 17px;
-    overflow: hidden;
-    cursor: default;
+	border: none;
+	background: transparent;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1604px;
+	width: 18px;
+	height: 17px;
+	overflow: hidden;
+	cursor: default;
 }
 .v-tabsheet-scroller button::-moz-focus-inner {
-    border: none;
+	border: none;
 }
 .v-tabsheet-scrollerNext {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1513px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1621px;
 }
 .v-tabsheet-scrollerPrev:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1530px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1638px;
 }
 .v-tabsheet-scrollerNext:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1547px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1655px;
 }
 .v-tabsheet-scrollerPrev-disabled,
 .v-tabsheet-scrollerPrev-disabled:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1564px;
-    opacity: 1;
-    filter: none;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1672px;
+	opacity: 1;
+	filter: none;
 }
 .v-tabsheet-scrollerNext-disabled,
 .v-tabsheet-scrollerNext-disabled:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1581px;
-    opacity: 1;
-    filter: none;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1689px;
+	opacity: 1;
+	filter: none;
 }
-.v-tabsheet-tabs .v-icon,
-.v-tabsheet-tabs .v-captiontext,
-.v-tabsheet-tabs .v-errorindicator {
-    display: inline;
-    float: none;
-}
-.v-sa .v-tabsheet-tabs .v-captiontext {
-    display: inline-block;
-}
-.v-tabsheet-tabs .v-icon {
-    width: 16px !important;
-    height: 16px !important;
-}
-.v-tabsheet-tabs .v-errorindicator {
-    display: inline-block;
-    width: 13px;
-    height: 16px;
-    background: transparent url(common/icons/error.png) no-repeat 50%;
-}
-.v-ff2 .v-tabsheet-tabs .v-icon,
-.v-ff2 .v-tabsheet-tabs .v-errorindicator {
-    display: -moz-inline-stack;
-}
-.v-ie6 .v-tabsheet-tabs .v-errorindicator {
-    background-image: url(common/icons/error-ie6.png);
-}
-.v-ie .v-tabsheet-tabs .v-errorindicator {
-    zoom: 1;
-    display: inline;
-}
-
-
-
-
-
 
 /**
  * Minimal style --------------
@@ -4125,6 +4374,10 @@ td.v-datefield-calendarpanel-nextyear {
     background: transparent;
     padding: 4px 15px 6px 15px;
 }
+.v-tabsheet-minimal .v-tabsheet-tabitem .v-caption-closable,
+.v-tabsheet-minimal .v-tabsheet-tabitem-selected .v-caption-closable {
+	padding-right: 6px;
+}
 .v-tabsheet-content-minimal {
     border: none;
 }
@@ -4136,21 +4389,59 @@ td.v-datefield-calendarpanel-nextyear {
     border: none;
 }
 .v-tabsheet-minimal .v-tabsheet-scroller {
-    margin-top: -20px;
-    height: 17px;
-    padding-right: 0;
-    border-right: none;
-    position: static;
-    float: none;
+	margin-top: -20px;
+	height: 17px;
+	padding: 0;
+	border: none;
+	background: transparent;
 }
 .v-tabsheet-minimal .v-tabsheet-scroller button {
     margin-top: 0;
+}
+.v-tabsheet-minimal .v-tabsheet-caption-close,
+.v-tabsheet-minimal .v-tabsheet-caption-close:hover,
+.v-tabsheet-minimal .v-tabsheet-caption-close:active {
+	text-indent: 0;
+	background: transparent;
+	margin-left: 3px;
+	margin-right: -3px;
+	padding: 0;
+	color: #999;
+	width: 15px;
+	height: 15px;
+	line-height: 14px;
+	-webkit-border-radius: 7px;
+	-moz-border-radius: 7px;
+}
+.v-tabsheet-minimal .v-tabsheet-caption-close {
+	margin-top: 1px;
+}
+.v-ff .v-tabsheet-minimal .v-tabsheet-caption-close,
+.v-ie7 .v-tabsheet-minimal .v-tabsheet-caption-close {
+	margin-top: -15px;
+}
+.v-tabsheet-minimal .v-tabsheet-caption-close:hover {
+	color: #fff;
+	background: #aaa;
+}
+.v-tabsheet-minimal .v-tabsheet-caption-close:active {
+	background: #777;
 }
 /* Minimal tabsheet on blue background */
 .blue .v-tabsheet-minimal .v-tabsheet-spacertd div,
 .blue .v-tabsheet-minimal .v-tabsheet-tabitem,
 .blue .v-tabsheet-minimal .v-tabsheet-tabitem-selected  {
-    border-color: #7c8a91;
+	border-color: #7c8a91;
+}
+.blue .v-tabsheet-minimal .v-tabsheet-caption-close {
+	color: #7c8a91;
+}
+.blue .v-tabsheet-minimal .v-tabsheet-caption-close:hover {
+	color: #BCD3DE;
+	background: #778d98;
+}
+.blue .v-tabsheet-minimal .v-tabsheet-caption-close:active {
+	background: #4f6874;
 }
 /* Minimal tabsheet on black background */
 .black .v-tabsheet-minimal .v-tabsheet-spacertd div,
@@ -4168,14 +4459,20 @@ td.v-datefield-calendarpanel-nextyear {
     text-shadow: #000 0 0 1px;
 }
 
-
-
-
-
+.black .v-tabsheet-minimal .v-tabsheet-caption-close {
+	color: #72787c;
+}
+.black .v-tabsheet-minimal .v-tabsheet-caption-close:hover {
+	color: #1d2021;
+	background: #4d5154;
+}
+.black .v-tabsheet-minimal .v-tabsheet-caption-close:active {
+	background: #626669;
+}
 
 /**
- * Bar style ---------------
-*/
+ * Tabsheet bar style ---------------
+ */
 .v-tabsheet-bar .v-tabsheet-tabitemcell,
 .v-tabsheet-bar .v-tabsheet-spacertd {
     height: 20px;
@@ -4184,66 +4481,109 @@ td.v-datefield-calendarpanel-nextyear {
     background: transparent;
 }
 .v-tabsheet-bar .v-tabsheet-tabitemcell {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1599px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1707px;
 }
 .v-tabsheet-bar .v-tabsheet-tabitemcell-first {
-    padding-left: 6px;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1619px;
+	padding-left: 6px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1727px;
 }
 .v-tabsheet-bar .v-tabsheet-tabitem,
 .v-tabsheet-bar .v-tabsheet-spacertd div {
-    height: 20px;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1639px;
-    font-size: 11px;
-    margin: 0;
+	height: 20px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1747px;
+	font-size: 11px;
+	margin: 0;
 }
 .v-tabsheet-bar .v-tabsheet-tabitem .v-caption {
-    height: 18px;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: right -1659px;
-    padding: 2px 12px 0 10px;
+	height: 18px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: right -1767px;
+	padding: 2px 12px 0 10px;
 }
+.v-tabsheet-bar .v-tabsheet-tabitem .v-caption-closable,
+.v-tabsheet-bar .v-tabsheet-tabitem-selected .v-caption-closable {
+	padding-right: 8px;
+	padding-left: 14px;
+}
+.v-tabsheet-bar .v-tabsheet-caption-close,
+.v-tabsheet-bar .v-tabsheet-caption-close:hover,
+.v-tabsheet-bar .v-tabsheet-caption-close:active {
+	text-indent: 0;
+	background: transparent;
+	margin-left: 3px;
+	margin-right: -3px;
+	padding: 0;
+	color: #3c3c3c;
+	width: 14px;
+	height: 14px;
+	line-height: 12px;
+	-webkit-border-radius: 7px;
+	-moz-border-radius: 7px;
+}
+.v-tabsheet-bar .v-tabsheet-caption-close {
+	margin-top: 0;
+}
+.v-ff .v-tabsheet-bar .v-tabsheet-caption-close,
+.v-ie7 .v-tabsheet-bar .v-tabsheet-caption-close {
+	margin-top: -15px;
+}
+.v-tabsheet-bar .v-tabsheet-caption-close:hover {
+	background: #bfbfbf;
+	-webkit-box-shadow: 0 1px 0 #fff;
+}
+.v-tabsheet-bar .v-tabsheet-caption-close:active {
+	background: #a9a9a9;
+}
+.v-tabsheet-bar .v-tabsheet-tabitem-selected .v-tabsheet-caption-close {
+	color: #404142;
+}
+.v-tabsheet-bar .v-tabsheet-tabitem-selected .v-tabsheet-caption-close:hover {
+	background: #5e666e;
+	color: #fff;
+	text-shadow: 0 -1px 0 #222;
+}
+.v-tabsheet-bar .v-tabsheet-tabitem-selected .v-tabsheet-caption-close:active {
+	background: #404142;
+}
+
 .v-tabsheet-bar .v-tabsheet-tabitemcell-selected {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1679px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1787px;
 }
 .v-tabsheet-bar .v-tabsheet-tabitemcell-selected-first {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1699px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1807px;
 }
 .v-tabsheet-bar .v-tabsheet-tabitem-selected {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1719px;
-    color: #232930;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1827px;
+	color: #232930;
 }
 .v-tabsheet-bar .v-tabsheet-tabitem-selected .v-caption {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: right -1739px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: right -1847px;
 }
 .v-tabsheet-bar .v-tabsheet-scroller {
-    margin-top: -19px;
-}
-.v-tabsheet-bar .v-tabsheet-scroller {
-    margin-top: -19px;
-    height: 17px;
-    padding-right: 0;
-    border-right: none;
-    position: static;
-    float: none;
+	margin-top: -20px;
+	height: 19px;
+	border-right: none;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1867px;
 }
 .v-tabsheet-bar .v-tabsheet-scroller button {
-    margin-top: 0;
+	margin-top: 1px;
 }
 .v-tabsheet-content-bar {
     border: none;
@@ -4268,7 +4608,7 @@ td.v-datefield-calendarpanel-nextyear {
     background-repeat: repeat-x;
     background-image: url(common/img/vertical-sprites.png);
     -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1759px;
+    background-position: left -1887px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     margin: 0;
@@ -4340,12 +4680,25 @@ textarea.v-textarea-prompt {
     height: 16px;
 }
 .v-table input.v-textfield {
-    margin-top: -3px;
-    height: 15px;
-    line-height: normal;
+	padding: 1px 2px;
+	height: auto;
+	line-height: normal;
 }
-.v-ie .v-table input.v-textfield {
-    padding-top: 1px;
+.v-sa .v-table  input.v-textfield,
+.v-ff35 .v-table  input.v-textfield {
+	padding: 2px 0;
+}
+.v-table-cell-wrapper > input.v-textfield {
+	margin-top: -2px;
+	margin-bottom: -2px;
+}
+.v-ie6 .v-table-cell-wrapper input.v-textfield {
+	margin-top: -2px;
+	margin-bottom: -2px;
+}
+.v-ie6 .v-table-cell-wrapper div input.v-textfield {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 /* Textfield on black background */
 .black .v-textfield {
@@ -4485,7 +4838,7 @@ input.v-textfield-readonly,
     background: transparent repeat-x;
     background-image: url(common/img/vertical-sprites.png);
     -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1802px;
+    background-position: left -1930px;
 }
 .v-window-header {
     font-weight: bold;
@@ -4506,40 +4859,40 @@ input.v-textfield-readonly,
     background-image: url(common/icons/error-ie6.png);
 }
 .v-window-resizebox {
-    width: 15px;
-    height: 15px;
-    cursor: se-resize;
-    background: transparent;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1839px;
+	width: 15px;
+	height: 15px;
+	cursor: se-resize;
+	background: transparent;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1967px;
 }
 .v-window-footer {
-    background-repeat: repeat-x;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1854px;
-    height: 15px;
+	background-repeat: repeat-x;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1982px;
+	height: 15px;
 }
 .v-window-closebox {
-    top: 12px;
-    right: 10px;
-    width: 15px;
-    height: 16px;
-    background: transparent;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1869px;
+	top: 12px;
+	right: 10px;
+	width: 15px;
+	height: 16px;
+	background: transparent;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -1997px;
 }
 .v-window-closebox:hover {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1885px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2013px;
 }
 .v-window-closebox:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1901px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2029px;
 }
 .v-window-contents {
     background: #fff;
@@ -4568,44 +4921,44 @@ input.v-textfield-readonly,
     text-shadow: none;
 }
 .v-window-light .v-window-resizebox {
-    width: 12px;
-    height: 12px;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1917px;
+	width: 12px;
+	height: 12px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2045px;
 }
 .v-window-light .v-window-footer {
-    background: transparent;
-    height: 12px;
+	background: transparent;
+	height: 12px;
 }
 .v-window-light .v-window-closebox {
-    right: 1px;
-    top: 17px;
-    width: 19px;
-    height: 15px;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1929px;
+	right: 1px;
+	top: 17px;
+	width: 19px;
+	height: 15px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2057px;
 }
 .v-window-light .v-window-closebox:hover {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1944px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2072px;
 }
 .v-window-light .v-window-closebox:active {
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1959px;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2087px;
 }
 .v-window-light .v-window-contents {
-    background: transparent;
+	background: transparent;
 }
 /* This must be the last sprite added to the verticals-sprite image */
 .v-window-light .v-window-wrap2 {
-    background: #f7f7f8 repeat-x;
-    background-image: url(common/img/vertical-sprites.png);
-    -background-image: url(common/img/vertical-sprites-ie6.png);
-    background-position: left -1974px;
+	background: #f7f7f8 repeat-x;
+  background-image: url(common/img/vertical-sprites.png);
+  -background-image: url(common/img/vertical-sprites-ie6.png);
+  background-position: left -2102px;
 }
 .v-ie6 .v-window-light .v-window-wrap2 {
     background-image: none;
