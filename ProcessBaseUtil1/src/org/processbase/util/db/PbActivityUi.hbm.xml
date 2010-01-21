@@ -21,5 +21,11 @@
     <property name="activityDescription" type="string">
       <column length="200" name="ACTIVITY_DESCRIPTION"/>
     </property>
+    <property name="mobile" type="string">
+      <column length="1" name="MOBILE"/>
+    </property>
+    <property name="mobileUiClass" type="string">
+      <column length="200" name="MOBILE_UI_CLASS"/>
+    </property>
   </class>
 </hibernate-mapping>

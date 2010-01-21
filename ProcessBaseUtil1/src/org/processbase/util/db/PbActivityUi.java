@@ -18,6 +18,8 @@ public class PbActivityUi implements java.io.Serializable {
     private String activityUuid;
     private String uiClass;
     private String activityDescription;
+    private String mobile;
+    private String mobileUiClass;
 
     public PbActivityUi() {
     }
@@ -32,6 +34,15 @@ public class PbActivityUi implements java.io.Serializable {
         this.activityUuid = activityUuid;
         this.uiClass = uiClass;
         this.activityDescription = activityDescription;
+    }
+
+    public PbActivityUi(String proccessUuid, String activityUuid, String uiClass, String activityDescription, String mobile, String mobileUiClass) {
+        this.proccessUuid = proccessUuid;
+        this.activityUuid = activityUuid;
+        this.uiClass = uiClass;
+        this.activityDescription = activityDescription;
+        this.mobile = mobile;
+        this.mobileUiClass = mobileUiClass;
     }
 
     @Id
@@ -79,6 +90,26 @@ public class PbActivityUi implements java.io.Serializable {
     public void setActivityDescription(String activityDescription) {
         this.activityDescription = activityDescription;
     }
+
+    @Column(name = "MOBILE", length = 1)
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    @Column(name = "MOBILE_UI_CLASS", length = 200)
+    public String getMobileUiClass() {
+        return mobileUiClass;
+    }
+
+    public void setMobileUiClass(String mobileUiClass) {
+        this.mobileUiClass = mobileUiClass;
+    }
+
+
 }
 
 

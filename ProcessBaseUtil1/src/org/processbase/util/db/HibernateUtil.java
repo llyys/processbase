@@ -177,9 +177,9 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(new PbActivityUi(processUUID, processUUID, null, processDescription));
+            session.save(new PbActivityUi(processUUID, processUUID, null, processDescription, "F", null));
             for (String actUUID : activities.keySet()) {
-                session.save(new PbActivityUi(processUUID, actUUID, null, activities.get(actUUID)));
+                session.save(new PbActivityUi(processUUID, actUUID, null, activities.get(actUUID), "F", null));
             }
             tx.commit();
         } finally {
