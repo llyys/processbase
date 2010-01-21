@@ -16,10 +16,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupDateField;
@@ -91,24 +89,9 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             this.activity = activity;
             this.dfds = bpmModule.getProcessDataFields(activity.getProcessDefinitionUUID());
             this.processVars = bpmModule.getProcessInstanceVariables(activity.getProcessInstanceUUID());
-
-//            Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, "----getActivityInstanceVariables---BEGIN");
-//            Map<String, Object> activityInstanceVariables = bpmModule.getActivityInstanceVariables(activity.getUUID());
-//            for (String key : activityInstanceVariables.keySet()) {
-//                Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, key + " = " + activityInstanceVariables.get(key));
-//            }
-//            Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, "----getActivityInstanceVariables---END");
-//
-//            Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, "----variablesBeforeStarted---BEGIN");
-//            Map<String, Object> variablesBeforeStarted = task.getVariablesBeforeStarted();
-//            for (String key : variablesBeforeStarted.keySet()) {
-//                Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, key + " = " + variablesBeforeStarted.get(key));
-//            }
-//            Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, "----variablesBeforeStarted---END");
-
             exec();
         } catch (Exception ex) {
-            Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -122,7 +105,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
         tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
         tabSheet.setSizeFull();
-
         if (task != null) {
             addParticipantInfo();
             participantLayout.setSizeFull();
@@ -136,6 +118,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             stateLayout.setSizeFull();
             tabSheet.addTab(stateLayout, messages.getString("taskStateUpdates"), null);
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
         tabSheet.setStyleName("minimal");
         layout.addComponent(tabSheet);
@@ -220,8 +203,10 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         ((FormLayout) participantPanel.getContent()).setMargin(true);
         ((FormLayout) participantPanel.getContent()).setSpacing(true);
         participantPanel.setWidth("100%");
-        for (String candidate : task.getBody().getTaskCandidates()) {
-            candidatesField.addItem(candidate);
+        if (task.getBody().getTaskCandidates() != null && task.getBody().getTaskCandidates().size() > 0) {
+            for (String candidate : task.getBody().getTaskCandidates()) {
+                candidatesField.addItem(candidate);
+            }
         }
         candidatesField.setNullSelectionAllowed(false);
         candidatesField.setWidth("300px");
@@ -316,7 +301,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
                 addParticipantInfo();
                 addStateInfo();
             } catch (Exception ex) {
-                Logger.getLogger(ActivityWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+                ex.printStackTrace();
                 showError(ex.getMessage());
             }
         }
