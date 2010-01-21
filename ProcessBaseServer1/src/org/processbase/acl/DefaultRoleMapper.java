@@ -32,32 +32,33 @@ public class DefaultRoleMapper extends ProcessBaseRoleMapper {
 
     @Override
     public Set<String> searchMembers(QueryAPIAccessor queryAPIAccessor, ProcessInstanceUUID piUUID, String rolename) throws Exception {
-//        Logger.getLogger(DefaultRoleMapper.class.getName()).log(Level.SEVERE, "rolename = " + rolename);
-        loadProperties();
-        ProcessInstance processInstance = queryAPIAccessor.getQueryRuntimeAPI().getProcessInstance(piUUID);
-        ProcessDefinition processDefinition = queryAPIAccessor.getQueryDefinitionAPI().getProcess(processInstance.getProcessDefinitionUUID());
-        ParticipantDefinition participantDefinition = queryAPIAccessor.getQueryDefinitionAPI().getProcessParticipant(processDefinition.getProcessDefinitionUUID(), rolename);
-//        Logger.getLogger(DefaultRoleMapper.class.getName()).log(Level.SEVERE, "participantDefinition.getParticipantId = " + participantDefinition.getParticipantId());
-//        Logger.getLogger(DefaultRoleMapper.class.getName()).log(Level.SEVERE, "participantDefinition.getName = " + participantDefinition.getName());
-//        Logger.getLogger(DefaultRoleMapper.class.getName()).log(Level.SEVERE, "participantDefinition.getParticipantType = " + participantDefinition.getParticipantType().toString());
-        HashSet<String> result = new HashSet<String>();
-        if (participantDefinition.getParticipantType().equals(ParticipantType.ROLE) || participantDefinition.getParticipantType().equals(ParticipantType.ORGANIZATIONAL_UNIT)) {
-            connect();
-            NamingEnumeration<SearchResult> groupSearch = ctx.search(properties.getProperty("BASE_GROUP_DN"), "cn=" + participantDefinition.getName(), new SearchControls());
-            SearchResult groupSR = groupSearch.next();
-            Attribute atr = groupSR.getAttributes().get("uniquemember");
-            if (atr != null) {
-                for (int i = 0; i < atr.size(); i++) {
-                    String userDN = atr.get(i).toString();
-                    result.add(userDN.substring(4, userDN.indexOf(properties.getProperty("BASE_PEOPLE_DN")) - 1));
+        try {
+            loadProperties();
+            ProcessInstance processInstance = queryAPIAccessor.getQueryRuntimeAPI().getProcessInstance(piUUID);
+            ProcessDefinition processDefinition = queryAPIAccessor.getQueryDefinitionAPI().getProcess(processInstance.getProcessDefinitionUUID());
+            ParticipantDefinition participantDefinition = queryAPIAccessor.getQueryDefinitionAPI().getProcessParticipant(processDefinition.getProcessDefinitionUUID(), rolename);
+            HashSet<String> result = new HashSet<String>();
+            if (participantDefinition.getParticipantType().equals(ParticipantType.ROLE) || participantDefinition.getParticipantType().equals(ParticipantType.ORGANIZATIONAL_UNIT)) {
+                connect();
+                NamingEnumeration<SearchResult> groupSearch = ctx.search(properties.getProperty("BASE_GROUP_DN"), "cn=" + participantDefinition.getName(), new SearchControls());
+                SearchResult groupSR = groupSearch.next();
+                Attribute atr = groupSR.getAttributes().get("uniquemember");
+                if (atr != null) {
+                    for (int i = 0; i < atr.size(); i++) {
+                        String userDN = atr.get(i).toString();
+                        result.add(userDN.substring(4, userDN.indexOf(properties.getProperty("BASE_PEOPLE_DN")) - 1));
+                    }
                 }
+                ctx.close();
+            } else if (participantDefinition.getParticipantType().equals(ParticipantType.HUMAN)) {
+                result.add(participantDefinition.getName());
+            } else if (participantDefinition.getParticipantType().equals(ParticipantType.SYSTEM)) {
+                result.add(participantDefinition.getName());
             }
-            ctx.close();
-        } else if (participantDefinition.getParticipantType().equals(ParticipantType.HUMAN)) {
-            result.add(participantDefinition.getName());
-        } else if (participantDefinition.getParticipantType().equals(ParticipantType.SYSTEM)) {
-            result.add(participantDefinition.getName());
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new HashSet<String>();
         }
-        return result;
     }
 }
