@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 13.12.2009 22:19:21 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class name="org.processbase.util.db.PbActivityUi" table="PB_ACTIVITY_UI">
+    <id name="id" type="long">
+      <column name="ID" precision="16" scale="0"/>
+      <generator class="sequence">
+        <param name="sequence">PB_SEQUENCE</param>
+      </generator>
+    </id>
+    <property name="proccessUuid" type="string">
+      <column length="200" name="PROCCESS_UUID" not-null="true"/>
+    </property>
+    <property name="activityUuid" type="string">
+      <column length="200" name="ACTIVITY_UUID" not-null="true"/>
+    </property>
+    <property name="uiClass" type="string">
+      <column length="200" name="UI_CLASS"/>
+    </property>
+    <property name="activityLabel" type="string">
+      <column length="200" name="ACTIVITY_LABEL"/>
+    </property>
+    <property name="isMobile" type="string">
+      <column length="1" name="IS_MOBILE"/>
+    </property>
+    <property name="mobileUiClass" type="string">
+      <column length="200" name="MOBILE_UI_CLASS"/>
+    </property>
+    <property name="isStart" type="string">
+      <column length="1" name="IS_START"/>
+    </property>
+  </class>
+</hibernate-mapping>
