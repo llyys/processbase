@@ -36,7 +36,7 @@ public class PbTableFieldFactory implements TableFieldFactory {
         Field field = null;
         if (propertyId.toString().equals("uiClass")) {
             field = new TextField();
-            ((TextField) field).setInputPrompt("Type UI Form Class here");
+            ((TextField) field).setInputPrompt("Type Task Page URL here");
             ((TextField) field).setWidth("300px");
             ((TextField) field).setNullRepresentation("");
         } else if (propertyId.toString().equals("mobileUiClass")) {

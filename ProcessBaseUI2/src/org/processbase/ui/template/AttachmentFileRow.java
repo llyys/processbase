@@ -16,7 +16,9 @@
  */
 package org.processbase.ui.template;
 
+import com.liferay.portal.model.User;
 import com.vaadin.terminal.StreamResource;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -32,10 +34,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.processbase.ProcessBase;
+import javax.portlet.PortletSession;
 import org.processbase.util.db.PbAttachment;
 
 /**
@@ -46,8 +49,9 @@ public class AttachmentFileRow extends HorizontalLayout
         implements Button.ClickListener, Upload.SucceededListener, Upload.FailedListener, Upload.Receiver {
 
     private PbAttachment pbAttachments;
-    protected ResourceBundle messages = ResourceBundle.getBundle("resources/MessagesBundle", ((ProcessBase) getApplication()).getCurrent().getLocale());
-    private Button btnDelete = new Button(messages.getString("btnDelete"), this);
+    protected PortletApplicationContext2 portletApplicationContext2 = null;
+    protected ResourceBundle messages = null;
+    private Button btnDelete = null;
     private Label emptyLabel = new Label(" ");
     private Button btnFileDownload = new Button("", this);
     private Upload upload = new Upload("", this);
@@ -58,8 +62,12 @@ public class AttachmentFileRow extends HorizontalLayout
     private TextField fileDesc = new TextField("Описание");
     private ComboBox fileType = new ComboBox("Тип");
 
-    public AttachmentFileRow(PbAttachment pbAttachments) {
+    public AttachmentFileRow(PbAttachment pbAttachments, PortletApplicationContext2 portletApplicationContext2) {
         super();
+        this.portletApplicationContext2 = portletApplicationContext2;
+        User currentUser = ((User) this.portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE));
+        messages = ResourceBundle.getBundle("resources/MessagesBundle", new Locale(currentUser.getLanguageId()));
+        btnDelete = new Button(messages.getString("btnDelete"), this);
         if (pbAttachments != null) {
             this.pbAttachments = pbAttachments;
             this.saved = true;
@@ -121,7 +129,7 @@ public class AttachmentFileRow extends HorizontalLayout
         this.addComponent(emptyLabel);
         this.addComponent(btnDelete);
         this.setExpandRatio(emptyLabel, 1);
-        ((Layout) this.getParent()).addComponent(new AttachmentFileRow(null));
+        ((Layout) this.getParent()).addComponent(new AttachmentFileRow(null, portletApplicationContext2));
     }
 
     public void uploadSucceeded(SucceededEvent event) {

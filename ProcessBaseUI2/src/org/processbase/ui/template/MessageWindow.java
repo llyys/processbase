@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
@@ -41,8 +42,8 @@ public class MessageWindow extends PbWindow implements Button.ClickListener, Win
     public static int ERROR_STYLE = 2;
     private boolean result = false;
 
-    public MessageWindow(String message, int windowStyle) {
-        super();
+    public MessageWindow(String message, int windowStyle, PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         this.windowStyle = windowStyle;
         this.message = message;
         initUI();

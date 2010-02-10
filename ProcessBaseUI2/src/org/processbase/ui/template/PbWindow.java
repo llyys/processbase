@@ -16,10 +16,12 @@
  */
 package org.processbase.ui.template;
 
-import com.vaadin.ui.ComponentContainer;
+import com.liferay.portal.model.User;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Window;
+import java.util.Locale;
 import java.util.ResourceBundle;
-import org.processbase.ProcessBase;
+import javax.portlet.PortletSession;
 
 /**
  *
@@ -28,21 +30,21 @@ import org.processbase.ProcessBase;
 public class PbWindow extends Window {
 
     protected boolean confirmResult = false;
-    protected ResourceBundle messages = ResourceBundle.getBundle("resources/MessagesBundle", ((ProcessBase) getApplication()).getCurrent().getLocale());
+    protected ResourceBundle messages = null;
+    protected PortletApplicationContext2 portletApplicationContext2 = null;
 
-    public PbWindow(String caption, ComponentContainer content) {
-        super(caption, content);
-    }
-
-    public PbWindow(String caption) {
+    public PbWindow(String caption, PortletApplicationContext2 portletApplicationContext2) {
         super(caption);
+        this.portletApplicationContext2 = portletApplicationContext2;
+        messages = ResourceBundle.getBundle("resources/MessagesBundle", new Locale(this.getCurrenUser().getLanguageId()));
     }
 
-    public PbWindow() {
+    public PbWindow(PortletApplicationContext2 portletApplicationContext2) {
+        this("", portletApplicationContext2);
     }
 
     public void showMessageWindow(String message, int windowStyle) {
-        MessageWindow messageWindow = new MessageWindow(message, windowStyle);
+        MessageWindow messageWindow = new MessageWindow(message, windowStyle, getPortletApplicationContext2());
         getApplication().getMainWindow().addWindow(messageWindow);
     }
 
@@ -80,7 +82,17 @@ public class PbWindow extends Window {
                 showNotification(messages.getString("exceptionCaption"), desc.substring(0), type);
                 break;
         }
+    }
 
+    public ResourceBundle getMessages() {
+        return messages;
+    }
 
+    public PortletApplicationContext2 getPortletApplicationContext2() {
+        return portletApplicationContext2;
+    }
+
+    public User getCurrenUser() {
+        return ((User) this.portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE));
     }
 }

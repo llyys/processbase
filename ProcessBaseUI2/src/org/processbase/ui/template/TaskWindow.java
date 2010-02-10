@@ -16,21 +16,21 @@
  */
 package org.processbase.ui.template;
 
+import com.liferay.portal.model.User;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.exception.InstanceNotFoundException;
-import org.ow2.bonita.facade.exception.ProcessNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
-import org.processbase.util.ldap.User;
 
 /**
  *
@@ -42,41 +42,51 @@ public class TaskWindow extends PbWindow {
     protected TaskInstance task = null;
     protected Map<String, Object> processVars = new HashMap<String, Object>();
     protected Set<DataFieldDefinition> dfds = null;
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
+    protected BPMModule bpmModule = null;
     protected HorizontalLayout buttons = new HorizontalLayout();
     protected Button cancelBtn = new Button(messages.getString("btnCancel"));
     protected Button applyBtn = new Button(messages.getString("btnOK"));
     protected boolean isNew = true;
-    protected AttachmentBar attachmentBar = new AttachmentBar();
+    protected AttachmentBar attachmentBar = null;
     protected Set<String> candidates = null;
 
-    public TaskWindow() {
-        super();
+    public TaskWindow(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
+        attachmentBar = new AttachmentBar(portletApplicationContext2);
         Label emptyLabel = new Label("");
         buttons.addComponent(emptyLabel);
         buttons.setExpandRatio(emptyLabel, 1);
+        buttons.setStyleName("white");
     }
 
-    public void setTaskInfo(ProcessDefinition pd, TaskInstance t) throws ProcessNotFoundException, InstanceNotFoundException, Exception {
-        this.processDefinition = pd;
-        this.task = t;
-        if (task != null) {
-            isNew = Boolean.FALSE;
-            dfds = bpmModule.getProcessDataFields(task.getProcessDefinitionUUID());
-            processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID());
-            candidates = task.getTaskCandidates();
-        } else {
-            isNew = Boolean.TRUE;
-            dfds = bpmModule.getProcessDataFields(processDefinition.getUUID());
+    public boolean setTaskInfo() {
+        try {
+            bpmModule = new BPMModule(getCurrenUser().getScreenName());
+            task = (TaskInstance) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+            processDefinition = (ProcessDefinition) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_PROCESSDEFINITION", PortletSession.APPLICATION_SCOPE);
+            if (task == null & processDefinition == null) {
+                throw new Exception("ATTRIBUTES TASK AND PROCESSDEFINITION NOT SET!");
+            } else if (task != null & processDefinition == null) {
+                if (!this.task.isTaskAssigned() || !this.task.getTaskUser().equals(getCurrenUser().getScreenName())) {
+                    throw new Exception("TASK NOT ASSIGNED TO CURRENT USER!");
+                }
+                processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
+                isNew = Boolean.FALSE;
+                dfds = bpmModule.getProcessDataFields(task.getProcessDefinitionUUID());
+                processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID());
+                candidates = task.getTaskCandidates();
+            } else if (task == null & processDefinition != null) {
+                isNew = Boolean.TRUE;
+                dfds = bpmModule.getProcessDataFields(processDefinition.getUUID());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public void exec() {
-        try {
-        } catch (Exception ex) {
-            showError(ex.getMessage());
-        }
-
     }
 
     public DataFieldDefinition getDataFieldDefinition(String name) {
@@ -88,8 +98,16 @@ public class TaskWindow extends PbWindow {
         return null;
     }
 
-    @SuppressWarnings("static-access")
-    public User getCurrenUser(){
-        return ((ProcessBase) getApplication()).getCurrent().getUser();
+    public TaskInstance getTask() {
+        return task;
+    }
+
+    @Override
+    protected void close() {
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PROCESSDEFINITION", PortletSession.APPLICATION_SCOPE);
+        super.close();
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
+        this.getApplication().close();
     }
 }

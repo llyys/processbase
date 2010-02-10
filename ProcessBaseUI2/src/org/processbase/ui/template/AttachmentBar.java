@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import java.util.ArrayList;
@@ -29,8 +30,11 @@ import org.processbase.util.db.PbAttachment;
  */
 public class AttachmentBar extends VerticalLayout {
 
-    public AttachmentBar() {
+    protected PortletApplicationContext2 portletApplicationContext2 = null;
+
+    public AttachmentBar(PortletApplicationContext2 portletApplicationContext2) {
         super();
+        this.portletApplicationContext2 = portletApplicationContext2;
         this.setSpacing(true);
     }
 
@@ -41,13 +45,13 @@ public class AttachmentBar extends VerticalLayout {
         ArrayList<PbAttachment> pbAttachments = hutil.findProcessPbAttachments(processUUID);
         for (PbAttachment pbAttachment : pbAttachments) {
 //            Logger.getLogger(AttachmentBar.class.getName()).log(Level.SEVERE, "pbAttachments = " + pbAttachments);
-            this.addComponent(new AttachmentFileRow(pbAttachment));
+            this.addComponent(new AttachmentFileRow(pbAttachment, portletApplicationContext2));
         }
-        this.addComponent(new AttachmentFileRow(null));
+        this.addComponent(new AttachmentFileRow(null, portletApplicationContext2));
     }
 
     public void newUpload() {
-        this.addComponent(new AttachmentFileRow(null));
+        this.addComponent(new AttachmentFileRow(null, portletApplicationContext2));
     }
 
     public void save(String processUUID, String activityUUID) {

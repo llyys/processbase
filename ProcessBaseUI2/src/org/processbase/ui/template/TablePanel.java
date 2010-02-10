@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -31,14 +32,14 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
 
     protected Table table = new Table();
 
-    public TablePanel() {
-        super();
+    public TablePanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         initUI();
     }
 
     public void initUI() {
         table.setSizeFull();
-        table.setPageLength(20);
+        table.setPageLength(15);
         horizontalLayout.addComponent(table, 0);
         horizontalLayout.setComponentAlignment(table, Alignment.TOP_LEFT);
         horizontalLayout.setExpandRatio(table, 1);

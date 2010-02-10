@@ -35,7 +35,7 @@ public class ButtonBar extends HorizontalLayout {
         setSpacing(true);
 //        setWidth("100%");
 //        setSizeFull();
-//        setStyleName("grey");
+        setStyleName("white");
     }
 
     public void addButton(Button button){

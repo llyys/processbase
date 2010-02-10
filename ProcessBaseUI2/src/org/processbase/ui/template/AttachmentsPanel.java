@@ -19,6 +19,7 @@ package org.processbase.ui.template;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.StreamResource;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -56,8 +57,8 @@ public class AttachmentsPanel extends TablePanel
     private boolean delete = true;
     private boolean edit = true;
 
-    public AttachmentsPanel(String processUUID, Container fileTypesContainer, boolean add, boolean delete, boolean edit) {
-        super();
+    public AttachmentsPanel(PortletApplicationContext2 portletApplicationContext2, String processUUID, Container fileTypesContainer, boolean add, boolean delete, boolean edit) {
+        super(portletApplicationContext2);
         this.processUUID = processUUID;
         this.fileTypesContainer = fileTypesContainer;
         this.add = add;
