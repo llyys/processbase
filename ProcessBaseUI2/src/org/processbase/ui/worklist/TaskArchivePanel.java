@@ -17,10 +17,9 @@
 package org.processbase.ui.worklist;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 import java.util.Collection;
 import java.util.Date;
 import java.util.logging.Level;
@@ -28,22 +27,17 @@ import java.util.logging.Logger;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ProcessBase;
-import org.processbase.bpm.BPMModule;
 
 /**
  *
  * @author mgubaidullin
  */
-public class TasksDonePanel extends TablePanel {
+public class TaskArchivePanel extends TablePanel {
 
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
-
-    public TasksDonePanel() {
-        super();
+    public TaskArchivePanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         initTableUI();
     }
 
@@ -80,7 +74,7 @@ public class TasksDonePanel extends TablePanel {
                 woItem.getItemProperty("actions").setValue(startButton(task));
             }
         } catch (Exception ex) {
-            Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(TaskListPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         table.setSortContainerPropertyId("endDate");
         table.setSortAscending(false);
@@ -89,23 +83,21 @@ public class TasksDonePanel extends TablePanel {
     }
 
     private Button startButton(Object tableValue) {
-        TableExecButton startB = new TableExecButton(messages.getString("btnInformation"), "icons/document-txt.png", tableValue, new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                TaskInstance task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
-                DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(null, task);
-                defaultTaskWindow.exec();
-                defaultTaskWindow.addListener(new Window.CloseListener() {
-
-                    public void windowClose(CloseEvent e) {
-                        refreshTable();
-                    }
-                });
-
-                //getApplication().getMainWindow().addWindow(taskWindow);
-            }
-        });
-
+        TableExecButton startB = new TableExecButton(messages.getString("btnInformation"), "icons/document-txt.png", tableValue, this);
         return startB;
+    }
+
+    @Override
+    public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
+//        TaskInstance task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
+//        DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(null, task, getPortletApplicationContext2());
+//        defaultTaskWindow.exec();
+//        defaultTaskWindow.addListener(new Window.CloseListener() {
+//
+//            public void windowClose(CloseEvent e) {
+//                refreshTable();
+//            }
+//        });
     }
 }

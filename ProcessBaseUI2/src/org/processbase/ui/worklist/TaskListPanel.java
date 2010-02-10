@@ -17,30 +17,28 @@
 package org.processbase.ui.worklist;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window.CloseListener;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.portlet.PortletSession;
+import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ui.template.TaskWindow;
 import org.processbase.util.Constants;
-import org.processbase.MainWindow;
-import org.processbase.ProcessBase;
-import org.processbase.bpm.BPMModule;
-import org.processbase.util.ProcessBaseClassLoader;
 import org.processbase.util.db.HibernateUtil;
 import org.processbase.util.db.PbActivityUi;
 
@@ -48,12 +46,10 @@ import org.processbase.util.db.PbActivityUi;
  *
  * @author mgubaidullin
  */
-public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
+public class TaskListPanel extends TablePanel implements Button.ClickListener {
 
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
-
-    public TasksToDoPanel() {
-        super();
+    public TaskListPanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         initTableUI();
     }
 
@@ -95,29 +91,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
             tasks.addAll(bpmModule.getActivities(ActivityState.SUSPENDED));
 //        tasks.addAll(bpmModule.getActivities(ActivityState.INITIAL));
             for (TaskInstance task : tasks) {
-                Item woItem = table.addItem(task);
-                woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
-                woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel(), messages.getString("btnOpen"), task, Constants.ACTION_OPEN));
-                Map<String, Object> processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID());
-                woItem.getItemProperty("customID").setValue(processVars.containsKey("customID") ? processVars.get("customID").toString() : "");
-//                woItem.getItemProperty("candidates").setValue(task.getBody().getTaskCandidates().toString());
-                woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
-                woItem.getItemProperty("startedDate").setValue(task.getStartedDate());
-//                woItem.getItemProperty("dueDate").setValue(task.getBody().getDueDate());
-                woItem.getItemProperty("state").setValue(messages.getString(task.getState().toString()));
-//                woItem.getItemProperty("startedBy").setValue(task.getBody().getStartedBy());
-//                woItem.getItemProperty("taskUser").setValue(task.getBody().isTaskAssigned() ? task.getBody().getTaskUser() : "");
-                TableExecButtonBar tebb = new TableExecButtonBar();
-                if (!task.isTaskAssigned()) {
-                    tebb.addButton(getExecBtn(messages.getString("btnAccept"), "icons/accept.png", task, Constants.ACTION_ACCEPT));
-                } else {
-                    tebb.addButton(getExecBtn(messages.getString("btnReturn"), "icons/return.png", task, Constants.ACTION_RETURN));
-                }
-                tebb.addButton(getExecBtn(messages.getString("btnExecute"), "icons/start.png", task, Constants.ACTION_START));
-                tebb.addButton(getExecBtn(messages.getString("btnSuspend"), "icons/pause.png", task, Constants.ACTION_SUSPEND));
-                tebb.addButton(getExecBtn(messages.getString("btnOpen"), "icons/document-txt.png", task, Constants.ACTION_OPEN));
-                tebb.addButton(getExecBtn(messages.getString("btnHelp"), "icons/help.png", task, Constants.ACTION_HELP));
-                woItem.getItemProperty("actions").setValue(tebb);
+                addTableRow(task, null);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -126,6 +100,31 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
         table.setSortAscending(false);
         table.sort();
 
+    }
+
+    private void addTableRow(TaskInstance task, TaskInstance previousTask) throws InstanceNotFoundException, Exception {
+        Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
+        woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
+        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel(), messages.getString("btnOpen"), task, Constants.ACTION_OPEN));
+        Map<String, Object> processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID());
+        woItem.getItemProperty("customID").setValue(processVars.containsKey("customID") ? processVars.get("customID").toString() : "");
+//                woItem.getItemProperty("candidates").setValue(task.getBody().getTaskCandidates().toString());
+        woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
+        woItem.getItemProperty("startedDate").setValue(task.getStartedDate());
+//                woItem.getItemProperty("dueDate").setValue(task.getBody().getDueDate());
+        woItem.getItemProperty("state").setValue(messages.getString(task.getState().toString()));
+//                woItem.getItemProperty("startedBy").setValue(task.getBody().getStartedBy());
+//                woItem.getItemProperty("taskUser").setValue(task.getBody().isTaskAssigned() ? task.getBody().getTaskUser() : "");
+        TableExecButtonBar tebb = new TableExecButtonBar();
+        if (!task.isTaskAssigned()) {
+            tebb.addButton(getExecBtn(messages.getString("btnAccept"), "icons/accept.png", task, Constants.ACTION_ACCEPT));
+        } else {
+            tebb.addButton(getExecBtn(messages.getString("btnReturn"), "icons/return.png", task, Constants.ACTION_RETURN));
+        }
+        tebb.addButton(getExecBtn(messages.getString("btnExecute"), "icons/start.png", task, Constants.ACTION_START));
+        tebb.addButton(getExecBtn(messages.getString("btnSuspend"), "icons/pause.png", task, Constants.ACTION_SUSPEND));
+        tebb.addButton(getExecBtn(messages.getString("btnOpen"), "icons/document-txt.png", task, Constants.ACTION_OPEN));
+        woItem.getItemProperty("actions").setValue(tebb);
     }
 
     @Override
@@ -137,7 +136,7 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
             execBtn.setEnabled(true);
         } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
             execBtn.setEnabled(true);
-        } else if (execBtn.getAction().equals(Constants.ACTION_ACCEPT) || execBtn.getAction().equals(Constants.ACTION_HELP) || execBtn.getAction().equals(Constants.ACTION_RETURN)) {
+        } else if (execBtn.getAction().equals(Constants.ACTION_ACCEPT) || execBtn.getAction().equals(Constants.ACTION_RETURN)) {
             execBtn.setEnabled(true);
         } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
             execBtn.setEnabled(true);
@@ -163,65 +162,57 @@ public class TasksToDoPanel extends TablePanel implements Button.ClickListener {
                 TableExecButton execBtn = (TableExecButton) event.getButton();
                 TaskInstance task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
                 if (execBtn.getAction().equals(Constants.ACTION_ACCEPT)) {
-                    bpmModule.assignTask(task.getUUID(), ((ProcessBase) getApplication()).getUser().getUid());
-                    refreshTable();
-//                    table.setImmediate(true);
-//                    table.getContainerDataSource().getItem(task).getItemProperty("accepted").setValue(new ThemeResource("icons/accept.png"));
-//                    showWarning("" + table.getContainerDataSource().getItem(task));
+                    TaskInstance newTask = bpmModule.assignTask(task.getUUID(), this.getCurrentUser().getScreenName());
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    table.removeItem(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_RETURN)) {
                     bpmModule.unassignTask(task.getUUID());
                     refreshTable();
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.READY)) {
-                    bpmModule.startTask(task.getUUID(), true);
-                    TaskWindow taskWindow = getTaskWindow(task);
-                    taskWindow.addListener((CloseListener) this);
-                    getApplication().getMainWindow().addWindow(taskWindow);
-                    refreshTable();
+                    TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    table.removeItem(task);
+                    openTaskPage(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.SUSPENDED)) {
                     bpmModule.resumeTask(task.getUUID(), true);
-                    TaskWindow taskWindow = getTaskWindow(task);
-                    taskWindow.addListener((CloseListener) this);
-                    getApplication().getMainWindow().addWindow(taskWindow);
-                    refreshTable();
+                    openTaskPage(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.READY)) {
-                    bpmModule.startTask(task.getUUID(), true);
-                    TaskWindow taskWindow = getTaskWindow(task);
-                    taskWindow.addListener((CloseListener) this);
-                    getApplication().getMainWindow().addWindow(taskWindow);
+                    TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    table.removeItem(task);
+                    openTaskPage(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && !task.getState().equals(ActivityState.READY)) {
-                    TaskWindow taskWindow = getTaskWindow(task);
-                    taskWindow.addListener((CloseListener) this);
-                    getApplication().getMainWindow().addWindow(taskWindow);
+                    openTaskPage(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
                     bpmModule.suspendTask(task.getUUID(), true);
                     refreshTable();
-                } else if (execBtn.getAction().equals(Constants.ACTION_HELP)) {
-                    String activityDefinitionUUID = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getUUID().toString();
-                    ((MainWindow) getWindow()).getWorkPanel().getHelpPanel().setHelp(activityDefinitionUUID);
                 }
             } catch (Exception ex) {
-                Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+                ex.printStackTrace();
                 showError(ex.toString());
             }
         }
     }
 
-    public TaskWindow getTaskWindow(TaskInstance task) {
-//        ProcessDefinition procd = null;
+    public void openTaskPage(TaskInstance task) {
         try {
-//            procd = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
             HibernateUtil hutil = new HibernateUtil();
             PbActivityUi pbActivityUi = hutil.findPbActivityUi(bpmModule.getTaskDefinition(task).getUUID().toString());
-            Class b = ProcessBaseClassLoader.getCurrent().loadClass(pbActivityUi.getUiClass());
-            TaskWindow taskWindow = (TaskWindow) b.newInstance();
-            taskWindow.setTaskInfo(null, task);
-            taskWindow.exec();
-            return taskWindow;
+            this.getPortletApplicationContext2().getPortletSession().setAttribute("PROCESSBASE_TASKINSTANCE", task, PortletSession.APPLICATION_SCOPE);
+            if (pbActivityUi.getUiClass() != null && !pbActivityUi.getUiClass().isEmpty()) {
+                this.getWindow().open(new ExternalResource(pbActivityUi.getUiClass()));
+            } else {
+                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL));
+            }
         } catch (Exception ex) {
-            Logger.getLogger(TasksToDoPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
-            DefaultTaskWindow defaultTaskWindow = new DefaultTaskWindow(null, task);
-            defaultTaskWindow.exec();
-            return defaultTaskWindow;
+            ex.printStackTrace();
+            showError(ex.getMessage());
         }
     }
 }

@@ -16,18 +16,12 @@
  */
 package org.processbase.ui.worklist;
 
-import com.vaadin.data.validator.DoubleValidator;
-import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.PopupDateField;
-import com.vaadin.ui.Select;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import java.util.HashMap;
@@ -39,7 +33,6 @@ import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
-import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
 
 /**
@@ -50,7 +43,8 @@ public class StartProcessWindow extends Window {
 
     private ProcessDefinition processDefinition = null;
     private Set<DataFieldDefinition> dfds = null;
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
+    protected PortletApplicationContext2 ctx = (PortletApplicationContext2) this.getApplication().getContext();
+    protected BPMModule bpmModule = null;
     private Form form = new Form();
 
     public StartProcessWindow(ProcessDefinition pd) {

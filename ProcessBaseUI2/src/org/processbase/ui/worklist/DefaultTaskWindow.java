@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.worklist;
 
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -28,19 +29,13 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.processbase.ui.template.TaskWindow;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
-import org.ow2.bonita.facade.def.majorElement.ParticipantDefinition;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
-import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 
 /**
@@ -51,40 +46,30 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
 
     private Form form = new Form();
 
-    public DefaultTaskWindow(ProcessDefinition pd, TaskInstance t) {
-        super();
-        this.processDefinition = pd;
-        this.task = t;
-        if (task != null) {
-            isNew = Boolean.FALSE;
-        }
+    public DefaultTaskWindow(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
     }
 
     @Override
     public void exec() {
         try {
-            if (this.isNew) {
-                setCaption(messages.getString("defaultTaskWindowCaption1") + " " + (processDefinition.getLabel()));
-                attachmentBar.newUpload();
-            } else {
-                setCaption(messages.getString("defaultTaskWindowCaption2") + " " + task.getActivityLabel());
-                attachmentBar.load(task.getProcessInstanceUUID().toString(), task.getUUID().toString());
-            }
-            setModal(true);
-            VerticalLayout layout = (VerticalLayout) this.getContent();
-            layout.setMargin(true);
-            layout.setSpacing(true);
-            layout.setSizeUndefined();
+            setCaption(messages.getString("defaultTaskWindowCaption2") + " " + task.getActivityLabel());
+//            attachmentBar.load(task.getProcessInstanceUUID().toString(), task.getUUID().toString());
             buttons.setSpacing(true);
             applyBtn.addListener(this);
             cancelBtn.addListener(this);
             buttons.addComponent(applyBtn);
             buttons.addComponent(cancelBtn);
             createForm();
-            attachmentBar.setSizeFull();
+//            attachmentBar.setSizeFull();
 //            layout.addComponent(attachmentBar);
             form.getLayout().addComponent(buttons);
-            setResizable(false);
+            VerticalLayout layout = (VerticalLayout) this.getContent();
+            layout.setMargin(false);
+            layout.setSpacing(true);
+            layout.setStyleName("white");
+            layout.setWidth("100%");
+            this.setSizeFull();
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
@@ -126,7 +111,7 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
                     } else if (dfd.getDataTypeClassName().equals("java.lang.String")) {
                         fieldValue = form.getField(dfd.getName()).getValue().toString();
                     } else if (dfd.getDataTypeClassName().equals("java.lang.Boolean")) {
-                         fieldValue = ((CheckBox)form.getField(dfd.getName())).booleanValue();
+                        fieldValue = ((CheckBox) form.getField(dfd.getName())).booleanValue();
                     }
                 } else if (dfd.isEnumeration()) {
                     fieldValue = form.getField(dfd.getName()).getValue();
@@ -215,9 +200,9 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(cancelBtn)) {
             form.discard();
-            close();
         } else if (event.getButton().equals(applyBtn)) {
             apply();
         }
+        close();
     }
 }
