@@ -17,8 +17,7 @@
 package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -31,10 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -46,14 +42,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
-import org.processbase.ProcessBase;
-import org.processbase.bpm.BPMModule;
-import org.processbase.ui.template.MessageWindow;
 import org.processbase.ui.template.PbColumnGenerator;
-import org.processbase.ui.template.TableComboBox;
-import org.processbase.util.ProcessBaseClassLoader;
-import org.processbase.util.db.HibernateUtil;
-import org.processbase.util.db.PbSection;
 
 /**
  *
@@ -73,21 +62,16 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     private String originalFilename;
     private String fileExt;
     public static String FILE_BAR = "FILE_BAR";
-    public static String FILE_JAR = "FILE_JAR";
     private String fileType = null;
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
-    private ArrayList<PbSection> pbSections = null;
-    private HibernateUtil hutil = new HibernateUtil();
 
-    public ProcessDefinitionsPanel() {
-        super();
+    public ProcessDefinitionsPanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         upload.setButtonCaption(messages.getString("btnUpload"));
         upload.setImmediate(true);
         upload.addListener((Upload.SucceededListener) this);
         upload.addListener((Upload.FailedListener) this);
         buttonBar.addComponent(upload, 1);
         buttonBar.setComponentAlignment(upload, Alignment.MIDDLE_LEFT);
-        pbSections = hutil.findPbSections();
         initTableUI();
     }
 
@@ -101,7 +85,6 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         table.addContainerProperty("deployedBy", String.class, null, messages.getString("tableCaptionDeployedBy"), null, null);
         table.addContainerProperty("deployedDate", Date.class, null, messages.getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
-        table.addContainerProperty("section", TableComboBox.class, null, messages.getString("tableCaptionSection"), null, null);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 85);
     }
@@ -118,9 +101,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 woItem.getItemProperty("version").setValue(pd.getVersion());
                 woItem.getItemProperty("deployedBy").setValue(pd.getDeployedBy());
                 woItem.getItemProperty("deployedDate").setValue(pd.getDeployedDate());
-                woItem.getItemProperty("section").setValue(getProcessSection(pd));
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(new TableExecButton(messages.getString("btnParticipants"), "icons/users.png", pd, this, Constants.ACTION_EDIT_PARTICIPANTS));
                 tebb.addButton(new TableExecButton(messages.getString("btnUI"), "icons/settings.png", pd, this, Constants.ACTION_ADD_UI));
                 tebb.addButton(new TableExecButton(messages.getString("btnDeleteInstances"), "icons/folder-delete.png", pd, this, Constants.ACTION_DELETE_INSTANCES));
                 tebb.addButton(new TableExecButton(messages.getString("btnDeteleProcessAndInstances"), "icons/cancel.png", pd, this, Constants.ACTION_DELETE_PROCESS_AND_INSTANCES));
@@ -147,6 +128,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                     refreshTable();
                     getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                     showError(ex.getMessage());
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_DELETE_INSTANCES)) {
@@ -156,27 +138,19 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                     refreshTable();
                     getWindow().showNotification("", messages.getString("deletedSuccessfull"), Notification.TYPE_HUMANIZED_MESSAGE);
                 } catch (Exception ex) {
-                    showError(ex.getMessage());
-                }
-            } else if (execBtn.getAction().equals(Constants.ACTION_EDIT_PARTICIPANTS)) {
-                try {
-                    ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
-                    ProcessDefinition processDefinition = bpmModule.getProcessDefinition(pd);
-                    ProcessACLWindow processACLWindow = new ProcessACLWindow(processDefinition.getUUID().toString());
-                    processACLWindow.exec();
-                    getApplication().getMainWindow().addWindow(processACLWindow);
-                } catch (Exception ex) {
+                    ex.printStackTrace();
                     showError(ex.getMessage());
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_ADD_UI)) {
                 try {
                     ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
                     ProcessDefinition processDefinition = bpmModule.getProcessDefinition(pd);
-                    ProcessUIWindow processUIWindow = new ProcessUIWindow(processDefinition);
+                    ProcessUIWindow processUIWindow = new ProcessUIWindow(processDefinition, getPortletApplicationContext2());
                     processUIWindow.exec();
                     getApplication().getMainWindow().addWindow(processUIWindow);
                 } catch (Exception ex) {
-                    showMessageWindow(ex.getMessage(), MessageWindow.ERROR_STYLE);
+                    ex.printStackTrace();
+                    showError(ex.getMessage());
                 }
             }
         }
@@ -193,11 +167,6 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
                 ProcessDefinition deployResult = bpmModule.deploy(businessArchive);
                 showWarning(messages.getString("processUploaded") + ": " + deployResult.getLabel());
-            } else if (this.fileType.equals(FILE_JAR)) {
-                FileOutputStream fos = new FileOutputStream(new File(Constants.UI_LIBS_PATH, this.originalFilename));
-                fos.write(readData);
-                fos.close();
-                ProcessBaseClassLoader.getCurrent().addFile(Constants.UI_LIBS_PATH + File.separator + this.originalFilename);
             }
             file.delete();
             refreshTable();
@@ -211,37 +180,6 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         showError(event.getReason().getMessage());
     }
 
-    private TableComboBox getProcessSection(final ProcessDefinition pd) {
-        TableComboBox result = new TableComboBox(pd);
-        result.addContainerProperty("id", Long.class, null);
-        result.addContainerProperty("name", String.class, null);
-        try {
-            final ProcessDefinition processDefinition = bpmModule.getProcessDefinition(pd);
-            PbSection currentSection = hutil.findPbSection(processDefinition.getUUID().toString());
-            for (PbSection section : pbSections) {
-                Item item = result.addItem(section);
-                item.getItemProperty("id").setValue(section.getId());
-                item.getItemProperty("name").setValue(section.getSectionName() + " - " + section.getSectionDesc());
-                if (currentSection != null && currentSection.getId() == section.getId()) {
-                    result.setValue(section);
-                }
-            }
-            result.setItemCaptionPropertyId("name");
-            result.setNewItemsAllowed(false);
-            result.setWidth("100%");
-            result.setImmediate(true);
-            result.addListener(new Property.ValueChangeListener() {
-
-                public void valueChange(ValueChangeEvent event) {
-                    hutil.setPbProcessSection(processDefinition.getUUID().toString(), (PbSection) event.getProperty().getValue());
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return result;
-    }
-
     public OutputStream receiveUpload(
             String filename, String MIMEType) {
         this.originalFilename = filename;
@@ -250,8 +188,6 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
         if (fileExt.equalsIgnoreCase("bar")) {
             this.fileType = FILE_BAR;
-        } else if (fileExt.equalsIgnoreCase("jar")) {
-            this.fileType = FILE_JAR;
         }
         FileOutputStream fos = null;
         file = new File(this.filename);

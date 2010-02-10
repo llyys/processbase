@@ -16,16 +16,22 @@
  */
 package org.processbase.ui.admin;
 
+import com.liferay.portal.model.User;
 import com.vaadin.data.Item;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.PopupDateField;
+import com.vaadin.ui.Select;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Table;
@@ -35,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.portlet.PortletSession;
 import org.processbase.ui.template.PbWindow;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
@@ -48,7 +55,6 @@ import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AssignUpdate;
 import org.ow2.bonita.facade.runtime.StateUpdate;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ProcessBase;
 import org.processbase.bpm.BPMModule;
 
 /**
@@ -63,7 +69,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     private ActivityInstance activity = null;
     private Map<String, Object> processVars = new HashMap<String, Object>();
     private Set<DataFieldDefinition> dfds = null;
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
+    protected BPMModule bpmModule = null;
     private HorizontalLayout buttons = new HorizontalLayout();
     private Button closeBtn = new Button(messages.getString("btnClose"), this);
     private Button reassignBtn = new Button(messages.getString("btnReassign"), this);
@@ -77,8 +83,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     protected Table assignUpdatesTable = new Table();
     protected Table stateUpdatesTable = new Table();
 
-    public ActivityWindow(ProcessDefinition pd, ActivityInstance activity, TaskInstance task) {
-        super();
+    public ActivityWindow(ProcessDefinition pd, ActivityInstance activity, TaskInstance task, PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
+        try {
+            bpmModule = new BPMModule(((User) this.portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE)).getLogin());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         try {
             this.processDefinition = pd;
             this.task = task;
@@ -132,64 +143,64 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     }
 
     public void addField(DataFieldDefinition dfd, Object value) {
-        String fieldId = dfd.getName();
-        String fieldType = null;
         Field field = null;
-//        if (dfd.getDataTypeClassName().compareTo(DataTypeDefinition.Type.BasicType) == 0) {
-//            BasicTypeDefinition btd = ((BasicTypeDefinition) dfd.getDataType().getValue());
-//            fieldType = btd.getType().toString();
-//            if (fieldType.equalsIgnoreCase("INTEGER")) {
-//                field = new TextField(fieldId);
-//                if (value != null) {
-//                    field.setValue(new Long(value.toString()));
-//                }
-//            } else if (fieldType.equalsIgnoreCase("FLOAT")) {
-//                field = new TextField(fieldId);
-//                if (value != null) {
-//                    field.setValue(new Double(value.toString()));
-//                }
-//            } else if (fieldType.equalsIgnoreCase("DATETIME")) {
-//                field = new PopupDateField(fieldId);
-//                if (value != null && value instanceof java.util.Date) {
-//                    field.setValue(value);
-//                } else {
-//                    field.setValue(new java.util.Date());
-//                }
-//                ((PopupDateField) field).setResolution(PopupDateField.RESOLUTION_DAY);
-//            } else if (fieldType.equalsIgnoreCase("STRING")) {
-//                field = new TextField(fieldId);
-//                field.setValue(value != null ? value.toString() : "");
-//            }
-//        } else if (dfd.getDataType().getType().compareTo(DataTypeDefinition.Type.EnumerationType) == 0) {
-//            EnumerationTypeDefinition etd = ((EnumerationTypeDefinition) dfd.getDataType().getValue());
-//            field = new Select(fieldId, etd.getEnumerationValues());
-//            ((Select) field).setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
-//            ((Select) field).setMultiSelect(false);
-//            if (value instanceof java.lang.String) {
-//                field.setValue(value);
-//            } else {
-//                field.setValue(((Enumeration) value).getSelectedValue());
-//            }
-//        }
-//        field.setDescription(dfd.getDescription() != null ? dfd.getDescription() : "");
+        if (dfd.isEnumeration()) {
+            field = new Select(dfd.getName(), dfd.getEnumerationValues());
+            ((Select) field).setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
+            ((Select) field).setMultiSelect(false);
+            if (value instanceof java.lang.String) {
+                field.setValue(value);
+            } else {
+                field.setValue(dfd.getInitialValue());
+            }
+        } else {
+            if (dfd.getDataTypeClassName().equals("java.lang.Long")) {
+                field = new TextField(dfd.getLabel());
+                if (value != null) {
+                    field.setValue(new Long(value.toString()));
+                }
+//                    field.addValidator(new DoubleValidator("Значение должно быть цифровым"));
+            } else if (dfd.getDataTypeClassName().equals("java.lang.Double")) {
+                field = new TextField(dfd.getLabel());
+                if (value != null) {
+                    field.setValue(new Double(value.toString()));
+                }
+//                    field.addValidator(new DoubleValidator("Значение должно быть цифровым"));
+            } else if (dfd.getDataTypeClassName().equals("java.util.Date")) {
+                field = new PopupDateField(dfd.getLabel());
+                if (value != null && value instanceof java.util.Date) {
+                    field.setValue(value);
+                } else {
+                    field.setValue(new java.util.Date());
+                }
+                ((PopupDateField) field).setResolution(PopupDateField.RESOLUTION_DAY);
+            } else if (dfd.getDataTypeClassName().equals("java.lang.String")) {
+                field = new TextField(dfd.getLabel());
+                field.setValue(value != null ? value.toString() : "");
+            } else if (dfd.getDataTypeClassName().equals("java.lang.Boolean")) {
+                field = new CheckBox(dfd.getLabel());
+                field.setValue(value != null ? value : Boolean.FALSE);
+            } else {
+                field = new TextField(dfd.getLabel());
+                field.setValue(value != null ? value.toString() : "");
+            }
+        }
+        field.setDescription(dfd.getDescription() != null ? dfd.getDescription() : "");
+
         field.setWidth("300px");
         variablesLayout.addComponent(field);
     }
 
     public void addParticipantInfo() throws ParticipantNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ProcessNotFoundException, Exception {
         participantLayout.removeAllComponents();
-//        Panel participantDefinitionPanel = new Panel(messages.getString("taskPerformerDefinition"), new FormLayout());
-//        ((FormLayout) participantDefinitionPanel.getContent()).setMargin(true);
-//        ((FormLayout) participantDefinitionPanel.getContent()).setSpacing(true);
-//        participantDefinitionPanel.setWidth("100%");
-//        String participantName = bpmModule.getProcessActivity(processDefinition.getUUID(), task.getActivityName()).getPerformer();
-//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
-//        TextField participantTypeField = new TextField(messages.getString("taskParticipantType"), participantDefinition.getParticipantType().name());
-//        participantTypeField.setWidth("300px");
-//        TextField participantNameField = new TextField(messages.getString("taskParticipantName"), participantDefinition.getName());
-//        participantNameField.setWidth("300px");
-//        participantDefinitionPanel.addComponent(participantTypeField);
-//        participantDefinitionPanel.addComponent(participantNameField);
+        Panel participantDefinitionPanel = new Panel(messages.getString("taskPerformerDefinition"), new FormLayout());
+        ((FormLayout) participantDefinitionPanel.getContent()).setMargin(true);
+        ((FormLayout) participantDefinitionPanel.getContent()).setSpacing(true);
+        participantDefinitionPanel.setWidth("100%");
+        Set<String> participantNames = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getPerformers();//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
+        TextField participantTypeField = new TextField(messages.getString("taskParticipantType"), participantNames.toString());
+        participantTypeField.setWidth("300px");
+        participantDefinitionPanel.addComponent(participantTypeField);
 
         // Participant Form
         Panel participantPanel = new Panel(messages.getString("taskPerformer"), new FormLayout());
@@ -218,7 +229,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         participantPanel.addComponent(isAssignedBtn);
         participantPanel.addComponent(taskUserField);
 
-//        participantLayout.addComponent(participantDefinitionPanel);
+        participantLayout.addComponent(participantDefinitionPanel);
         participantLayout.addComponent(participantPanel);
 
         assignUpdatesTable.removeAllItems();

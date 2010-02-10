@@ -17,21 +17,18 @@
 package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window;
 import java.util.Date;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ProcessBase;
-import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.util.Constants;
 
@@ -41,10 +38,8 @@ import org.processbase.util.Constants;
  */
 public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
 
-    protected BPMModule bpmModule = new BPMModule(ProcessBase.getCurrent().getUser().getUid());
-
-    public ActivityInstancesPanel() {
-        super();
+    public ActivityInstancesPanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         initTableUI();
     }
 
@@ -100,16 +95,16 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
         super.buttonClick(event);
         if (event.getButton() instanceof TableExecButton) {
             try {
-//                ActivityInstance activity = (ActivityInstance) ((TableExecButton) event.getButton()).getTableValue();
-//                ActivityInstance task = null;
-//                if (bpmModule.getProcessActivityDefinition(activity).getPerformer() != null) {
-//                    task = (ActivityInstance<TaskInstance>) ((TableExecButton) event.getButton()).getTableValue();
-//                }
-//                ActivityWindow activityWindow = getActivityWindow(activity, task);
-//                activityWindow.addListener((Window.CloseListener) this);
-//                getApplication().getMainWindow().addWindow(activityWindow);
+                ActivityInstance activity = (ActivityInstance) ((TableExecButton) event.getButton()).getTableValue();
+                TaskInstance task = null;
+                if (bpmModule.getProcessActivityDefinition(activity).isTask()) {
+                    task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
+                }
+                ActivityWindow activityWindow = getActivityWindow(activity, task);
+                activityWindow.addListener((Window.CloseListener) this);
+                getApplication().getMainWindow().addWindow(activityWindow);
             } catch (Exception ex) {
-                Logger.getLogger(ActivityInstancesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+                ex.printStackTrace();
                 showError(ex.toString());
             }
         }
@@ -117,7 +112,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
 
     public ActivityWindow getActivityWindow(ActivityInstance activity, TaskInstance task) throws ProcessNotFoundException, Exception {
         ProcessDefinition procd = bpmModule.getProcessDefinition(activity.getProcessDefinitionUUID());
-        ActivityWindow activityWindow = new ActivityWindow(procd, activity, task);
+        ActivityWindow activityWindow = new ActivityWindow(procd, activity, task, getPortletApplicationContext2());
         return activityWindow;
     }
 }

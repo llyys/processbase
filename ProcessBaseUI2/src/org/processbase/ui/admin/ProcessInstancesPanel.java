@@ -17,6 +17,7 @@
 package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
@@ -28,8 +29,6 @@ import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
-import org.processbase.ProcessBase;
-import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -38,10 +37,8 @@ import org.processbase.ui.template.PbColumnGenerator;
  */
 public class ProcessInstancesPanel extends TablePanel implements Button.ClickListener {
 
-    protected BPMModule bpmModule = ((ProcessBase) getApplication()).getCurrent().getBpmModule();
-
-    public ProcessInstancesPanel() {
-        super();
+    public ProcessInstancesPanel(PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         initTableUI();
     }
 

@@ -18,11 +18,11 @@ package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
 import com.vaadin.terminal.StreamResource;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
@@ -34,8 +34,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.ByteArraySource;
@@ -57,10 +55,10 @@ public class ProcessUIWindow extends PbWindow implements
 
     private ProcessDefinition processDefinition = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(messages.getString("btnSave"), this);
-    private Upload upload = new Upload("", (Upload.Receiver) this);
-    private Button downloadBtn = new Button(messages.getString("btnDownload"), this);
+    private Button cancelBtn = null;
+    private Button applyBtn = null;
+    private Upload upload = null;
+    private Button downloadBtn = null;
     private Table membersTable = new Table();
     private HibernateUtil hutil = new HibernateUtil();
     private File file;
@@ -68,9 +66,13 @@ public class ProcessUIWindow extends PbWindow implements
     private String originalFilename;
     private String fileExt;
 
-    public ProcessUIWindow(ProcessDefinition processDefinition) {
-        super();
+    public ProcessUIWindow(ProcessDefinition processDefinition, PortletApplicationContext2 portletApplicationContext2) {
+        super(portletApplicationContext2);
         this.processDefinition = processDefinition;
+        cancelBtn = new Button(messages.getString("btnCancel"), this);
+        applyBtn = new Button(messages.getString("btnSave"), this);
+        upload = new Upload("", (Upload.Receiver) this);
+        downloadBtn = new Button(messages.getString("btnDownload"), this);
         initTableUI();
     }
 
@@ -116,7 +118,7 @@ public class ProcessUIWindow extends PbWindow implements
         membersTable.addContainerProperty("activityLabel", String.class, null, messages.getString("tableCaptionActivityName"), null, null);
         membersTable.addContainerProperty("isStart", String.class, null, messages.getString("tabCaptionIsStart"), null, null);
         membersTable.setColumnWidth("isStart", 30);
-        membersTable.addContainerProperty("uiClass", String.class, null, messages.getString("tabCaptionUIClass"), null, null);
+        membersTable.addContainerProperty("uiClass", String.class, null, messages.getString("tabCaptionTaskURL"), null, null);
         membersTable.setColumnWidth("uiClass", 300);
         membersTable.addContainerProperty("isMobile", String.class, null, messages.getString("tabCaptionIsMobile"), null, null);
         membersTable.setColumnWidth("isMobile", 30);
