@@ -31,7 +31,6 @@ public class Constants {
 
     public static final String ACTION_ACCEPT = "ACTION_ACCEPT";
     public static final String ACTION_RETURN = "ACTION_RETURN";
-    public static final String ACTION_HELP = "ACTION_HELP";
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_OPEN = "ACTION_OPEN";
     public static final String ACTION_SUSPEND = "ACTION_SUSPEND";
@@ -40,7 +39,6 @@ public class Constants {
     public static final String ACTION_DELETE = "ACTION_DELETE";
     public static final String ACTION_EDIT = "ACTION_EDIT";
     public static final String ACTION_EDIT_PROCESSES = "ACTION_EDIT_PROCESSES";
-    public static final String ACTION_EDIT_PARTICIPANTS = "ACTION_EDIT_PARTICIPANTS";
     public static final String ACTION_ADD_UI = "ACTION_ADD_UI";
     public static final String ACTION_DELETE_PROCESS_AND_INSTANCES = "ACTION_DELETE_PROCESS_AND_INSTANCES";
     public static final String ACTION_DELETE_INSTANCES = "ACTION_DELETE_INSTANCES";
@@ -56,12 +54,17 @@ public class Constants {
     public static String LDAP_HOST;
     public static String LDAP_PORT;
     public static String UI_LIBS_PATH;
+    public static String LIFERAY_HOST;
+    public static String LIFERAY_PORT;
+    public static String LIFERAY_COMPANY_MX;
+    public static String TASKLIST_PAGE_URL;
+    public static String TASKDEFAULT_PAGE_URL;
     public static Properties properties = new Properties();
     public static Hashtable EJB_ENV = new Hashtable();
 
     public static void loadConstants() {
         try {
-            File file = new File("processbase1.properties");
+            File file = new File("processbase2.properties");
             FileInputStream fis = new FileInputStream(file);
             properties.loadFromXML(fis);
             fis.close();
@@ -75,6 +78,11 @@ public class Constants {
             UI_LIBS_PATH = properties.getProperty("UI_LIBS_PATH");
             INITIAL_CONTEXT_FACTORY = properties.getProperty("INITIAL_CONTEXT_FACTORY");
             DN_NAMIND_ATTRIBUTE = properties.getProperty("DN_NAMIND_ATTRIBUTE");
+            LIFERAY_HOST = properties.getProperty("LIFERAY_HOST");
+            LIFERAY_PORT = properties.getProperty("LIFERAY_PORT");
+            LIFERAY_COMPANY_MX = properties.getProperty("LIFERAY_COMPANY_MX");
+            TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
+            TASKDEFAULT_PAGE_URL = properties.getProperty("TASKDEFAULT_PAGE_URL");
             EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
             EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
             EJB_ENV.put("java.naming.factory.state", properties.getProperty("java.naming.factory.state"));

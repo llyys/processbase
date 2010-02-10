@@ -19,17 +19,12 @@ package org.processbase.bpm;
 import com.sun.appserv.security.ProgrammaticLogin;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.ow2.bonita.connector.core.desc.Enumeration;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
 import org.processbase.util.Constants;
 import org.ow2.bonita.facade.ManagementAPI;
@@ -123,9 +118,14 @@ public class BPMModule {
         return queryRuntimeAPI.getTaskList(state);
     }
 
-    public void startTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+    public TaskInstance startTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
-        runtimeAPI.startTask(activityInstanceUUID, b);
+        TaskInstance ti = getTaskInstance(activityInstanceUUID);
+        if (ti.getState().equals(ActivityState.READY)) {
+            runtimeAPI.startTask(activityInstanceUUID, b);
+            return getTaskInstance(activityInstanceUUID);
+        }
+        return ti;
     }
 
     public void finishTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
@@ -141,9 +141,14 @@ public class BPMModule {
         runtimeAPI.finishTask(task.getUUID(), b);
     }
 
-    public void assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+    public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        TaskInstance ti = getTaskInstance(activityInstanceUUID);
+        if (ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
+            return null;
+        }
         runtimeAPI.assignTask(activityInstanceUUID, user);
+        return getTaskInstance(activityInstanceUUID);
     }
 
     public void resumeTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
@@ -309,7 +314,7 @@ public class BPMModule {
     }
 
     public ActivityDefinition getProcessActivityDefinition(ActivityInstance ai) throws ProcessNotFoundException, ActivityNotFoundException {
-        return queryDefinitionAPI.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityInstanceId());
+        return queryDefinitionAPI.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
     }
 
     public ActivityDefinition getTaskDefinition(ActivityInstance ai) throws ProcessNotFoundException, ActivityNotFoundException {

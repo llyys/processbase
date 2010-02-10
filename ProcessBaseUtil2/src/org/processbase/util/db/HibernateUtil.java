@@ -16,19 +16,12 @@
  */
 package org.processbase.util.db;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.Restrictions;
-import org.processbase.util.XMLManager;
-import org.processbase.util.ldap.User;
 
 /**
  * @author mgubaidullin
@@ -50,107 +43,6 @@ public class HibernateUtil {
 
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
-    }
-
-    public ArrayList<PbProcessAcl> findPbProcessAcl(String processUUID) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            ArrayList<PbProcessAcl> result = (ArrayList<PbProcessAcl>) session.createQuery("from PbProcessAcl as acl where acl.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-            tx.commit();
-            return result;
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public ArrayList<PbProcessAcl> findPbProcessAcl(User user) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            ArrayList<PbProcessAcl> result = new ArrayList<PbProcessAcl>();
-            if (user.getGroupsDn().size() > 0) {
-                result.addAll((ArrayList<PbProcessAcl>) session.createCriteria(PbProcessAcl.class).add(Restrictions.in("groupDn", user.getGroupsDn())).list());
-            }
-            tx.commit();
-            return result;
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public void deletePbProcessAcl(String processUUID, String groupDN) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            PbProcessAcl result = (PbProcessAcl) session.createQuery("from PbProcessAcl as acl where acl.proccessUuid = :proccessUuid and acl.groupDn=:groupDn").setString("proccessUuid", processUUID).setString("groupDn", groupDN).list().get(0);
-            session.delete(result);
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public void deletePbProcess(String processUUID) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            ArrayList<PbProcessAcl> result = (ArrayList<PbProcessAcl>) session.createQuery("from PbProcessAcl as acl where acl.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-            for (Iterator iter = result.iterator(); iter.hasNext();) {
-                PbProcessAcl pbProcessAcl = (PbProcessAcl) iter.next();
-                session.delete(pbProcessAcl);
-            }
-            ArrayList<PbActivityUi> result2 = (ArrayList<PbActivityUi>) session.createQuery("from PbActivityUi as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-            for (Iterator iter = result2.iterator(); iter.hasNext();) {
-                PbActivityUi pbActivityUi = (PbActivityUi) iter.next();
-                session.delete(pbActivityUi);
-            }
-            ArrayList<PbProcessSection> result3 = (ArrayList<PbProcessSection>) session.createQuery("from PbProcessSection as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-            for (Iterator iter = result3.iterator(); iter.hasNext();) {
-                PbProcessSection pbProcessSection = (PbProcessSection) iter.next();
-                session.delete(pbProcessSection);
-            }
-            ArrayList<PbAttachment> result4 = (ArrayList<PbAttachment>) session.createQuery("from PbAttachment as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-            for (Iterator iter = result4.iterator(); iter.hasNext();) {
-                PbAttachment pbAttachment = (PbAttachment) iter.next();
-                session.delete(pbAttachment);
-            }
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public void addPbProcessAcl(String processUUID, String groupDN) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            PbProcessAcl result = new PbProcessAcl(processUUID, groupDN);
-            session.merge(result);
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
     }
 
     public void mergeProcessUi(String processUUID, ArrayList<PbActivityUi> pbActivityUis) {
@@ -264,64 +156,19 @@ public class HibernateUtil {
         }
     }
 
-    public PbHelp findPbHelp(String uniqueUUID) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            List queryResult = session.createQuery("from PbHelp as help where help.uniqueUuid = :uniqueUuid").setString("uniqueUuid", uniqueUUID).list();
-            if (queryResult.size() > 0) {
-                PbHelp result = (PbHelp) queryResult.get(0);
-                tx.commit();
-                return result;
-            } else {
-                tx.commit();
-                return null;
-            }
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public void mergePbHelp(PbHelp pbHelp) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.merge(pbHelp);
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
     public void deletePbProcessess(ArrayList<String> processInstanceUUIDs) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
             for (String processUUID : processInstanceUUIDs) {
-                ArrayList<PbProcessAcl> result = (ArrayList<PbProcessAcl>) session.createQuery("from PbProcessAcl as acl where acl.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-                for (Iterator iter = result.iterator(); iter.hasNext();) {
-                    PbProcessAcl pbProcessAcl = (PbProcessAcl) iter.next();
-                    session.delete(pbProcessAcl);
-                }
+
                 ArrayList<PbActivityUi> result2 = (ArrayList<PbActivityUi>) session.createQuery("from PbActivityUi as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
                 for (Iterator iter = result2.iterator(); iter.hasNext();) {
                     PbActivityUi pbActivityUi = (PbActivityUi) iter.next();
                     session.delete(pbActivityUi);
                 }
-                ArrayList<PbProcessSection> result3 = (ArrayList<PbProcessSection>) session.createQuery("from PbProcessSection as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
-                for (Iterator iter = result3.iterator(); iter.hasNext();) {
-                    PbProcessSection pbProcessSection = (PbProcessSection) iter.next();
-                    session.delete(pbProcessSection);
-                }
+
                 ArrayList<PbAttachment> result4 = (ArrayList<PbAttachment>) session.createQuery("from PbAttachment as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
                 for (Iterator iter = result4.iterator(); iter.hasNext();) {
                     PbAttachment pbAttachment = (PbAttachment) iter.next();
@@ -338,106 +185,21 @@ public class HibernateUtil {
         }
     }
 
-    public ArrayList<PbSection> findPbSections() {
+    public void deletePbProcess(String processUUID) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            ArrayList<PbSection> queryResult = (ArrayList<PbSection>) session.createQuery(
-                    "from PbSection as obj").list();
-            tx.commit();
-            return queryResult;
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
+            ArrayList<PbActivityUi> result2 = (ArrayList<PbActivityUi>) session.createQuery("from PbActivityUi as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (Iterator iter = result2.iterator(); iter.hasNext();) {
+                PbActivityUi pbActivityUi = (PbActivityUi) iter.next();
+                session.delete(pbActivityUi);
             }
-            session.close();
-        }
-    }
-
-    public void deletePbSection(PbSection section) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.delete(section);
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
+            ArrayList<PbAttachment> result4 = (ArrayList<PbAttachment>) session.createQuery("from PbAttachment as ui where ui.proccessUuid = :proccessUuid").setString("proccessUuid", processUUID).list();
+            for (Iterator iter = result4.iterator(); iter.hasNext();) {
+                PbAttachment pbAttachment = (PbAttachment) iter.next();
+                session.delete(pbAttachment);
             }
-            session.close();
-        }
-    }
-
-    public ArrayList<PbProcessSection> findPbProcessSections() {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            ArrayList<PbProcessSection> queryResult = (ArrayList<PbProcessSection>) session.createQuery(
-                    "from PbProcessSection as obj").list();
-            tx.commit();
-            return queryResult;
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public PbSection findPbSection(String processUUID) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        PbSection section = null;
-        try {
-            tx = session.beginTransaction();
-            PbProcessSection queryResult = (PbProcessSection) session.createQuery(
-                    "from PbProcessSection ps where ps.proccessUuid = :processUUID").setString("processUUID", processUUID).uniqueResult();
-            if (queryResult != null) {
-                section = queryResult.getPbSection();
-                section.toString();
-            }
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-        return section;
-    }
-
-    public void setPbProcessSection(String processUUID, PbSection section) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            PbProcessSection queryResult = (PbProcessSection) session.createQuery(
-                    "from PbProcessSection as ps where ps.proccessUuid = :processUUID").setString("processUUID", processUUID).uniqueResult();
-            if (queryResult != null) {
-                queryResult.setPbSection(section);
-                session.merge(queryResult);
-            } else {
-                PbProcessSection newps = new PbProcessSection(section, processUUID);
-                session.save(newps);
-            }
-            tx.commit();
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            session.close();
-        }
-    }
-
-    public void mergePbSection(PbSection pbSection) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.merge(pbSection);
             tx.commit();
         } finally {
             if (tx.isActive()) {
