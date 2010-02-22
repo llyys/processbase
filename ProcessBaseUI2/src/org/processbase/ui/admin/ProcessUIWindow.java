@@ -173,7 +173,7 @@ public class ProcessUIWindow extends PbWindow implements
         try {
             ByteArraySource bas = new ByteArraySource(
                     XMLManager.createXML("org.processbase.util.db.PbActivityUi", getCurrentTableValues()).getBytes("UTF-8"));
-            StreamResource streamResource = new StreamResource(bas, this.processDefinition.getUUID().getValue() + "_ui.xml", getApplication());
+            StreamResource streamResource = new StreamResource(bas, processDefinition.getUUID() + "_ui.xml", getApplication());
             streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
             streamResource.setMIMEType("mime/xml");
             getWindow().getWindow().open(streamResource, "_new");

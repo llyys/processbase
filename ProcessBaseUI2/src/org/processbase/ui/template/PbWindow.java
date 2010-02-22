@@ -36,7 +36,7 @@ public class PbWindow extends Window {
     public PbWindow(String caption, PortletApplicationContext2 portletApplicationContext2) {
         super(caption);
         this.portletApplicationContext2 = portletApplicationContext2;
-        messages = ResourceBundle.getBundle("resources/MessagesBundle", new Locale(this.getCurrenUser().getLanguageId()));
+        messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
     }
 
     public PbWindow(PortletApplicationContext2 portletApplicationContext2) {
@@ -92,7 +92,18 @@ public class PbWindow extends Window {
         return portletApplicationContext2;
     }
 
-    public User getCurrenUser() {
-        return ((User) this.portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE));
+    public User getCurrentUser() {
+        return ((User) portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE));
     }
+
+    public Locale getCurrentLocale() {
+        return (Locale) portletApplicationContext2.getPortletSession().getAttribute("org.apache.struts.action.LOCALE", PortletSession.APPLICATION_SCOPE);
+    }
+
+    @Override
+    public void close() {
+        super.close();
+    }
+
+
 }

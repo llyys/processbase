@@ -33,8 +33,6 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.processbase.util.Constants;
 import org.processbase.ui.template.TableExecButton;
@@ -62,6 +60,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     private String originalFilename;
     private String fileExt;
     public static String FILE_BAR = "FILE_BAR";
+    public static String FILE_JAR = "FILE_JAR";
     private String fileType = null;
 
     public ProcessDefinitionsPanel(PortletApplicationContext2 portletApplicationContext2) {
@@ -167,6 +166,9 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
                 ProcessDefinition deployResult = bpmModule.deploy(businessArchive);
                 showWarning(messages.getString("processUploaded") + ": " + deployResult.getLabel());
+            } else if (this.fileType.equals(FILE_JAR)) {
+                bpmModule.deployJar(originalFilename, readData);
+                showWarning(messages.getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             refreshTable();
@@ -188,13 +190,15 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
         if (fileExt.equalsIgnoreCase("bar")) {
             this.fileType = FILE_BAR;
+        } else if (fileExt.equalsIgnoreCase("jar")) {
+            this.fileType = FILE_JAR;
         }
         FileOutputStream fos = null;
         file = new File(this.filename);
         try {
             fos = new FileOutputStream(file);
-        } catch (final java.io.FileNotFoundException e) {
-            Logger.getLogger(ProcessDefinitionsPanel.class.getName()).log(Level.SEVERE, e.getMessage());
+        } catch (final java.io.FileNotFoundException ex) {
+           ex.printStackTrace();
             return null;
         }
         return fos;

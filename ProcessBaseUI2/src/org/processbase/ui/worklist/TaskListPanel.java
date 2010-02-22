@@ -28,8 +28,6 @@ import com.vaadin.ui.Table;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
@@ -86,9 +84,9 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Collection<TaskInstance> tasks = bpmModule.getActivities(ActivityState.READY);
-            tasks.addAll(bpmModule.getActivities(ActivityState.EXECUTING));
-            tasks.addAll(bpmModule.getActivities(ActivityState.SUSPENDED));
+            Collection<TaskInstance> tasks = bpmModule.getTaskList(ActivityState.READY);
+            tasks.addAll(bpmModule.getTaskList(ActivityState.EXECUTING));
+            tasks.addAll(bpmModule.getTaskList(ActivityState.SUSPENDED));
 //        tasks.addAll(bpmModule.getActivities(ActivityState.INITIAL));
             for (TaskInstance task : tasks) {
                 addTableRow(task, null);
@@ -105,9 +103,8 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
     private void addTableRow(TaskInstance task, TaskInstance previousTask) throws InstanceNotFoundException, Exception {
         Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
         woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
-        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel(), messages.getString("btnOpen"), task, Constants.ACTION_OPEN));
-        Map<String, Object> processVars = bpmModule.getProcessInstanceVariables(task.getProcessInstanceUUID());
-        woItem.getItemProperty("customID").setValue(processVars.containsKey("customID") ? processVars.get("customID").toString() : "");
+        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel(),task.getActivityDescription(), task, Constants.ACTION_OPEN));
+        woItem.getItemProperty("customID").setValue(bpmModule.getProcessInstanceVariable(task.getProcessInstanceUUID(), "customID"));
 //                woItem.getItemProperty("candidates").setValue(task.getBody().getTaskCandidates().toString());
         woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
         woItem.getItemProperty("startedDate").setValue(task.getStartedDate());
@@ -176,7 +173,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                         addTableRow(newTask, task);
                     }
                     table.removeItem(task);
-                    openTaskPage(task);
+                    openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.SUSPENDED)) {
                     bpmModule.resumeTask(task.getUUID(), true);
                     openTaskPage(task);
@@ -186,7 +183,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                         addTableRow(newTask, task);
                     }
                     table.removeItem(task);
-                    openTaskPage(task);
+                    openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && !task.getState().equals(ActivityState.READY)) {
                     openTaskPage(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
@@ -204,7 +201,8 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         try {
             HibernateUtil hutil = new HibernateUtil();
             PbActivityUi pbActivityUi = hutil.findPbActivityUi(bpmModule.getTaskDefinition(task).getUUID().toString());
-            this.getPortletApplicationContext2().getPortletSession().setAttribute("PROCESSBASE_TASKINSTANCE", task, PortletSession.APPLICATION_SCOPE);
+            getPortletApplicationContext2().getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+            getPortletApplicationContext2().getPortletSession().setAttribute("PROCESSBASE_SHARED_TASKINSTANCE", task.getUUID().toString(), PortletSession.APPLICATION_SCOPE);
             if (pbActivityUi.getUiClass() != null && !pbActivityUi.getUiClass().isEmpty()) {
                 this.getWindow().open(new ExternalResource(pbActivityUi.getUiClass()));
             } else {

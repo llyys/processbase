@@ -29,8 +29,8 @@ import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.template.PbColumnGenerator;
-import org.processbase.util.Constants;
 
 /**
  *
@@ -53,10 +53,13 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
 //            table.addContainerProperty("performer", String.class, null, "Исполнитель", null, null);
         table.addContainerProperty("readyDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("readyDate", new PbColumnGenerator());
+        table.setColumnWidth("readyDate", 100);
         table.addContainerProperty("startedDate", Date.class, null, messages.getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startedDate", new PbColumnGenerator());
+        table.setColumnWidth("startedDate", 100);
         table.addContainerProperty("endDate", Date.class, null, messages.getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
+        table.setColumnWidth("endDate", 100);
         //            table.addContainerProperty("iteration", String.class, null, "Итерация", null, null);
         table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
         table.addContainerProperty("actions", TableExecButton.class, null, messages.getString("tableCaptionActions"), null, null);
@@ -66,8 +69,8 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Set<ActivityInstance> ais = bpmModule.getActivityInstances();
-            for (ActivityInstance ai : ais) {
+            Set<LightActivityInstance> ais = bpmModule.getActivityInstances();
+            for (LightActivityInstance ai : ais) {
                 Item woItem = table.addItem(ai);
                 woItem.getItemProperty("UUID").setValue(ai.getUUID().toString());
                 woItem.getItemProperty("label").setValue(ai.getActivityLabel());
@@ -75,11 +78,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 woItem.getItemProperty("startedDate").setValue(ai.getStartedDate());
                 woItem.getItemProperty("endDate").setValue(ai.getEndedDate());
                 woItem.getItemProperty("state").setValue(ai.getState());
-//                ActivityDefinition activityDefinition = bpmModule.getProcessActivityDefinition(ai);
                 woItem.getItemProperty("type").setValue(ai.isTask() ? messages.getString("task") : messages.getString("automatic"));
-//                if (!activityDefinition.isRoute()) {
-                woItem.getItemProperty("actions").setValue(new TableExecButton(messages.getString("btnOpen"), "icons/document-txt.png", ai, this, Constants.ACTION_OPEN));
-//                }
             }
             table.setSortContainerPropertyId("readyDate");
             table.setSortAscending(false);

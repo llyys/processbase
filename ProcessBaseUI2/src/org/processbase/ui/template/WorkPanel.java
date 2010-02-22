@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
 import org.processbase.bpm.BPMModule;
-import org.processbase.portal.ProcessBaseApplication;
 
 /**
  *
@@ -48,7 +47,7 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
         super();
         try {
             this.portletApplicationContext2 = portletApplicationContext2;
-            this.messages = ResourceBundle.getBundle("resources/MessagesBundle", new Locale(getCurrentUser().getLanguageId()));
+            this.messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
             this.bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
             refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
         } catch (Exception ex) {
@@ -101,7 +100,11 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     }
 
     public User getCurrentUser() {
-        return ((User) portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE));
+        return ((User) portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE));
+    }
+
+    public Locale getCurrentLocale() {
+        return (Locale) portletApplicationContext2.getPortletSession().getAttribute("org.apache.struts.action.LOCALE", PortletSession.APPLICATION_SCOPE);
     }
 
     public PortletApplicationContext2 getPortletApplicationContext2() {

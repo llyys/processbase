@@ -65,7 +65,7 @@ public class AttachmentFileRow extends HorizontalLayout
     public AttachmentFileRow(PbAttachment pbAttachments, PortletApplicationContext2 portletApplicationContext2) {
         super();
         this.portletApplicationContext2 = portletApplicationContext2;
-        User currentUser = ((User) this.portletApplicationContext2.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE));
+        User currentUser = ((User) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE));
         messages = ResourceBundle.getBundle("resources/MessagesBundle", new Locale(currentUser.getLanguageId()));
         btnDelete = new Button(messages.getString("btnDelete"), this);
         if (pbAttachments != null) {

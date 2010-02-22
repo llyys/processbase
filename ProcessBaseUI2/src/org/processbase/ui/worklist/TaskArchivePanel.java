@@ -59,13 +59,11 @@ public class TaskArchivePanel extends TablePanel {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Collection<TaskInstance> tasks = bpmModule.getActivities(ActivityState.FINISHED);
+            Collection<TaskInstance> tasks = bpmModule.getTaskList(ActivityState.FINISHED);
             for (TaskInstance task : tasks) {
-
                 Item woItem = table.addItem(task);
 //            woItem.getItemProperty("UUID").setValue(task.getUUID());
-                String taskName = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getDescription();
-                woItem.getItemProperty("name").setValue(taskName != null ? taskName : task.getActivityName());
+                woItem.getItemProperty("name").setValue(task.getActivityLabel());
                 woItem.getItemProperty("candidates").setValue(task.getTaskCandidates().toString());
                 woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
                 woItem.getItemProperty("dueDate").setValue(task.getExpectedEndDate());
@@ -74,7 +72,7 @@ public class TaskArchivePanel extends TablePanel {
                 woItem.getItemProperty("actions").setValue(startButton(task));
             }
         } catch (Exception ex) {
-            Logger.getLogger(TaskListPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
         }
         table.setSortContainerPropertyId("endDate");
         table.setSortAscending(false);

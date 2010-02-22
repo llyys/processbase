@@ -16,13 +16,10 @@
  */
 package org.processbase.ui.template;
 
-import com.liferay.portal.model.User;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +27,8 @@ import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.bpm.BPMModule;
 
 /**
@@ -59,15 +58,19 @@ public class TaskWindow extends PbWindow {
         buttons.setStyleName("white");
     }
 
-    public boolean setTaskInfo() {
+    public boolean setTaskInfo(String processDefinitionUUID) {
         try {
-            bpmModule = new BPMModule(getCurrenUser().getScreenName());
-            task = (TaskInstance) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-            processDefinition = (ProcessDefinition) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_PROCESSDEFINITION", PortletSession.APPLICATION_SCOPE);
+            bpmModule = new BPMModule(getCurrentUser().getScreenName());
+            if (processDefinitionUUID == null) {
+                String taskUUID = (String) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+                task = taskUUID != null ? bpmModule.getTaskInstance(new ActivityInstanceUUID(taskUUID)) : null;
+            } else {
+                processDefinition = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(processDefinitionUUID));
+            }
             if (task == null & processDefinition == null) {
                 throw new Exception("ATTRIBUTES TASK AND PROCESSDEFINITION NOT SET!");
             } else if (task != null & processDefinition == null) {
-                if (!this.task.isTaskAssigned() || !this.task.getTaskUser().equals(getCurrenUser().getScreenName())) {
+                if (!this.task.isTaskAssigned() || !this.task.getTaskUser().equals(getCurrentUser().getScreenName())) {
                     throw new Exception("TASK NOT ASSIGNED TO CURRENT USER!");
                 }
                 processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
@@ -103,9 +106,9 @@ public class TaskWindow extends PbWindow {
     }
 
     @Override
-    protected void close() {
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PROCESSDEFINITION", PortletSession.APPLICATION_SCOPE);
+    public void close() {
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_PROCESSDEFINITION", PortletSession.APPLICATION_SCOPE);
         super.close();
         this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
         this.getApplication().close();

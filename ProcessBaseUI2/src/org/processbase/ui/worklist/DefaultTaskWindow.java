@@ -116,19 +116,16 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
                 } else if (dfd.isEnumeration()) {
                     fieldValue = form.getField(dfd.getName()).getValue();
                 }
-                processVars.put(dfd.getName(), fieldValue);
+                if (fieldValue != null) {
+                    processVars.put(dfd.getName(), fieldValue);
+                }
             }
             if (this.isNew) {
                 ProcessInstanceUUID piUUID = bpmModule.startNewProcess(processDefinition.getUUID(), processVars);
 //                attachmentBar.save(piUUID.toString(), piUUID.toString());
             } else {
-                for (Iterator i = processVars.keySet().iterator(); i.hasNext();) {
-                    String varName = i.next().toString();
-                    Object varValue = processVars.get(varName);
-                    bpmModule.setProcessInstanceVariable(task.getProcessInstanceUUID(), varName, varValue);
-                }
 //                attachmentBar.save(task.getProcessInstanceUUID().toString(), task.getUUID().toString());
-                bpmModule.finishTask(task.getUUID(), true);
+                bpmModule.finishTask(task, true, processVars);
             }
             close();
         } catch (Exception ex) {
@@ -176,8 +173,9 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
                 field = new CheckBox(dfd.getLabel());
                 field.setValue(value != null ? value : Boolean.FALSE);
             } else {
-                field = new TextField(dfd.getLabel());
-                field.setValue(value != null ? value.toString() : "");
+                field = new TextField(dfd.getLabel() + " (" + dfd.getDataTypeClassName() + ")");
+//                field.setValue(dfd.getDataTypeClassName());
+                field.setEnabled(false);
             }
         }
         field.setDescription(dfd.getDescription() != null ? dfd.getDescription() : "");

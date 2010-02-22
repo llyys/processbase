@@ -29,6 +29,7 @@ import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -60,8 +61,8 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<ProcessInstance> pis = bpmModule.getProcessInstances();
-            for (ProcessInstance pi : pis) {
+            Set<LightProcessInstance> pis = bpmModule.getLightProcessInstances();
+            for (LightProcessInstance pi : pis) {
                 Item woItem = table.addItem(pi);
                 woItem.getItemProperty("UUID").setValue(pi.getProcessInstanceUUID());
                 ProcessDefinition pd = bpmModule.getProcessDefinition(pi.getProcessDefinitionUUID());
@@ -88,7 +89,7 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
             TableExecButton execBtn = (TableExecButton) event.getButton();
             if (execBtn.getAction().equals(Constants.ACTION_DELETE_PROCESS_INSTANCE)) {
                 try {
-                    ProcessInstance pi = (ProcessInstance) execBtn.getTableValue();
+                    LightProcessInstance pi = (LightProcessInstance) execBtn.getTableValue();
                     ProcessInstanceUUID piUUID = pi.getUUID();
                     bpmModule.deleteProcessInstance(piUUID);
                     refreshTable();
