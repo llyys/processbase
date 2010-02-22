@@ -55,6 +55,8 @@ import org.ow2.bonita.util.AccessorUtil;
 import org.processbase.util.db.HibernateUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.runtime.InstanceState;
+import org.ow2.bonita.light.LightActivityInstance;
+import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.util.db.PbActivityUi;
 
 /**
@@ -73,6 +75,7 @@ public class BPMModule {
     private String currentUserUID;
 
     public BPMModule(String currentUserUID) {
+        Constants.loadConstants();
         this.currentUserUID = currentUserUID;
     }
 
@@ -113,9 +116,19 @@ public class BPMModule {
         return queryDefinitionAPI.getProcessActivities(uuid);
     }
 
-    public Collection<TaskInstance> getActivities(ActivityState state) throws Exception {
+    public Collection<TaskInstance> getTaskList(ActivityState state) throws Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryRuntimeAPI.getTaskList(state);
+    }
+
+    public Set<ProcessInstance> getUserInstances() throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryRuntimeAPI.getUserInstances();
+    }
+
+    public Set<LightProcessInstance> getLightUserInstances() throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryRuntimeAPI.getLightUserInstances();
     }
 
     public TaskInstance startTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
@@ -174,6 +187,11 @@ public class BPMModule {
     public Map<String, Object> getProcessInstanceVariables(ProcessInstanceUUID piUUID) throws InstanceNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryRuntimeAPI.getProcessInstanceVariables(piUUID);
+    }
+
+    public Object getProcessInstanceVariable(ProcessInstanceUUID piUUID, String varName) throws InstanceNotFoundException, Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryRuntimeAPI.getProcessInstanceVariable(piUUID, varName);
     }
 
     public HashMap<String, String> getFormNames(String uiString) {
@@ -235,6 +253,14 @@ public class BPMModule {
         return result;
     }
 
+    public void deployJar(String jarName, byte[] body) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        if (managementAPI.getAvailableJars().contains(jarName)) {
+            managementAPI.removeJar(jarName);
+        }
+        managementAPI.deployJar(jarName, body);
+    }
+
     public void deleteProcess(ProcessDefinition pd) throws UndeletableInstanceException, UndeletableProcessException, ProcessNotFoundException, Exception {
         HibernateUtil hutil = new HibernateUtil();
         hutil.deletePbProcess(getProcessDefinition(pd).getUUID().toString());
@@ -255,6 +281,10 @@ public class BPMModule {
         return queryRuntimeAPI.getProcessInstances();
     }
 
+    public Set<LightProcessInstance> getLightProcessInstances() {
+        return queryRuntimeAPI.getLightProcessInstances();
+    }
+
     public Set<ProcessInstance> getProcessInstancesByUUID(ProcessDefinitionUUID piUUID) throws ProcessNotFoundException {
         return queryRuntimeAPI.getProcessInstances(piUUID);
     }
@@ -270,10 +300,10 @@ public class BPMModule {
         return result;
     }
 
-    public Set<ProcessInstance> getProcessInstancesByStatus(InstanceState state) {
-        Set<ProcessInstance> result = new HashSet<ProcessInstance>();
-        Set<ProcessInstance> pis = getProcessInstances();
-        for (ProcessInstance pi : pis) {
+    public Set<LightProcessInstance> getProcessInstancesByStatus(InstanceState state) {
+        Set<LightProcessInstance> result = new HashSet<LightProcessInstance>();
+        Set<LightProcessInstance> pis = getLightProcessInstances();
+        for (LightProcessInstance pi : pis) {
             if (pi.getInstanceState().equals(state)) {
                 result.add(pi);
             }
@@ -281,12 +311,12 @@ public class BPMModule {
         return result;
     }
 
-    public Set<ActivityInstance> getActivityInstances() throws ProcessNotFoundException, ActivityNotFoundException {
-        Set<ActivityInstance> result = new HashSet();
+    public Set<LightActivityInstance> getActivityInstances() throws ProcessNotFoundException, ActivityNotFoundException {
+        Set<LightActivityInstance> result = new HashSet();
         try {
-            Set<ProcessInstance> pis = queryRuntimeAPI.getProcessInstances();
-            for (ProcessInstance pi : pis) {
-                result.addAll(queryRuntimeAPI.getActivityInstances(pi.getProcessInstanceUUID()));
+            Set<LightProcessInstance> pis = queryRuntimeAPI.getLightProcessInstances();
+            for (LightProcessInstance pi : pis) {
+                result.addAll(queryRuntimeAPI.getLightActivityInstances(pi.getProcessInstanceUUID()));
             }
         } catch (InstanceNotFoundException ex) {
             ex.printStackTrace();
@@ -294,7 +324,12 @@ public class BPMModule {
         return result;
     }
 
-    public ActivityInstance getActivityInstance(ActivityInstanceUUID activityInstanceUUID) throws ProcessNotFoundException, ActivityNotFoundException {
+    public Set<ActivityInstance> getActivityInstances(ProcessInstanceUUID processInstanceUUID) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryRuntimeAPI.getActivityInstances(processInstanceUUID);
+    }
+
+    public ActivityInstance getActivityInstance(ActivityInstanceUUID activityInstanceUUID) throws ActivityNotFoundException {
         return queryRuntimeAPI.getActivityInstance(activityInstanceUUID);
     }
 
