@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<display>
+    <category name="PROCESSBASE USER">
+        <portlet id="TaskListPortlet" />
+        <portlet id="TaskDefaultPortlet" />
+        <portlet id="TaskArchivePortlet" />
+        <portlet id="ProcessesPortlet" />
+    </category>
+    <category name="PROCESSBASE ADMINISTRATION">
+        <portlet id="ProcessDefinitionPortlet" />
+        <portlet id="ProcessInstancesPortlet" />
+        <portlet id="ActivityInstancesPortlet" />
+    </category>
+    <category name="PROCESSBASE DASHBOARD">
+        <portlet id="ProcessesByStatusPortlet" />
+    </category>
+</display>
