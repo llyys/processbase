@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
-import org.processbase.ui.util.Constants;
+import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;

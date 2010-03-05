@@ -32,16 +32,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
+import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.ByteArraySource;
-import org.processbase.ui.db.HibernateUtil;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.PbTableFieldFactory;
 import org.processbase.ui.util.XMLManager;
-import org.processbase.ui.db.PbActivityUi;
 
 /**
  *
@@ -59,12 +59,12 @@ public class ProcessUIWindow extends PbWindow implements
     private Button applyBtn = null;
     private Upload upload = null;
     private Button downloadBtn = null;
-    private Table membersTable = new Table();
-    private HibernateUtil hutil = new HibernateUtil();
+    private Table activitiesTable = new Table();
     private File file;
     private String filename;
     private String originalFilename;
     private String fileExt;
+    private BPMModule bpmModule;
 
     public ProcessUIWindow(ProcessDefinition processDefinition, PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
@@ -73,6 +73,7 @@ public class ProcessUIWindow extends PbWindow implements
         applyBtn = new Button(messages.getString("btnSave"), this);
         upload = new Upload("", (Upload.Receiver) this);
         downloadBtn = new Button(messages.getString("btnDownload"), this);
+        bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
         initTableUI();
     }
 
@@ -85,9 +86,9 @@ public class ProcessUIWindow extends PbWindow implements
             layout.setSpacing(true);
 //            layout.setSizeUndefined();
             refreshTable();
-            membersTable.setPageLength(10);
-            membersTable.setWidth("100%");
-            addComponent(membersTable);
+            activitiesTable.setPageLength(10);
+            activitiesTable.setWidth("100%");
+            addComponent(activitiesTable);
             upload.setButtonCaption(messages.getString("btnUpload"));
             upload.setImmediate(true);
             upload.addListener((Upload.SucceededListener) this);
@@ -111,42 +112,31 @@ public class ProcessUIWindow extends PbWindow implements
     }
 
     public void initTableUI() {
-        membersTable.addContainerProperty("id", String.class, null, "id", null, null);
-        membersTable.setColumnWidth("id", 0);
-        membersTable.addContainerProperty("activityUUID", String.class, null, "UUID", null, null);
-        membersTable.setColumnWidth("activityUUID", 0);
-        membersTable.addContainerProperty("activityLabel", String.class, null, messages.getString("tableCaptionActivityName"), null, null);
-        membersTable.addContainerProperty("isStart", String.class, null, messages.getString("tabCaptionIsStart"), null, null);
-        membersTable.setColumnWidth("isStart", 30);
-        membersTable.addContainerProperty("uiClass", String.class, null, messages.getString("tabCaptionTaskURL"), null, null);
-        membersTable.setColumnWidth("uiClass", 300);
-        membersTable.addContainerProperty("isMobile", String.class, null, messages.getString("tabCaptionIsMobile"), null, null);
-        membersTable.setColumnWidth("isMobile", 30);
-        membersTable.addContainerProperty("mobileUiClass", String.class, null, messages.getString("tabCaptionMobileUIClass"), null, null);
-        membersTable.setColumnWidth("mobileUiClass", 300);
-        membersTable.setTableFieldFactory(new PbTableFieldFactory());
-        membersTable.setEditable(true);
-        membersTable.setImmediate(true);
+        activitiesTable.addContainerProperty("activityUUID", String.class, null, "UUID", null, null);
+        activitiesTable.setColumnWidth("activityUUID", 0);
+        activitiesTable.addContainerProperty("activityLabel", String.class, null, messages.getString("tableCaptionActivityName"), null, null);
+        activitiesTable.addContainerProperty("url", String.class, null, messages.getString("tabCaptionTaskURL"), null, null);
+        activitiesTable.setColumnWidth("url", 300);
+        activitiesTable.setTableFieldFactory(new PbTableFieldFactory());
+        activitiesTable.setEditable(true);
+        activitiesTable.setImmediate(true);
     }
 
     public void refreshTable() {
         try {
-            membersTable.removeAllItems();
-            ArrayList<PbActivityUi> pbActivityUis = hutil.findProcessUis(processDefinition.getUUID().getValue());
-            for (PbActivityUi pbActivityUi : pbActivityUis) {
-                Item woItem = membersTable.addItem(pbActivityUi.getActivityUuid());
-                woItem.getItemProperty("id").setValue(pbActivityUi.getId());
-                woItem.getItemProperty("activityUUID").setValue(pbActivityUi.getActivityUuid());
-                woItem.getItemProperty("activityLabel").setValue(pbActivityUi.getActivityLabel());
-                woItem.getItemProperty("uiClass").setValue(pbActivityUi.getUiClass());
-                woItem.getItemProperty("isStart").setValue(pbActivityUi.getIsStart().equals("T") ? messages.getString("Yes") : messages.getString("No"));
-                woItem.getItemProperty("mobileUiClass").setValue(pbActivityUi.getMobileUiClass());
-                woItem.getItemProperty("isMobile").setValue(pbActivityUi.getIsMobile().equals("T") ? messages.getString("Yes") : messages.getString("No"));
-
+            activitiesTable.removeAllItems();
+            for (ActivityDefinition activityDefinition : processDefinition.getActivities()) {
+                if (activityDefinition.isTask()) {
+                    Item woItem = activitiesTable.addItem(activityDefinition);
+                    woItem.getItemProperty("activityUUID").setValue(activityDefinition.getUUID().toString());
+                    woItem.getItemProperty("activityLabel").setValue(activityDefinition.getLabel());
+                    String url = processDefinition.getAMetaData(activityDefinition.getUUID().toString());
+                    woItem.getItemProperty("url").setValue(url != null ? url : new String());
+                }
             }
-            membersTable.setSortContainerPropertyId("isStart");
-            membersTable.setSortAscending(true);
-            membersTable.sort();
+            activitiesTable.setSortContainerPropertyId("activityLabel");
+            activitiesTable.setSortAscending(true);
+            activitiesTable.sort();
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
@@ -156,7 +146,7 @@ public class ProcessUIWindow extends PbWindow implements
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                hutil.mergeProcessUi(processDefinition.getUUID().getValue(), getCurrentTableValues());
+                save();
                 close();
             } else if (event.getButton().equals(downloadBtn)) {
                 download();
@@ -172,8 +162,8 @@ public class ProcessUIWindow extends PbWindow implements
     private void download() {
         try {
             ByteArraySource bas = new ByteArraySource(
-                    XMLManager.createXML("org.processbase.util.db.PbActivityUi", getCurrentTableValues()).getBytes("UTF-8"));
-            StreamResource streamResource = new StreamResource(bas, processDefinition.getUUID() + "_ui.xml", getApplication());
+                    XMLManager.createXML("java.util.HashMap", getCurrentTableValues()).getBytes("UTF-8"));
+            StreamResource streamResource = new StreamResource(bas, processDefinition.getLabel() + "_" + processDefinition.getVersion() + "_ui.xml", getApplication());
             streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
             streamResource.setMIMEType("mime/xml");
             getWindow().getWindow().open(streamResource, "_new");
@@ -182,25 +172,23 @@ public class ProcessUIWindow extends PbWindow implements
         }
     }
 
-    private ArrayList<PbActivityUi> getCurrentTableValues() {
-        ArrayList<PbActivityUi> pbActivityUis = new ArrayList<PbActivityUi>();
-        for (Object object : membersTable.getContainerDataSource().getItemIds()) {
-            PbActivityUi pbActivityUi = new PbActivityUi();
-            pbActivityUi.setProccessUuid(this.processDefinition.getUUID().getValue());
-            pbActivityUi.setActivityUuid(membersTable.getItem(object).getItemProperty("activityUUID").toString());
-            pbActivityUi.setActivityLabel(membersTable.getItem(object).getItemProperty("activityLabel").toString());
-            pbActivityUi.setUiClass(membersTable.getItem(object).getItemProperty("uiClass").toString());
-            pbActivityUi.setIsStart(membersTable.getItem(object).getItemProperty("isStart").toString().equals(messages.getString("Yes")) ? "T" : "F");
-            pbActivityUi.setMobileUiClass(membersTable.getItem(object).getItemProperty("mobileUiClass").toString());
-            pbActivityUi.setIsMobile(membersTable.getItem(object).getItemProperty("isMobile").toString().equals(messages.getString("Yes")) ? "T" : "F");
-            pbActivityUis.add(pbActivityUi);
+    private HashMap<String, String> getCurrentTableValues() {
+        HashMap<String, String> urlMap = new HashMap<String, String>();
+        for (Object object : activitiesTable.getContainerDataSource().getItemIds()) {
+            ActivityDefinition activityDefinition = (ActivityDefinition) object;
+            if (activitiesTable.getItem(object).getItemProperty("url") != null && activitiesTable.getItem(object).getItemProperty("url").toString().length() > 0) {
+                urlMap.put(activityDefinition.getUUID().toString(), activitiesTable.getItem(object).getItemProperty("url").toString());
+            }
         }
-        return pbActivityUis;
+        return urlMap;
     }
 
-    private void setCurrentTableValues(ArrayList<PbActivityUi> pbActivityUis) {
-        for (PbActivityUi pbActivityUi : pbActivityUis) {
-            membersTable.getItem(pbActivityUi.getActivityUuid()).getItemProperty("uiClass").setValue(pbActivityUi.getUiClass());
+    private void save() throws Exception {
+        for (Object object : activitiesTable.getContainerDataSource().getItemIds()) {
+            ActivityDefinition activityDefinition = (ActivityDefinition) object;
+            if (activitiesTable.getItem(object).getItemProperty("url") != null && activitiesTable.getItem(object).getItemProperty("url").toString().length() > 0) {
+                bpmModule.addProcessMetaData(processDefinition.getUUID(), activityDefinition.getUUID().toString(), activitiesTable.getItem(object).getItemProperty("url").toString());
+            }
         }
     }
 
@@ -209,10 +197,13 @@ public class ProcessUIWindow extends PbWindow implements
             byte[] readData = new byte[new Long(event.getLength()).intValue()];
             FileInputStream fis = new FileInputStream(file);
             int i = fis.read(readData);
-            ArrayList<PbActivityUi> pbActivityUis = (ArrayList<PbActivityUi>) XMLManager.createObject(new String(readData, "UTF-8"));
-            setCurrentTableValues(pbActivityUis);
+            HashMap<String, String> urlMap = (HashMap<String, String>) XMLManager.createObject(new String(readData, "UTF-8"));
+            for (String key : urlMap.keySet()) {
+                bpmModule.addProcessMetaData(processDefinition.getUUID(), key, urlMap.get(key));
+            }
             fis.close();
             file.delete();
+            refreshTable();
         } catch (Exception ex) {
             ex.printStackTrace();
             getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);

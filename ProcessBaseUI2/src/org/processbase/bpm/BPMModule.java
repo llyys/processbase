@@ -19,14 +19,13 @@ package org.processbase.bpm;
 import com.sun.appserv.security.ProgrammaticLogin;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
-import org.processbase.ui.util.Constants;
+import org.processbase.core.Constants;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
@@ -52,12 +51,10 @@ import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.AccessorUtil;
-import org.processbase.ui.db.HibernateUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.db.PbActivityUi;
 
 /**
  *
@@ -65,10 +62,10 @@ import org.processbase.ui.db.PbActivityUi;
  */
 public class BPMModule {
 
-    final RuntimeAPI runtimeAPI = AccessorUtil.getAPIAccessor(Constants.EJB_ENV).getRuntimeAPI();
-    final QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.EJB_ENV).getQueryRuntimeAPI();
-    final ManagementAPI managementAPI = AccessorUtil.getAPIAccessor(Constants.EJB_ENV).getManagementAPI();
-    final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.EJB_ENV).getQueryDefinitionAPI();
+    final RuntimeAPI runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
+    final QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
+    final ManagementAPI managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
+    final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
     final ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
     public static final int BAR = 0;
     public static final int XPDL = 1;
@@ -164,14 +161,16 @@ public class BPMModule {
         return getTaskInstance(activityInstanceUUID);
     }
 
-    public void resumeTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+    public TaskInstance resumeTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         runtimeAPI.resumeTask(activityInstanceUUID, b);
+        return getTaskInstance(activityInstanceUUID);
     }
 
-    public void suspendTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+    public TaskInstance suspendTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         runtimeAPI.suspendTask(activityInstanceUUID, b);
+        return getTaskInstance(activityInstanceUUID);
     }
 
     public void setProcessInstanceVariable(ProcessInstanceUUID piUUID, String varName, Object varValue) throws InstanceNotFoundException, VariableNotFoundException, Exception {
@@ -192,12 +191,6 @@ public class BPMModule {
     public Object getProcessInstanceVariable(ProcessInstanceUUID piUUID, String varName) throws InstanceNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryRuntimeAPI.getProcessInstanceVariable(piUUID, varName);
-    }
-
-    public HashMap<String, String> getFormNames(String uiString) {
-        XStream xstream = new XStream(new DomDriver());
-        xstream.alias("ui.xml", HashMap.class);
-        return (HashMap<String, String>) xstream.fromXML(uiString);
     }
 
     public ActivityDefinition getProcessActivity(ProcessDefinitionUUID pdUUID, String ActivityName) throws ProcessNotFoundException, ActivityNotFoundException, Exception {
@@ -223,33 +216,6 @@ public class BPMModule {
     public ProcessDefinition deploy(BusinessArchive bar) throws DeploymentException, ProcessNotFoundException, VariableNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         ProcessDefinition result = managementAPI.deploy(bar);
-        // add Human tasks
-        Set<ActivityDefinition> acts = this.getProcessActivities(result.getUUID());
-        ArrayList<PbActivityUi> activities = new ArrayList<PbActivityUi>();
-        for (ActivityDefinition ad : acts) {
-            if (ad.isTask()) {
-                PbActivityUi pbActivityUi = new PbActivityUi();
-                pbActivityUi.setProccessUuid(result.getUUID().getValue());
-                pbActivityUi.setActivityUuid(ad.getUUID().getValue());
-                pbActivityUi.setActivityLabel(ad.getLabel());
-                pbActivityUi.setIsStart("F");
-                pbActivityUi.setIsMobile("F");
-                activities.add(pbActivityUi);
-            }
-        }
-        // add initial activities
-        Map<String, ActivityDefinition> acts2 = this.getProcessInitialActivities(result.getUUID());
-        for (ActivityDefinition ad : acts2.values()) {
-            PbActivityUi pbActivityUi = new PbActivityUi();
-            pbActivityUi.setProccessUuid(result.getUUID().getValue());
-            pbActivityUi.setActivityUuid(ad.getUUID().getValue());
-            pbActivityUi.setActivityLabel(ad.getLabel());
-            pbActivityUi.setIsStart("T");
-            pbActivityUi.setIsMobile("F");
-            activities.add(pbActivityUi);
-        }
-        HibernateUtil hutil = new HibernateUtil();
-        hutil.addProcessUiEmpty(result.getUUID().toString(), result.getLabel(), activities);
         return result;
     }
 
@@ -262,19 +228,11 @@ public class BPMModule {
     }
 
     public void deleteProcess(ProcessDefinition pd) throws UndeletableInstanceException, UndeletableProcessException, ProcessNotFoundException, Exception {
-        HibernateUtil hutil = new HibernateUtil();
-        hutil.deletePbProcess(getProcessDefinition(pd).getUUID().toString());
         managementAPI.deleteProcess(pd.getUUID());
     }
 
     public void deleteAllProcessInstances(ProcessDefinition pd) throws Exception {
-        ArrayList<String> piUUIDs = new ArrayList<String>();
-        for (ProcessInstance pi : getProcessInstancesByUUID(pd.getUUID())) {
-            piUUIDs.add(pi.getProcessInstanceUUID().toString());
-        }
-        runtimeAPI.deleteAllProcessInstances(pd.getUUID());
-        HibernateUtil hutil = new HibernateUtil();
-        hutil.deletePbProcessess(piUUIDs);
+         runtimeAPI.deleteAllProcessInstances(pd.getUUID());
     }
 
     public Set<ProcessInstance> getProcessInstances() throws Exception {
@@ -345,8 +303,6 @@ public class BPMModule {
 
     public void deleteProcessInstance(ProcessInstanceUUID piUUID) throws InstanceNotFoundException, InstanceNotFoundException, InstanceNotFoundException, UndeletableInstanceException {
         runtimeAPI.deleteProcessInstance(piUUID);
-        HibernateUtil hutil = new HibernateUtil();
-        hutil.deletePbProcess(piUUID.toString());
     }
 
     public ProcessDefinition getProcessDefinition(ProcessDefinitionUUID pdUUID) throws ProcessNotFoundException, Exception {
@@ -372,8 +328,19 @@ public class BPMModule {
         runtimeAPI.assignTask(activityInstanceUUID);
     }
 
-    public void unassignTask(ActivityInstanceUUID activityInstanceUUID) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+    public TaskInstance unassignTask(ActivityInstanceUUID activityInstanceUUID) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         runtimeAPI.unassignTask(activityInstanceUUID);
+        return getTaskInstance(activityInstanceUUID);
+    }
+
+    public void addProcessMetaData(ProcessDefinitionUUID processDefinitionUUID, String key, String value) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        runtimeAPI.addProcessMetaData(processDefinitionUUID, key, value);
+    }
+
+    public Map<String,String> getProcessMetaData(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryDefinitionAPI.getProcess(processDefinitionUUID).getMetaData();
     }
 }

@@ -17,7 +17,7 @@
 package org.processbase.ui.portlet;
 
 import org.processbase.ui.template.ProcessBaseApplication;
-import org.processbase.ui.util.Constants;
+import org.processbase.core.Constants;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;

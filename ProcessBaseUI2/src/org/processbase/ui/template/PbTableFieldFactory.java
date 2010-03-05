@@ -34,7 +34,7 @@ public class PbTableFieldFactory implements TableFieldFactory {
     @Override
     public Field createField(Container container, Object itemId, Object propertyId, Component uiContext) {
         Field field = null;
-        if (propertyId.toString().equals("uiClass")) {
+        if (propertyId.toString().equals("url")) {
             field = new TextField();
             ((TextField) field).setInputPrompt("Type Task Page URL here");
             ((TextField) field).setWidth("300px");

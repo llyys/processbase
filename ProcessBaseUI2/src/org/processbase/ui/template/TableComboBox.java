@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.data.Item;
 import com.vaadin.ui.ComboBox;
 
 /**
@@ -37,5 +38,15 @@ public class TableComboBox extends ComboBox {
 
     public void setTableValue(Object tableValue) {
         this.tableValue = tableValue;
+    }
+
+    void setContainerDataSource(String[] fileTypes) {
+        this.addContainerProperty("id", String.class, null);
+        this.addContainerProperty("name", String.class, null);
+        for (String ft : fileTypes) {
+            Item item = this.addItem(ft);
+            item.getItemProperty("id").setValue(ft);
+            item.getItemProperty("name").setValue(ft);
+        }
     }
 }

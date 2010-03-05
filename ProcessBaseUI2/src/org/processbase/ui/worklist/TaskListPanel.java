@@ -27,7 +27,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
@@ -37,9 +36,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.ui.util.Constants;
-import org.processbase.ui.db.HibernateUtil;
-import org.processbase.ui.db.PbActivityUi;
+import org.processbase.core.Constants;
 
 /**
  *
@@ -171,8 +168,11 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                     }
                     table.removeItem(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_RETURN)) {
-                    bpmModule.unassignTask(task.getUUID());
-                    refreshTable();
+                    TaskInstance newTask = bpmModule.unassignTask(task.getUUID());
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    table.removeItem(task);
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.READY)) {
                     TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
                     if (newTask != null) {
@@ -181,8 +181,11 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                     table.removeItem(task);
                     openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.SUSPENDED)) {
-                    bpmModule.resumeTask(task.getUUID(), true);
-                    openTaskPage(task);
+                    TaskInstance newTask = bpmModule.resumeTask(task.getUUID(), true);
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.READY)) {
                     TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
                     if (newTask != null) {
@@ -191,10 +194,18 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                     table.removeItem(task);
                     openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && !task.getState().equals(ActivityState.READY)) {
-                    openTaskPage(task);
+                    TaskInstance newTask = bpmModule.getTaskInstance(task.getUUID());
+                    if (newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
+                        table.removeItem(task);
+                    } else {
+                        openTaskPage(task);
+                    }
                 } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
-                    bpmModule.suspendTask(task.getUUID(), true);
-                    refreshTable();
+                    TaskInstance newTask = bpmModule.suspendTask(task.getUUID(), true);
+                    if (newTask != null) {
+                        addTableRow(newTask, task);
+                    }
+                    table.removeItem(task);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -205,12 +216,11 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
 
     public void openTaskPage(TaskInstance task) {
         try {
-            HibernateUtil hutil = new HibernateUtil();
-            PbActivityUi pbActivityUi = hutil.findPbActivityUi(bpmModule.getTaskDefinition(task).getUUID().toString());
+            String url = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             getPortletApplicationContext2().getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
             getPortletApplicationContext2().getPortletSession().setAttribute("PROCESSBASE_SHARED_TASKINSTANCE", task.getUUID().toString(), PortletSession.APPLICATION_SCOPE);
-            if (pbActivityUi.getUiClass() != null && !pbActivityUi.getUiClass().isEmpty()) {
-                this.getWindow().open(new ExternalResource(pbActivityUi.getUiClass()));
+            if (url != null && !url.isEmpty() && url.length() > 0) {
+                this.getWindow().open(new ExternalResource(url));
             } else {
                 this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL));
             }

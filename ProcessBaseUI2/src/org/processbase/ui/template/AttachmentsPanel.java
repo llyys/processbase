@@ -16,8 +16,10 @@
  */
 package org.processbase.ui.template;
 
-import com.vaadin.data.Container;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
@@ -30,13 +32,10 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import org.processbase.ui.util.Constants;
-import org.processbase.ui.db.HibernateUtil;
-import org.processbase.ui.db.PbAttachment;
+import org.processbase.core.Constants;
+import org.processbase.ui.util.DocumentLibraryUtil;
 
 /**
  *
@@ -45,25 +44,26 @@ import org.processbase.ui.db.PbAttachment;
 public class AttachmentsPanel extends TablePanel
         implements Button.ClickListener, Upload.SucceededListener, Upload.FailedListener, Upload.Receiver {
 
-    private HibernateUtil hutil = new HibernateUtil();
     private String processUUID = null;
     private Upload upload = new Upload("", this);
     private File file;
     private String MIMEType;
     private String filename;
-    private Container fileTypesContainer = null;
-    private ArrayList<PbAttachment> toDelete = new ArrayList<PbAttachment>();
+    private String[] fileTypes = null;
     private boolean add = true;
     private boolean delete = true;
     private boolean edit = true;
+    private boolean types = true;
+    private DocumentLibraryUtil docUtil = null;
 
-    public AttachmentsPanel(PortletApplicationContext2 portletApplicationContext2, String processUUID, Container fileTypesContainer, boolean add, boolean delete, boolean edit) {
+    public AttachmentsPanel(PortletApplicationContext2 portletApplicationContext2, String processUUID, String[] fileTypes, boolean add, boolean delete, boolean edit, boolean types) {
         super(portletApplicationContext2);
         this.processUUID = processUUID;
-        this.fileTypesContainer = fileTypesContainer;
+        this.fileTypes = fileTypes;
         this.add = add;
         this.delete = delete;
         this.edit = edit;
+        this.types = types;
         upload.setButtonCaption(messages.getString("btnUpload"));
         upload.addListener((Upload.SucceededListener) this);
         upload.addListener((Upload.FailedListener) this);
@@ -74,6 +74,7 @@ public class AttachmentsPanel extends TablePanel
             buttonBar.removeButton(refreshBtn);
             buttonBar.addComponent(upload);
         }
+        docUtil = new DocumentLibraryUtil(this.getCurrentUser(), processUUID);
         initTableUI();
     }
 
@@ -89,24 +90,28 @@ public class AttachmentsPanel extends TablePanel
         table.setColumnWidth("name", 200);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 50);
+        if (types){
+            table.setVisibleColumns(new Object[]{"id","type","desc","name","actions"});
+        } else{
+            table.setVisibleColumns(new Object[]{"id","desc","name","actions"});
+        }
     }
 
     @Override
     public void refreshTable() {
         try {
             table.removeAllItems();
-            ArrayList<PbAttachment> attachments = hutil.findProcessPbAttachments(processUUID);
-            for (PbAttachment attachment : attachments) {
-                Item woItem = table.addItem(attachment);
+            for (DLFileEntry fileEntry : docUtil.getProcessFiles()) {
+                Item woItem = table.addItem(fileEntry);
                 TableExecButtonBar tebb = new TableExecButtonBar();
-                woItem.getItemProperty("id").setValue(attachment.getId());
-                woItem.getItemProperty("type").setValue(getTypeComponent(attachment, false));
-                woItem.getItemProperty("name").setValue(attachment.getFileName());
-                woItem.getItemProperty("desc").setValue(getDescComponent(attachment, false));
+                woItem.getItemProperty("id").setValue(fileEntry.getFileEntryId());
+                woItem.getItemProperty("type").setValue(getTypeComponent(fileEntry, false));
+                woItem.getItemProperty("name").setValue(fileEntry.getTitleWithExtension());
+                woItem.getItemProperty("desc").setValue(getDescComponent(fileEntry, false));
                 if (delete) {
-                    tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/cancel.png", attachment, this, Constants.ACTION_DELETE));
+                    tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/cancel.png", fileEntry, this, Constants.ACTION_DELETE));
                 }
-                tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", attachment, this, Constants.ACTION_OPEN));
+                tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", fileEntry, this, Constants.ACTION_OPEN));
                 woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setSortContainerPropertyId("id");
@@ -117,32 +122,39 @@ public class AttachmentsPanel extends TablePanel
         }
     }
 
-    private Component getTypeComponent(PbAttachment attachment, boolean isNew) {
+    private Component getTypeComponent(DLFileEntry fileEntry, boolean isNew) {
         if (edit || isNew) {
-            TableComboBox fileTypeComboBox = new TableComboBox(attachment);
+            TableComboBox fileTypeComboBox = new TableComboBox(fileEntry);
             fileTypeComboBox.addContainerProperty("id", String.class, null);
             fileTypeComboBox.addContainerProperty("name", String.class, null);
-            fileTypeComboBox.setContainerDataSource(fileTypesContainer);
+            fileTypeComboBox.setContainerDataSource(fileTypes);
             fileTypeComboBox.setItemCaptionPropertyId("name");
             fileTypeComboBox.setNewItemsAllowed(false);
             fileTypeComboBox.setWidth("100%");
-            fileTypeComboBox.setValue(attachment.getFileType());
+            fileTypeComboBox.setValue(fileEntry.getExtraSettingsProperties().getProperty("type"));
             return fileTypeComboBox;
         } else {
-            Label label = new Label(fileTypesContainer.getItem(attachment.getFileType()).getItemProperty("name"));
+            Label label = new Label(fileEntry.getExtraSettingsProperties().getProperty("type"));
             return label;
         }
     }
 
-    private Component getDescComponent(PbAttachment attachment, boolean isNew) {
+    private Component getDescComponent(final DLFileEntry fileEntry, boolean isNew) {
         if (edit || isNew) {
             TextField descTextField = new TextField();
-            descTextField.setValue(attachment.getFileDesc());
+            descTextField.setValue(fileEntry.getDescription());
             descTextField.setNullRepresentation("");
             descTextField.setWidth("100%");
+            descTextField.addListener(new ValueChangeListener(){
+
+                public void valueChange(ValueChangeEvent event) {
+                    fileEntry.setDescription(event.getProperty().getValue().toString());
+                    docUtil.updateFile(fileEntry);
+                }
+            });
             return descTextField;
         } else {
-            Label label = new Label(attachment.getFileDesc());
+            Label label = new Label(fileEntry.getDescription());
             return label;
         }
     }
@@ -154,57 +166,47 @@ public class AttachmentsPanel extends TablePanel
             TableExecButton execBtn = (TableExecButton) event.getButton();
             if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-                    table.removeItem((PbAttachment) execBtn.getTableValue());
-                    if (((PbAttachment) execBtn.getTableValue()).getId() > 0) {
-                        toDelete.add((PbAttachment) execBtn.getTableValue());
-                    }
+                    docUtil.deleteFile((DLFileEntry) execBtn.getTableValue());
+                    table.removeItem((DLFileEntry) execBtn.getTableValue());
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                     showError(ex.getMessage());
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 try {
-                    PbAttachment attachment = (PbAttachment) execBtn.getTableValue();
-                    ByteArraySource bas = new ByteArraySource(attachment.getFileBody());
-                    StreamResource streamResource = new StreamResource(bas, attachment.getFileName(), getApplication());
+                    DLFileEntry fileEntry = (DLFileEntry) execBtn.getTableValue();
+                    ByteArraySource bas = new ByteArraySource(docUtil.getFileBody(fileEntry));
+                    StreamResource streamResource = new StreamResource(bas, fileEntry.getTitleWithExtension(), getApplication());
                     streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-                    streamResource.setMIMEType(attachment.getFileMimeType());
+//                    streamResource.setMIMEType(fileEntry.toString());
                     getWindow().getWindow().open(streamResource, "_new");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    showError(ex.getMessage());
                 }
             }
         }
     }
 
-    private void afterDownload(PbAttachment attachment) {
-        Item woItem = table.addItem(attachment);
-        woItem.getItemProperty("id").setValue(attachment.getId());
-        woItem.getItemProperty("type").setValue(getTypeComponent(attachment, true));
-        woItem.getItemProperty("name").setValue(attachment.getFileName());
-        System.out.println(attachment.getFileName());
-        woItem.getItemProperty("desc").setValue(getDescComponent(attachment, true));
+    private void afterDownload(DLFileEntry fileEntry) {
+        Item woItem = table.addItem(fileEntry);
+        woItem.getItemProperty("id").setValue(fileEntry.getFileEntryId());
+        woItem.getItemProperty("type").setValue(getTypeComponent(fileEntry, true));
+        woItem.getItemProperty("name").setValue(fileEntry.getTitleWithExtension());
+        woItem.getItemProperty("desc").setValue(getDescComponent(fileEntry, true));
         TableExecButtonBar tebb = new TableExecButtonBar();
-        tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/cancel.png", attachment, this, Constants.ACTION_DELETE));
-        tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", attachment, this, Constants.ACTION_OPEN));
+        tebb.addButton(new TableExecButton(messages.getString("btnDelete"), "icons/cancel.png", fileEntry, this, Constants.ACTION_DELETE));
+        tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", fileEntry, this, Constants.ACTION_OPEN));
         woItem.getItemProperty("actions").setValue(tebb);
     }
 
     public void uploadSucceeded(SucceededEvent event) {
         try {
-            PbAttachment pbAttachment = new PbAttachment();
-            pbAttachment.setFileName(filename);
-            pbAttachment.setFileSize(event.getLength());
-            pbAttachment.setFileMimeType(MIMEType);
-            byte[] readData = new byte[new Long(event.getLength()).intValue()];
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            int i = fis.read(readData);
-            fis.close();
-            pbAttachment.setFileBody(readData);
-            System.out.println(pbAttachment.getFileName());
-            afterDownload(pbAttachment);
+            DLFileEntry fileEntry = docUtil.addFile(filename, filename, file, new String[]{});
+            afterDownload(fileEntry);
             file.delete();
         } catch (Exception ex) {
+            ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
@@ -217,7 +219,6 @@ public class AttachmentsPanel extends TablePanel
         FileOutputStream fos = null;
         try {
             this.MIMEType = MIMEType;
-            System.out.println(filename);
             this.filename = filename;
             file = new File(filename);
             fos = new FileOutputStream(file);
@@ -226,25 +227,6 @@ public class AttachmentsPanel extends TablePanel
             return null;
         }
         return fos;
-    }
-
-    public void save(String processUUID, String activityUUID, String customID) {
-        ArrayList<PbAttachment> pbAttachments = new ArrayList<PbAttachment>();
-        for (Object object : table.getItemIds()) {
-            if (((PbAttachment) object).getId() == 0 || edit) {
-                PbAttachment attachment = (PbAttachment) object;
-                attachment.setProccessUuid(processUUID);
-                attachment.setActivityUuid(activityUUID);
-                attachment.setCustomId(customID);
-                attachment.setFileType(table.getItem(object).getItemProperty("type").getValue().toString());
-                attachment.setFileDesc(table.getItem(object).getItemProperty("desc").getValue().toString());
-                pbAttachments.add(attachment);
-            }
-        }
-        if (pbAttachments.size() > 0) {
-            hutil.mergeProcessPbAttachments(pbAttachments, toDelete);
-        }
-        refreshTable();
     }
 
     public Table getTable() {

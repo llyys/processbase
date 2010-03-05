@@ -35,7 +35,7 @@ import org.processbase.bpm.BPMModule;
  *
  * @author mgubaidullin
  */
-public class TaskWindow extends PbWindow {
+public abstract class TaskWindow extends PbWindow {
 
     protected ProcessDefinition processDefinition = null;
     protected TaskInstance task = null;
@@ -46,12 +46,10 @@ public class TaskWindow extends PbWindow {
     protected Button cancelBtn = new Button(messages.getString("btnCancel"));
     protected Button applyBtn = new Button(messages.getString("btnOK"));
     protected boolean isNew = true;
-    protected AttachmentBar attachmentBar = null;
     protected Set<String> candidates = null;
 
     public TaskWindow(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
-        attachmentBar = new AttachmentBar(portletApplicationContext2);
         Label emptyLabel = new Label("");
         buttons.addComponent(emptyLabel);
         buttons.setExpandRatio(emptyLabel, 1);
@@ -89,8 +87,7 @@ public class TaskWindow extends PbWindow {
         return true;
     }
 
-    public void exec() {
-    }
+    public abstract void exec();
 
     public DataFieldDefinition getDataFieldDefinition(String name) {
         for (DataFieldDefinition dfd : dfds) {
@@ -112,5 +109,9 @@ public class TaskWindow extends PbWindow {
         super.close();
         this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
         this.getApplication().close();
+    }
+
+    public HorizontalLayout getButtons() {
+        return buttons;
     }
 }

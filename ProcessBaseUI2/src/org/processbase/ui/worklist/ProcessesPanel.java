@@ -29,7 +29,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.ui.template.PbWindow;
-import org.processbase.ui.util.Constants;
+import org.processbase.core.Constants;
 
 /**
  *

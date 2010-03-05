@@ -37,6 +37,7 @@ import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.processbase.ui.template.AttachmentsPanel;
 
 /**
  *
@@ -45,6 +46,7 @@ import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 public class DefaultTaskWindow extends TaskWindow implements Button.ClickListener {
 
     private Form form = new Form();
+    protected AttachmentsPanel attachmentsPanel = null;
 
     public DefaultTaskWindow(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
@@ -54,22 +56,26 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
     public void exec() {
         try {
             setCaption(messages.getString("defaultTaskWindowCaption2") + " " + task.getActivityLabel());
-//            attachmentBar.load(task.getProcessInstanceUUID().toString(), task.getUUID().toString());
             buttons.setSpacing(true);
             applyBtn.addListener(this);
             cancelBtn.addListener(this);
             buttons.addComponent(applyBtn);
             buttons.addComponent(cancelBtn);
             createForm();
-//            attachmentBar.setSizeFull();
-//            layout.addComponent(attachmentBar);
             form.getLayout().addComponent(buttons);
+
+            attachmentsPanel = new AttachmentsPanel(portletApplicationContext2, this.task.getProcessInstanceUUID().toString(), new String[]{""}, true, true, true, false);
+            attachmentsPanel.setCaption("Сканированные документы");
+            attachmentsPanel.setMargin(true, false, false, false);
+            attachmentsPanel.refreshTable();
+
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(false);
             layout.setSpacing(true);
             layout.setStyleName("white");
             layout.setWidth("100%");
             this.setSizeFull();
+            layout.addComponent(attachmentsPanel);
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());

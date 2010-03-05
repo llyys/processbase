@@ -24,7 +24,7 @@ import com.vaadin.ui.Window.Notification;
 import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.processbase.ui.util.Constants;
+import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
