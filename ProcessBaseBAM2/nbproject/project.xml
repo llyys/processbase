@@ -5,8 +5,8 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>ProcessBaseBAM2</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
-            <included-library>reference.ProcessBaseObjects2.jar</included-library>
             <included-library>libs.hibernate-support.classpath</included-library>
+            <included-library>reference.ProcessBaseCore2.jar</included-library>
             <included-library>libs.ejb3-persistence.classpath</included-library>
             <source-roots>
                 <root id="src.dir"/>
@@ -15,7 +15,7 @@
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
-                <foreign-project>ProcessBaseObjects2</foreign-project>
+                <foreign-project>ProcessBaseCore2</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
                 <target>jar</target>

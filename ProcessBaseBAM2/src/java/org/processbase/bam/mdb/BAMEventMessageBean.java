@@ -33,7 +33,7 @@ public class BAMEventMessageBean implements MessageListener {
     public void onMessage(Message message) {
         try {
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            System.out.println("BAMEventMessageBean");
+            System.out.println("BAMEventMessageBean " + message.toString());
             KPIMessage kpiMessage = (KPIMessage) ((ObjectMessage) message).getObject();
             PbEvent event = new PbEvent();
             event.setEventId(kpiMessage.getEventId());
