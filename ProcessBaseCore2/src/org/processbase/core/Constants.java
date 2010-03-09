@@ -48,6 +48,7 @@ public class Constants {
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
     public static Hashtable MQ_EJB_ENV = new Hashtable();
     public static String COMPANY_NAME = null;
+    public static String DL_GROUP = null;
 
     public static void loadConstants() {
         try {
@@ -70,6 +71,7 @@ public class Constants {
             MQ_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bamurl"));
 
             COMPANY_NAME = properties.getProperty("COMPANY_NAME");
+            DL_GROUP = properties.contains("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
