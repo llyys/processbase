@@ -232,7 +232,7 @@ public class BPMModule {
     }
 
     public void deleteAllProcessInstances(ProcessDefinition pd) throws Exception {
-         runtimeAPI.deleteAllProcessInstances(pd.getUUID());
+        runtimeAPI.deleteAllProcessInstances(pd.getUUID());
     }
 
     public Set<ProcessInstance> getProcessInstances() throws Exception {
@@ -339,7 +339,7 @@ public class BPMModule {
         runtimeAPI.addProcessMetaData(processDefinitionUUID, key, value);
     }
 
-    public Map<String,String> getProcessMetaData(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+    public Map<String, String> getProcessMetaData(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryDefinitionAPI.getProcess(processDefinitionUUID).getMetaData();
     }

@@ -33,8 +33,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.processbase.core.Constants;
 
 /**
  *
@@ -51,34 +53,34 @@ public class DocumentLibraryUtil {
 
     public DocumentLibraryUtil(User currentUser, String processUUID) {
         try {
+            Constants.loadConstants();
             this.currentUser = currentUser;
             this.processUUID = processUUID;
-            this.processBaseGroup = GroupLocalServiceUtil.search(currentUser.getCompanyId(), "PROCESSBASE", "", null, 0, 1).get(0);
+            this.processBaseGroup = GroupLocalServiceUtil.search(currentUser.getCompanyId(), Constants.DL_GROUP, "", null, 0, 1).get(0);
             folderService = DLFolderLocalServiceUtil.getService();
             fileService = DLFileEntryLocalServiceUtil.getService();
-            folder = getFolder();
+            if (processUUID != null) {
+                folder = getFolder(processUUID);
+            }
         } catch (Exception ex) {
-            System.out.println("8888888888888888888888888888888888888");
+            ex.printStackTrace();
         }
     }
 
-    public DLFolder getFolder() {
+    public DLFolder getFolder(String folderName) {
         DLFolder result = null;
         try {
-            System.out.println("1111111111111111111111");
-            result = folderService.getFolder(processBaseGroup.getGroupId(), 0, processUUID);
+            result = folderService.getFolder(processBaseGroup.getGroupId(), 0, folderName);
         } catch (Exception nsfex) {
-            System.out.println("2222222222222222222222222");
             if (result == null) {
                 try {
-                    result = folderService.addFolder(currentUser.getUserId(), processBaseGroup.getGroupId(), 0, processUUID, processUUID, new ServiceContext());
+                    result = folderService.addFolder(currentUser.getUserId(), processBaseGroup.getGroupId(), 0, folderName, folderName, new ServiceContext());
                 } catch (PortalException ex) {
-                    System.out.println("3333333333333333");
+                    ex.printStackTrace();
                 } catch (SystemException ex) {
-                    System.out.println("444444444444444444444");
+                    ex.printStackTrace();
                 }
             }
-            System.out.println("3333333333333333333333333333");
         }
         return result;
     }
@@ -87,14 +89,14 @@ public class DocumentLibraryUtil {
         return fileService.getFileEntries(folder.getFolderId());
     }
 
-    public void deleteFile(DLFileEntry fileEnrty) throws SystemException {
-        fileService.deleteDLFileEntry(fileEnrty);
+    public void deleteFile(long fileId) throws SystemException, PortalException {
+        fileService.deleteDLFileEntry(fileId);
     }
 
     public DLFileEntry addFile(String title, String description, File file, String[] tags) throws PortalException, SystemException {
-        DLFileEntry fileEnrty = null;
+        DLFileEntry fileEntry = null;
         try {
-            fileEnrty = fileService.addFileEntry(currentUser.getUserId(),
+            fileEntry = fileService.addFileEntry(currentUser.getUserId(),
                     folder.getFolderId(),
                     file.getName(),
                     title,
@@ -117,10 +119,10 @@ public class DocumentLibraryUtil {
 //                fileEnrty,
 //                new java.lang.String[]{"PROCESSBASE"},
 //                tags);
-        return fileEnrty;
+        return fileEntry;
     }
 
-    public DLFileEntry updateFile(DLFileEntry file) {
+    public DLFileEntry updateFileEntry(DLFileEntry file) {
         try {
             return fileService.updateDLFileEntry(file);
         } catch (SystemException ex) {
@@ -129,9 +131,23 @@ public class DocumentLibraryUtil {
         }
     }
 
-    public byte[] getFileBody(DLFileEntry file) {
-        byte[] result = new byte[file.getSize()];
+    public DLFileEntry getFileEntry(long fileId) {
         try {
+            return fileService.getDLFileEntry(fileId);
+        } catch (PortalException ex) {
+            ex.printStackTrace();
+            return null;
+        } catch (SystemException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public byte[] getFileBody(long fileId) {
+        byte[] result = null;
+        try {
+            DLFileEntry file = getFileEntry(fileId);
+            result = new byte[file.getSize()];
             InputStream is = fileService.getFileAsStream(currentUser.getCompanyId(),
                     currentUser.getUserId(),
                     folder.getFolderId(),
@@ -145,5 +161,9 @@ public class DocumentLibraryUtil {
             ex.printStackTrace();
         }
         return result;
+    }
+
+    public String getProcessUUID() {
+        return processUUID;
     }
 }

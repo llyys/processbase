@@ -64,7 +64,7 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
             createForm();
             form.getLayout().addComponent(buttons);
 
-            attachmentsPanel = new AttachmentsPanel(portletApplicationContext2, this.task.getProcessInstanceUUID().toString(), new String[]{""}, true, true, true, false);
+            attachmentsPanel = new AttachmentsPanel(portletApplicationContext2, this.task.getProcessInstanceUUID().toString(), null, true, true, true);
             attachmentsPanel.setCaption("Сканированные документы");
             attachmentsPanel.setMargin(true, false, false, false);
             attachmentsPanel.refreshTable();
