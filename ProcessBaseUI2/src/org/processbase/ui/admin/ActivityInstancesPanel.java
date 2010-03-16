@@ -31,6 +31,7 @@ import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.template.PbColumnGenerator;
+import org.processbase.core.Constants;
 
 /**
  *
@@ -79,6 +80,8 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 woItem.getItemProperty("endDate").setValue(ai.getEndedDate());
                 woItem.getItemProperty("state").setValue(ai.getState());
                 woItem.getItemProperty("type").setValue(ai.isTask() ? messages.getString("task") : messages.getString("automatic"));
+                woItem.getItemProperty("actions").setValue(
+                        new TableExecButton(messages.getString("btnDeleteProcessInstance"), "icons/document.png", ai, this, Constants.ACTION_OPEN));
             }
             table.setSortContainerPropertyId("readyDate");
             table.setSortAscending(false);
@@ -94,12 +97,8 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
         super.buttonClick(event);
         if (event.getButton() instanceof TableExecButton) {
             try {
-                ActivityInstance activity = (ActivityInstance) ((TableExecButton) event.getButton()).getTableValue();
-                TaskInstance task = null;
-                if (bpmModule.getProcessActivityDefinition(activity).isTask()) {
-                    task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
-                }
-                ActivityWindow activityWindow = getActivityWindow(activity, task);
+                LightActivityInstance activity = (LightActivityInstance) ((TableExecButton) event.getButton()).getTableValue();
+                ActivityWindow activityWindow = new ActivityWindow(activity, getPortletApplicationContext2());
                 activityWindow.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(activityWindow);
             } catch (Exception ex) {
@@ -107,11 +106,5 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 showError(ex.toString());
             }
         }
-    }
-
-    public ActivityWindow getActivityWindow(ActivityInstance activity, TaskInstance task) throws ProcessNotFoundException, Exception {
-        ProcessDefinition procd = bpmModule.getProcessDefinition(activity.getProcessDefinitionUUID());
-        ActivityWindow activityWindow = new ActivityWindow(procd, activity, task, getPortletApplicationContext2());
-        return activityWindow;
     }
 }

@@ -101,7 +101,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
     private void addTableRow(TaskInstance task, TaskInstance previousTask) throws InstanceNotFoundException, Exception {
         Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
         woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
-        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel(), task.getActivityDescription(), task, Constants.ACTION_OPEN));
+        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel() + " (" + task.getProcessDefinitionUUID().getProcessName() + " #" + task.getProcessInstanceUUID().getInstanceNb() + ")", task.getActivityDescription(), task, Constants.ACTION_OPEN));
         try {
             String customID = (String) bpmModule.getProcessInstanceVariable(task.getProcessInstanceUUID(), "customID");
             woItem.getItemProperty("customID").setValue(customID);

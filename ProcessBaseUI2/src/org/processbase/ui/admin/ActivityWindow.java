@@ -55,6 +55,7 @@ import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AssignUpdate;
 import org.ow2.bonita.facade.runtime.StateUpdate;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.bpm.BPMModule;
 
 /**
@@ -66,7 +67,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     private VerticalLayout layout = (VerticalLayout) this.getContent();
     public ProcessDefinition processDefinition = null;
     private TaskInstance task = null;
-    private ActivityInstance activity = null;
+    private LightActivityInstance lightActivity = null;
     private Map<String, Object> processVars = new HashMap<String, Object>();
     private Set<DataFieldDefinition> dfds = null;
     protected BPMModule bpmModule = null;
@@ -83,7 +84,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     protected Table assignUpdatesTable = new Table();
     protected Table stateUpdatesTable = new Table();
 
-    public ActivityWindow(ProcessDefinition pd, ActivityInstance activity, TaskInstance task, PortletApplicationContext2 portletApplicationContext2) {
+    public ActivityWindow(LightActivityInstance lightActivity, PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
         try {
             bpmModule = new BPMModule(((User) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE)).getLogin());
@@ -91,11 +92,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             ex.printStackTrace();
         }
         try {
-            this.processDefinition = pd;
-            this.task = task;
-            this.activity = activity;
-            this.dfds = bpmModule.getProcessDataFields(activity.getProcessDefinitionUUID());
-            this.processVars = bpmModule.getProcessInstanceVariables(activity.getProcessInstanceUUID());
+            this.lightActivity = lightActivity;
+            this.processDefinition = bpmModule.getProcessDefinition(lightActivity.getProcessDefinitionUUID());
+            if (lightActivity.isTask()) {
+                task = bpmModule.getTaskInstance(lightActivity.getUUID());
+            }
+            this.dfds = bpmModule.getProcessDataFields(lightActivity.getProcessDefinitionUUID());
+            this.processVars = bpmModule.getProcessInstanceVariables(lightActivity.getProcessInstanceUUID());
             exec();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -103,7 +106,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     }
 
     public void exec() throws ParticipantNotFoundException, ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ActivityNotFoundException, Exception {
-        setCaption(messages.getString("defaultTaskWindowCaption2") + " " + activity.getActivityName());
+        setCaption(messages.getString("defaultTaskWindowCaption2") + " " + lightActivity.getActivityName());
         layout.setMargin(true);
         layout.setSpacing(true);
         layout.setSizeUndefined();

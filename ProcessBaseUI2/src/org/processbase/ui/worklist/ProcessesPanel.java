@@ -49,6 +49,8 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("version", String.class, null, messages.getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
+        table.addContainerProperty("number", String.class, null, messages.getString("tableCaptionNumber"), null, null);
+        table.setColumnWidth("number", 50);
         table.addContainerProperty("customID", String.class, null, messages.getString("tableCaptionCustomId"), null, null);
         table.setColumnWidth("customID", 150);
         table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
@@ -64,7 +66,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnWidth("state", 90);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 95);
-        table.setVisibleColumns(new Object[]{"name", "version", "customID", "createdDate", "lastUpdate", "endDate", "state", "actions"});
+        table.setVisibleColumns(new Object[]{"name", "version", "number","customID", "createdDate", "lastUpdate", "endDate", "state", "actions"});
     }
 
     @Override
@@ -73,15 +75,15 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         try {
             for (LightProcessInstance process : bpmModule.getLightUserInstances()) {
                 Item woItem = table.addItem(process);
-                ProcessDefinition pd = bpmModule.getProcessDefinition(process.getProcessDefinitionUUID());
                 try {
                     String customID = (String) bpmModule.getProcessInstanceVariable(process.getUUID(), "customID");
                     woItem.getItemProperty("customID").setValue(customID);
                 } catch (VariableNotFoundException ex) {
                     woItem.getItemProperty("customID").setValue("");
                 }
-                woItem.getItemProperty("name").setValue(pd.getLabel());
-                woItem.getItemProperty("version").setValue(pd.getVersion());
+                woItem.getItemProperty("name").setValue(process.getProcessDefinitionUUID().getProcessName());
+                woItem.getItemProperty("version").setValue(process.getProcessDefinitionUUID().getProcessVersion());
+                woItem.getItemProperty("number").setValue("" + process.getNb());
                 woItem.getItemProperty("createdDate").setValue(process.getStartedDate());
                 woItem.getItemProperty("lastUpdate").setValue(process.getLastUpdate());
                 woItem.getItemProperty("endDate").setValue(process.getEndedDate());
