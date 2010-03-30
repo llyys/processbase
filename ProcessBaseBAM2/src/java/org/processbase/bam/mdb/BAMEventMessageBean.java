@@ -48,6 +48,7 @@ public class BAMEventMessageBean implements MessageListener {
             event.setActivityInstanceIter(kpiMessage.getActivityInstanceIter());
             event.setKpiCode(kpiMessage.getKpiCode());
             event.setKpiName(kpiMessage.getKpiName());
+//            System.out.println("kpiMessage.getFactValue() class is " + kpiMessage.getFactValue().getClass().getName());
             if (kpiMessage.getFactValue() instanceof Date) {
                 event.setFactValueTimestamp((Date) kpiMessage.getFactValue());
             } else if (kpiMessage.getFactValue() instanceof BigDecimal) {
