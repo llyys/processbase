@@ -131,7 +131,7 @@ public class BPMModule {
     public TaskInstance startTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         TaskInstance ti = getTaskInstance(activityInstanceUUID);
-        if (ti.getState().equals(ActivityState.READY)) {
+        if (ti != null && ti.getState().equals(ActivityState.READY)) {
             runtimeAPI.startTask(activityInstanceUUID, b);
             return getTaskInstance(activityInstanceUUID);
         }
@@ -154,7 +154,7 @@ public class BPMModule {
     public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         TaskInstance ti = getTaskInstance(activityInstanceUUID);
-        if (ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
+        if (ti != null && ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
             return null;
         }
         runtimeAPI.assignTask(activityInstanceUUID, user);
@@ -296,9 +296,14 @@ public class BPMModule {
         return queryRuntimeAPI.getActivityInstance(activityInstanceUUID);
     }
 
-    public TaskInstance getTaskInstance(ActivityInstanceUUID activityInstanceUUID) throws ProcessNotFoundException, TaskNotFoundException, Exception {
+    public TaskInstance getTaskInstance(ActivityInstanceUUID activityInstanceUUID) throws ProcessNotFoundException, Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
-        return queryRuntimeAPI.getTask(activityInstanceUUID);
+        try {
+            return queryRuntimeAPI.getTask(activityInstanceUUID);
+        } catch (TaskNotFoundException tex) {
+            tex.printStackTrace();
+            return null;
+        }
     }
 
     public void deleteProcessInstance(ProcessInstanceUUID piUUID) throws InstanceNotFoundException, InstanceNotFoundException, InstanceNotFoundException, UndeletableInstanceException {

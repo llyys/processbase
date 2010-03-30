@@ -11,6 +11,8 @@ package org.processbase.ui.dashboard;
 
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
 import java.awt.BasicStroke;
@@ -38,6 +40,7 @@ public class ProcessDashboardPanel extends WorkPanel {
     public void addProcessesByStatus() throws Exception {
 //        try {
         this.removeAllComponents();
+        addComponent(refreshBtn);
         ArrayList<BarValue> values = new ArrayList<BarValue>();
         values.add(new BarValue(bpmModule.getProcessInstancesByStatus(InstanceState.CANCELLED).size(), messages.getString(InstanceState.CANCELLED.name()), ""));
         values.add(new BarValue(bpmModule.getProcessInstancesByStatus(InstanceState.FINISHED).size(), messages.getString(InstanceState.FINISHED.name()), ""));
@@ -87,7 +90,7 @@ public class ProcessDashboardPanel extends WorkPanel {
         StreamResource imageresource = new StreamResource(imagesource, "image4.png", getApplication());
         imageresource.setCacheTime(0);
         Embedded image = new Embedded(caption, imageresource);
-        
+
         this.addComponent(image);
     }
 
@@ -117,5 +120,14 @@ public class ProcessDashboardPanel extends WorkPanel {
         imageresource.setCacheTime(0);
         Embedded image = new Embedded(caption, imageresource);
         return image;
+    }
+
+    @Override
+    public void buttonClick(ClickEvent event) {
+        try {
+            addProcessesByStatus();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

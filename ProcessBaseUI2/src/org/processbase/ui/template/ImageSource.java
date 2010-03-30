@@ -29,8 +29,8 @@ public class ImageSource implements StreamResource.StreamSource {
     public Plot plot = null;
     public JFreeChart chart = null;
     public int reloads = 0;
-    public int width = 300;
-    public int height = 200;
+    public int width = 400;
+    public int height = 300;
 
     public ImageSource() {
         super();

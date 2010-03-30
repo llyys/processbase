@@ -16,11 +16,15 @@
  */
 package org.processbase.ui.portlet.dashboard;
 
+import com.vaadin.ui.Button.ClickEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.portlet.EventRequest;
+import javax.portlet.EventResponse;
 import org.processbase.ui.portlet.*;
 import org.processbase.ui.template.ProcessBaseApplication;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Layout;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
@@ -40,24 +44,19 @@ public class ProcessInstances extends ProcessBaseApplication implements PortletL
 
     @Override
     public void init() {
-        try {
-            super.init();
-            processInstancesWindow = new PbWindow(this.getPortletApplicationContext2());
-            ((Layout) processInstancesWindow.getContent()).setMargin(false);
-            processInstancesWindow.setSizeFull();
-            processInstancesWindow.setStyleName("white");
-            this.setMainWindow(processInstancesWindow);
-            processDashboardPanel = new ProcessDashboardPanel(this.getPortletApplicationContext2());
-            processInstancesWindow.addComponent(processDashboardPanel);
-            processDashboardPanel.addProcessesByStatus();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        super.init();
+        processInstancesWindow = new PbWindow(getPortletApplicationContext2());
+        this.setMainWindow(processInstancesWindow);
+        ((Layout) processInstancesWindow.getContent()).setMargin(false);
+        processInstancesWindow.setSizeFull();
+        processInstancesWindow.setStyleName("white");
     }
 
     @Override
     public void createApplication(RenderRequest request, RenderResponse response) {
         try {
+            processDashboardPanel = new ProcessDashboardPanel(this.getPortletApplicationContext2());
+            processInstancesWindow.addComponent(processDashboardPanel);
             processDashboardPanel.addProcessesByStatus();
         } catch (Exception ex) {
             ex.printStackTrace();

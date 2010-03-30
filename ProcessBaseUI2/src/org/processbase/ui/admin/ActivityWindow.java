@@ -68,7 +68,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     public ProcessDefinition processDefinition = null;
     private TaskInstance task = null;
     private LightActivityInstance lightActivity = null;
-    private Map<String, Object> processVars = new HashMap<String, Object>();
     private Set<DataFieldDefinition> dfds = null;
     protected BPMModule bpmModule = null;
     private HorizontalLayout buttons = new HorizontalLayout();
@@ -98,7 +97,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
                 task = bpmModule.getTaskInstance(lightActivity.getUUID());
             }
             this.dfds = bpmModule.getProcessDataFields(lightActivity.getProcessDefinitionUUID());
-            this.processVars = bpmModule.getProcessInstanceVariables(lightActivity.getProcessInstanceUUID());
             exec();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -141,7 +139,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
     public void addVariablesInfo() throws ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ParticipantNotFoundException, Exception {
         for (DataFieldDefinition dfd : dfds) {
-            addField(dfd, processVars.get(dfd.getName()));
+            Object value = null;
+            try {
+                value = bpmModule.getProcessInstanceVariable(lightActivity.getProcessInstanceUUID(), dfd.getName());
+            } catch (Exception ex) {
+                value = "MAYBE CUSTOM CLASS VALUE";
+            }
+            addField(dfd, value);
         }
     }
 
