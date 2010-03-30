@@ -46,9 +46,12 @@ public class Constants {
     public static String TASKDEFAULT_PAGE_URL;
     public static Properties properties = new Properties();
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
-    public static Hashtable MQ_EJB_ENV = new Hashtable();
     public static String COMPANY_NAME = null;
     public static String DL_GROUP = null;
+    public static String BAMQueueAddressList;
+    public static String BAMQueueUser;
+    public static String BAMQueuePassword;
+    public static String BAMQueueDefaultDestination;
 
     public static void loadConstants() {
         try {
@@ -64,12 +67,10 @@ public class Constants {
             BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
             BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
 
-            MQ_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
-            MQ_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
-            MQ_EJB_ENV.put("java.naming.factory.state", properties.getProperty("java.naming.factory.state"));
-            MQ_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
-            MQ_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bamurl"));
-
+            BAMQueueAddressList = properties.getProperty("BAMQueueAddressList");
+            BAMQueueUser = properties.getProperty("BAMQueueUser");
+            BAMQueuePassword = properties.getProperty("BAMQueuePassword");
+            BAMQueueDefaultDestination = properties.getProperty("BAMQueueDefaultDestination");
             COMPANY_NAME = properties.getProperty("COMPANY_NAME");
             DL_GROUP = properties.contains("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
             LOADED = true;
