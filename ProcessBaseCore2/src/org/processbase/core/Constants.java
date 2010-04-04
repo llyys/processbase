@@ -52,6 +52,7 @@ public class Constants {
     public static String BAMQueueUser;
     public static String BAMQueuePassword;
     public static String BAMQueueDefaultDestination;
+    public static String THEME;
 
     public static void loadConstants() {
         try {
@@ -73,6 +74,7 @@ public class Constants {
             BAMQueueDefaultDestination = properties.getProperty("BAMQueueDefaultDestination");
             COMPANY_NAME = properties.getProperty("COMPANY_NAME");
             DL_GROUP = properties.contains("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
+            THEME = properties.contains("THEME") ? properties.getProperty("THEME") : "reindeer";
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
