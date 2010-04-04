@@ -42,13 +42,13 @@ public abstract class ProcessBaseApplication extends Application implements Port
 
     @Override
     public void init() {
-        setTheme("processbase");
         portletApplicationContext2 = (PortletApplicationContext2) getContext();
         portletSession = portletApplicationContext2.getPortletSession();
         portletApplicationContext2.addPortletListener((Application) this, (PortletListener) this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
+        setTheme(Constants.THEME);
         this.setLogoutURL(Constants.TASKLIST_PAGE_URL);
     }
 
