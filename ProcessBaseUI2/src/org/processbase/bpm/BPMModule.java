@@ -55,6 +55,7 @@ import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.processbase.bpm.diagramm.Diagramm;
 
 /**
  *
@@ -351,5 +352,33 @@ public class BPMModule {
     public Map<String, String> getProcessMetaData(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         return queryDefinitionAPI.getProcess(processDefinitionUUID).getMetaData();
+    }
+
+    public byte[] getProcessDiagramm(ProcessInstanceUUID processInstanceUUID) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processInstanceUUID.getProcessDefinitionUUID()).getResources();
+        byte[] img = null;
+        byte[] proc = null;
+        for (String key : resource.keySet()) {
+            if (key.substring(key.length() - 4, key.length()).equals("proc")) {
+                proc = resource.get(key);
+            } else if (key.substring(key.length() - 3, key.length()).equals("png")) {
+                img = resource.get(key);
+            }
+        }
+        Diagramm d = new Diagramm(img, proc, queryRuntimeAPI.getLightActivityInstances(processInstanceUUID));
+        return d.getImage();
+    }
+
+    public byte[] getProcessDiagramm(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+        byte[] img = null;
+        for (String key : resource.keySet()) {
+            if (key.substring(key.length() - 3, key.length()).equals("png")) {
+                img = resource.get(key);
+            }
+        }
+        return img;
     }
 }

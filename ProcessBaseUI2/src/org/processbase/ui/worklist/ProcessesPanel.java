@@ -20,6 +20,7 @@ import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Layout;
 import java.util.Date;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
@@ -123,6 +124,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
                     window.setCaption(messages.getString("tabCaptionProcessSteps") + " \"" + tp.getProcessDefinition().getLabel() + " " + tp.getProcessDefinition().getVersion() + " \"");
                     window.setModal(true);
                     window.setResizable(false);
+                    ((Layout)window.getContent()).setStyleName("white");
                     this.getWindow().addWindow(window);
                     tp.refreshTable();
                 }

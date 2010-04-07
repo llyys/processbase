@@ -21,9 +21,8 @@ import org.processbase.ui.template.ImageSource;
  */
 public class ThermometerImageSource extends ImageSource {
 
-//    private final ArrayList<MeterInterval> intervals;
-    public ThermometerImageSource(double lower, double upper, Color background) {
-        super();
+    public ThermometerImageSource(double lower, double upper, Color background, int width, int height) {
+        super(width, height);
         dataset = new DefaultValueDataset();
         plot = new ThermometerPlot((DefaultValueDataset) dataset);
         chart = new JFreeChart(plot);

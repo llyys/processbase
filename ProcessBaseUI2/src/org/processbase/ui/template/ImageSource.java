@@ -23,18 +23,13 @@ import org.jfree.chart.JFreeChart;
  */
 public class ImageSource implements StreamResource.StreamSource {
 
-    public ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
-    public BufferedImage buf = null;
-    public AbstractDataset dataset = null;
-    public Plot plot = null;
-    public JFreeChart chart = null;
-    public int reloads = 0;
-    public int width = 400;
-    public int height = 300;
-
-    public ImageSource() {
-        super();
-    }
+    protected ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
+    protected BufferedImage buf = null;
+    protected AbstractDataset dataset = null;
+    protected Plot plot = null;
+    protected JFreeChart chart = null;
+    protected int width;
+    protected int height;
 
     public ImageSource(int width, int height) {
         super();
@@ -48,6 +43,7 @@ public class ImageSource implements StreamResource.StreamSource {
             ImageIO.write(buf, "PNG", imagebuffer);
             return new ByteArrayInputStream(imagebuffer.toByteArray());
         } catch (IOException ex) {
+            ex.printStackTrace();
             return null;
         }
     }

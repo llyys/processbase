@@ -25,8 +25,8 @@ public class MeterImageSource extends ImageSource {
 
     private final ArrayList<MeterInterval> intervals;
 
-    public MeterImageSource(Range range, ArrayList<MeterInterval> i, String units, Color background) {
-        super();
+    public MeterImageSource(Range range, ArrayList<MeterInterval> i, String units, Color background, int width, int height) {
+        super(width, height);
         dataset = new DefaultValueDataset();
         plot = new MeterPlot((DefaultValueDataset) dataset);
         chart = new JFreeChart(plot);

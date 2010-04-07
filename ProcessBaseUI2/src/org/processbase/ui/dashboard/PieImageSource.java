@@ -23,8 +23,8 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
  */
 public class PieImageSource extends ImageSource {
 
-    public PieImageSource() {
-        super();
+    public PieImageSource(int width, int height) {
+        super(width, height);
         dataset = new DefaultPieDataset();
         plot = new PiePlot((DefaultPieDataset) dataset);
         chart = new JFreeChart(plot);

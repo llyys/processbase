@@ -38,8 +38,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import javax.portlet.PortletSession;
 import org.processbase.ui.template.PbWindow;
@@ -50,13 +48,13 @@ import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AssignUpdate;
 import org.ow2.bonita.facade.runtime.StateUpdate;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.bpm.BPMModule;
+import org.processbase.ui.template.PbColumnGenerator;
 
 /**
  *
@@ -105,12 +103,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
     public void exec() throws ParticipantNotFoundException, ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ActivityNotFoundException, Exception {
         setCaption(messages.getString("defaultTaskWindowCaption2") + " " + lightActivity.getActivityName());
-        layout.setMargin(true);
-        layout.setSpacing(true);
-        layout.setSizeUndefined();
-        buttons.setSpacing(true);
-        buttons.addComponent(closeBtn);
-        buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
         tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
         tabSheet.setSizeFull();
         if (task != null) {
@@ -129,12 +121,20 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             ex.printStackTrace();
         }
         tabSheet.setStyleName("minimal");
+        buttons.setSpacing(true);
+        buttons.addComponent(closeBtn);
+        buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
+//        buttons.setSizeFull();
         layout.addComponent(tabSheet);
-        buttons.setSizeFull();
+        layout.setMargin(true);
+        layout.setSpacing(true);
         layout.addComponent(buttons);
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
+        layout.setStyleName("white");
         setModal(true);
         setResizable(false);
+        setWidth("800px");
+        setHeight("600px");
     }
 
     public void addVariablesInfo() throws ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ParticipantNotFoundException, Exception {
@@ -204,6 +204,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         ((FormLayout) participantDefinitionPanel.getContent()).setMargin(true);
         ((FormLayout) participantDefinitionPanel.getContent()).setSpacing(true);
         participantDefinitionPanel.setWidth("100%");
+        participantDefinitionPanel.setStyleName("blue");
         Set<String> participantNames = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getPerformers();//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
         TextField participantTypeField = new TextField(messages.getString("taskParticipantType"), participantNames.toString());
         participantTypeField.setWidth("300px");
@@ -221,6 +222,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         }
         candidatesField.setNullSelectionAllowed(false);
         candidatesField.setWidth("300px");
+        candidatesField.setRows(6);
 
         Button isAssignedBtn = new Button(messages.getString("taskIsAssigned"));
         isAssignedBtn.setSwitchMode(true);
@@ -241,6 +243,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
         assignUpdatesTable.removeAllItems();
         assignUpdatesTable.addContainerProperty("UpdatedDate", Date.class, null, messages.getString("taskUpdatedDate"), null, null);
+//        assignUpdatesTable.addGeneratedColumn("UpdatedDate", new PbColumnGenerator());
         assignUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, messages.getString("taskUpdatedBy"), null, null);
         assignUpdatesTable.setColumnWidth("UpdatedBy", 150);
         assignUpdatesTable.addContainerProperty("Candidates", String.class, null, messages.getString("taskCandidates"), null, null);
@@ -257,9 +260,11 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         assignUpdatesTable.setSortContainerPropertyId("UpdatedDate");
         assignUpdatesTable.setSortAscending(false);
         assignUpdatesTable.sort();
-        assignUpdatesTable.setPageLength(5);
+        assignUpdatesTable.setPageLength(7);
         assignUpdatesTable.setCaption(messages.getString("taskAssignUpdates"));
+        assignUpdatesTable.setSizeFull();
         participantLayout.addComponent(assignUpdatesTable);
+        participantLayout.setWidth("100%");
     }
 
     public void addStateInfo() {
@@ -285,6 +290,8 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         stateUpdatesTable.setPageLength(5);
         stateUpdatesTable.setCaption(messages.getString("taskAssignUpdates"));
         stateLayout.addComponent(stateUpdatesTable);
+        stateUpdatesTable.setSizeFull();
+        stateLayout.setWidth("100%");
     }
 
     public DataFieldDefinition getDataFieldDefinition(String name) {

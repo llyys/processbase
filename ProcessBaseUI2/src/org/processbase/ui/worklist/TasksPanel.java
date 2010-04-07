@@ -59,7 +59,7 @@ public class TasksPanel extends TablePanel {
         closeBtn = new Button(messages.getString("btnClose"), this);
         this.buttonBar.addButton(closeBtn);
         this.buttonBar.setWidth("100%");
-        this.buttonBar.setMargin(true, true, true, false);
+        this.buttonBar.setMargin(true, true, false, false);
         this.buttonBar.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
     }
 

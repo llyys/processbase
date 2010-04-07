@@ -58,7 +58,7 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_LEFT);
 
         horizontalLayout.setSizeFull();
-        horizontalLayout.setStyleName("gradient");
+        horizontalLayout.setStyleName("white");
 
         setSizeFull();
         addComponent(buttonBar);

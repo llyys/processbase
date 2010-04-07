@@ -40,6 +40,7 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
     public void initUI() {
         table.setSizeFull();
         table.setPageLength(15);
+        table.addStyleName("striped");
         horizontalLayout.addComponent(table, 0);
         horizontalLayout.setComponentAlignment(table, Alignment.TOP_LEFT);
         horizontalLayout.setExpandRatio(table, 1);

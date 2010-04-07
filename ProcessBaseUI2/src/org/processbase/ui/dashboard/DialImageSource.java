@@ -22,8 +22,8 @@ public class DialImageSource extends ImageSource {
     DefaultValueDataset hoursDataset = new DefaultValueDataset(6.0);
     DefaultValueDataset dataset2 = new DefaultValueDataset(15.0);
 
-    public DialImageSource(Number hour, Number minute) {
-        super();
+    public DialImageSource(Number hour, Number minute, int width, int height) {
+        super(width, height);
         hoursDataset = new DefaultValueDataset(hour);
         dataset2 = new DefaultValueDataset(minute);
         plot = new DialPlot();

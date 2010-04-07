@@ -24,8 +24,8 @@ import org.processbase.ui.template.ImageSource;
  */
 public class Bar3DImageSource extends ImageSource {
 
-    public Bar3DImageSource() {
-        super();
+    public Bar3DImageSource(int width, int height) {
+        super(width, height);
         dataset = new DefaultCategoryDataset();
         plot = new CategoryPlot((DefaultCategoryDataset) dataset, new CategoryAxis(null), new NumberAxis(null), new BarRenderer3D());
         chart = new JFreeChart(plot);

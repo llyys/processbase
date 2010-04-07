@@ -84,6 +84,7 @@ public class ProcessUIWindow extends PbWindow implements
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
+            layout.setStyleName("white");
 //            layout.setSizeUndefined();
             refreshTable();
             activitiesTable.setPageLength(10);

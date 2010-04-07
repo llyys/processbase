@@ -22,8 +22,8 @@ import org.processbase.ui.template.ImageSource;
  */
 public class Pie3DImageSource extends ImageSource {
 
-    public Pie3DImageSource() {
-        super();
+    public Pie3DImageSource(int width, int height) {
+        super(width, height);
         dataset = new DefaultPieDataset();
         chart = ChartFactory.createPieChart3D("", ((DefaultPieDataset) dataset), false, false, false);
         plot = (PiePlot3D) chart.getPlot();
