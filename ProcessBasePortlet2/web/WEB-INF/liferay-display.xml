@@ -11,7 +11,4 @@
         <portlet id="ProcessInstancesPortlet" />
         <portlet id="ActivityInstancesPortlet" />
     </category>
-    <category name="PROCESSBASE DASHBOARD">
-        <portlet id="ProcessesByStatusPortlet" />
-    </category>
 </display>
