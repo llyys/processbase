@@ -73,8 +73,8 @@ public class Constants {
             BAMQueuePassword = properties.getProperty("BAMQueuePassword");
             BAMQueueDefaultDestination = properties.getProperty("BAMQueueDefaultDestination");
             COMPANY_NAME = properties.getProperty("COMPANY_NAME");
-            DL_GROUP = properties.contains("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
-            THEME = properties.contains("THEME") ? properties.getProperty("THEME") : "reindeer";
+            DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
+            THEME = properties.containsKey("THEME") ? properties.getProperty("THEME") : "reindeer";
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
