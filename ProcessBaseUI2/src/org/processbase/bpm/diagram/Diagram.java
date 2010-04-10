@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.bpm.diagramm;
+package org.processbase.bpm.diagram;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -36,7 +36,7 @@ import org.w3c.dom.NodeList;
  *
  * @author mgubaidullin
  */
-public class Diagramm {
+public class Diagram {
 
     BufferedImage processImage = null;
     InputStream processXML;
@@ -44,7 +44,7 @@ public class Diagramm {
     private HashMap<String, Process> processes = new HashMap<String, Process>();
     private Set<LightActivityInstance> activityInstances;
 
-    public Diagramm(byte[] imageBytes, byte[] xmlBytes, Set<LightActivityInstance> activityInstances) {
+    public Diagram(byte[] imageBytes, byte[] xmlBytes, Set<LightActivityInstance> activityInstances) {
         try {
             this.activityInstances = activityInstances;
             this.processXML = new ByteArrayInputStream(xmlBytes);
@@ -71,7 +71,7 @@ public class Diagramm {
             for (String skey : process.getSteps().keySet()) {
                 Step step = process.getSteps().get(skey);
                 if (getStepState(step.getName()) != null) {
-                    BufferedImage ind = Diagramm.getImage(getStepState(step.getName()));
+                    BufferedImage ind = Diagram.getImage(getStepState(step.getName()));
                     if (step.getType().equals("process:Task") || step.getType().equals("process:Activity")) {
                         processImage.createGraphics().drawImage(ind,
                                 step.getX() + process.getX() + step.getWidth() - ind.getWidth() - 2,
@@ -162,6 +162,7 @@ public class Diagramm {
                         if (shape.getChildNodes().item(a).getNodeName().equals("layoutConstraint")) {
                             Node coordinate = shape.getChildNodes().item(a);
                             Step step = process.getSteps().get(shape.getAttributes().getNamedItem("element").getNodeValue());
+//                            System.out.println("step = " + step.getName() + " "+ shape.getAttributes().getNamedItem("element").getNodeValue());
                             step.setX(Integer.parseInt(coordinate.getAttributes().getNamedItem("x").getNodeValue()));
                             step.setY(Integer.parseInt(coordinate.getAttributes().getNamedItem("y").getNodeValue()));
                             try {

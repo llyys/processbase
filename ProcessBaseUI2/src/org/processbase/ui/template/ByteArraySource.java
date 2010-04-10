@@ -38,6 +38,7 @@ public class ByteArraySource implements StreamResource.StreamSource {
         try {
             return new ByteArrayInputStream(byteArray);
         } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
     }

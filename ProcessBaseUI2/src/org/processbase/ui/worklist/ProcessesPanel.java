@@ -20,17 +20,15 @@ import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Layout;
 import java.util.Date;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.template.PbWindow;
 import org.processbase.core.Constants;
+import org.processbase.ui.admin.ProcessInstanceWindow;
 
 /**
  *
@@ -41,6 +39,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
     public ProcessesPanel(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
         initTableUI();
+        this.removeComponent(this.buttonBar);
     }
 
     @Override
@@ -67,7 +66,8 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnWidth("state", 90);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 95);
-        table.setVisibleColumns(new Object[]{"name", "version", "number","customID", "createdDate", "lastUpdate", "endDate", "state", "actions"});
+        table.setVisibleColumns(new Object[]{"name", "version", "number", "customID", "createdDate", "lastUpdate", "endDate", "state", "actions"});
+        
     }
 
     @Override
@@ -116,17 +116,9 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
                 TableExecButton execBtn = (TableExecButton) event.getButton();
                 LightProcessInstance process = (LightProcessInstance) ((TableExecButton) event.getButton()).getTableValue();
                 if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                    PbWindow window = new PbWindow(this.getPortletApplicationContext2());
-                    TasksPanel tp = new TasksPanel(this.getPortletApplicationContext2(), process.getProcessInstanceUUID());
-                    window.setSizeUndefined();
-                    window.addComponent(tp);
-                    window.setWidth("1000px");
-                    window.setCaption(messages.getString("tabCaptionProcessSteps") + " \"" + tp.getProcessDefinition().getLabel() + " " + tp.getProcessDefinition().getVersion() + " \"");
-                    window.setModal(true);
-                    window.setResizable(false);
-                    ((Layout)window.getContent()).setStyleName("white");
+                    ProcessInstanceWindow window = new ProcessInstanceWindow(this.getPortletApplicationContext2(), process);
                     this.getWindow().addWindow(window);
-                    tp.refreshTable();
+                    window.exec();
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

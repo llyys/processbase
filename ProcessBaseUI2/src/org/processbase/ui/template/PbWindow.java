@@ -18,6 +18,7 @@ package org.processbase.ui.template;
 
 import com.liferay.portal.model.User;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -37,6 +38,7 @@ public class PbWindow extends Window {
         super(caption);
         this.portletApplicationContext2 = portletApplicationContext2;
         messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
+        ((Layout) getContent()).setStyleName("white");
     }
 
     public PbWindow(PortletApplicationContext2 portletApplicationContext2) {

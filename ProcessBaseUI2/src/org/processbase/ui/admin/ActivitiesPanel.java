@@ -14,53 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.worklist;
+package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import java.util.Date;
 import java.util.Set;
-import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
-import org.processbase.ui.template.PbWindow;
+import org.ow2.bonita.light.LightActivityInstance;
 
 /**
  *
  * @author mgubaidullin
  */
-public class TasksPanel extends TablePanel {
+public class ActivitiesPanel extends TablePanel {
 
     private ProcessInstanceUUID processInstanceUUID;
-    private ProcessDefinition processDefinition;
-    private Set<ActivityInstance> activities;
-    private Button closeBtn;
+//    private ProcessDefinition processDefinition;
+    private Set<LightActivityInstance> activities;
 
-    public TasksPanel(PortletApplicationContext2 portletApplicationContext2, ProcessInstanceUUID processInstanceUUID) {
+    public ActivitiesPanel(PortletApplicationContext2 portletApplicationContext2, ProcessInstanceUUID processInstanceUUID) {
         super(portletApplicationContext2);
         try {
             this.processInstanceUUID = processInstanceUUID;
-            this.processDefinition = bpmModule.getProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
-            this.activities = bpmModule.getActivityInstances(processInstanceUUID);
+//            this.processDefinition = bpmModule.getProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
+            this.activities = bpmModule.getLightActivityInstances(processInstanceUUID);
+            this.buttonBar.setVisible(false);
             initTableUI();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        this.removeComponent(this.buttonBar);
-        this.addComponent(this.buttonBar);
-        this.buttonBar.removeAllComponents();
-        closeBtn = new Button(messages.getString("btnClose"), this);
-        this.buttonBar.addButton(closeBtn);
-        this.buttonBar.setWidth("100%");
-        this.buttonBar.setMargin(true, true, false, false);
-        this.buttonBar.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
     }
 
     @Override
@@ -80,28 +66,27 @@ public class TasksPanel extends TablePanel {
         table.addContainerProperty("taskuser", String.class, null, messages.getString("tableCaptionTaskUser"), null, null);
         table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
+        table.setPageLength(5);
     }
 
     @Override
     public void refreshTable() {
         table.removeAllItems();
         try {
-            for (ActivityDefinition ad : processDefinition.getActivities()) {
-                if (ad.getType().equals(ActivityDefinition.Type.Automatic) || ad.getType().equals(ActivityDefinition.Type.Human)) {
-                    Item woItem = table.addItem(ad);
-                    woItem.getItemProperty("name").setValue(ad.getLabel());
-                    woItem.getItemProperty("type").setValue(ad.isTask() ? messages.getString("task") : messages.getString("automatic"));
-                    ActivityInstance ai = getActivity(ad.getUUID());
-                    if (ai != null) {
-                        woItem.getItemProperty("createdDate").setValue(ai.getReadyDate());
-                        woItem.getItemProperty("startdeDate").setValue(ai.getStartedDate());
-                        woItem.getItemProperty("endDate").setValue(ai.getEndedDate());
-                        woItem.getItemProperty("state").setValue(messages.getString(ai.getState().toString()));
-                        if (ai.isTask()) {
-                            woItem.getItemProperty("candidates").setValue(ai.getTask().getTaskCandidates());
-                            woItem.getItemProperty("taskuser").setValue(ai.getTask().getTaskUser());
-                        }
+            for (LightActivityInstance lai : activities) {
+                if (lai.isAutomatic() || lai.isTask()) {
+                    Item woItem = table.addItem(lai);
+                    woItem.getItemProperty("name").setValue(lai.getActivityLabel());
+                    woItem.getItemProperty("type").setValue(lai.isTask() ? messages.getString("task") : messages.getString("automatic"));
+                    woItem.getItemProperty("createdDate").setValue(lai.getReadyDate());
+                    woItem.getItemProperty("startdeDate").setValue(lai.getStartedDate());
+                    woItem.getItemProperty("endDate").setValue(lai.getEndedDate());
+                    woItem.getItemProperty("state").setValue(messages.getString(lai.getState().toString()));
+                    if (lai.isTask()) {
+                        woItem.getItemProperty("candidates").setValue(lai.getTask().getTaskCandidates());
+                        woItem.getItemProperty("taskuser").setValue(lai.getTask().getTaskUser());
                     }
+
                 }
             }
         } catch (Exception ex) {
@@ -112,24 +97,12 @@ public class TasksPanel extends TablePanel {
         table.sort();
     }
 
-    private ActivityInstance getActivity(ActivityDefinitionUUID activityDefinitionUUID) {
-        for (ActivityInstance act : activities) {
-            if (act.getActivityDefinitionUUID().equals(activityDefinitionUUID)) {
-                return act;
+    private LightActivityInstance getActivity(ActivityDefinitionUUID activityDefinitionUUID) {
+        for (LightActivityInstance lai : activities) {
+            if (lai.getActivityDefinitionUUID().equals(activityDefinitionUUID)) {
+                return lai;
             }
         }
         return null;
-    }
-
-    @Override
-    public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
-        if (event.getButton().equals(closeBtn)) {
-            ((PbWindow) this.getWindow()).close();
-        }
-    }
-
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
     }
 }

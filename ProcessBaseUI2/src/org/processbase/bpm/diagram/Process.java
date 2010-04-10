@@ -14,35 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.bpm.diagramm;
+package org.processbase.bpm.diagram;
+
+import java.util.HashMap;
 
 /**
  *
  * @author mgubaidullin
  */
-public class Step {
+public class Process {
 
     private String name;
-    private String type;
-    private int x = 0;
-    private int y = 0;
+    private String state;
+    private int x = 40;
+    private int y = 40;
     private int width = 0;
     private int height = 0;
-    private int iterations = 0;
+    private HashMap<String, Step> steps = new HashMap<String, Step>();
 
-    public Step(String name, String type) {
+    public Process(String name) {
         this.name = name;
-        this.type = type;
-        if (type.equals("process:Task") || type.equals("process:Activity")) {
-            this.height = 50;
-            this.width = 100;
-        } else if (type.equals("process:EndEvent") || type.equals("process:StartEvent")) {
-            this.height = 30;
-            this.width = 30;
-        } else {
-            this.height = 40;
-            this.width = 40;
-        }
     }
 
     public int getHeight() {
@@ -53,14 +44,6 @@ public class Step {
         this.height = height;
     }
 
-    public int getIterations() {
-        return iterations;
-    }
-
-    public void setIterations(int iterations) {
-        this.iterations = iterations;
-    }
-
     public String getName() {
         return name;
     }
@@ -69,12 +52,24 @@ public class Step {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getState() {
+        return state;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void addStep(String key, Step step) {
+        this.steps.put(key, step);
+    }
+
+    public HashMap<String, Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(HashMap<String, Step> steps) {
+        this.steps = steps;
     }
 
     public int getWidth() {

@@ -55,7 +55,7 @@ import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.bpm.diagramm.Diagramm;
+import org.processbase.bpm.diagram.Diagram;
 
 /**
  *
@@ -293,6 +293,11 @@ public class BPMModule {
         return queryRuntimeAPI.getActivityInstances(processInstanceUUID);
     }
 
+    public Set<LightActivityInstance> getLightActivityInstances(ProcessInstanceUUID processInstanceUUID) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return queryRuntimeAPI.getLightActivityInstances(processInstanceUUID);
+    }
+
     public ActivityInstance getActivityInstance(ActivityInstanceUUID activityInstanceUUID) throws ActivityNotFoundException {
         return queryRuntimeAPI.getActivityInstance(activityInstanceUUID);
     }
@@ -366,7 +371,7 @@ public class BPMModule {
                 img = resource.get(key);
             }
         }
-        Diagramm d = new Diagramm(img, proc, queryRuntimeAPI.getLightActivityInstances(processInstanceUUID));
+        Diagram d = new Diagram(img, proc, queryRuntimeAPI.getLightActivityInstances(processInstanceUUID));
         return d.getImage();
     }
 

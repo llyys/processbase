@@ -54,7 +54,6 @@ import org.ow2.bonita.facade.runtime.StateUpdate;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.bpm.BPMModule;
-import org.processbase.ui.template.PbColumnGenerator;
 
 /**
  *
