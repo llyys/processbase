@@ -26,6 +26,9 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
+                    <file>${file.reference.xercesImpl-2.6.2.jar}</file>
+                </library>
+                <library>
                     <file>${libs.LiferayPortal.classpath}</file>
                 </library>
                 <library>
