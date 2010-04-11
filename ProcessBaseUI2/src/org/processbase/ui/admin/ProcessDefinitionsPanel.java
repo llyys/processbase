@@ -174,7 +174,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             refreshTable();
         } catch (Exception ex) {
             ex.printStackTrace();
-            showError(ex.getMessage().substring(0, 1000));
+            showError(ex.getMessage());
         }
     }
 
