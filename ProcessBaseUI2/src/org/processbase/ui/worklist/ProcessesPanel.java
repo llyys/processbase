@@ -39,7 +39,6 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
     public ProcessesPanel(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
         initTableUI();
-        this.removeComponent(this.buttonBar);
     }
 
     @Override
