@@ -37,6 +37,7 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.Date;
 import java.util.Set;
 import javax.portlet.PortletSession;
@@ -119,7 +120,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        tabSheet.setStyleName("minimal");
+        tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
         buttons.setSpacing(true);
         buttons.addComponent(closeBtn);
         buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
@@ -129,7 +130,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         layout.setSpacing(true);
         layout.addComponent(buttons);
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
-        layout.setStyleName("white");
+        layout.setStyleName(Reindeer.LAYOUT_WHITE);
         setModal(true);
         setResizable(false);
         setWidth("800px");
@@ -203,7 +204,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         ((FormLayout) participantDefinitionPanel.getContent()).setMargin(true);
         ((FormLayout) participantDefinitionPanel.getContent()).setSpacing(true);
         participantDefinitionPanel.setWidth("100%");
-        participantDefinitionPanel.setStyleName("blue");
         Set<String> participantNames = bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getPerformers();//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
         TextField participantTypeField = new TextField(messages.getString("taskParticipantType"), participantNames.toString());
         participantTypeField.setWidth("300px");

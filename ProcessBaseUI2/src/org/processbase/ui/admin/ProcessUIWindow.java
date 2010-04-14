@@ -28,6 +28,7 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -84,7 +85,7 @@ public class ProcessUIWindow extends PbWindow implements
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
-            layout.setStyleName("white");
+            layout.setStyleName(Reindeer.LAYOUT_WHITE);
 //            layout.setSizeUndefined();
             refreshTable();
             activitiesTable.setPageLength(10);

@@ -17,9 +17,7 @@
 package org.processbase.ui.portlet;
 
 import org.processbase.ui.template.ProcessBaseApplication;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
 import com.vaadin.ui.Layout;
-import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.processbase.ui.admin.ActivityInstancesPanel;
@@ -29,7 +27,7 @@ import org.processbase.ui.template.PbWindow;
  *
  * @author mgubaidullin
  */
-public class ActivityInstances extends ProcessBaseApplication implements PortletListener {
+public class ActivityInstances extends ProcessBaseApplication  {
 
     private PbWindow processDefinitionWindow;
     private ActivityInstancesPanel activityInstancesPanel;
@@ -40,7 +38,6 @@ public class ActivityInstances extends ProcessBaseApplication implements Portlet
         processDefinitionWindow = new PbWindow(this.getPortletApplicationContext2());
         ((Layout) processDefinitionWindow.getContent()).setMargin(false);
         processDefinitionWindow.setSizeFull();
-        processDefinitionWindow.setStyleName("white");
         this.setMainWindow(processDefinitionWindow);
     }
 
@@ -50,4 +47,5 @@ public class ActivityInstances extends ProcessBaseApplication implements Portlet
         activityInstancesPanel.refreshTable();
         processDefinitionWindow.addComponent(activityInstancesPanel);
     }
+
 }

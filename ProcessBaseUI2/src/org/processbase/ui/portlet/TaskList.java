@@ -39,7 +39,6 @@ public class TaskList extends ProcessBaseApplication {
         this.setMainWindow(taskListWindow);
         ((Layout) taskListWindow.getContent()).setMargin(false);
         taskListWindow.setSizeFull();
-        taskListWindow.setStyleName("white");
     }
 
     public void createApplication(RenderRequest request, RenderResponse response) {

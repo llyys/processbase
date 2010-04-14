@@ -36,7 +36,6 @@ public abstract class DashboardWindow extends PbWindow implements Button.ClickLi
 
     public DashboardWindow(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
-        setStyleName("white");
         try {
             context = new InitialContext();
             dataSource = (DataSource) context.lookup("jdbc/pbbam2");
@@ -88,7 +87,7 @@ public abstract class DashboardWindow extends PbWindow implements Button.ClickLi
         StreamResource imageresource = new StreamResource(imagesource, "image5.png", getApplication());
         imageresource.setCacheTime(0);
         Embedded image = new Embedded(caption, imageresource);
-        image.setStyleName("white");
+//        image.setStyleName("white");
         return image;
     }
 

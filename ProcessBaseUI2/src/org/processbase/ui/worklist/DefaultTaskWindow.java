@@ -27,6 +27,7 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.Iterator;
 import java.util.Set;
 import org.processbase.ui.template.TaskWindow;
@@ -72,7 +73,7 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(false);
             layout.setSpacing(true);
-            layout.setStyleName("white");
+            layout.setStyleName(Reindeer.LAYOUT_WHITE);
             layout.setWidth("100%");
             this.setSizeFull();
             layout.addComponent(attachmentsPanel);

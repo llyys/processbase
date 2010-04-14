@@ -16,12 +16,15 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  *
@@ -63,11 +66,17 @@ public class MessageWindow extends PbWindow implements Button.ClickListener, Win
             setCaption("Ошибка");
             buttonBar.addComponent(okButton);
         }
+        buttonBar.setSpacing(true);
         addComponent(buttonBar);
+        ((VerticalLayout) getContent()).setComponentAlignment(buttonBar, "center");
+        ((VerticalLayout) getContent()).setSpacing(true);
         setModal(true);
-        setWidth("300px");
-        setHeight("200px");
+        setStyleName(Reindeer.WINDOW_BLACK);
+        setWidth("260px");
         setResizable(false);
+        setClosable(false);
+        setDraggable(false);
+        setCloseShortcut(KeyCode.ESCAPE, null);
     }
 
     public void buttonClick(ClickEvent event) {
@@ -84,6 +93,6 @@ public class MessageWindow extends PbWindow implements Button.ClickListener, Win
     }
 
     public void windowClose(CloseEvent e) {
-        ((PbWindow) getParent()).confirmResult = result;
+        ((PbWindow) getParent()).confirm = result;
     }
 }

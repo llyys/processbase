@@ -39,7 +39,6 @@ public class ProcessInstances extends ProcessBaseApplication implements PortletL
         processDefinitionWindow = new PbWindow(this.getPortletApplicationContext2());
         ((Layout) processDefinitionWindow.getContent()).setMargin(false);
         processDefinitionWindow.setSizeFull();
-        processDefinitionWindow.setStyleName("white");
         this.setMainWindow(processDefinitionWindow);
     }
 

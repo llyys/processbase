@@ -40,7 +40,6 @@ public class Processes extends ProcessBaseApplication implements PortletListener
         taskListWindow = new PbWindow(this.portletApplicationContext2);
         ((Layout) taskListWindow.getContent()).setMargin(false);
         taskListWindow.setSizeFull();
-        taskListWindow.setStyleName("white");
         this.setMainWindow(taskListWindow);
     }
 

@@ -23,12 +23,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.Date;
 import java.util.Set;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
-import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.core.Constants;
@@ -81,7 +77,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 woItem.getItemProperty("state").setValue(ai.getState());
                 woItem.getItemProperty("type").setValue(ai.isTask() ? messages.getString("task") : messages.getString("automatic"));
                 woItem.getItemProperty("actions").setValue(
-                        new TableExecButton(messages.getString("btnDeleteProcessInstance"), "icons/document.png", ai, this, Constants.ACTION_OPEN));
+                        new TableExecButton(messages.getString("btnOpen"), "icons/document.png", ai, this, Constants.ACTION_OPEN));
             }
             table.setSortContainerPropertyId("readyDate");
             table.setSortAscending(false);

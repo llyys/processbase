@@ -20,6 +20,7 @@ import com.liferay.portal.model.User;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
@@ -30,7 +31,7 @@ import javax.portlet.PortletSession;
  */
 public class PbWindow extends Window {
 
-    protected boolean confirmResult = false;
+    public boolean confirm = false;
     protected ResourceBundle messages = null;
     protected PortletApplicationContext2 portletApplicationContext2 = null;
 
@@ -38,7 +39,7 @@ public class PbWindow extends Window {
         super(caption);
         this.portletApplicationContext2 = portletApplicationContext2;
         messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
-        ((Layout) getContent()).setStyleName("white");
+        ((Layout) getContent()).setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
     public PbWindow(PortletApplicationContext2 portletApplicationContext2) {
@@ -106,6 +107,5 @@ public class PbWindow extends Window {
     public void close() {
         super.close();
     }
-
 
 }

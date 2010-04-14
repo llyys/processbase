@@ -24,12 +24,12 @@ import com.vaadin.ui.Window.Notification;
 import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
-import org.ow2.bonita.facade.runtime.ProcessInstance;
-import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.processbase.ui.template.MessageWindow;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -88,6 +88,9 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
         if (event.getButton() instanceof TableExecButton) {
             TableExecButton execBtn = (TableExecButton) event.getButton();
             if (execBtn.getAction().equals(Constants.ACTION_DELETE_PROCESS_INSTANCE)) {
+
+//                this.getWindow().addWindow(new MessageWindow("Confirm process instance deletion?",MessageWindow.CONFIRM_STYLE, this.getPortletApplicationContext2()));
+//                this.getPbWindow().showNotification("RESULT = " + this.getPbWindow().confirm);
                 try {
                     LightProcessInstance pi = (LightProcessInstance) execBtn.getTableValue();
                     ProcessInstanceUUID piUUID = pi.getUUID();

@@ -29,6 +29,7 @@ import org.processbase.core.Constants;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
+import com.vaadin.ui.Window;
 import javax.portlet.PortletSession;
 
 /**
@@ -54,7 +55,7 @@ public abstract class ProcessBaseApplication extends Application implements Port
 
     public abstract void createApplication(RenderRequest request, RenderResponse response);
 
-    public void handleRenderRequest(RenderRequest request, RenderResponse response) {
+    public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
         try {
             if (portletSession.getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE) == null) {
                 portletSession.setAttribute("PROCESSBASE_USER", PortalUtil.getPortal().getUser(request), PortletSession.APPLICATION_SCOPE);
@@ -68,15 +69,15 @@ public abstract class ProcessBaseApplication extends Application implements Port
         }
     }
 
-    public void handleActionRequest(ActionRequest request, ActionResponse response) {
+    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
 //        System.out.println("handleActionRequest Not supported yet");
     }
 
-    public void handleEventRequest(EventRequest request, EventResponse response) {
+    public void handleEventRequest(EventRequest request, EventResponse response, Window window) {
 //        System.out.println("handleEventRequest Not supported yet.");
     }
 
-    public void handleResourceRequest(ResourceRequest request, ResourceResponse response) {
+    public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
 //        System.out.println("handleResourceRequest Not supported yet.");
     }
 

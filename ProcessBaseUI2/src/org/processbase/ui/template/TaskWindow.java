@@ -21,6 +21,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +55,7 @@ public abstract class TaskWindow extends PbWindow {
         Label emptyLabel = new Label("");
         buttons.addComponent(emptyLabel);
         buttons.setExpandRatio(emptyLabel, 1);
-        buttons.setStyleName("white");
+        buttons.setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
     public boolean setTaskInfo(String processDefinitionUUID) {

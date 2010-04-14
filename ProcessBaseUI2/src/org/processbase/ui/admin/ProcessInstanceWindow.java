@@ -33,6 +33,7 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -86,7 +87,7 @@ public class ProcessInstanceWindow extends PbWindow implements
 //            imageLayout.setHeight("500px");
             imageLayout.setSizeUndefined();
             imageLayout.addComponent(processImage);
-            imageLayout.setStyleName("white");
+            imageLayout.setStyleName(Reindeer.LAYOUT_WHITE);
             imageLayout.setMargin(false);
             imageLayout.setSpacing(false);
 
@@ -104,7 +105,7 @@ public class ProcessInstanceWindow extends PbWindow implements
 //            Float f = layout.getHeight() - activitiesPanel.getHeight();
             layout.setSplitPosition(400, SplitPanel.UNITS_PIXELS);
             layout.setLocked(true);
-            layout.setStyleName("small");
+            layout.setStyleName(Reindeer.SPLITPANEL_SMALL);
             layout.addComponent(imageLayout);
             layout.addComponent(activitiesPanel);
             

@@ -25,6 +25,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
@@ -58,14 +59,14 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_LEFT);
 
         horizontalLayout.setSizeFull();
-        horizontalLayout.setStyleName("white");
+//        horizontalLayout.setStyleName(Reindeer.LAYOUT_WHITE);
 
         setSizeFull();
         addComponent(buttonBar);
         addComponent(horizontalLayout);
         setExpandRatio(horizontalLayout, 1);
         setMargin(false);
-        setStyleName("white");
+        setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
     public void buttonClick(ClickEvent event) {
@@ -95,7 +96,7 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
     public boolean showConfirmMessageWindow(String message, int windowStyle) {
         boolean result = false;
         showMessageWindow(message, windowStyle);
-        result = ((PbWindow) getApplication().getMainWindow()).confirmResult;
+//        result = this.result;
         return result;
     }
 
@@ -111,5 +112,8 @@ public class WorkPanel extends VerticalLayout implements Button.ClickListener, W
         return portletApplicationContext2;
     }
 
+    public PbWindow getPbWindow(){
+        return (PbWindow) this.getWindow();
+    }
     
 }

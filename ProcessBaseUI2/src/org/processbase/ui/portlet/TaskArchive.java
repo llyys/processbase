@@ -40,7 +40,6 @@ public class TaskArchive extends ProcessBaseApplication implements PortletListen
         taskListWindow = new PbWindow(this.portletApplicationContext2);
         ((Layout) taskListWindow.getContent()).setMargin(false);
         taskListWindow.setSizeFull();
-        taskListWindow.setStyleName("white");
         this.setMainWindow(taskListWindow);
     }
 

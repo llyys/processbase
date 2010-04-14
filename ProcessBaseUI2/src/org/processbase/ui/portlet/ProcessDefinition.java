@@ -39,7 +39,6 @@ public class ProcessDefinition extends ProcessBaseApplication implements Portlet
         processDefinitionWindow = new PbWindow(this.getPortletApplicationContext2());
         ((Layout) processDefinitionWindow.getContent()).setMargin(false);
         processDefinitionWindow.setSizeFull();
-        processDefinitionWindow.setStyleName("white");
         this.setMainWindow(processDefinitionWindow);
     }
 
