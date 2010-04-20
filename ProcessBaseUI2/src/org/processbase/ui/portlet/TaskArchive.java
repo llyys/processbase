@@ -16,10 +16,7 @@
  */
 package org.processbase.ui.portlet;
 
-import org.processbase.ui.template.ProcessBaseApplication;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
 import com.vaadin.ui.Layout;
-import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.processbase.ui.template.PbWindow;
@@ -29,7 +26,7 @@ import org.processbase.ui.worklist.TaskArchivePanel;
  *
  * @author mgubaidullin
  */
-public class TaskArchive extends ProcessBaseApplication implements PortletListener {
+public class TaskArchive extends InternalApplication {
 
     private PbWindow taskListWindow;
     private TaskArchivePanel taskArchivePanel;

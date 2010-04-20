@@ -45,8 +45,8 @@ public abstract class TaskWindow extends PbWindow {
     protected Set<DataFieldDefinition> dfds = null;
     protected BPMModule bpmModule = null;
     protected HorizontalLayout buttons = new HorizontalLayout();
-    protected Button cancelBtn = new Button(messages.getString("btnCancel"));
-    protected Button applyBtn = new Button(messages.getString("btnOK"));
+//    protected Button cancelBtn = new Button(messages.getString("btnCancel"));
+//    protected Button applyBtn = new Button(messages.getString("btnOK"));
     protected boolean isNew = true;
     protected Set<String> candidates = null;
 

@@ -16,7 +16,7 @@
  */
 package org.processbase.ui.portlet;
 
-import org.processbase.ui.template.ProcessBaseApplication;
+import org.processbase.ui.template.TaskApplication;
 import com.vaadin.ui.Layout;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -27,7 +27,7 @@ import org.processbase.ui.template.PbWindow;
  *
  * @author mgubaidullin
  */
-public class ActivityInstances extends ProcessBaseApplication  {
+public class ActivityInstances extends InternalApplication  {
 
     private PbWindow processDefinitionWindow;
     private ActivityInstancesPanel activityInstancesPanel;

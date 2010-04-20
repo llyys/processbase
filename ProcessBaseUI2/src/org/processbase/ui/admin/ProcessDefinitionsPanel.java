@@ -21,6 +21,7 @@ import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -70,7 +71,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         upload.addListener((Upload.SucceededListener) this);
         upload.addListener((Upload.FailedListener) this);
         buttonBar.addComponent(upload, 1);
-        buttonBar.setComponentAlignment(upload, Alignment.MIDDLE_LEFT);
+        buttonBar.setComponentAlignment(upload, Alignment.TOP_LEFT);
         initTableUI();
     }
 
@@ -163,6 +164,8 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             int i = fis.read(readData);
             fis.close();
             if (this.fileType.equals(FILE_BAR)) {
+                System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
+                                    "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
                 ProcessDefinition deployResult = bpmModule.deploy(businessArchive);
                 showWarning(messages.getString("processUploaded") + ": " + deployResult.getLabel());

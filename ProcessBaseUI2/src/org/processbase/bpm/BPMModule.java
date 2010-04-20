@@ -17,10 +17,7 @@
 package org.processbase.bpm;
 
 import com.sun.appserv.security.ProgrammaticLogin;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

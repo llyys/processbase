@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.template;
+package org.processbase.ui.portlet;
 
 import com.liferay.portal.util.PortalUtil;
 import javax.portlet.ActionRequest;
@@ -36,7 +36,7 @@ import javax.portlet.PortletSession;
  *
  * @author mgubaidullin
  */
-public abstract class ProcessBaseApplication extends Application implements PortletListener {
+public abstract class InternalApplication extends Application implements PortletListener {
 
     protected PortletApplicationContext2 portletApplicationContext2;
     protected PortletSession portletSession;
@@ -51,9 +51,10 @@ public abstract class ProcessBaseApplication extends Application implements Port
         }
         setTheme(Constants.THEME);
         this.setLogoutURL(Constants.TASKLIST_PAGE_URL);
+      
     }
 
-    public abstract void createApplication(RenderRequest request, RenderResponse response);
+    public abstract void createApplication(RenderRequest request, RenderResponse response) ;
 
     public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
         try {
@@ -112,8 +113,4 @@ public abstract class ProcessBaseApplication extends Application implements Port
     public void setPortletSession(PortletSession portletSession) {
         this.portletSession = portletSession;
     }
-
-    
-
-
 }

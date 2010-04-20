@@ -47,7 +47,9 @@ import org.processbase.ui.template.AttachmentsPanel;
 public class DefaultTaskWindow extends TaskWindow implements Button.ClickListener {
 
     private Form form = new Form();
-    protected AttachmentsPanel attachmentsPanel = null;
+    private AttachmentsPanel attachmentsPanel = null;
+    private Button cancelBtn = null;
+    private Button applyBtn = null;
 
     public DefaultTaskWindow(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
@@ -58,6 +60,8 @@ public class DefaultTaskWindow extends TaskWindow implements Button.ClickListene
         try {
             setCaption(messages.getString("defaultTaskWindowCaption2") + " " + task.getActivityLabel());
             buttons.setSpacing(true);
+            cancelBtn = new Button(messages.getString("btnCancel"));
+            applyBtn = new Button(messages.getString("btnOK"));
             applyBtn.addListener(this);
             cancelBtn.addListener(this);
             buttons.addComponent(applyBtn);

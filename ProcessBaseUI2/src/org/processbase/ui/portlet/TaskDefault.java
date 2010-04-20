@@ -16,7 +16,7 @@
  */
 package org.processbase.ui.portlet;
 
-import org.processbase.ui.template.ProcessBaseApplication;
+import org.processbase.ui.template.TaskApplication;
 import org.processbase.core.Constants;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
@@ -27,25 +27,11 @@ import org.processbase.ui.worklist.DefaultTaskWindow;
  *
  * @author mgubaidullin
  */
-public class TaskDefault extends ProcessBaseApplication {
+public class TaskDefault extends TaskApplication {
 
     private DefaultTaskWindow defaultTaskWindow;
 
-    @Override
-    public void init() {
-        super.init();
-        setLogoutURL(Constants.TASKLIST_PAGE_URL);
-        defaultTaskWindow = new DefaultTaskWindow(this.portletApplicationContext2);
-        this.setMainWindow(defaultTaskWindow);
-    }
-
-    @Override
-    public void createApplication(RenderRequest request, RenderResponse response) {
-        if (!defaultTaskWindow.setTaskInfo(null)) {
-            this.close();
-        } else {
-            response.setTitle(defaultTaskWindow.getTask().getActivityLabel());
-            defaultTaskWindow.exec();
-        }
+    public TaskDefault(Class taskWindowClass, String processUUID) {
+        super(DefaultTaskWindow.class, null);
     }
 }

@@ -84,7 +84,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     public ActivityWindow(LightActivityInstance lightActivity, PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
         try {
-            bpmModule = new BPMModule(((User) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE)).getLogin());
+            bpmModule = new BPMModule(((User) this.portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE)).getScreenName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

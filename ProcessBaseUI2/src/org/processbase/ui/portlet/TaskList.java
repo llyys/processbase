@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.portlet;
 
-import org.processbase.ui.template.ProcessBaseApplication;
 import com.vaadin.ui.Layout;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -27,7 +26,7 @@ import org.processbase.ui.worklist.TaskListPanel;
  *
  * @author mgubaidullin
  */
-public class TaskList extends ProcessBaseApplication {
+public class TaskList extends InternalApplication {
 
     private PbWindow taskListWindow;
     private TaskListPanel taskListPanel;

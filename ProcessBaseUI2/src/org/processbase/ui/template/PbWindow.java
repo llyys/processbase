@@ -17,6 +17,7 @@
 package org.processbase.ui.template;
 
 import com.liferay.portal.model.User;
+import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
@@ -107,5 +108,4 @@ public class PbWindow extends Window {
     public void close() {
         super.close();
     }
-
 }
