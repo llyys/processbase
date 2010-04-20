@@ -62,6 +62,19 @@ public class Constants {
             fis.close();
             TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
             TASKDEFAULT_PAGE_URL = properties.getProperty("TASKDEFAULT_PAGE_URL");
+            System.setProperty("org.ow2.bonita.api-type", "EJB3");
+//            System.setProperty("org.omg.CORBA.ORBInitialHost", "localhost");
+//            System.setProperty("org.omg.CORBA.ORBInitialPort", "51625");
+
+//            System.setProperty("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
+//            System.setProperty("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
+//            System.setProperty("java.naming.factory.state", properties.getProperty("java.naming.factory.state"));
+//            System.setProperty("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
+//            System.setProperty("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
+
+            BONITA_EJB_ENV.put("org.ow2.bonita.api-type", "EJB3");
+//            BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialHost", "localhost");
+//            BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialPort", "51625");
             BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
             BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
             BONITA_EJB_ENV.put("java.naming.factory.state", properties.getProperty("java.naming.factory.state"));
