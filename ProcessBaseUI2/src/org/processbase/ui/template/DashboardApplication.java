@@ -39,40 +39,31 @@ import javax.portlet.PortletSession;
  *
  * @author mgubaidullin
  */
-public abstract class TaskApplication extends Application 
+public abstract class DashboardApplication extends Application
         implements PortletListener, PortletRequestListener {
 
     protected PortletApplicationContext2 portletApplicationContext2;
     protected PortletSession portletSession;
-    protected TaskWindow taskWindow;
-    Class taskWindowClass;
-    protected String processUUID;
+    protected DashboardWindow dashboardWindow;
+    protected Class dashboardWindowClass;
 
-    public TaskApplication() {
+    public DashboardApplication(Class dashboardWindowClass) {
+        this.dashboardWindowClass = dashboardWindowClass;
     }
 
-    public TaskApplication(Class taskWindowClass, String processUUID) {
-        System.out.println("TaskApplication constructor");
-        this.taskWindowClass = taskWindowClass;
-        this.processUUID = processUUID;
+    public void onRequestEnd(PortletRequest request, PortletResponse response) {
 
     }
 
     public void onRequestStart(PortletRequest request, PortletResponse response) {
-        System.out.println("TaskApplication onRequestStart");
        
     }
-
-    public void onRequestEnd(PortletRequest request, PortletResponse response) {
-        System.out.println("TaskApplication onRequestEnd");
-    }
-
 
 
 
     @Override
     public void init() {
-        System.out.println("TaskApplication init");
+        System.out.println("DashboardApplication init");
         portletApplicationContext2 = (PortletApplicationContext2) getContext();
         portletSession = portletApplicationContext2.getPortletSession();
 
@@ -84,13 +75,15 @@ public abstract class TaskApplication extends Application
         this.setLogoutURL(Constants.TASKLIST_PAGE_URL);
 
         try {
-//            System.out.println("START ------------------------------------");
-            this.taskWindow = (TaskWindow) taskWindowClass.getDeclaredConstructor(PortletApplicationContext2.class).newInstance(portletApplicationContext2);
+            System.out.println("START ------------------------------------");
+//            this.dashboardWindow =  new DashboardWindow (portletApplicationContext2);
+            this.dashboardWindow = (DashboardWindow) dashboardWindowClass.getDeclaredConstructor(PortletApplicationContext2.class).newInstance(portletApplicationContext2);
 //            System.out.println("TaskWindow = " + this.taskWindow.toString());
-            this.setMainWindow(this.taskWindow);
-//            System.out.println("FINISH ------------------------------------");
+            this.setMainWindow(this.dashboardWindow);
+            System.out.println("FINISH ------------------------------------");
         } catch (Exception ex) {
-//            System.out.println("ERROR ------------------------------------ " + ex.getMessage());
+            System.out.println("ERROR ------------------------------------ " + ex.getMessage());
+            ex.printStackTrace();
 //            ex.printStackTrace();
         }
     }
@@ -106,10 +99,7 @@ public abstract class TaskApplication extends Application
         }
         if (portletSession.getAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE) == null) {
             portletSession.setAttribute("PROCESSBASE_PORTLET_CREATED", "PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
-            if (!this.taskWindow.setTaskInfo(processUUID)) {
-                this.close();
-            }
-            this.taskWindow.exec();
+            this.dashboardWindow.refresh();
         }
     }
 
