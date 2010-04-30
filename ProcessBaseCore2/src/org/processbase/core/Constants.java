@@ -38,6 +38,8 @@ public class Constants {
     public static final String ACTION_EDIT = "ACTION_EDIT";
     public static final String ACTION_EDIT_PROCESSES = "ACTION_EDIT_PROCESSES";
     public static final String ACTION_ADD_UI = "ACTION_ADD_UI";
+    public static final String ACTION_STOP = "ACTION_STOP";
+    public static final String ACTION_RESTART = "ACTION_RESTART";
     public static final String ACTION_DELETE_PROCESS_AND_INSTANCES = "ACTION_DELETE_PROCESS_AND_INSTANCES";
     public static final String ACTION_DELETE_INSTANCES = "ACTION_DELETE_INSTANCES";
     public static final String ACTION_DELETE_PROCESS_INSTANCE = "ACTION_DELETE_PROCESS_INSTANCE";
