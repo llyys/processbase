@@ -529,12 +529,9 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.ProcessBaseUI2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.ProcessBaseUI2.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.JfreeChart.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.JfreeChart.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.ProcessBaseCore2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.ProcessBaseCore2.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.chameleon-blue.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.chameleon-blue.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.chameleon-vaadin.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.chameleon-vaadin.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.vaadin-chameleon-theme-1.0.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.vaadin-chameleon-theme-1.0.1.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.BonitaClient5.classpath} ${manifest.libs.Xstream.classpath} ${manifest.libs.Vaadin.classpath} ${manifest.reference.ProcessBaseUI2.jar} ${manifest.libs.JfreeChart.classpath} ${manifest.reference.ProcessBaseCore2.jar} ${manifest.file.reference.chameleon-blue.jar} ${manifest.file.reference.chameleon-vaadin.jar} ${manifest.file.reference.vaadin-chameleon-theme-1.0.1.jar} "/>
+            <attribute name="Class-Path" value="${manifest.libs.BonitaClient5.classpath} ${manifest.libs.Xstream.classpath} ${manifest.libs.Vaadin.classpath} ${manifest.reference.ProcessBaseUI2.jar} ${manifest.libs.JfreeChart.classpath} ${manifest.reference.ProcessBaseCore2.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -544,9 +541,6 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.ProcessBaseUI2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.JfreeChart.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.ProcessBaseCore2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.chameleon-blue.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.chameleon-vaadin.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.vaadin-chameleon-theme-1.0.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>

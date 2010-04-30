@@ -26,9 +26,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.xercesImpl-2.6.2.jar}</file>
-                </library>
-                <library>
                     <file>${libs.LiferayPortal.classpath}</file>
                 </library>
                 <library>
@@ -37,18 +34,6 @@
                 </library>
                 <library>
                     <file>${reference.ProcessBaseCore2.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
-                    <file>${file.reference.chameleon-blue.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
-                    <file>${file.reference.chameleon-vaadin.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
-                    <file>${file.reference.vaadin-chameleon-theme-1.0.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
