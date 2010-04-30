@@ -16,9 +16,13 @@
  */
 package org.processbase.ui.template;
 
+import com.vaadin.terminal.ClassResource;
+import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.themes.BaseTheme;
 
 /**
  *
@@ -35,7 +39,7 @@ public class TableExecButton extends Button {
         this.addListener(cl);
         this.tableValue = tv;
         this.setDescription(description);
-        this.setStyleName(Button.STYLE_LINK);
+        this.setStyleName(BaseTheme.BUTTON_LINK);
     }
 
     public TableExecButton(String description, String iconName, Object tv, ClickListener cl) {
@@ -43,7 +47,7 @@ public class TableExecButton extends Button {
         this.addListener(cl);
         this.tableValue = tv;
         this.setDescription(description);
-        this.setStyleName(Button.STYLE_LINK);
+        this.setStyleName(BaseTheme.BUTTON_LINK);
         this.setIcon(new ThemeResource(iconName));
     }
 
@@ -53,7 +57,7 @@ public class TableExecButton extends Button {
         this.addListener(cl);
         this.tableValue = tv;
         this.setDescription(description);
-        this.setStyleName(Button.STYLE_LINK);
+        this.setStyleName(BaseTheme.BUTTON_LINK);
         this.setIcon(new ThemeResource(iconName));
     }
     
@@ -64,7 +68,7 @@ public class TableExecButton extends Button {
         this.addListener(cl);
         this.tableValue = tv;
         this.setDescription(description);
-        this.setStyleName(Button.STYLE_LINK);
+        this.setStyleName(BaseTheme.BUTTON_LINK);
     }
 
     public Object getTableValue() {

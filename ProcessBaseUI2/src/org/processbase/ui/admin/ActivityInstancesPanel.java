@@ -23,11 +23,13 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.Date;
 import java.util.Set;
+import org.ow2.bonita.facade.runtime.ActivityState;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.core.Constants;
+import org.processbase.ui.template.TableExecButtonBar;
 
 /**
  *
@@ -59,7 +61,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
         table.setColumnWidth("endDate", 100);
         //            table.addContainerProperty("iteration", String.class, null, "Итерация", null, null);
         table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
-        table.addContainerProperty("actions", TableExecButton.class, null, messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
     }
 
     @Override
@@ -76,8 +78,13 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 woItem.getItemProperty("endDate").setValue(ai.getEndedDate());
                 woItem.getItemProperty("state").setValue(ai.getState());
                 woItem.getItemProperty("type").setValue(ai.isTask() ? messages.getString("task") : messages.getString("automatic"));
-                woItem.getItemProperty("actions").setValue(
-                        new TableExecButton(messages.getString("btnOpen"), "icons/document.png", ai, this, Constants.ACTION_OPEN));
+                TableExecButtonBar tebb = new TableExecButtonBar();
+                tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", ai, this, Constants.ACTION_OPEN));
+                if (ai.getState().equals(ActivityState.EXECUTING) || ai.getState().equals(ActivityState.READY) || ai.getState().equals(ActivityState.SUSPENDED)) {
+                    tebb.addButton(new TableExecButton(messages.getString("btnStop"), "icons/cancel.png", ai, this, Constants.ACTION_STOP));
+                }
+//                tebb.addButton(new TableExecButton(messages.getString("btnDeteleProcessAndInstances"), "icons/cancel.png", pd, this, Constants.ACTION_DELETE_PROCESS_AND_INSTANCES));
+                woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setSortContainerPropertyId("readyDate");
             table.setSortAscending(false);
@@ -92,11 +99,22 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
     public void buttonClick(ClickEvent event) {
         super.buttonClick(event);
         if (event.getButton() instanceof TableExecButton) {
+            TableExecButton execBtn = (TableExecButton) event.getButton();
+            LightActivityInstance activity = (LightActivityInstance) execBtn.getTableValue();
             try {
-                LightActivityInstance activity = (LightActivityInstance) ((TableExecButton) event.getButton()).getTableValue();
-                ActivityWindow activityWindow = new ActivityWindow(activity, getPortletApplicationContext2());
-                activityWindow.addListener((Window.CloseListener) this);
-                getApplication().getMainWindow().addWindow(activityWindow);
+                if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+
+                    ActivityWindow activityWindow = new ActivityWindow(activity, getPortletApplicationContext2());
+                    activityWindow.addListener((Window.CloseListener) this);
+                    getApplication().getMainWindow().addWindow(activityWindow);
+                } else if (execBtn.getAction().equals(Constants.ACTION_STOP)) {
+                    bpmModule.stopExecution(activity.getProcessInstanceUUID(), activity.getActivityName());
+                    Item woItem = table.getItem(activity);
+                    woItem.getItemProperty("state").setValue(ActivityState.CANCELLED);
+                    TableExecButtonBar tebb = new TableExecButtonBar();
+                    tebb.addButton(new TableExecButton(messages.getString("btnOpen"), "icons/document.png", activity, this, Constants.ACTION_OPEN));
+                    woItem.getItemProperty("actions").setValue(tebb);
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());

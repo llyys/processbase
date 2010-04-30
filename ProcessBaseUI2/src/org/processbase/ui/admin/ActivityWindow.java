@@ -276,12 +276,14 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         stateUpdatesTable.setColumnWidth("InitialState", 150);
         stateUpdatesTable.addContainerProperty("ActivityState", String.class, null, messages.getString("taskActivityState"), null, null);
         stateUpdatesTable.setColumnWidth("ActivityState", 150);
-        for (StateUpdate stateUpdate : task.getStateUpdates()) {
-            Item woItem = stateUpdatesTable.addItem(stateUpdate);
-            woItem.getItemProperty("UpdatedDate").setValue(stateUpdate.getUpdatedDate());
-            woItem.getItemProperty("UpdatedBy").setValue(stateUpdate.getUpdatedBy());
-            woItem.getItemProperty("InitialState").setValue(stateUpdate.getInitialState().toString());
-            woItem.getItemProperty("ActivityState").setValue(stateUpdate.getActivityState().toString());
+        if (task != null) {
+            for (StateUpdate stateUpdate : task.getStateUpdates()) {
+                Item woItem = stateUpdatesTable.addItem(stateUpdate);
+                woItem.getItemProperty("UpdatedDate").setValue(stateUpdate.getUpdatedDate());
+                woItem.getItemProperty("UpdatedBy").setValue(stateUpdate.getUpdatedBy());
+                woItem.getItemProperty("InitialState").setValue(stateUpdate.getInitialState().toString());
+                woItem.getItemProperty("ActivityState").setValue(stateUpdate.getActivityState().toString());
+            }
         }
         stateUpdatesTable.setSortContainerPropertyId("UpdatedDate");
         stateUpdatesTable.setSortAscending(false);

@@ -185,6 +185,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                     if (newTask != null) {
                         addTableRow(newTask, task);
                     }
+                    table.removeItem(task);
                     openTaskPage(newTask);
                 } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.READY)) {
                     TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);

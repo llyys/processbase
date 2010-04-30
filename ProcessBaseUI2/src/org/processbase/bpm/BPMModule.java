@@ -26,6 +26,7 @@ import org.processbase.core.Constants;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
+import org.ow2.bonita.facade.RepairAPI;
 import org.ow2.bonita.facade.RuntimeAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
@@ -64,6 +65,7 @@ public class BPMModule {
     final QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
     final ManagementAPI managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
     final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
+    final RepairAPI repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
     final ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
     public static final int BAR = 0;
     public static final int XPDL = 1;
@@ -382,5 +384,21 @@ public class BPMModule {
             }
         }
         return img;
+    }
+
+    public void stopExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        repairAPI.stopExecution(piUUID, stepName);
+    }
+
+    public ActivityInstanceUUID startExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        return repairAPI.startExecution(piUUID, stepName);
+    }
+
+    public ActivityInstanceUUID reStartExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+        repairAPI.stopExecution(piUUID, stepName);
+        return repairAPI.startExecution(piUUID, stepName);
     }
 }

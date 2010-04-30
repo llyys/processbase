@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -46,7 +47,7 @@ public class Diagram {
 
     public Diagram(byte[] imageBytes, byte[] xmlBytes, Set<LightActivityInstance> activityInstances) {
         try {
-            this.activityInstances = activityInstances;
+            this.activityInstances = getLastActivities(activityInstances);
             this.processXML = new ByteArrayInputStream(xmlBytes);
             this.processImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
             images.put("READY", ImageIO.read(getClass().getResource("/resources/ready.png")));
@@ -55,6 +56,7 @@ public class Diagram {
             images.put("SUSPENDED", ImageIO.read(getClass().getResource("/resources/suspended.png")));
             images.put("INITIAL", ImageIO.read(getClass().getResource("/resources/initial.png")));
             images.put("ABORTED", ImageIO.read(getClass().getResource("/resources/aborted.png")));
+            images.put("CANCELLED", ImageIO.read(getClass().getResource("/resources/cancelled.png")));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -188,5 +190,20 @@ public class Diagram {
             }
         }
         return null;
+    }
+
+    private Set<LightActivityInstance> getLastActivities(Set<LightActivityInstance> activities){
+        HashMap<String, LightActivityInstance> m0 = new HashMap<String, LightActivityInstance>();
+        for (LightActivityInstance lai : activities) {
+            LightActivityInstance newLai = m0.get(lai.getActivityName());
+            if (newLai != null) {
+                if (newLai.getReadyDate().compareTo(lai.getReadyDate()) < 0) {
+                    m0.put(lai.getActivityName(), lai);
+                }
+            } else {
+                m0.put(lai.getActivityName(), lai);
+            }
+        }
+        return  new HashSet<LightActivityInstance>(m0.values());
     }
 }
