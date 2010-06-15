@@ -1,7 +1,6 @@
 package org.processbase.bam.message;
 // Generated 26.02.2010 12:01:04 by Hibernate Tools 3.2.1.GA
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 

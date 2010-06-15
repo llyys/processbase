@@ -50,10 +50,14 @@ public class Constants {
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
     public static String COMPANY_NAME = null;
     public static String DL_GROUP = null;
-    public static String BAMQueueAddressList;
-    public static String BAMQueueUser;
-    public static String BAMQueuePassword;
-    public static String BAMQueueDefaultDestination;
+    public static String BAM_MQ_AddressList;
+    public static String BAM_MQ_User;
+    public static String BAM_MQ_Password;
+    public static String BAM_MQ_DefaultDestination;
+    public static String ESB_MQ_AddressList;
+    public static String ESB_MQ_User;
+    public static String ESB_MQ_Password;
+    public static String ESB_MQ_DefaultDestination;
     public static String THEME;
 
     public static void loadConstants() {
@@ -83,10 +87,14 @@ public class Constants {
             BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
             BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
 
-            BAMQueueAddressList = properties.getProperty("BAMQueueAddressList");
-            BAMQueueUser = properties.getProperty("BAMQueueUser");
-            BAMQueuePassword = properties.getProperty("BAMQueuePassword");
-            BAMQueueDefaultDestination = properties.getProperty("BAMQueueDefaultDestination");
+            BAM_MQ_AddressList = properties.getProperty("BAM_MQ_AddressList");
+            BAM_MQ_User = properties.getProperty("BAM_MQ_User");
+            BAM_MQ_Password = properties.getProperty("BAM_MQ_Password");
+            BAM_MQ_DefaultDestination = properties.getProperty("BAM_MQ_DefaultDestination");
+            ESB_MQ_AddressList = properties.getProperty("ESB_MQ_AddressList");
+            ESB_MQ_User = properties.getProperty("ESB_MQ_User");
+            ESB_MQ_Password = properties.getProperty("ESB_MQ_Password");
+            ESB_MQ_DefaultDestination = properties.getProperty("ESB_MQ_DefaultDestination");
             COMPANY_NAME = properties.getProperty("COMPANY_NAME");
             DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "PROCESSBASE";
             THEME = properties.containsKey("THEME") ? properties.getProperty("THEME") : "reindeer";
