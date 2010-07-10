@@ -73,6 +73,7 @@ public class BPMModule {
 
     public BPMModule(String currentUserUID) {
         Constants.loadConstants();
+        System.out.println("currentUserUID = " + currentUserUID);
         this.currentUserUID = currentUserUID;
     }
 
