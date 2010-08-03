@@ -8,7 +8,7 @@
     <!--<property name="hibernate.connection.url">jdbc:oracle:thin:@localhost:1521:MARATDB</property>-->
     <!--<property name="hibernate.connection.username">pbbam2</property>-->
     <!--<property name="hibernate.connection.password">pbbam2</property>-->
-        <property name="hibernate.hbm2ddl.auto">create</property>
+        <!--<property name="hibernate.hbm2ddl.auto">create</property>-->
         <property name="hibernate.connection.datasource">jdbc/pbbam2</property>
         <mapping resource="org/processbase/bam/mdb/PbEvent.hbm.xml"/>
     </session-factory>
