@@ -20,6 +20,7 @@ import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import java.util.Date;
 import java.util.Set;
+import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TablePanel;
@@ -34,14 +35,14 @@ public class ActivitiesPanel extends TablePanel {
 
     private ProcessInstanceUUID processInstanceUUID;
 //    private ProcessDefinition processDefinition;
-    private Set<LightActivityInstance> activities;
+    private Set<ActivityInstance> activities;
 
     public ActivitiesPanel(PortletApplicationContext2 portletApplicationContext2, ProcessInstanceUUID processInstanceUUID) {
         super(portletApplicationContext2);
         try {
             this.processInstanceUUID = processInstanceUUID;
 //            this.processDefinition = bpmModule.getProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
-            this.activities = bpmModule.getLightActivityInstances(processInstanceUUID);
+            this.activities = bpmModule.getActivityInstances(processInstanceUUID);
             this.buttonBar.setVisible(false);
             initTableUI();
         } catch (Exception ex) {
@@ -73,7 +74,7 @@ public class ActivitiesPanel extends TablePanel {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            for (LightActivityInstance lai : activities) {
+            for (ActivityInstance lai : activities) {
                 if (lai.isAutomatic() || lai.isTask()) {
                     Item woItem = table.addItem(lai);
                     woItem.getItemProperty("name").setValue(lai.getActivityLabel());
