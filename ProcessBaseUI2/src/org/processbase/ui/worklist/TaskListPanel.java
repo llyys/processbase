@@ -25,6 +25,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import javax.portlet.PortletSession;
@@ -36,6 +37,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.core.Constants;
 
 /**
@@ -146,8 +148,8 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
 
     public Component getTaskLink(String caption, String description, Object t, String action) {
         TaskInstance ti = (TaskInstance) t;
-        if (ti.isTaskAssigned() &&
-                (ti.getState().equals(ActivityState.EXECUTING) || ti.getState().equals(ActivityState.READY))) {
+        if (ti.isTaskAssigned()
+                && (ti.getState().equals(ActivityState.EXECUTING) || ti.getState().equals(ActivityState.READY))) {
             return new TableExecButton(caption, description, null, t, this, action);
         } else {
             return new Label(caption);
@@ -223,7 +225,12 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL));
+//                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL
+                ArrayList<XMLFormDefinition> forms = bpmModule.getXMLFormDefinition(task);
+                if (forms.size() > 0) {
+                    FormGenerator fg =  new FormGenerator(task, forms, bpmModule);
+                    this.getApplication().getMainWindow().addWindow(fg.getWindow());
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
