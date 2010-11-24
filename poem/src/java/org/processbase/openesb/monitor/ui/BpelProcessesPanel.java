@@ -43,7 +43,7 @@ import org.processbase.openesb.monitor.ui.template.TablePanel;
 public class BpelProcessesPanel extends TablePanel implements Property.ValueChangeListener {
 
     private NativeSelect statusSelect = new NativeSelect("Status");
-    private TextField rowCount = new TextField("Row count", "100");
+    private TextField rowCount = new TextField("Row count", "10");
     private NativeSelect suSelect = new NativeSelect("Service Unit");
     private NativeSelect piSelect = new NativeSelect("Process ID");
     private CheckBox isPersistenceEnabled = new CheckBox("Persistence");
@@ -144,7 +144,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
         for (SortOrder sortOrder : SortOrder.values()) {
             sortOrderSelect.addItem(sortOrder);
         }
-        sortOrderSelect.setValue("DESC");
+        sortOrderSelect.setValue(SortOrder.DESC);
         infoPanel.addComponent(sortOrderSelect, 5, 1);
 
         statusSelect.addItem(BPStatus.RUNNING);
@@ -251,6 +251,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
                 bpelProcessIdsContainer.addItem(processId);
             }
             piSelect.setContainerDataSource(bpelProcessIdsContainer);
+            piSelect.setValue(piSelect.getItemIds().size() > 0 ? piSelect.getItemIds().toArray()[0] : null);
         } catch (ManagementRemoteException ex) {
             ex.printStackTrace();
             getWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);

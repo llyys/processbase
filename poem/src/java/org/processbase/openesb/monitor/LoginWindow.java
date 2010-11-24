@@ -33,7 +33,7 @@ public class LoginWindow extends Window implements Handler {
     public TextField address = new TextField("Server address", "");
     private TextField port = new TextField("Port", "8686");
     private TextField username = new TextField("Username", "admin");
-    private TextField password = new TextField("Password", "adminadmin");
+    private TextField password = new TextField("Password", "");
     private Label labelLeft = new Label("");
     private Label labelRight = new Label("");
     private Locale locale = null;
@@ -58,7 +58,6 @@ public class LoginWindow extends Window implements Handler {
         panel.setWidth("285px");
 
         form.addComponent(address);
-        address.focus();
         address.setWidth("100%");
         form.addComponent(port);
         port.setWidth("100%");
@@ -70,6 +69,7 @@ public class LoginWindow extends Window implements Handler {
         password.setCaption("Password");
         password.setSecret(true);
         password.setWidth("100%");
+        password.focus();
         form.addComponent(password);
 
         btnLogin = new Button("Login", this, "okHandler");
