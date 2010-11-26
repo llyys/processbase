@@ -49,7 +49,7 @@ public abstract class InternalApplication extends Application implements Portlet
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
-        setTheme(Constants.THEME);
+        setTheme("processbase");
         this.setLogoutURL(Constants.TASKLIST_PAGE_URL);
       
     }

@@ -32,9 +32,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
+import org.processbase.bpm.BPMModule;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
@@ -64,16 +66,17 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public static String FILE_JAR = "FILE_JAR";
     private String fileType = null;
 
-    public ProcessDefinitionsPanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
+    public ProcessDefinitionsPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
         upload.setButtonCaption(messages.getString("btnUpload"));
         upload.setImmediate(true);
         upload.addListener((Upload.SucceededListener) this);
         upload.addListener((Upload.FailedListener) this);
-        buttonBar.addComponent(upload, 1);
-        buttonBar.setComponentAlignment(upload, Alignment.TOP_LEFT);
+//        buttonBar.addComponent(upload, 1);
+//        buttonBar.setComponentAlignment(upload, Alignment.TOP_LEFT);
         initTableUI();
     }
+
 
     @Override
     public void initTableUI() {

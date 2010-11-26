@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.worklist;
 
+import org.processbase.ui.generator.FormGenerator;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
@@ -24,10 +25,12 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
@@ -37,6 +40,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.core.Constants;
 
@@ -46,8 +50,8 @@ import org.processbase.core.Constants;
  */
 public class TaskListPanel extends TablePanel implements Button.ClickListener {
 
-    public TaskListPanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
+    public TaskListPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
         initTableUI();
     }
 
@@ -228,7 +232,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
 //                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL
                 ArrayList<XMLFormDefinition> forms = bpmModule.getXMLFormDefinition(task);
                 if (forms.size() > 0) {
-                    FormGenerator fg =  new FormGenerator(task, forms, bpmModule);
+                    FormGenerator fg = new FormGenerator(task, forms, bpmModule);
                     this.getApplication().getMainWindow().addWindow(fg.getWindow());
                 }
             }

@@ -23,6 +23,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import java.util.ResourceBundle;
+import org.processbase.bpm.BPMModule;
 
 /**
  *
@@ -31,6 +33,11 @@ import com.vaadin.ui.Window.CloseEvent;
 public class TablePanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
 
     protected Table table = new Table();
+
+    public TablePanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
+        initUI();
+    }
 
     public TablePanel(PortletApplicationContext2 portletApplicationContext2) {
         super(portletApplicationContext2);
@@ -58,10 +65,6 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
 
     @Override
     public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
-        if (event.getButton().equals(refreshBtn)) {
-            refreshTable();
-        }
     }
 
     @Override

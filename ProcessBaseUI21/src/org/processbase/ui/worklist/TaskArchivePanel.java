@@ -22,13 +22,13 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import java.util.Collection;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ResourceBundle;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.processbase.bpm.BPMModule;
 
 /**
  *
@@ -36,8 +36,8 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
  */
 public class TaskArchivePanel extends TablePanel {
 
-    public TaskArchivePanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
+    public TaskArchivePanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
         initTableUI();
     }
 

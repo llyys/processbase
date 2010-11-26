@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
@@ -68,16 +69,16 @@ public class ProcessInstanceWindow extends PbWindow implements
     private SplitPanel layout = new SplitPanel();
     private VerticalLayout imageLayout = new VerticalLayout();
 
-    public ProcessInstanceWindow(PortletApplicationContext2 portletApplicationContext2, LightProcessInstance process) {
+    public ProcessInstanceWindow(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages, LightProcessInstance process) {
         super(portletApplicationContext2);
         this.process = process;
+        this.bpmModule = bpmModule;
     }
 
     public void exec() {
         try {
             closeBtn = new Button(messages.getString("btnClose"), this);
             refreshBtn = new Button(messages.getString("btnRefresh"), this);
-            bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
 
             ByteArraySource bas = new ByteArraySource(bpmModule.getProcessDiagramm(process.getProcessInstanceUUID()));
             StreamResource imageResource = new StreamResource(bas, "processInstance.png", this.getApplication());
@@ -91,7 +92,7 @@ public class ProcessInstanceWindow extends PbWindow implements
             imageLayout.setMargin(false);
             imageLayout.setSpacing(false);
 
-            activitiesPanel = new ActivitiesPanel(this.getPortletApplicationContext2(), process.getProcessInstanceUUID());
+            activitiesPanel = new ActivitiesPanel(this.getPortletApplicationContext2(), bpmModule, messages, process.getProcessInstanceUUID());
             activitiesPanel.refreshTable();
 
             buttons.addButton(refreshBtn);

@@ -19,6 +19,7 @@ package org.processbase.ui.admin;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import java.util.Date;
+import java.util.ResourceBundle;
 import java.util.Set;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
@@ -26,6 +27,7 @@ import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightActivityInstance;
+import org.processbase.bpm.BPMModule;
 
 /**
  *
@@ -37,13 +39,13 @@ public class ActivitiesPanel extends TablePanel {
 //    private ProcessDefinition processDefinition;
     private Set<ActivityInstance> activities;
 
-    public ActivitiesPanel(PortletApplicationContext2 portletApplicationContext2, ProcessInstanceUUID processInstanceUUID) {
-        super(portletApplicationContext2);
+    public ActivitiesPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages, ProcessInstanceUUID processInstanceUUID) {
+        super(portletApplicationContext2, bpmModule, messages);
         try {
             this.processInstanceUUID = processInstanceUUID;
 //            this.processDefinition = bpmModule.getProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
             this.activities = bpmModule.getActivityInstances(processInstanceUUID);
-            this.buttonBar.setVisible(false);
+//            this.buttonBar.setVisible(false);
             initTableUI();
         } catch (Exception ex) {
             ex.printStackTrace();

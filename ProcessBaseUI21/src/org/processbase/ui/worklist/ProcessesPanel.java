@@ -21,12 +21,14 @@ import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import java.util.Date;
+import java.util.ResourceBundle;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.processbase.bpm.BPMModule;
 import org.processbase.core.Constants;
 import org.processbase.ui.admin.ProcessInstanceWindow;
 
@@ -36,8 +38,8 @@ import org.processbase.ui.admin.ProcessInstanceWindow;
  */
 public class ProcessesPanel extends TablePanel implements Button.ClickListener {
 
-    public ProcessesPanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
+    public ProcessesPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
         initTableUI();
     }
 
@@ -115,7 +117,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
                 TableExecButton execBtn = (TableExecButton) event.getButton();
                 LightProcessInstance process = (LightProcessInstance) ((TableExecButton) event.getButton()).getTableValue();
                 if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                    ProcessInstanceWindow window = new ProcessInstanceWindow(this.getPortletApplicationContext2(), process);
+                    ProcessInstanceWindow window = new ProcessInstanceWindow(this.getPortletApplicationContext2(), bpmModule, messages, process);
                     this.getWindow().addWindow(window);
                     window.exec();
                 }

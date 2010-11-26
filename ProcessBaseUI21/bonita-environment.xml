@@ -4,9 +4,6 @@
       <!-- Description: Implementation of the BlobStrategy interface which will be used to store Blobs. -->
       <object name='blob-strategy' class='org.ow2.bonita.type.lob.BlobStrategyBlob' />
 
-      <!-- Description: Implementation of the Classdata loader Service. -->
-      <classdata-loader name='classdata-loader' class='org.ow2.bonita.runtime.ClassDataLoader'/>
-
       <!-- Description: Implementation of the LobCreator interface which will be used to store Clobs. -->
       <object name='clob-strategy' class='org.ow2.bonita.type.lob.ClobStrategyChopped' />
 
@@ -16,9 +13,6 @@
         <environment-interceptor />
         <standard-transaction-interceptor />
       </command-service>
-
-      <!-- Description: Specify the domain of this environment -->
-      <domain id='default' />
 
       <!-- Description: Service which executes events -->
       <event-executor idle-min='50' idle='10000' threads='3' auto-start='true' command-service='command-service'/>
@@ -51,20 +45,23 @@
 
       <!-- Description: Implementation of the large data repository. -->
       <large-data-repository name='large-data-repository' class='org.ow2.bonita.services.impl.FileLargeDataRepository'>
-        <arg><string value='property:bonita-data-repository' /></arg>
+        <arg><string value='property:java.io.tmpdir' /></arg>
       </large-data-repository>
 
       <!-- Description: Implementation of the LobCreator interface which will be used to create SQL Blobs, Clobs. -->
       <object name='lob-creator' class='org.ow2.bonita.services.impl.HibernateLobCreator' />
 
+      <!-- Description: Service used to find the user logged in. -->
+      <object name='security' class='org.ow2.bonita.facade.EJB3SecurityContext' />
+
       <!-- Description: Mapping from java variable to database type -->
       <variable-types resource='bonita.type.resolver.xml' />
 
-      <!-- Description: Implementation of the UUID Service. -->
-      <uuid-service name='uuid-service' class='org.ow2.bonita.services.impl.DbUUIDService'/>
-
-      <!-- Description: Properties of variables management. -->
-      <variables store-history='true'/>
+      <!-- Description: List of services called when an process is undeployed. -->
+      <chainer name='undeployed-process-handler'>
+        <!-- Description:  -->
+        <object class='org.ow2.bonita.services.handlers.impl.ArchiveUndeployedProcessHandler' />
+      </chainer>
 
     </environment-factory>
 
@@ -82,15 +79,13 @@
       <!-- Description: List of archivers. -->
       <chainer name='archiver'>
         <!-- Description: Archiver which writes archived data to logs. -->
-        <!--
         <archiver class='org.ow2.bonita.services.impl.LoggerArchiver' />
-         -->
         <!-- Description: Reference to the history -->
         <ref object='history' />
       </chainer>
 
       <!-- Description: Implementation of the authentication service. -->
-      <authentication-service name='authentication-service' class='org.processbase.bonita.services.impl.PbAuthentication'>
+      <authentication-service name='authentication-service' class='org.ow2.bonita.services.impl.DbAuthentication'>
         <arg><string value='bonita-session:core' /></arg>
       </authentication-service>
 
@@ -111,12 +106,6 @@
       <!-- Description: Hibernate session used by hibernate session for Bonita history.. -->
       <hibernate-session name='hibernate-session:history' factory='hibernate-session-factory:history' />
 
-      <!-- Description: List of Queriers to use. -->
-      <queryApi name='historyQueryList'>
-        <!-- Description: Reference to the history -->
-        <ref object='history' />
-      </queryApi>
-
       <!-- Description: Implementation of the identity service. -->
       <identity-service name='identity-service' class='org.ow2.bonita.services.impl.DbIdentity'>
         <arg><string value='bonita-session:core' /></arg>
@@ -126,17 +115,6 @@
       <journal name='journal' class='org.ow2.bonita.services.impl.DbJournal'> 
         <arg><string value='bonita-session:core' /></arg>
       </journal>
-
-      <!-- Description: List of Queriers to use. -->
-      <queryApi name='journalQueryList'>
-        <!-- Description: Reference to the journal -->
-        <ref object='journal' />
-      </queryApi>
-
-      <!-- Description: Implementation of the privilege service. -->
-      <privilege-service name='privilege-service' class='org.ow2.bonita.services.impl.DbPrivilegeService'>
-        <arg><string value='bonita-session:core' /></arg>
-      </privilege-service>
 
       <!-- Description: List of Queriers to use. -->
       <queryApi name='queryList'>
@@ -149,25 +127,28 @@
       <!-- Description: List of recorders. -->
       <chainer name='recorder'>
         <!-- Description: Recorder which writes recorded data to logs. -->
-        <!--
         <recorder class='org.ow2.bonita.services.impl.LoggerRecorder' />
-         -->
         <!-- Description: Reference to the journal -->
         <ref object='journal' />
       </chainer>
 
+      <!-- Description: Implementation of the repository. -->
+      <repository class='org.ow2.bonita.services.impl.DbRepository'>
+        <arg><string value='bonita-session:core' /></arg>
+      </repository>
+
       <!-- Description: Db Transaction. -->
       <object name='transaction' class='org.ow2.bonita.runtime.tx.StandardTransaction' />
+
+      <!-- Description: Implementation of the UUID Service. -->
+      <uuid-service name='uuid-service' class='org.ow2.bonita.services.impl.DbUUIDService'> 
+        <arg><string value='bonita-session:core' /></arg>
+      </uuid-service>
 
       <!-- Description: Implementation of the Web Service. -->
       <web-service name='web-service' class='org.ow2.bonita.services.impl.DbWebService'> 
         <arg><string value='bonita-session:core' /></arg>
       </web-service>
-
-      <!-- Description: Implementation of the web token management service. -->
-      <web-token-service name='web-token-service' class='org.ow2.bonita.services.impl.DbWebTokenManagementService'>
-        <arg><string value='bonita-session:core' /></arg>
-      </web-token-service>
 
     </environment>
 

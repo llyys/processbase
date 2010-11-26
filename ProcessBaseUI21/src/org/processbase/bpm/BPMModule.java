@@ -16,6 +16,7 @@
  */
 package org.processbase.bpm;
 
+import com.sun.appserv.security.ProgrammaticLogin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -82,6 +83,8 @@ public class BPMModule {
     }
 
     private void initContext() throws Exception{
+        ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
+        programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         DomainOwner.setDomain("default");
         UserOwner.setUser(currentUserUID);
     }

@@ -80,7 +80,7 @@ public abstract class TaskApplication extends Application
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
-        setTheme(Constants.THEME);
+        setTheme("processbase");
         this.setLogoutURL(Constants.TASKLIST_PAGE_URL);
 
         try {

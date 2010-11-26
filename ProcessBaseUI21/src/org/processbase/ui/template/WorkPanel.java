@@ -36,43 +36,55 @@ import org.processbase.bpm.BPMModule;
  *
  * @author mgubaidullin
  */
-public class WorkPanel extends VerticalLayout implements Button.ClickListener, Window.CloseListener {
+public class WorkPanel extends VerticalLayout {
 
     protected BPMModule bpmModule = null;
     protected ResourceBundle messages = null;
     protected HorizontalLayout horizontalLayout = new HorizontalLayout();
-    protected ButtonBar buttonBar = new ButtonBar();
-    protected Button refreshBtn = null;
-    private PortletApplicationContext2 portletApplicationContext2;
+    protected PortletApplicationContext2 portletApplicationContext2 = null;
 
-    public WorkPanel(PortletApplicationContext2 portletApplicationContext2) {
+    public WorkPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
         super();
-        try {
-            this.portletApplicationContext2 = portletApplicationContext2;
-            this.messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
-            this.bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
-            refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        // prepare help button
-        buttonBar.addComponent(refreshBtn);
-        buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_LEFT);
-
+        this.bpmModule = bpmModule;
+        this.messages = messages;
+        this.portletApplicationContext2 = portletApplicationContext2;
         horizontalLayout.setSizeFull();
 //        horizontalLayout.setStyleName(Reindeer.LAYOUT_WHITE);
-
         setSizeFull();
-        addComponent(buttonBar);
         addComponent(horizontalLayout);
         setExpandRatio(horizontalLayout, 1);
         setMargin(false);
         setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
-    public void buttonClick(ClickEvent event) {
-    }
 
+
+
+    public WorkPanel(PortletApplicationContext2 portletApplicationContext2) {
+        super();
+//        try {
+//            this.portletApplicationContext2 = portletApplicationContext2;
+//            this.messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
+//            this.bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
+//            refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        // prepare help button
+//        buttonBar.addComponent(refreshBtn);
+//        buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_LEFT);
+
+        horizontalLayout.setSizeFull();
+//        horizontalLayout.setStyleName(Reindeer.LAYOUT_WHITE);
+
+        setSizeFull();
+//        addComponent(buttonBar);
+        addComponent(horizontalLayout);
+        setExpandRatio(horizontalLayout, 1);
+        setMargin(false);
+        setStyleName(Reindeer.LAYOUT_WHITE);
+    }
+    
     public void windowClose(CloseEvent e) {
     }
 

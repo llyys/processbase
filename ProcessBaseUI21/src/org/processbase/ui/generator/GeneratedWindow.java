@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.worklist;
+package org.processbase.ui.generator;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -28,6 +28,9 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.processbase.bpm.BPMModule;
@@ -38,29 +41,25 @@ import org.processbase.bpm.forms.XMLWidgetsDefinition;
  *
  * @author marat
  */
-public class FormGenerator {
+public class GeneratedWindow extends Window implements Button.ClickListener {
 
-    private ArrayList<XMLFormDefinition> forms;
-    private TaskInstance task;
-    private Window genWindow;
-    private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
-    private BPMModule bpmModule = null;
+    protected HashMap<Component, XMLWidgetsDefinition> components = new HashMap<Component, XMLWidgetsDefinition>();
+    protected HashMap<String, Object> procVariables = new HashMap<String, Object>();
+    protected ArrayList<XMLFormDefinition> forms;
+    protected TaskInstance task;
+    protected ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
+    protected BPMModule bpmModule = null;
 
-    public FormGenerator(TaskInstance task, ArrayList<XMLFormDefinition> forms, BPMModule bpmModule) {
-        this.task = task;
-        this.forms = forms;
-        this.bpmModule = bpmModule;
-        prepareWindow();
+    public GeneratedWindow(String caption) {
+        super(caption);
     }
 
-    private void prepareWindow() {
-        genWindow = new Window(task.getActivityLabel());
-        VerticalLayout layout = (VerticalLayout) genWindow.getContent();
+    protected void prepareWindow() {
+        VerticalLayout layout = (VerticalLayout) getContent();
         layout.setMargin(true);
         layout.setSpacing(true);
         layout.setStyleName(Reindeer.LAYOUT_WHITE);
         layout.setSizeUndefined();
-
 //        genWindow.setModal(true);
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
@@ -75,20 +74,26 @@ public class FormGenerator {
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
             for (XMLWidgetsDefinition widgets : widgetsList) {
                 System.out.println("ADD TO GRID " + widgets.getColumn() + " " + widgets.getLine() + " " + (widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() : 0)));
-                page.addComponent(getComponent(widgets), widgets.getColumn(), widgets.getLine(), widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() - 1 : 0), widgets.getLine());
-
+                Component component = getComponent(widgets);
+                if (component != null) {
+                    components.put(component, widgets);
+                    page.addComponent(component, widgets.getColumn(), widgets.getLine(), widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() - 1 : 0), widgets.getLine());
+                }
             }
 
         }
-        genWindow.addComponent(pages.get(0));
-        genWindow.center();
+        addComponent(pages.get(0));
+        center();
+        setModal(true);
+
+
 
 //        genWindow.setSizeUndefined();
 //        genWindow.setResizable(false);
     }
 
     private Component getComponent(XMLWidgetsDefinition widgets) {
-        Component result = new Label(widgets.getType());
+        Component result = null;
         Object value = null;
         DataFieldDefinition dfd = null;
         try {
@@ -102,11 +107,20 @@ public class FormGenerator {
         if (widgets.getType().equals("form:TextFormField")) {
             TextField component = new TextField(widgets.getDisplayLabel());
             component.setValue(value);
+            component.setNullRepresentation("");
             result = component;
         }
         if (widgets.getType().equals("form:TextAreaFormField")) {
+            TextField component = new TextField(widgets.getDisplayLabel());
+            component.setValue(value);
+            component.setRows(4);
+            component.setNullRepresentation("");
+            result = component;
+        }
+        if (widgets.getType().equals("form:RichTextAreaFormField")) {
             RichTextArea component = new RichTextArea(widgets.getDisplayLabel());
             component.setValue(value);
+            component.setNullRepresentation("");
             result = component;
         }
         if (widgets.getType().equals("form:SelectFormField")) {
@@ -119,13 +133,49 @@ public class FormGenerator {
         }
         if (widgets.getType().equals("form:SubmitFormButton")) {
             Button component = new Button(widgets.getDisplayLabel());
+            component.addListener((Button.ClickListener) this);
             result = component;
         }
-
         return result;
     }
 
-    public Window getWindow() {
-        return genWindow;
+    public void buttonClick(ClickEvent event) {
+        Button btn = event.getButton();
+        if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
+            try {
+                setProcessVariables();
+                bpmModule.finishTask(task, true, procVariables);
+                close();
+            } catch (Exception ex) {
+                this.showNotification("Error", ex.getMessage().substring(250), Notification.TYPE_WARNING_MESSAGE);
+            }
+        }
+    }
+
+    private void setProcessVariables() throws Exception {
+        for (Component comp : components.keySet()) {
+            XMLWidgetsDefinition widgets = components.get(comp);
+            if (widgets.getType().equals("form:TextFormField")) {
+                procVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+            }
+            if (widgets.getType().equals("form:TextAreaFormField")) {
+                procVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+            }
+            if (widgets.getType().equals("form:RichTextAreaFormField")) {
+                procVariables.put(widgets.getSetVarScript(), ((RichTextArea) comp).getValue());
+            }
+            if (widgets.getType().equals("form:SelectFormField")) {
+                procVariables.put(widgets.getSetVarScript(), ((NativeSelect) comp).getValue());
+            }
+        }
+    }
+
+    private XMLWidgetsDefinition getWidgets(Component c) {
+        for (Component comp : components.keySet()) {
+            if (comp.equals(c)) {
+                return components.get(comp);
+            }
+        }
+        return null;
     }
 }

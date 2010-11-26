@@ -17,10 +17,6 @@
 package org.processbase.ui.portlet;
 
 import org.processbase.ui.template.TaskApplication;
-import org.processbase.core.Constants;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import org.processbase.ui.worklist.DefaultTaskWindow;
 
 /**

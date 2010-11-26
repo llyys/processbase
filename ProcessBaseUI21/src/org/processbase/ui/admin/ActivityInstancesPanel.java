@@ -22,11 +22,13 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.Date;
+import java.util.ResourceBundle;
 import java.util.Set;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightActivityInstance;
+import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButtonBar;
@@ -37,8 +39,8 @@ import org.processbase.ui.template.TableExecButtonBar;
  */
 public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
 
-    public ActivityInstancesPanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
+    public ActivityInstancesPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
+        super(portletApplicationContext2, bpmModule, messages);
         initTableUI();
     }
 

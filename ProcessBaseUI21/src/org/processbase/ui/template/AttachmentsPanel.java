@@ -73,10 +73,10 @@ public class AttachmentsPanel extends TablePanel
         upload.addListener((Upload.FailedListener) this);
         upload.setImmediate(true);
         if (!add) {
-            this.removeComponent(buttonBar);
+//            this.removeComponent(buttonBar);
         } else {
-            buttonBar.removeButton(refreshBtn);
-            buttonBar.addComponent(upload);
+//            buttonBar.removeButton(refreshBtn);
+//            buttonBar.addComponent(upload);
         }
         docUtil = new DocumentLibraryUtil(this.getCurrentUser(), processUUID);
         initTableUI();
