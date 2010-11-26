@@ -18,31 +18,21 @@ package org.processbase.ui.admin;
 
 import com.vaadin.data.Item;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.UUID;
-import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.processbase.bpm.BPMModule;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableExecButton;
 import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -51,29 +41,10 @@ import org.processbase.ui.template.PbColumnGenerator;
  */
 public class ProcessDefinitionsPanel extends TablePanel implements
         Button.ClickListener,
-        Window.CloseListener,
-        Upload.SucceededListener,
-        Upload.FailedListener,
-        Upload.Receiver {
-
-//    Button deployBtn = new Button(messages.getString("btnUpload"));
-    private Upload upload = new Upload("", (Upload.Receiver) this);
-    private File file;
-    private String filename;
-    private String originalFilename;
-    private String fileExt;
-    public static String FILE_BAR = "FILE_BAR";
-    public static String FILE_JAR = "FILE_JAR";
-    private String fileType = null;
+        Window.CloseListener {
 
     public ProcessDefinitionsPanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
         super(portletApplicationContext2, bpmModule, messages);
-        upload.setButtonCaption(messages.getString("btnUpload"));
-        upload.setImmediate(true);
-        upload.addListener((Upload.SucceededListener) this);
-        upload.addListener((Upload.FailedListener) this);
-//        buttonBar.addComponent(upload, 1);
-//        buttonBar.setComponentAlignment(upload, Alignment.TOP_LEFT);
         initTableUI();
     }
 
@@ -159,54 +130,5 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         }
     }
 
-    public void uploadSucceeded(SucceededEvent event) {
-        try {
-            byte[] readData = new byte[new Long(event.getLength()).intValue()];
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            int i = fis.read(readData);
-            fis.close();
-            if (this.fileType.equals(FILE_BAR)) {
-                System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
-                                    "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
-                BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = bpmModule.deploy(businessArchive);
-                showWarning(messages.getString("processUploaded") + ": " + deployResult.getLabel());
-            } else if (this.fileType.equals(FILE_JAR)) {
-                bpmModule.deployJar(originalFilename, readData);
-                showWarning(messages.getString("jarUploaded") + ": " + originalFilename);
-            }
-            file.delete();
-            refreshTable();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showError(ex.getMessage());
-        }
-    }
-
-    public void uploadFailed(FailedEvent event) {
-        showError(event.getReason().getMessage());
-    }
-
-    public OutputStream receiveUpload(
-            String filename, String MIMEType) {
-        this.originalFilename = filename;
-        this.filename = UUID.randomUUID().toString();
-        String[] fileNameParts = originalFilename.split("\\.");
-        this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
-        if (fileExt.equalsIgnoreCase("bar")) {
-            this.fileType = FILE_BAR;
-        } else if (fileExt.equalsIgnoreCase("jar")) {
-            this.fileType = FILE_JAR;
-        }
-        FileOutputStream fos = null;
-        file = new File(this.filename);
-        try {
-            fos = new FileOutputStream(file);
-        } catch (final java.io.FileNotFoundException ex) {
-           ex.printStackTrace();
-            return null;
-        }
-        return fos;
-    }
+    
 }

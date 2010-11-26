@@ -16,11 +16,12 @@
  */
 package org.processbase.ui.generator;
 
+import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
@@ -29,13 +30,12 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
+import org.vaadin.hene.popupbutton.PopupButton;
 
 /**
  *
@@ -43,23 +43,31 @@ import org.processbase.bpm.forms.XMLWidgetsDefinition;
  */
 public class GeneratedWindow extends Window implements Button.ClickListener {
 
+    private VerticalLayout layout = new VerticalLayout();
     protected HashMap<Component, XMLWidgetsDefinition> components = new HashMap<Component, XMLWidgetsDefinition>();
     protected HashMap<String, Object> procVariables = new HashMap<String, Object>();
     protected ArrayList<XMLFormDefinition> forms;
     protected TaskInstance task;
     protected ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
     protected BPMModule bpmModule = null;
+    private HorizontalLayout buttonBar = new HorizontalLayout();
 
     public GeneratedWindow(String caption) {
         super(caption);
     }
 
     protected void prepareWindow() {
-        VerticalLayout layout = (VerticalLayout) getContent();
+        setContent(layout);
         layout.setMargin(true);
         layout.setSpacing(true);
         layout.setStyleName(Reindeer.LAYOUT_WHITE);
         layout.setSizeUndefined();
+
+        prepareButtonBar();
+//        Panel panel = new Panel();
+//        panel.addComponent(buttonBar);
+        layout.addComponent(buttonBar, 0);
+
 //        genWindow.setModal(true);
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
@@ -82,14 +90,66 @@ public class GeneratedWindow extends Window implements Button.ClickListener {
             }
 
         }
-        addComponent(pages.get(0));
+        layout.addComponent(pages.get(0), 1);
         center();
         setModal(true);
-
-
-
 //        genWindow.setSizeUndefined();
-//        genWindow.setResizable(false);
+        setResizable(false);
+    }
+
+    private void prepareButtonBar() {
+
+//        Button button1 = new Button("Принять");
+//        Button button2 = new Button("Пауза");
+//        Button button3 = new Button("Продолжить");
+//        NativeSelect priority = new NativeSelect("Приоритет");
+//        priority.addItem("Нормальный");
+//        priority.addItem("Высокий");
+//        priority.addItem("Срочный");
+//
+//        buttonBar.addComponent(button1);
+//        buttonBar.addComponent(button2);
+//        buttonBar.addComponent(button3);
+//        buttonBar.addComponent(priority);
+        buttonBar.setMargin(false);
+        buttonBar.setSpacing(true);
+//
+//        MenuBar menubar = new MenuBar();
+//        final MenuBar.MenuItem executor = menubar.addItem("Принять", new ThemeResource("icons/user.png"), new Command() {
+//
+//            public void menuSelected(MenuItem selectedItem) {
+//                selectedItem.setText("Исполнитель: Губайдуллин М.Р. (marat)" );
+//                selectedItem.setEnabled(false);
+//            }
+//        });
+//
+//        final MenuBar.MenuItem state = menubar.addItem("Статус (Новый)", new ThemeResource("icons/arrow-down.png"), null);
+//
+//        final MenuBar.MenuItem priority = menubar.addItem("Приоритет (Нормальный)", new ThemeResource("icons/arrow-down.png"), null);
+//
+//        executor.addItem("Назначить", null);
+//
+//        state.addItem("Начать", null);
+//        state.addItem("Пауза", null);
+//        state.addItem("Продолжить", null);
+//
+//        priority.addItem("Нормальный", null);
+//        priority.addItem("Высокий", null);
+//        priority.addItem("Срочный", null);
+
+        PopupButton popupButton = new PopupButton("Action");
+
+        HorizontalLayout popupLayout = new HorizontalLayout();
+
+        popupButton.setComponent(popupLayout); // Set popup content
+
+        Button modifyButton = new Button("Modify");
+        modifyButton.setIcon(new ThemeResource("icons/document-txt.png"));
+        popupLayout.addComponent(modifyButton);
+
+
+        buttonBar.addComponent(popupButton);
+
     }
 
     private Component getComponent(XMLWidgetsDefinition widgets) {

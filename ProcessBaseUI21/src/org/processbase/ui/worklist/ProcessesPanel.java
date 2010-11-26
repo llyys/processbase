@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.Set;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
@@ -52,8 +53,6 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnWidth("version", 50);
         table.addContainerProperty("number", String.class, null, messages.getString("tableCaptionNumber"), null, null);
         table.setColumnWidth("number", 50);
-        table.addContainerProperty("customID", String.class, null, messages.getString("tableCaptionCustomId"), null, null);
-        table.setColumnWidth("customID", 150);
         table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
         table.setColumnWidth("createdDate", 100);
@@ -67,7 +66,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnWidth("state", 90);
         table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 95);
-        table.setVisibleColumns(new Object[]{"name", "version", "number", "customID", "createdDate", "lastUpdate", "endDate", "state", "actions"});
+        table.setVisibleColumns(new Object[]{"name", "version", "number", "createdDate", "lastUpdate", "endDate", "state", "actions"});
         
     }
 
@@ -75,14 +74,9 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            for (LightProcessInstance process : bpmModule.getLightUserInstances()) {
+            Set<LightProcessInstance> processInstances = bpmModule.getLightUserInstances();
+            for (LightProcessInstance process : processInstances) {
                 Item woItem = table.addItem(process);
-                try {
-                    String customID = (String) bpmModule.getProcessInstanceVariable(process.getUUID(), "customID");
-                    woItem.getItemProperty("customID").setValue(customID);
-                } catch (VariableNotFoundException ex) {
-                    woItem.getItemProperty("customID").setValue("");
-                }
                 woItem.getItemProperty("name").setValue(process.getProcessDefinitionUUID().getProcessName());
                 woItem.getItemProperty("version").setValue(process.getProcessDefinitionUUID().getProcessVersion());
                 woItem.getItemProperty("number").setValue("" + process.getNb());
@@ -94,6 +88,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
                 tebb.addButton(getExecBtn(messages.getString("btnInformation"), "icons/document-txt.png", process, Constants.ACTION_OPEN));
                 woItem.getItemProperty("actions").setValue(tebb);
             }
+             this.rowCount = processInstances.size();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

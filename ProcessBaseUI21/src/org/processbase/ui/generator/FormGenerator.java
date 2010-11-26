@@ -17,7 +17,9 @@
 package org.processbase.ui.generator;
 
 import java.util.ArrayList;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 
@@ -30,9 +32,9 @@ public class FormGenerator {
     private GeneratedWindow genWindow;
     
     
-    public FormGenerator(TaskInstance task, ArrayList<XMLFormDefinition> forms, BPMModule bpmModule) {
+    public FormGenerator(LightTaskInstance task, ArrayList<XMLFormDefinition> forms, BPMModule bpmModule) throws Exception {
         genWindow = new GeneratedWindow(task.getActivityLabel());
-        genWindow.task = task;
+        genWindow.task = bpmModule.getTaskInstance(task.getUUID());
         genWindow.forms = forms;
         genWindow.bpmModule = bpmModule;
         genWindow.prepareWindow();

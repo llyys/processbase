@@ -56,6 +56,7 @@ import org.ow2.bonita.identity.auth.DomainOwner;
 import org.ow2.bonita.identity.auth.UserOwner;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.diagram.Diagram;
 import org.processbase.bpm.forms.BonitaFormParcer;
 import org.processbase.bpm.forms.XMLFormDefinition;
@@ -134,6 +135,11 @@ public class BPMModule {
     public Collection<TaskInstance> getTaskList(ActivityState state) throws Exception {
         initContext();
         return queryRuntimeAPI.getTaskList(state);
+    }
+
+    public Collection<LightTaskInstance> getLightTaskList(ActivityState state) throws Exception {
+        initContext();
+        return queryRuntimeAPI.getLightTaskList(state);
     }
 
     public Set<ProcessInstance> getUserInstances() throws Exception {
@@ -400,7 +406,7 @@ public class BPMModule {
         return d.getImage();
     }
 
-    public ArrayList<XMLFormDefinition> getXMLFormDefinition(TaskInstance taskInstance) throws Exception {
+    public ArrayList<XMLFormDefinition> getXMLFormDefinition(LightTaskInstance taskInstance) throws Exception {
         XMLProcessDefinition process = getXMLProcessDefinition(taskInstance.getProcessDefinitionUUID());
         return process.getForms().get(taskInstance.getActivityName());
     }

@@ -33,6 +33,7 @@ import org.processbase.bpm.BPMModule;
 public class TablePanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
 
     protected Table table = new Table();
+    public int rowCount = 0;
 
     public TablePanel(PortletApplicationContext2 portletApplicationContext2, BPMModule bpmModule, ResourceBundle messages) {
         super(portletApplicationContext2, bpmModule, messages);
@@ -48,6 +49,9 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
         table.setSizeFull();
         table.setPageLength(15);
         table.addStyleName("striped");
+//        table.setSelectable(true);
+//        table.setMultiSelect(false);
+//        table.setImmediate(false);
         horizontalLayout.addComponent(table, 0);
         horizontalLayout.setComponentAlignment(table, Alignment.TOP_LEFT);
         horizontalLayout.setExpandRatio(table, 1);

@@ -17,31 +17,45 @@
 package org.processbase.ui.portlet;
 
 import com.liferay.portal.model.User;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.processbase.bpm.BPMModule;
 import org.processbase.ui.admin.ActivityInstancesPanel;
 import org.processbase.ui.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.admin.ProcessInstancesPanel;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.FailedEvent;
+import com.vaadin.ui.Upload.SucceededEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ResourceBundle;
+import java.util.UUID;
+import org.ow2.bonita.facade.def.element.BusinessArchive;
+import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.TablePanel;
-import org.processbase.ui.worklist.ProcessesPanel;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.util.BusinessArchiveFactory;
 
 /**
  *
  * @author mgubaidullin
  */
-public class AdminPortlet extends InternalApplication implements Button.ClickListener {
+public class AdminPortlet extends InternalApplication
+        implements Button.ClickListener,
+        Upload.SucceededListener,
+        Upload.FailedListener,
+        Upload.Receiver {
 
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
@@ -56,6 +70,15 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
     private Button processInstancesBtn = null;
     private Button activityInstancesBtn = null;
     private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
+
+    private Upload upload = new Upload("", (Upload.Receiver) this);
+    private File file;
+    private String filename;
+    private String originalFilename;
+    private String fileExt;
+    public static String FILE_BAR = "FILE_BAR";
+    public static String FILE_JAR = "FILE_JAR";
+    private String fileType = null;
 
     @Override
     public void init() {
@@ -98,6 +121,7 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
     private void setCurrentPanel(TablePanel tablePanel) {
         mainLayout.replaceComponent(mainLayout.getComponent(1), tablePanel);
         tablePanel.refreshTable();
+        upload.setVisible(tablePanel.equals(processDefinitionsPanel));
     }
 
     private void prepareButtonBar() {
@@ -105,7 +129,7 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
         processDefinitionBtn = new Button(this.messages.getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
-        
+
         buttonBar.addComponent(processDefinitionBtn, 0);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
@@ -127,6 +151,13 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
 
+        upload.setButtonCaption(messages.getString("btnUpload"));
+        upload.setImmediate(true);
+        upload.addListener((Upload.SucceededListener) this);
+        upload.addListener((Upload.FailedListener) this);
+        buttonBar.addComponent(upload, 4);
+        buttonBar.setComponentAlignment(upload, Alignment.MIDDLE_RIGHT);
+
 
         buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
@@ -146,7 +177,7 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
     public void buttonClick(ClickEvent event) {
         TablePanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
-            ((TablePanel)mainLayout.getComponent(1)).refreshTable();
+            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
         } else {
             activateButtons();
             event.getButton().setStyleName("special");
@@ -155,12 +186,63 @@ public class AdminPortlet extends InternalApplication implements Button.ClickLis
         }
     }
 
-    private void activateButtons(){
+    private void activateButtons() {
         processDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
         processDefinitionBtn.setEnabled(true);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         processInstancesBtn.setEnabled(true);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         activityInstancesBtn.setEnabled(true);
+    }
+
+    public void uploadSucceeded(SucceededEvent event) {
+        try {
+            byte[] readData = new byte[new Long(event.getLength()).intValue()];
+            FileInputStream fis = null;
+            fis = new FileInputStream(file);
+            int i = fis.read(readData);
+            fis.close();
+            if (this.fileType.equals(FILE_BAR)) {
+                System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
+                                    "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
+                BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
+                ProcessDefinition deployResult = bpmModule.deploy(businessArchive);
+                processDefinitionsPanel.showWarning(messages.getString("processUploaded") + ": " + deployResult.getLabel());
+            } else if (this.fileType.equals(FILE_JAR)) {
+                bpmModule.deployJar(originalFilename, readData);
+                processDefinitionsPanel.showWarning(messages.getString("jarUploaded") + ": " + originalFilename);
+            }
+            file.delete();
+            processDefinitionsPanel.refreshTable();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            processDefinitionsPanel.showError(ex.getMessage());
+        }
+    }
+
+    public void uploadFailed(FailedEvent event) {
+        processDefinitionsPanel.showError(event.getReason().getMessage());
+    }
+
+    public OutputStream receiveUpload(
+            String filename, String MIMEType) {
+        this.originalFilename = filename;
+        this.filename = UUID.randomUUID().toString();
+        String[] fileNameParts = originalFilename.split("\\.");
+        this.fileExt = fileNameParts.length > 0 ? fileNameParts[fileNameParts.length - 1] : null;
+        if (fileExt.equalsIgnoreCase("bar")) {
+            this.fileType = FILE_BAR;
+        } else if (fileExt.equalsIgnoreCase("jar")) {
+            this.fileType = FILE_JAR;
+        }
+        FileOutputStream fos = null;
+        file = new File(this.filename);
+        try {
+            fos = new FileOutputStream(file);
+        } catch (final java.io.FileNotFoundException ex) {
+           ex.printStackTrace();
+            return null;
+        }
+        return fos;
     }
 }

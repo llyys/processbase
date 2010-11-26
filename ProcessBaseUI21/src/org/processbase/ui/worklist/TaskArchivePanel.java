@@ -46,8 +46,8 @@ public class TaskArchivePanel extends TablePanel {
         table.addContainerProperty("name", String.class, null, messages.getString("tableCaptionTask"), null, null);
         table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
-        table.addContainerProperty("dueDate", Date.class, null, messages.getString("tableCaptionDueDate"), null, null);
-        table.addGeneratedColumn("dueDate", new PbColumnGenerator());
+        table.addContainerProperty("expectedEndDate", Date.class, null, messages.getString("tableCaptionExpectedEndDate"), null, null);
+        table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
         table.addContainerProperty("endDate", Date.class, null, messages.getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
         table.addContainerProperty("candidates", String.class, null, messages.getString("tableCaptionCandidates"), null, null);
@@ -66,11 +66,12 @@ public class TaskArchivePanel extends TablePanel {
                 woItem.getItemProperty("name").setValue(task.getActivityLabel());
                 woItem.getItemProperty("candidates").setValue(task.getTaskCandidates().toString());
                 woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
-                woItem.getItemProperty("dueDate").setValue(task.getExpectedEndDate());
+                woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
                 woItem.getItemProperty("endDate").setValue(task.getEndedDate());
                 woItem.getItemProperty("endedBy").setValue(task.getEndedBy());
                 woItem.getItemProperty("actions").setValue(startButton(task));
             }
+             this.rowCount = tasks.size();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

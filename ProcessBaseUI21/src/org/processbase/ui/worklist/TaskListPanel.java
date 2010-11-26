@@ -40,6 +40,7 @@ import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.core.Constants;
@@ -61,159 +62,91 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
         table.addContainerProperty("accepted", ThemeResource.class, null);
         table.setItemIconPropertyId("accepted");
-        table.addContainerProperty("name", Component.class, null, messages.getString("tableCaptionTask"), null, null);
-        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("customID", String.class, null, messages.getString("tableCaptionCustomId"), null, null);
-        table.setColumnWidth("customID", 150);
-        table.addContainerProperty("createdDate", Date.class, null, messages.getString("tableCaptionCreatedDate"), null, null);
-        table.addGeneratedColumn("createdDate", new PbColumnGenerator());
-        table.setColumnWidth("createdDate", 100);
-//        table.addContainerProperty("dueDate", Date.class, null, messages.getString("tableCaptionDueDate"), null, null);
-//        table.addGeneratedColumn("dueDate", new PbColumnGenerator());
-//        table.setColumnWidth("dueDate", 100);
-        table.addContainerProperty("startedDate", Date.class, null, messages.getString("tableCaptionStartedDate"), null, null);
-        table.addGeneratedColumn("startedDate", new PbColumnGenerator());
-        table.setColumnWidth("startedDate", 100);
-//        table.addContainerProperty("candidates", String.class, null, messages.getString("tableCaptionCandidates"), null, null);
-//        table.addContainerProperty("startedBy", String.class, null, "Выполняет", null, null);
-//        table.addContainerProperty("taskUser", String.class, null, messages.getString("tableCaptionTaskUser"), null, null);
-        table.addContainerProperty("state", String.class, null, messages.getString("tableCaptionState"), null, null);
-        table.setColumnWidth("state", 90);
-        table.addContainerProperty("actions", TableExecButtonBar.class, null, messages.getString("tableCaptionActions"), null, null);
-        table.setColumnWidth("actions", 95);
-        table.setVisibleColumns(new Object[]{"name", "customID", "createdDate", "startedDate", "state", "actions"});
+        table.addContainerProperty("processName", Component.class, null, messages.getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("taskName", Label.class, null, messages.getString("tableCaptionTask"), null, null);
+        table.setColumnExpandRatio("taskName", 1);
+        table.addContainerProperty("lastUpdate", Date.class, null, messages.getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
+        table.setColumnWidth("lastUpdate", 100);
+        table.addContainerProperty("expectedEndDate", Date.class, null, messages.getString("tableCaptionExpectedEndDate"), null, null);
+        table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
+        table.setColumnWidth("expectedEndDate", 100);
+        table.setVisibleColumns(new Object[]{"processName", "taskName", "lastUpdate", "expectedEndDate"});
     }
 
     @Override
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Collection<TaskInstance> tasks = bpmModule.getTaskList(ActivityState.READY);
-            tasks.addAll(bpmModule.getTaskList(ActivityState.EXECUTING));
-            tasks.addAll(bpmModule.getTaskList(ActivityState.SUSPENDED));
+            Collection<LightTaskInstance> tasks = bpmModule.getLightTaskList(ActivityState.READY);
+            tasks.addAll(bpmModule.getLightTaskList(ActivityState.EXECUTING));
+            tasks.addAll(bpmModule.getLightTaskList(ActivityState.SUSPENDED));
 //        tasks.addAll(bpmModule.getActivities(ActivityState.INITIAL));
-            for (TaskInstance task : tasks) {
+            for (LightTaskInstance task : tasks) {
                 addTableRow(task, null);
             }
+            this.rowCount = tasks.size();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        table.setSortContainerPropertyId("createdDate");
+        table.setSortContainerPropertyId("lastUpdate");
         table.setSortAscending(false);
         table.sort();
 
     }
 
-    private void addTableRow(TaskInstance task, TaskInstance previousTask) throws InstanceNotFoundException, Exception {
+    private void addTableRow(LightTaskInstance task, LightTaskInstance previousTask) throws InstanceNotFoundException, Exception {
         Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
-        woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/empty.png"));
-        woItem.getItemProperty("name").setValue(getTaskLink(task.getActivityLabel() + " (" + task.getProcessDefinitionUUID().getProcessName() + " #" + task.getProcessInstanceUUID().getInstanceNb() + ")", task.getActivityDescription(), task, Constants.ACTION_OPEN));
-        try {
-            String customID = (String) bpmModule.getProcessInstanceVariable(task.getProcessInstanceUUID(), "customID");
-            woItem.getItemProperty("customID").setValue(customID);
-        } catch (VariableNotFoundException ex) {
-            woItem.getItemProperty("customID").setValue("");
-        }
-//                woItem.getItemProperty("candidates").setValue(task.getBody().getTaskCandidates().toString());
-        woItem.getItemProperty("createdDate").setValue(task.getCreatedDate());
-        woItem.getItemProperty("startedDate").setValue(task.getStartedDate());
-//                woItem.getItemProperty("dueDate").setValue(task.getBody().getDueDate());
-        woItem.getItemProperty("state").setValue(messages.getString(task.getState().toString()));
-//                woItem.getItemProperty("startedBy").setValue(task.getBody().getStartedBy());
-//                woItem.getItemProperty("taskUser").setValue(task.getBody().isTaskAssigned() ? task.getBody().getTaskUser() : "");
-        TableExecButtonBar tebb = new TableExecButtonBar();
+
+//        woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/email.png"));
+        ThemeResource icon = null;
         if (!task.isTaskAssigned()) {
-            tebb.addButton(getExecBtn(messages.getString("btnAccept"), "icons/accept.png", task, Constants.ACTION_ACCEPT));
+            icon = new ThemeResource("icons/email.png");
+        } else if (task.getState().equals(ActivityState.SUSPENDED)) {
+            icon = new ThemeResource("icons/pause.png");
+        } else if (task.getState().equals(ActivityState.EXECUTING)) {
+            icon = new ThemeResource("icons/start.png");
         } else {
-            tebb.addButton(getExecBtn(messages.getString("btnReturn"), "icons/return.png", task, Constants.ACTION_RETURN));
+            icon = new ThemeResource("icons/empty.png");
         }
-        tebb.addButton(getExecBtn(messages.getString("btnExecute"), "icons/start.png", task, Constants.ACTION_START));
-        tebb.addButton(getExecBtn(messages.getString("btnSuspend"), "icons/pause.png", task, Constants.ACTION_SUSPEND));
-        tebb.addButton(getExecBtn(messages.getString("btnOpen"), "icons/document-txt.png", task, Constants.ACTION_OPEN));
-        woItem.getItemProperty("actions").setValue(tebb);
+        woItem.getItemProperty("accepted").setValue(icon);
+        TableExecButton teb = new TableExecButton(bpmModule.getProcessDefinition(task.getProcessDefinitionUUID()).getLabel(), task.getActivityDescription(), null, task, this, Constants.ACTION_OPEN);
+        woItem.getItemProperty("processName").setValue(teb);
+        woItem.getItemProperty("taskName").setValue(new Label("<b>" + task.getActivityLabel() + "</b><i> - " + task.getDynamicLabel() + "</i>", Label.CONTENT_XHTML));
+        woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
+        woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
+
     }
 
-    @Override
-    public TableExecButton getExecBtn(String description, String iconName, Object t, String action) {
-        TableExecButton execBtn = new TableExecButton(description, iconName, t, this, action);
-        execBtn.setEnabled(false);
-        TaskInstance task = (TaskInstance) t;
-        if (execBtn.getAction().equals(Constants.ACTION_START) && task.isTaskAssigned() && (task.getState().equals(ActivityState.READY) || task.getState().equals(ActivityState.SUSPENDED))) {
-            execBtn.setEnabled(true);
-        } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
-            execBtn.setEnabled(true);
-        } else if (execBtn.getAction().equals(Constants.ACTION_ACCEPT) || execBtn.getAction().equals(Constants.ACTION_RETURN)) {
-            execBtn.setEnabled(true);
-        } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
-            execBtn.setEnabled(true);
-        }
-        return execBtn;
-    }
-
-    public Component getTaskLink(String caption, String description, Object t, String action) {
-        TaskInstance ti = (TaskInstance) t;
-        if (ti.isTaskAssigned()
-                && (ti.getState().equals(ActivityState.EXECUTING) || ti.getState().equals(ActivityState.READY))) {
-            return new TableExecButton(caption, description, null, t, this, action);
-        } else {
-            return new Label(caption);
-        }
-    }
-
+//    @Override
+//    public TableExecButton getExecBtn(String description, String iconName, Object t, String action) {
+//        TableExecButton execBtn = new TableExecButton(description, iconName, t, this, action);
+//        execBtn.setEnabled(false);
+//        LightTaskInstance task = (LightTaskInstance) t;
+//        if (execBtn.getAction().equals(Constants.ACTION_START) && task.isTaskAssigned() && (task.getState().equals(ActivityState.READY) || task.getState().equals(ActivityState.SUSPENDED))) {
+//            execBtn.setEnabled(true);
+//        } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
+//            execBtn.setEnabled(true);
+//        } else if (execBtn.getAction().equals(Constants.ACTION_ACCEPT) || execBtn.getAction().equals(Constants.ACTION_RETURN)) {
+//            execBtn.setEnabled(true);
+//        } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND) && task.getState().equals(ActivityState.EXECUTING) && task.isTaskAssigned()) {
+//            execBtn.setEnabled(true);
+//        }
+//        return execBtn;
+//    }
     @Override
     public void buttonClick(ClickEvent event) {
         super.buttonClick(event);
         if (event.getButton() instanceof TableExecButton) {
             try {
-                TableExecButton execBtn = (TableExecButton) event.getButton();
-                TaskInstance task = (TaskInstance) ((TableExecButton) event.getButton()).getTableValue();
-                if (execBtn.getAction().equals(Constants.ACTION_ACCEPT)) {
-                    TaskInstance newTask = bpmModule.assignTask(task.getUUID(), this.getCurrentUser().getScreenName());
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
+                LightTaskInstance task = (LightTaskInstance) ((TableExecButton) event.getButton()).getTableValue();
+                LightTaskInstance newTask = bpmModule.getTaskInstance(task.getUUID());
+                if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
                     table.removeItem(task);
-                } else if (execBtn.getAction().equals(Constants.ACTION_RETURN)) {
-                    TaskInstance newTask = bpmModule.unassignTask(task.getUUID());
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
-                    table.removeItem(task);
-                } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.READY)) {
-                    TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
-                    table.removeItem(task);
-                    openTaskPage(newTask);
-                } else if (execBtn.getAction().equals(Constants.ACTION_START) && task.getState().equals(ActivityState.SUSPENDED)) {
-                    TaskInstance newTask = bpmModule.resumeTask(task.getUUID(), true);
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
-                    table.removeItem(task);
-                    openTaskPage(newTask);
-                } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && task.getState().equals(ActivityState.READY)) {
-                    TaskInstance newTask = bpmModule.startTask(task.getUUID(), true);
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
-                    table.removeItem(task);
-                    openTaskPage(newTask);
-                } else if (execBtn.getAction().equals(Constants.ACTION_OPEN) && !task.getState().equals(ActivityState.READY)) {
-                    TaskInstance newTask = bpmModule.getTaskInstance(task.getUUID());
-                    if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
-                        table.removeItem(task);
-                    } else {
-                        openTaskPage(task);
-                    }
-                } else if (execBtn.getAction().equals(Constants.ACTION_SUSPEND)) {
-                    TaskInstance newTask = bpmModule.suspendTask(task.getUUID(), true);
-                    if (newTask != null) {
-                        addTableRow(newTask, task);
-                    }
-                    table.removeItem(task);
+                } else {
+                    openTaskPage(task);
                 }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
@@ -221,7 +154,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         }
     }
 
-    public void openTaskPage(TaskInstance task) {
+    public void openTaskPage(LightTaskInstance task) {
         try {
             String url = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             getPortletApplicationContext2().getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);

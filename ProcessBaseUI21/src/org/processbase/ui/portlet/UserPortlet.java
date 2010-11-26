@@ -20,8 +20,6 @@ import com.liferay.portal.model.User;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
@@ -87,6 +85,8 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
         panels.put(myTaskListBtn, taskListPanel);
         mainLayout.addComponent(taskListPanel, 1);
         taskListPanel.refreshTable();
+        myTaskListBtn.setCaption(this.messages.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+
 
         taskArchivePanel = new TaskArchivePanel(this.portletApplicationContext2, bpmModule, messages);
         panels.put(myTaskArchiveBtn, taskArchivePanel);
@@ -146,21 +146,33 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
     public void buttonClick(ClickEvent event) {
         TablePanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
-            ((TablePanel)mainLayout.getComponent(1)).refreshTable();
+            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
         } else {
             activateButtons();
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
         }
+        if (!myTaskListBtn.isEnabled()) {
+            myTaskListBtn.setCaption(this.messages.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+        } else if (!myProcessesBtn.isEnabled()) {
+            myProcessesBtn.setCaption(this.messages.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
+        } else if (!myTaskArchiveBtn.isEnabled()) {
+            myTaskArchiveBtn.setCaption(this.messages.getString("myTaskArchiveBtn") + " (" + taskArchivePanel.rowCount + ")");
+        }
     }
 
-    private void activateButtons(){
+    private void activateButtons() {
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myProcessesBtn.setEnabled(true);
+        myProcessesBtn.setCaption(this.messages.getString("myProcessesBtn"));
+
         myTaskListBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskListBtn.setEnabled(true);
+        myTaskListBtn.setCaption(this.messages.getString("myTaskListBtn"));
+
         myTaskArchiveBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskArchiveBtn.setEnabled(true);
+        myTaskArchiveBtn.setCaption(this.messages.getString("myTaskArchiveBtn"));
     }
 }
