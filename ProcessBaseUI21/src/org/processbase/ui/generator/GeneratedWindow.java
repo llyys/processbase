@@ -16,59 +16,43 @@
  */
 package org.processbase.ui.generator;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
-import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
-import org.vaadin.hene.popupbutton.PopupButton;
+import org.processbase.ui.template.HumanTaskWindow;
 
 /**
  *
  * @author marat
  */
-public class GeneratedWindow extends Window implements Button.ClickListener {
+public class GeneratedWindow extends HumanTaskWindow  {
 
-    private VerticalLayout layout = new VerticalLayout();
-    protected HashMap<Component, XMLWidgetsDefinition> components = new HashMap<Component, XMLWidgetsDefinition>();
-    protected HashMap<String, Object> procVariables = new HashMap<String, Object>();
-    protected ArrayList<XMLFormDefinition> forms;
-    protected TaskInstance task;
-    protected ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
-    protected BPMModule bpmModule = null;
-    private HorizontalLayout buttonBar = new HorizontalLayout();
+    private HashMap<Component, XMLWidgetsDefinition> components = new HashMap<Component, XMLWidgetsDefinition>();
+    private ArrayList<XMLFormDefinition> forms;
+    private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
+  
 
-    public GeneratedWindow(String caption) {
-        super(caption);
+    public GeneratedWindow(String caption, PortletApplicationContext2 portletApplicationContext2) {
+        super(caption, portletApplicationContext2);
     }
 
-    protected void prepareWindow() {
-        setContent(layout);
-        layout.setMargin(true);
-        layout.setSpacing(true);
-        layout.setStyleName(Reindeer.LAYOUT_WHITE);
-        layout.setSizeUndefined();
+    @Override
+    public void initUI() {
+        super.initUI();
+        generateWindow();
+    }
 
-        prepareButtonBar();
-//        Panel panel = new Panel();
-//        panel.addComponent(buttonBar);
-        layout.addComponent(buttonBar, 0);
-
-//        genWindow.setModal(true);
+    protected void generateWindow() {
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
             page.setMargin(true);
@@ -90,69 +74,11 @@ public class GeneratedWindow extends Window implements Button.ClickListener {
             }
 
         }
-        layout.addComponent(pages.get(0), 1);
-        center();
-        setModal(true);
-//        genWindow.setSizeUndefined();
-        setResizable(false);
+        taskPanel.setContent(pages.get(0));
+        taskPanel.setCaption(forms.get(0).getLabel());
     }
 
-    private void prepareButtonBar() {
-
-//        Button button1 = new Button("Принять");
-//        Button button2 = new Button("Пауза");
-//        Button button3 = new Button("Продолжить");
-//        NativeSelect priority = new NativeSelect("Приоритет");
-//        priority.addItem("Нормальный");
-//        priority.addItem("Высокий");
-//        priority.addItem("Срочный");
-//
-//        buttonBar.addComponent(button1);
-//        buttonBar.addComponent(button2);
-//        buttonBar.addComponent(button3);
-//        buttonBar.addComponent(priority);
-        buttonBar.setMargin(false);
-        buttonBar.setSpacing(true);
-//
-//        MenuBar menubar = new MenuBar();
-//        final MenuBar.MenuItem executor = menubar.addItem("Принять", new ThemeResource("icons/user.png"), new Command() {
-//
-//            public void menuSelected(MenuItem selectedItem) {
-//                selectedItem.setText("Исполнитель: Губайдуллин М.Р. (marat)" );
-//                selectedItem.setEnabled(false);
-//            }
-//        });
-//
-//        final MenuBar.MenuItem state = menubar.addItem("Статус (Новый)", new ThemeResource("icons/arrow-down.png"), null);
-//
-//        final MenuBar.MenuItem priority = menubar.addItem("Приоритет (Нормальный)", new ThemeResource("icons/arrow-down.png"), null);
-//
-//        executor.addItem("Назначить", null);
-//
-//        state.addItem("Начать", null);
-//        state.addItem("Пауза", null);
-//        state.addItem("Продолжить", null);
-//
-//        priority.addItem("Нормальный", null);
-//        priority.addItem("Высокий", null);
-//        priority.addItem("Срочный", null);
-
-        PopupButton popupButton = new PopupButton("Action");
-
-        HorizontalLayout popupLayout = new HorizontalLayout();
-
-        popupButton.setComponent(popupLayout); // Set popup content
-
-        Button modifyButton = new Button("Modify");
-        modifyButton.setIcon(new ThemeResource("icons/document-txt.png"));
-        popupLayout.addComponent(modifyButton);
-
-
-        buttonBar.addComponent(popupButton);
-
-    }
-
-    private Component getComponent(XMLWidgetsDefinition widgets) {
+   private Component getComponent(XMLWidgetsDefinition widgets) {
         Component result = null;
         Object value = null;
         DataFieldDefinition dfd = null;
@@ -199,7 +125,9 @@ public class GeneratedWindow extends Window implements Button.ClickListener {
         return result;
     }
 
+    @Override
     public void buttonClick(ClickEvent event) {
+        super.buttonClick(event);
         Button btn = event.getButton();
         if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
             try {
@@ -238,4 +166,8 @@ public class GeneratedWindow extends Window implements Button.ClickListener {
         }
         return null;
     }
+
+   public void setForms(ArrayList<XMLFormDefinition> forms) {
+        this.forms = forms;
+    } 
 }

@@ -25,7 +25,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,13 +32,10 @@ import java.util.Date;
 import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
-import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TableExecButton;
-import org.processbase.ui.template.TableExecButtonBar;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
@@ -165,7 +161,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
 //                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL
                 ArrayList<XMLFormDefinition> forms = bpmModule.getXMLFormDefinition(task);
                 if (forms.size() > 0) {
-                    FormGenerator fg = new FormGenerator(task, forms, bpmModule);
+                    FormGenerator fg = new FormGenerator(task, forms, bpmModule, messages, portletApplicationContext2);
                     this.getApplication().getMainWindow().addWindow(fg.getWindow());
                 }
             }
