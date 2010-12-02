@@ -21,7 +21,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import java.util.ArrayList;
@@ -35,12 +37,11 @@ import org.processbase.ui.template.HumanTaskWindow;
  *
  * @author marat
  */
-public class GeneratedWindow extends HumanTaskWindow  {
+public class GeneratedWindow extends HumanTaskWindow implements Button.ClickListener {
 
     private HashMap<Component, XMLWidgetsDefinition> components = new HashMap<Component, XMLWidgetsDefinition>();
     private ArrayList<XMLFormDefinition> forms;
     private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
-  
 
     public GeneratedWindow(String caption, PortletApplicationContext2 portletApplicationContext2) {
         super(caption, portletApplicationContext2);
@@ -55,17 +56,17 @@ public class GeneratedWindow extends HumanTaskWindow  {
     protected void generateWindow() {
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
-            page.setMargin(true);
+            page.setMargin(false, true, true, true);
             page.setSpacing(true);
-            page.setSizeUndefined();
-            System.out.println("GRID " + form.getnColumn() + " " + form.getnLine());
+//            page.setSizeFull();
+//            System.out.println("GRID " + form.getnColumn() + " " + form.getnLine());
             page.setHeight(form.getHeight() != null ? (form.getHeight().contains("%") ? form.getHeight() : form.getHeight() + "px") : "100%");
             page.setWidth(form.getWidth() != null ? (form.getWidth().contains("%") ? form.getWidth() : form.getWidth() + "px") : "100%");
             pages.add(page);
 
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
             for (XMLWidgetsDefinition widgets : widgetsList) {
-                System.out.println("ADD TO GRID " + widgets.getColumn() + " " + widgets.getLine() + " " + (widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() : 0)));
+//                System.out.println("ADD TO GRID " + widgets.getColumn() + " " + widgets.getLine() + " " + (widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() : 0)));
                 Component component = getComponent(widgets);
                 if (component != null) {
                     components.put(component, widgets);
@@ -78,64 +79,90 @@ public class GeneratedWindow extends HumanTaskWindow  {
         taskPanel.setCaption(forms.get(0).getLabel());
     }
 
-   private Component getComponent(XMLWidgetsDefinition widgets) {
-        Component result = null;
+    private Component getComponent(XMLWidgetsDefinition widgets) {
         Object value = null;
         DataFieldDefinition dfd = null;
         try {
-            if (widgets.getSetVarScript() != null) {
+            if (!initial && widgets.getSetVarScript() != null) {
                 value = bpmModule.getProcessInstanceVariable(task.getProcessInstanceUUID(), widgets.getSetVarScript());
-                dfd = bpmModule.getProcessDataField(task.getProcessDefinitionUUID(), widgets.getSetVarScript());
             }
+            dfd = bpmModule.getProcessDataField(task.getProcessDefinitionUUID(), widgets.getSetVarScript());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         if (widgets.getType().equals("form:TextFormField")) {
-            TextField component = new TextField(widgets.getDisplayLabel());
-            component.setValue(value);
-            component.setNullRepresentation("");
-            result = component;
+            return getTextField(widgets, dfd, value);
+        }
+        if (widgets.getType().equals("form:DateFormField")) {
+            return getPopupDateField(widgets, dfd, value);
         }
         if (widgets.getType().equals("form:TextAreaFormField")) {
-            TextField component = new TextField(widgets.getDisplayLabel());
-            component.setValue(value);
-            component.setRows(4);
-            component.setNullRepresentation("");
-            result = component;
+            return getTextField(widgets, dfd, value);
         }
         if (widgets.getType().equals("form:RichTextAreaFormField")) {
-            RichTextArea component = new RichTextArea(widgets.getDisplayLabel());
-            component.setValue(value);
-            component.setNullRepresentation("");
-            result = component;
+            return getRichTextArea(widgets, dfd, value);
         }
         if (widgets.getType().equals("form:SelectFormField")) {
-            NativeSelect component = new NativeSelect(widgets.getDisplayLabel());
-            for (String key : dfd.getEnumerationValues()) {
-                component.addItem(key);
-            }
-            component.setValue(value);
-            result = component;
+            return getNativeSelect(widgets, dfd, value);
         }
         if (widgets.getType().equals("form:SubmitFormButton")) {
-            Button component = new Button(widgets.getDisplayLabel());
-            component.addListener((Button.ClickListener) this);
-            result = component;
+            return getButton(widgets, dfd, value);
         }
-        return result;
+        return new Label("");
     }
 
-    @Override
+    private TextField getTextField(XMLWidgetsDefinition widgets, DataFieldDefinition dfd, Object value) {
+        TextField component = new TextField(widgets.getDisplayLabel());
+        component.setValue(initial ? dfd.getInitialValue() : value);
+        component.setNullRepresentation("");
+        return component;
+    }
+
+    private PopupDateField getPopupDateField(XMLWidgetsDefinition widgets, DataFieldDefinition dfd, Object value) {
+        PopupDateField component = new PopupDateField(widgets.getDisplayLabel());
+        component.setValue(initial ? dfd.getInitialValue() : value);
+        component.setResolution(PopupDateField.RESOLUTION_DAY);
+
+        return component;
+    }
+
+    private RichTextArea getRichTextArea(XMLWidgetsDefinition widgets, DataFieldDefinition dfd, Object value) {
+        RichTextArea component = new RichTextArea(widgets.getDisplayLabel());
+        component.setValue(initial ? dfd.getInitialValue() : value);
+        component.setNullRepresentation("");
+        return component;
+    }
+
+    private NativeSelect getNativeSelect(XMLWidgetsDefinition widgets, DataFieldDefinition dfd, Object value) {
+        NativeSelect component = new NativeSelect(widgets.getDisplayLabel());
+        for (String key : dfd.getEnumerationValues()) {
+            component.addItem(key);
+        }
+        component.setValue(initial ? dfd.getInitialValue() : value);
+        return component;
+    }
+
+    private Button getButton(XMLWidgetsDefinition widgets, DataFieldDefinition dfd, Object value) {
+        Button component = new Button(widgets.getDisplayLabel());
+        component.addListener((Button.ClickListener) this);
+        return component;
+    }
+
     public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
-        Button btn = event.getButton();
-        if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
-            try {
-                setProcessVariables();
-                bpmModule.finishTask(task, true, procVariables);
-                close();
-            } catch (Exception ex) {
-                this.showNotification("Error", ex.getMessage().substring(250), Notification.TYPE_WARNING_MESSAGE);
+        if (components.containsKey(event.getButton())) {
+            Button btn = event.getButton();
+            if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
+                try {
+                    setProcessVariables();
+                    if (initial) {
+                        bpmModule.startNewProcess(processDef.getUUID(), procVariables);
+                    } else {
+                        bpmModule.finishTask(task, true, procVariables);
+                    }
+                    close();
+                } catch (Exception ex) {
+                    this.showNotification("Error", ex.getMessage().substring(250), Notification.TYPE_WARNING_MESSAGE);
+                }
             }
         }
     }
@@ -167,7 +194,7 @@ public class GeneratedWindow extends HumanTaskWindow  {
         return null;
     }
 
-   public void setForms(ArrayList<XMLFormDefinition> forms) {
+    public void setForms(ArrayList<XMLFormDefinition> forms) {
         this.forms = forms;
-    } 
+    }
 }

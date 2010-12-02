@@ -98,17 +98,33 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         ThemeResource icon = null;
         if (!task.isTaskAssigned()) {
             icon = new ThemeResource("icons/email.png");
-        } else if (task.getState().equals(ActivityState.SUSPENDED)) {
-            icon = new ThemeResource("icons/pause.png");
-        } else if (task.getState().equals(ActivityState.EXECUTING)) {
-            icon = new ThemeResource("icons/start.png");
+        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 0) {
+            icon = new ThemeResource("icons/pause_normal.png");
+        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 1) {
+            icon = new ThemeResource("icons/pause_high.png");
+        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 2) {
+            icon = new ThemeResource("icons/pause_urgent.png");
+        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 0) {
+            icon = new ThemeResource("icons/arrow_right_normal.png");
+        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 1) {
+            icon = new ThemeResource("icons/arrow_right_high.png");
+        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 2) {
+            icon = new ThemeResource("icons/arrow_right_urgent.png");
+        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 0) {
+            icon = new ThemeResource("icons/arrow_right_normal.png");
+        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 1) {
+            icon = new ThemeResource("icons/arrow_right_high.png");
+        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 2) {
+            icon = new ThemeResource("icons/arrow_right_urgent.png");
         } else {
             icon = new ThemeResource("icons/empty.png");
         }
         woItem.getItemProperty("accepted").setValue(icon);
         TableExecButton teb = new TableExecButton(bpmModule.getProcessDefinition(task.getProcessDefinitionUUID()).getLabel(), task.getActivityDescription(), null, task, this, Constants.ACTION_OPEN);
         woItem.getItemProperty("processName").setValue(teb);
-        woItem.getItemProperty("taskName").setValue(new Label("<b>" + task.getActivityLabel() + "</b><i> - " + task.getDynamicLabel() + "</i>", Label.CONTENT_XHTML));
+        String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
+        String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";
+        woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
         woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
         woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
 
@@ -158,9 +174,10 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-//                this.getWindow().open(new ExternalResource(Constants.TASKDEFAULT_PAGE_URL
-                ArrayList<XMLFormDefinition> forms = bpmModule.getXMLFormDefinition(task);
-                if (forms.size() > 0) {
+                ArrayList<XMLFormDefinition> forms = bpmModule.getXMLFormDefinition(task.getProcessDefinitionUUID(), task.getActivityName());
+                if (forms == null){
+                    showError(messages.getString("ERROR_UI_NOT_DEFINED"));
+                }else if (forms.size() > 0) {
                     FormGenerator fg = new FormGenerator(task, forms, bpmModule, messages, portletApplicationContext2);
                     this.getApplication().getMainWindow().addWindow(fg.getWindow());
                 }

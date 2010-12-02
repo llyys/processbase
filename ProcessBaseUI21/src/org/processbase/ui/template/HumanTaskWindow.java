@@ -16,165 +16,213 @@
  */
 package org.processbase.ui.template;
 
-import com.liferay.portal.service.persistence.UserUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.bpm.BPMModule;
-import org.processbase.core.Constants;
 
 /**
  *
  * @author marat
  */
-public class HumanTaskWindow extends PbWindow implements Button.ClickListener {
+public class HumanTaskWindow extends PbWindow implements MenuBar.Command {
 
     protected VerticalLayout layout = new VerticalLayout();
     protected HashMap<String, Object> procVariables = new HashMap<String, Object>();
     protected TaskInstance task;
+    protected LightProcessDefinition processDef;
     protected BPMModule bpmModule = null;
-    protected HorizontalLayout buttonBar = new HorizontalLayout();
     protected HorizontalLayout topBar = new HorizontalLayout();
     protected MenuBar actorMenubar = new MenuBar();
-    protected MenuBar.MenuItem actor = null;
+    protected MenuBar.MenuItem actor = actorMenubar.addItem("", (MenuBar.Command) this);
+    protected MenuBar.MenuItem state = actorMenubar.addItem("", null);
+    protected MenuBar.MenuItem suspend = state.addItem("", new ThemeResource("icons/pause_normal.png"), (MenuBar.Command) this);
+    protected MenuBar.MenuItem resume = state.addItem("", new ThemeResource("icons/arrow_right_normal.png"), (MenuBar.Command) this);
     protected MenuBar priorityMenubar = new MenuBar();
-    protected MenuBar.MenuItem priority = null;
+    protected MenuBar.MenuItem priority = priorityMenubar.addItem("", null);
     protected MenuBar.MenuItem priority0 = null;
     protected MenuBar.MenuItem priority1 = null;
     protected MenuBar.MenuItem priority2 = null;
     protected Panel taskPanel = new Panel();
-    protected Button acceptBtn = null;
-    protected Button suspendBtn = null;
-    protected Button closeBtn = null;
+    protected boolean initial = true;
 
     public HumanTaskWindow(String caption, PortletApplicationContext2 portletApplicationContext2) {
         super(caption, portletApplicationContext2);
     }
 
     public void initUI() {
+        initial = task == null ? true : false;
         layout.setMargin(false);
         layout.setSpacing(false);
-        layout.setStyleName("blue");
-//        layout.setSizeFull();
+        layout.setStyleName("white");
         this.setContent(layout);
-        this.center();
-        this.setSizeUndefined();
+        layout.setSizeUndefined();
 
-        prepareTopBar();
+        if (!initial) {
+            prepareTopBar();
+        }
         preparePanel();
-        prepareButtonBar();
+
+        // min width
+        HorizontalLayout x = new HorizontalLayout();
+        x.setWidth("600px");
+        x.setHeight("0px");
+        this.addComponent(x);
+        this.center();
         this.setModal(true);
+        this.setResizable(false);
     }
 
     private void prepareTopBar() {
         topBar.setMargin(false);
         topBar.setSpacing(false);
         topBar.setWidth("100%");
+        topBar.setStyleName("menubar");
 
-        actorMenubar.setWidth("100%");
+        repaintActorMenu();
+        repaintStateMenu();
 
-//        UserUtil.findByC_SN(Constants.COMPANY_NAME, task.getTaskUser());
-        String actorText = messages.getString("taskAssignedBy") + (task.isTaskAssigned() ? ": " + task.getTaskUser() : ": ?");
-        actor = actorMenubar.addItem(actorText, new ThemeResource("icons/user.png"), null);
-        actor.setStyleName("actor");
-
-        String priorityText = null;
-        ThemeResource priorityIcon = null;
-        priority = priorityMenubar.addItem("", null);
-        priority0 = priority.addItem(messages.getString("PRIORITY_NORMAL"), new ThemeResource("icons/arrow_right_normal.png"), null);
-        priority1 = priority.addItem(messages.getString("PRIORITY_HIGH"), new ThemeResource("icons/arrow_right_high.png"), null);
+        priority0 = priority.addItem(messages.getString("PRIORITY_NORMAL"), new ThemeResource("icons/attention_normal.png"), (MenuBar.Command) this);
+        priority1 = priority.addItem(messages.getString("PRIORITY_HIGH"), new ThemeResource("icons/attention_high.png"), (MenuBar.Command) this);
         priority1.setStyleName("red");
-        priority2 = priority.addItem(messages.getString("PRIORITY_URGENT"), new ThemeResource("icons/arrow_right_urgent.png"), null);
+        priority2 = priority.addItem(messages.getString("PRIORITY_URGENT"), new ThemeResource("icons/attention_urgent.png"), (MenuBar.Command) this);
         priority2.setStyleName("red-bold");
-        switch (task.getPriority()) {
-            case 0:
-                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_NORMAL");
-                priorityIcon = new ThemeResource("icons/arrow_right_normal.png");
-                priority0.setEnabled(false);
-                break;
-            case 1:
-                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_HIGH");
-                priorityIcon = new ThemeResource("icons/arrow_right_high.png");
-                priority1.setEnabled(false);
-                break;
-            case 2:
-                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_URGENT");
-                priorityIcon = new ThemeResource("icons/arrow_right_urgent.png");
-                priority2.setEnabled(false);
-                break;
-        }
-        priority.setText(priorityText);
-        priority.setIcon(priorityIcon);
+        repaintPriorityMenu(task.getPriority());
 
         topBar.addComponent(actorMenubar, 0);
+        topBar.setComponentAlignment(actorMenubar, Alignment.TOP_LEFT);
         topBar.setExpandRatio(actorMenubar, 1);
         topBar.addComponent(priorityMenubar, 1);
+        topBar.setComponentAlignment(priorityMenubar, Alignment.TOP_RIGHT);
         layout.addComponent(topBar, 0);
     }
 
     private void preparePanel() {
         VerticalLayout vl = new VerticalLayout();
-        vl.setWidth("100%");
+        vl.setSizeFull();
         vl.setMargin(true, true, true, true);
         vl.setSpacing(false);
         vl.addComponent(taskPanel);
+        taskPanel.setSizeUndefined();
+
         vl.setComponentAlignment(taskPanel, Alignment.MIDDLE_CENTER);
-        layout.addComponent(vl, 1);
-        vl.setStyleName("black");
+        layout.addComponent(vl);
+        layout.setComponentAlignment(vl, Alignment.MIDDLE_CENTER);
+        layout.setExpandRatio(vl, 1);
 
+        enableTaskPanel();
     }
 
-    private void prepareButtonBar() {
-        buttonBar.setMargin(true);
-        buttonBar.setSpacing(true);
-        buttonBar.setWidth("100%");
-        buttonBar.setStyleName("buttonbar");
-
-        acceptBtn = new Button(messages.getString("btnAccept"), this);
-        buttonBar.addComponent(acceptBtn, 0);
-        buttonBar.setComponentAlignment(acceptBtn, Alignment.MIDDLE_RIGHT);
-        buttonBar.setExpandRatio(acceptBtn, 1);
-        acceptBtn.setEnabled(!task.isTaskAssigned());
-
-        String suspendBtnCaption = task.getState() == ActivityState.EXECUTING ? messages.getString("btnSuspend") : messages.getString("btnResume");
-        suspendBtn = new Button(suspendBtnCaption, this);
-        buttonBar.addComponent(suspendBtn, 1);
-        buttonBar.setComponentAlignment(suspendBtn, Alignment.MIDDLE_RIGHT);
-        suspendBtn.setEnabled(task.isTaskAssigned());
-
-        closeBtn = new Button(messages.getString("btnClose"), this);
-        buttonBar.addComponent(closeBtn, 2);
-        buttonBar.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
-
-        layout.addComponent(buttonBar, 2);
-    }
-
-    public void buttonClick(ClickEvent event) {
-        Button btn = event.getButton();
+    public void menuSelected(MenuItem selectedItem) {
         try {
-            if (btn.equals(acceptBtn)) {
-                task = bpmModule.assignTask(task.getUUID(), this.getCurrentUser().getScreenName());
-                actor.setText(messages.getString("taskAssignedBy") + ": " + task.getTaskUser());
-                acceptBtn.setEnabled(false);
-            } else if (btn.equals(closeBtn)) {
-                this.close();
+            if (selectedItem.equals(priority0)) {
+                bpmModule.setActivityInstancePriority(task.getUUID(), 0);
+                repaintPriorityMenu(0);
+            } else if (selectedItem.equals(priority1)) {
+                bpmModule.setActivityInstancePriority(task.getUUID(), 1);
+                repaintPriorityMenu(1);
+            } else if (selectedItem.equals(priority2)) {
+                bpmModule.setActivityInstancePriority(task.getUUID(), 2);
+                repaintPriorityMenu(2);
+            } else if (selectedItem.equals(suspend)) {
+                task = bpmModule.suspendTask(task.getUUID(), true);
+                repaintStateMenu();
+            } else if (selectedItem.equals(resume)) {
+                task = bpmModule.resumeTask(task.getUUID(), true);
+                repaintStateMenu();
+            } else if (selectedItem.equals(actor) && !task.isTaskAssigned()) {
+                task = bpmModule.assignAndStartTask(task.getUUID(), this.getCurrentUser().getScreenName());
+                repaintActorMenu();
+                repaintStateMenu();
+                state.setEnabled(true);
             }
+            enableTaskPanel();
         } catch (Exception ex) {
             ex.printStackTrace();
+            this.showError(ex.getMessage());
         }
+    }
 
+    private void enableTaskPanel() {
+        if (initial){
+            taskPanel.setEnabled(true);
+        } else if (!initial && task.isTaskAssigned() && task.getState() == ActivityState.EXECUTING) {
+            taskPanel.setEnabled(true);
+        } else {
+            taskPanel.setEnabled(false);
+        }
+    }
+
+    private void repaintPriorityMenu(int pri) {
+        String priorityText = null;
+        String priorityStyle = null;
+        ThemeResource priorityIcon = null;
+        switch (pri) {
+            case 0:
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_NORMAL");
+                priorityIcon = new ThemeResource("icons/attention_normal.png");
+                priority0.setEnabled(false);
+                priority1.setEnabled(true);
+                priority2.setEnabled(true);
+                break;
+            case 1:
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_HIGH");
+                priorityIcon = new ThemeResource("icons/attention_high.png");
+                priority0.setEnabled(true);
+                priority1.setEnabled(false);
+                priority2.setEnabled(true);
+                break;
+            case 2:
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_URGENT");
+                priorityIcon = new ThemeResource("icons/attention_urgent.png");
+                priority0.setEnabled(true);
+                priority1.setEnabled(true);
+                priority2.setEnabled(false);
+                break;
+        }
+        priority.setText(priorityText);
+        priority.setIcon(priorityIcon);
+        priority.setStyleName(priorityStyle);
+        priority.setEnabled(task.isTaskAssigned());
+    }
+
+    private void repaintStateMenu() {
+        state.setText(messages.getString("State") + ": " + messages.getString(task.getState().toString()));
+        suspend.setText(messages.getString("btnSuspend"));
+        resume.setText(messages.getString("btnResume"));
+        if (task.getState() == ActivityState.SUSPENDED) {
+            state.setIcon(new ThemeResource("icons/pause_normal.png"));
+            suspend.setEnabled(false);
+            resume.setEnabled(true);
+        } else {
+            state.setIcon(new ThemeResource("icons/arrow_right_normal.png"));
+            suspend.setEnabled(true);
+            resume.setEnabled(false);
+        }
+        state.setEnabled(task.isTaskAssigned());
+    }
+
+    private void repaintActorMenu() {
+
+        if (task.isTaskAssigned()) {
+            actor.setText(messages.getString("taskAssignedBy") + ": " + task.getTaskUser());
+            actor.setIcon(new ThemeResource("icons/user.png"));
+            actor.setStyleName("actor");
+        } else {
+            actor.setText(messages.getString("btnAccept"));
+            actor.setIcon(new ThemeResource("icons/accept.png"));
+            actor.setStyleName("actor");
+        }
     }
 
     public void setBpmModule(BPMModule bpmModule) {
@@ -199,5 +247,9 @@ public class HumanTaskWindow extends PbWindow implements Button.ClickListener {
 
     public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
         this.portletApplicationContext2 = portletApplicationContext2;
+    }
+
+    public void setProcessDef(LightProcessDefinition processDef) {
+        this.processDef = processDef;
     }
 }

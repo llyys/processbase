@@ -103,7 +103,7 @@ public class XMLFormDefinition {
         this.widgets.add(widgets);
         if (widgets.getLine() != null && widgets.getLine() >= this.getnLine()) {
             this.nLine = widgets.getLine() + 1;
-            System.out.println("set line number");
+//            System.out.println("set line number");
         }
     }
 
@@ -112,7 +112,7 @@ public class XMLFormDefinition {
         for (XMLWidgetsDefinition w : widgets) {
             if (w.getLine() != null && w.getLine() >= this.getnLine()) {
                 this.nLine = w.getLine() + 1;
-                System.out.println("set line number");
+//                System.out.println("set line number");
             }
         }
     }

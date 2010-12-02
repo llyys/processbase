@@ -29,11 +29,13 @@ import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
 import org.ow2.bonita.facade.RepairAPI;
 import org.ow2.bonita.facade.RuntimeAPI;
+import org.ow2.bonita.facade.WebAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ParticipantDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.DeploymentException;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
@@ -51,10 +53,12 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
+import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.identity.auth.DomainOwner;
 import org.ow2.bonita.identity.auth.UserOwner;
 import org.ow2.bonita.light.LightActivityInstance;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.diagram.Diagram;
@@ -73,6 +77,7 @@ public class BPMModule {
     final ManagementAPI managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
     final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
     final RepairAPI repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
+    final WebAPI webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
     public static final int BAR = 0;
     public static final int XPDL = 1;
     private String currentUserUID;
@@ -83,7 +88,7 @@ public class BPMModule {
         this.currentUserUID = currentUserUID;
     }
 
-    private void initContext() throws Exception{
+    private void initContext() throws Exception {
         ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
         programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
         DomainOwner.setDomain("default");
@@ -93,6 +98,41 @@ public class BPMModule {
     public Set<ProcessDefinition> getProcessDefinitions() throws Exception {
         initContext();
         return queryDefinitionAPI.getProcesses();
+    }
+
+    public Set<ProcessDefinition> getProcessDefinitions(ProcessState state) throws Exception {
+        initContext();
+        return queryDefinitionAPI.getProcesses(state);
+    }
+
+    public LightProcessDefinition getLightProcessDefinition(ProcessDefinitionUUID pdUUID) throws Exception {
+        initContext();
+        return queryDefinitionAPI.getLightProcess(pdUUID);
+    }
+
+    public Set<LightProcessDefinition> getLightProcessDefinitions() throws Exception {
+        initContext();
+        return queryDefinitionAPI.getLightProcesses();
+    }
+
+    public Set<LightProcessDefinition> getLightProcessDefinitions(ProcessState state) throws Exception {
+        initContext();
+        return queryDefinitionAPI.getLightProcesses(state);
+    }
+
+    public void disableProcessDefinitions(ProcessDefinitionUUID uuid) throws Exception {
+        initContext();
+        managementAPI.disable(uuid);
+    }
+
+    public void enableProcessDefinitions(ProcessDefinitionUUID uuid) throws Exception {
+        initContext();
+        managementAPI.enable(uuid);
+    }
+
+    public void archiveProcessDefinitions(ProcessDefinitionUUID uuid) throws Exception {
+        initContext();
+        managementAPI.archive(uuid);
     }
 
     public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid, Map<String, Object> vars) throws ProcessNotFoundException, VariableNotFoundException, Exception {
@@ -182,6 +222,19 @@ public class BPMModule {
             return null;
         }
         runtimeAPI.assignTask(activityInstanceUUID, user);
+        return getTaskInstance(activityInstanceUUID);
+    }
+
+    public TaskInstance assignAndStartTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+        initContext();
+        TaskInstance ti = getTaskInstance(activityInstanceUUID);
+        if (ti != null && ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
+            return null;
+        }
+        runtimeAPI.assignTask(activityInstanceUUID, user);
+        if (ti != null && ti.getState().equals(ActivityState.READY)) {
+            runtimeAPI.startTask(activityInstanceUUID, true);
+        }
         return getTaskInstance(activityInstanceUUID);
     }
 
@@ -374,6 +427,11 @@ public class BPMModule {
         runtimeAPI.assignTask(activityInstanceUUID);
     }
 
+    public void setActivityInstancePriority(ActivityInstanceUUID activityInstanceUUID, int priority) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+        initContext();
+        runtimeAPI.setActivityInstancePriority(activityInstanceUUID, priority);
+    }
+
     public TaskInstance unassignTask(ActivityInstanceUUID activityInstanceUUID) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         initContext();
         runtimeAPI.unassignTask(activityInstanceUUID);
@@ -406,9 +464,9 @@ public class BPMModule {
         return d.getImage();
     }
 
-    public ArrayList<XMLFormDefinition> getXMLFormDefinition(LightTaskInstance taskInstance) throws Exception {
-        XMLProcessDefinition process = getXMLProcessDefinition(taskInstance.getProcessDefinitionUUID());
-        return process.getForms().get(taskInstance.getActivityName());
+    public ArrayList<XMLFormDefinition> getXMLFormDefinition(ProcessDefinitionUUID pdUUID, String stepName) throws Exception {
+        XMLProcessDefinition process = getXMLProcessDefinition(pdUUID);
+        return process.getForms().get(stepName);
     }
 
     public XMLProcessDefinition getXMLProcessDefinition(ProcessInstanceUUID processInstanceUUID) throws Exception {
@@ -454,5 +512,10 @@ public class BPMModule {
         initContext();
         repairAPI.stopExecution(piUUID, stepName);
         return repairAPI.startExecution(piUUID, stepName);
+    }
+
+    public  Set<Category> getAllCategories() throws Exception{
+        initContext();
+        return webAPI.getAllCategories();
     }
 }

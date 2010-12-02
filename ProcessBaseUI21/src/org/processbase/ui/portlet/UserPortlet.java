@@ -32,6 +32,9 @@ import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.TablePanel;
+import org.processbase.ui.template.TreeTablePanel;
+import org.processbase.ui.template.WorkPanel;
+import org.processbase.ui.worklist.NewProcessesPanel;
 import org.processbase.ui.worklist.ProcessesPanel;
 import org.processbase.ui.worklist.TaskArchivePanel;
 import org.processbase.ui.worklist.TaskListPanel;
@@ -50,11 +53,13 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
     private TaskListPanel taskListPanel;
     private TaskArchivePanel taskArchivePanel;
     private ProcessesPanel processesPanel;
+    private NewProcessesPanel newProcessesPanel;
     private Button refreshBtn = null;
     private Button myTaskListBtn = null;
     private Button myTaskArchiveBtn = null;
     private Button myProcessesBtn = null;
-    private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
+    private Button myNewProcessesBtn = null;
+    private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
     @Override
     public void init() {
@@ -94,36 +99,51 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
         processesPanel = new ProcessesPanel(this.portletApplicationContext2, bpmModule, messages);
         panels.put(myProcessesBtn, processesPanel);
 
+        newProcessesPanel = new NewProcessesPanel(this.portletApplicationContext2, bpmModule, messages);
+        panels.put(myNewProcessesBtn, newProcessesPanel);
+
     }
 
-    private void setCurrentPanel(TablePanel tablePanel) {
-        mainLayout.replaceComponent(mainLayout.getComponent(1), tablePanel);
-        tablePanel.refreshTable();
+    private void setCurrentPanel(WorkPanel workPanel) {
+        mainLayout.replaceComponent(mainLayout.getComponent(1), workPanel);
+        if (workPanel instanceof TablePanel){
+            ((TablePanel)workPanel).refreshTable();
+        } else if (workPanel instanceof TreeTablePanel){
+            ((TreeTablePanel)workPanel).refreshTable();
+        }
+        
     }
 
     private void prepareButtonBar() {
+
+        // prepare myNewProcessesBtn button
+        myNewProcessesBtn = new Button(this.messages.getString("myNewProcessesBtn"), this);
+        myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
+        buttonBar.addComponent(myNewProcessesBtn, 0);
+        buttonBar.setComponentAlignment(myNewProcessesBtn, Alignment.MIDDLE_LEFT);
+
         // prepare myProcessesBtn button
         myProcessesBtn = new Button(this.messages.getString("myProcessesBtn"), this);
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(myProcessesBtn, 0);
+        buttonBar.addComponent(myProcessesBtn, 1);
         buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
         myTaskListBtn = new Button(this.messages.getString("myTaskListBtn"), this);
         myTaskListBtn.setStyleName("special");
         myTaskListBtn.setEnabled(false);
-        buttonBar.addComponent(myTaskListBtn, 1);
+        buttonBar.addComponent(myTaskListBtn, 2);
         buttonBar.setComponentAlignment(myTaskListBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
         myTaskArchiveBtn = new Button(this.messages.getString("myTaskArchiveBtn"), this);
         myTaskArchiveBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(myTaskArchiveBtn, 2);
+        buttonBar.addComponent(myTaskArchiveBtn, 3);
         buttonBar.setComponentAlignment(myTaskArchiveBtn, Alignment.MIDDLE_LEFT);
 
         // prepare help button
         refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
-        buttonBar.addComponent(refreshBtn, 3);
+        buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
 
@@ -144,7 +164,7 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
     }
 
     public void buttonClick(ClickEvent event) {
-        TablePanel panel = panels.get(event.getButton());
+        WorkPanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
             ((TablePanel) mainLayout.getComponent(1)).refreshTable();
         } else {
@@ -156,9 +176,11 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
         if (!myTaskListBtn.isEnabled()) {
             myTaskListBtn.setCaption(this.messages.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
-            myProcessesBtn.setCaption(this.messages.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
+            myProcessesBtn.setCaption(this.messages.getString("myProcessesBtn") + " (" + newProcessesPanel.rowCount + ")");
         } else if (!myTaskArchiveBtn.isEnabled()) {
             myTaskArchiveBtn.setCaption(this.messages.getString("myTaskArchiveBtn") + " (" + taskArchivePanel.rowCount + ")");
+        } else if (!myNewProcessesBtn.isEnabled()) {
+            myNewProcessesBtn.setCaption(this.messages.getString("myNewProcessesBtn") + " (" + newProcessesPanel.rowCount + ")");
         }
     }
 
@@ -174,5 +196,9 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
         myTaskArchiveBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskArchiveBtn.setEnabled(true);
         myTaskArchiveBtn.setCaption(this.messages.getString("myTaskArchiveBtn"));
+
+        myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
+        myNewProcessesBtn.setEnabled(true);
+        myNewProcessesBtn.setCaption(this.messages.getString("myNewProcessesBtn"));
     }
 }

@@ -114,7 +114,7 @@ public class ProcessInstanceWindow extends PbWindow implements
 //            layout.addComponent(buttons);
 //            layout.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
             setContent(layout);
-            setCaption(messages.getString("tabCaptionProcessSteps") + " \"" + process.getProcessDefinitionUUID().getProcessName() + " " + process.getProcessDefinitionUUID().getProcessVersion() + " \"");
+            setCaption(messages.getString("ProcessActivities") + " \"" + process.getProcessDefinitionUUID().getProcessName() + " " + process.getProcessDefinitionUUID().getProcessVersion() + " \"");
             setWidth("90%");
             setHeight("95%");
             setModal(true);

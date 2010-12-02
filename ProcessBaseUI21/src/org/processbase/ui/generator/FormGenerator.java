@@ -19,6 +19,7 @@ package org.processbase.ui.generator;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
@@ -43,7 +44,20 @@ public class FormGenerator {
         genWindow.setBpmModule(bpmModule);
         genWindow.setForms(forms);
         genWindow.initUI();
-    } 
+    }
+
+    public FormGenerator(LightProcessDefinition process,
+            ArrayList<XMLFormDefinition> forms,
+            BPMModule bpmModule,
+            ResourceBundle messages,
+            PortletApplicationContext2 portletApplicationContext2) throws Exception {
+        genWindow = new GeneratedWindow(process.getLabel(), portletApplicationContext2);
+        genWindow.setMessages(messages);
+        genWindow.setProcessDef(process);
+        genWindow.setBpmModule(bpmModule);
+        genWindow.setForms(forms);
+        genWindow.initUI();
+    }
 
     public GeneratedWindow getWindow() {
         return genWindow;
