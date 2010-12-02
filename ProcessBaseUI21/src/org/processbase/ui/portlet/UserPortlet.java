@@ -165,8 +165,10 @@ public class UserPortlet extends InternalApplication implements Button.ClickList
 
     public void buttonClick(ClickEvent event) {
         WorkPanel panel = panels.get(event.getButton());
-        if (event.getButton().equals(refreshBtn)) {
+        if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TablePanel)) {
             ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+        } else if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TreeTablePanel)) {
+            ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
         } else {
             activateButtons();
             event.getButton().setStyleName("special");

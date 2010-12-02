@@ -85,8 +85,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         try {
             if (!initial && widgets.getSetVarScript() != null) {
                 value = bpmModule.getProcessInstanceVariable(task.getProcessInstanceUUID(), widgets.getSetVarScript());
+                dfd = bpmModule.getProcessDataField(task.getProcessDefinitionUUID(), widgets.getSetVarScript());
+            } else {
+                dfd = bpmModule.getProcessDataField(processDef.getUUID(), widgets.getSetVarScript());
             }
-            dfd = bpmModule.getProcessDataField(task.getProcessDefinitionUUID(), widgets.getSetVarScript());
+            System.out.println("dfd = " + dfd.getName() + "; dfd.scripting = " + dfd.getScriptingValue() +
+                    "; dfd.initial = " + dfd.getInitialValue());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

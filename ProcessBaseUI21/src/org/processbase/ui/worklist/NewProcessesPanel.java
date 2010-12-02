@@ -38,6 +38,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.bpm.BPMModule;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.ui.template.TreeTablePanel;
+import org.processbase.ui.util.CategoryAndProcessDefinition;
 
 /**
  *
@@ -54,7 +55,8 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
     public void initTableUI() {
         super.initTableUI();
         treeTable.addContainerProperty("category", String.class, null, messages.getString("tableCaptionCategory"), null, null);
-        treeTable.addContainerProperty("processName", Component.class, null, messages.getString("tableCaptionProcess"), null, null);
+        treeTable.addContainerProperty("processName", TableExecButton.class, null, messages.getString("tableCaptionProcess"), null, null);
+        treeTable.setColumnExpandRatio("processName", 1);
         treeTable.addContainerProperty("version", Label.class, null, messages.getString("tableCaptionVersion"), null, null);
         treeTable.setVisibleColumns(new Object[]{"category", "processName", "version"});
     }
@@ -67,9 +69,13 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
             Collection<LightProcessDefinition> processes = bpmModule.getLightProcessDefinitions(ProcessState.ENABLED);
 
             for (Category category : categories) {
-                addTableRow(category, null);
+                CategoryAndProcessDefinition capParent = new CategoryAndProcessDefinition(category, null);
+                addTableRow(capParent, null);
                 for (LightProcessDefinition process : processes) {
-                    addTableRow(category, process);
+                    if (process.getCategoryNames().contains(category.getName())) {
+                        CategoryAndProcessDefinition cap = new CategoryAndProcessDefinition(category, process);
+                        addTableRow(cap, capParent);
+                    }
                 }
             }
             this.rowCount = processes.size();
@@ -82,20 +88,18 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
 
     }
 
-    private void addTableRow(Category category, LightProcessDefinition process) throws InstanceNotFoundException, Exception {
-
-        if (process == null) {
-            Item woItem = treeTable.addItem(category);
-            treeTable.setChildrenAllowed(category, true);
-            woItem.getItemProperty("category").setValue(category.getName());
-
+    private void addTableRow(CategoryAndProcessDefinition item, CategoryAndProcessDefinition parent) throws InstanceNotFoundException, Exception {
+        
+        Item woItem = treeTable.addItem(item);
+        if (parent == null) {
+            treeTable.setChildrenAllowed(item, true);
+            woItem.getItemProperty("category").setValue(item.getCategory().getName());
         } else {
-            Item woItem = treeTable.addItem(process);
-            treeTable.setChildrenAllowed(process, false);
-            treeTable.setParent(process, category);
-            TableExecButton teb = new TableExecButton(process.getLabel(), process.getDescription(), null, process, this, Constants.ACTION_OPEN);
+            treeTable.setChildrenAllowed(item, false);
+            treeTable.setParent(item, parent);
+            TableExecButton teb = new TableExecButton(item.getProcessDef().getLabel(), item.getProcessDef().getDescription(), null, item.getProcessDef(), this, Constants.ACTION_OPEN);
             woItem.getItemProperty("processName").setValue(teb);
-            woItem.getItemProperty("version").setValue(process.getVersion());
+            woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
         }
     }
 
