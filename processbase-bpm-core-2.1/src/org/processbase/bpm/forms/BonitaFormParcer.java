@@ -247,7 +247,6 @@ public class BonitaFormParcer {
                 if (nodeWidgets.getAttributes().getNamedItem("maxNumberOfColumn") != null) {
                     widgets.setMaxNumberOfColumn(nodeWidgets.getAttributes().getNamedItem("maxNumberOfColumn").getNodeValue());
                 }
-
                 // parce widgets script atributes
                 NodeList widgetsProperties = nodeWidgets.getChildNodes();
                 for (int x = 0; x < widgetsProperties.getLength(); x++) {
@@ -262,6 +261,23 @@ public class BonitaFormParcer {
                         if (widgetsProperty.getAttributes().getNamedItem("setVarScript") != null) {
                             widgets.setSetVarScript(widgetsProperty.getAttributes().getNamedItem("setVarScript").getNodeValue());
                         }
+                    }
+                    // Button Action
+                    if (widgetsProperty.getNodeName().equals("scripts")) {
+                        XMLActionDefinition action = new XMLActionDefinition();
+                        if (widgetsProperty.getAttributes().getNamedItem("xmi:id") != null) {
+                            action.setId(widgetsProperty.getAttributes().getNamedItem("xmi:id").getNodeValue());
+                        }
+                        if (widgetsProperty.getAttributes().getNamedItem("xmi:type") != null) {
+                            action.setType(widgetsProperty.getAttributes().getNamedItem("xmi:type").getNodeValue());
+                        }
+                        if (widgetsProperty.getAttributes().getNamedItem("exprScript") != null) {
+                            action.setExprScript(widgetsProperty.getAttributes().getNamedItem("exprScript").getNodeValue());
+                        }
+                        if (widgetsProperty.getAttributes().getNamedItem("setVarScript") != null) {
+                            action.setSetVarScript(widgetsProperty.getAttributes().getNamedItem("setVarScript").getNodeValue());
+                        }
+                        widgets.addAction(action);
                     }
                     if (widgetsProperty.getNodeName().equals("widgetLayoutInfo")) {
                         if (widgetsProperty.getAttributes().getNamedItem("line") != null) {

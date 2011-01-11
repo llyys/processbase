@@ -16,6 +16,9 @@
  */
 package org.processbase.bpm.forms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author marat
@@ -51,7 +54,6 @@ public class XMLWidgetsDefinition {
     String enum1;
     Boolean showDisplayLabel = Boolean.TRUE;
     Boolean labelBehavior = Boolean.FALSE;
-
     // Table and Grid specific properties
     Boolean firstRowIsHeader = Boolean.TRUE;
     Boolean leftColumnIsHeader = Boolean.FALSE;
@@ -75,6 +77,8 @@ public class XMLWidgetsDefinition {
     String maxNumberOfColumn;
     Boolean allowAddRemoveColumn = Boolean.TRUE;
     Boolean allowAddRemoveRow = Boolean.TRUE;
+    // Button action
+    List<XMLActionDefinition> actions = null;
 
     public XMLWidgetsDefinition() {
     }
@@ -487,5 +491,18 @@ public class XMLWidgetsDefinition {
         this.allowAddRemoveRow = allowAddRemoveRow;
     }
 
-    
+    public List<XMLActionDefinition> getActions() {
+        if (actions == null) {
+            actions = new ArrayList<XMLActionDefinition>();
+        }
+        return actions;
+    }
+
+    public void setActions(List<XMLActionDefinition> actions) {
+        this.actions = actions;
+    }
+
+    public void addAction(XMLActionDefinition action) {
+        this.getActions().add(action);
+    }
 }
