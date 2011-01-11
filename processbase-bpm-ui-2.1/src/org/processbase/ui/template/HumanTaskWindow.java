@@ -186,8 +186,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         for (Comment comment : comments) {
             commentsLayout.addComponent(getCommentPanel(comment.getDate(), comment.getUserId(), comment.getMessage()));
         }
+        commentEditor = new RichTextArea(PbPortlet.getCurrent().messages.getString("addComment"));
         commentEditor.setWidth("100%");
-        commentEditor.setValue(null);
         commentEditor.setNullRepresentation("");
         commentsLayout.addComponent(commentEditor);
         commentsLayout.addComponent(addCommentBtn);
@@ -343,7 +343,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
                     prepareComments();
                 }
             } catch (Exception ex) {
-                Logger.getLogger(HumanTaskWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+                ex.printStackTrace();
+//                Logger.getLogger(HumanTaskWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
                 showError(ex.getMessage());
             }
         }

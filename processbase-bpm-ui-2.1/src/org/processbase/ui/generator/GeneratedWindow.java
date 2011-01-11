@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.processbase.bpm.forms.XMLActionDefinition;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
@@ -359,6 +360,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
                     commit();
                     setProcessVariables();
+                    executeButtonActions(getWidgets(btn));
                     if (task == null) {
                         ProcessInstanceUUID piUUID = PbPortlet.getCurrent().bpmModule.startNewProcess(processDef.getUUID(), piVariables);
                         if (hasAttachments) {
@@ -566,6 +568,26 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             for (DataFieldDefinition dfd : PbPortlet.getCurrent().bpmModule.getProcessDataFields(processDef.getUUID())) {
                 processDataFields.put(dfd.getName(), dfd);
             }
+        }
+    }
+
+    private void executeButtonActions(XMLWidgetsDefinition button) throws Exception {
+        System.out.println("ACTIONS  = " + button.getActions().size());
+        for (XMLActionDefinition action : button.getActions()) {
+            System.out.println("ACTION " + action.getExprScript() + " " + action.getSetVarScript());
+            if (task != null) {
+                if (processDataFields.containsKey(action.getSetVarScript())) {
+                    piVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), task, true));
+                } else if (activityDataFields.containsKey(action.getSetVarScript())) {
+                    aiVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), task, true));
+                }
+            } else {
+                if (processDataFields.containsKey(action.getSetVarScript())) {
+                    piVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), processDef.getUUID()));
+
+                }
+            }
+
         }
     }
 }
