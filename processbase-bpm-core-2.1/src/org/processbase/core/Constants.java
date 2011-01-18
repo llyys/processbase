@@ -61,6 +61,10 @@ public class Constants {
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
 
+    public static String PORTAL_HOST = "localhost";
+    public static String PORTAL_PORT = "8080";
+    public static String AUTH_CLASS = "org.processbase.touchprocess.impl.LiferayAuthorization";
+
     public static void loadConstants() {
         try {
             File file = new File("processbase2.properties");
@@ -88,6 +92,10 @@ public class Constants {
                 DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "DOCUMENTS";
                 BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
                 APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
+
+                PORTAL_HOST = properties.containsKey("PORTAL_HOST") ? properties.getProperty("PORTAL_HOST") : "localhost";
+                PORTAL_PORT = properties.containsKey("PORTAL_PORT") ? properties.getProperty("PORTAL_PORT") : "8080";
+                AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
             } else {
                 properties.setProperty("APP_SERVER", "GLASSFISH2");
                 properties.setProperty("TASKLIST_PAGE_URL", "/group/processbase/tasks");
@@ -98,6 +106,11 @@ public class Constants {
                 properties.setProperty("java.security.auth.login.config", "appclientlogin.conf");
                 properties.setProperty("DL_GROUP", "DOCUMENTS");
                 properties.setProperty("BONITA_DOMAIN", "default");
+
+                properties.setProperty("PORTAL_HOST", "localhost");
+                properties.setProperty("PORTAL_PORT", "8080");
+                properties.setProperty("AUTH_CLASS", "org.processbase.touchprocess.impl.LiferayAuthorization");
+
                 FileOutputStream fos = new FileOutputStream(file);
                 properties.storeToXML(fos, null);
                 fos.close();
