@@ -61,8 +61,8 @@ public class Constants {
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
 
-    public static String PORTAL_HOST = "localhost";
-    public static String PORTAL_PORT = "8080";
+    public static String AUTH_HOST = "localhost";
+    public static String AUTH_PORT = "8080";
     public static String AUTH_CLASS = "org.processbase.touchprocess.impl.LiferayAuthorization";
 
     public static void loadConstants() {
@@ -93,8 +93,8 @@ public class Constants {
                 BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
                 APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
 
-                PORTAL_HOST = properties.containsKey("PORTAL_HOST") ? properties.getProperty("PORTAL_HOST") : "localhost";
-                PORTAL_PORT = properties.containsKey("PORTAL_PORT") ? properties.getProperty("PORTAL_PORT") : "8080";
+                AUTH_HOST = properties.containsKey("AUTH_HOST") ? properties.getProperty("AUTH_HOST") : "localhost";
+                AUTH_PORT = properties.containsKey("AUTH_PORT") ? properties.getProperty("AUTH_PORT") : "8080";
                 AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
             } else {
                 properties.setProperty("APP_SERVER", "GLASSFISH2");
