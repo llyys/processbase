@@ -161,7 +161,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
     private void preparePanel() {
         VerticalLayout vl = new VerticalLayout();
-        vl.setSizeFull();
+        vl.setWidth("100%");
         vl.setMargin(true, true, true, true);
         vl.setSpacing(false);
         vl.addComponent(taskPanel);

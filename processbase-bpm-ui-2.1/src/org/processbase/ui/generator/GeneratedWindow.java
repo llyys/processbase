@@ -358,9 +358,13 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (components.containsKey(event.getButton())) {
                 Button btn = event.getButton();
                 if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
+//                    System.out.println("DEBUG 1 ");
                     commit();
+//                    System.out.println("DEBUG 2 ");
                     setProcessVariables();
+//                    System.out.println("DEBUG 3 ");
                     executeButtonActions(getWidgets(btn));
+//                    System.out.println("DEBUG 4 ");
                     if (task == null) {
                         ProcessInstanceUUID piUUID = PbPortlet.getCurrent().bpmModule.startNewProcess(processDef.getUUID(), piVariables);
                         if (hasAttachments) {
@@ -388,7 +392,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             }
         } catch (InvalidValueException ex) {
             // do nothing
+//            System.out.println("DEBUG 6 ");
         } catch (Exception ex) {
+//            System.out.println("DEBUG 7 ");
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
