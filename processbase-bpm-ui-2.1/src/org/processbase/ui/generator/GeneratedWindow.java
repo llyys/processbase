@@ -47,11 +47,11 @@ import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.bpm.forms.XMLActionDefinition;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
-import org.processbase.core.SyntaxChecker;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.HumanTaskWindow;
 import org.processbase.ui.template.ImmediateUpload;
@@ -73,6 +73,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private Map<String, Object> aiVariables = new HashMap<String, Object>();
     private Map<String, DataFieldDefinition> processDataFields = new HashMap<String, DataFieldDefinition>();
     private Map<String, DataFieldDefinition> activityDataFields = new HashMap<String, DataFieldDefinition>();
+    private Map<String, Object> groovyScripts = new HashMap<String, Object>();
 
     public GeneratedWindow(String caption) {
         super(caption);
@@ -95,10 +96,21 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     protected void generateWindow() throws Exception {
-        prepareAttachments();
-        prepareVariables();
 
         forms = task == null ? xmlProcess.getForms() : xmlProcess.getTasks().get(task.getActivityName()).getForms();
+
+        long startdate = System.currentTimeMillis();
+        prepareAttachments();
+        System.out.println("attachments " + (System.currentTimeMillis() - startdate));
+        startdate = System.currentTimeMillis();
+        prepareVariables();
+        System.out.println("prepare variables " + (System.currentTimeMillis() - startdate));
+        startdate = System.currentTimeMillis();
+        prepareGroovyScripts();
+        System.out.println("prepare groovy " + (System.currentTimeMillis() - startdate));
+        startdate = System.currentTimeMillis();
+
+
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
             page.setMargin(false, true, true, true);
@@ -107,7 +119,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
             for (XMLWidgetsDefinition widgets : widgetsList) {
+//                startdate = System.currentTimeMillis();
                 Component component = getComponent(widgets);
+//                System.out.println("finish "  + widgets.getLabel() +" "+ (System.currentTimeMillis() - startdate));
                 if (component != null) {
 //                    Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, "component = " + component.getClass().getName());
                     components.put(component, widgets);
@@ -116,6 +130,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             }
 
         }
+        System.out.println("forms " + (System.currentTimeMillis() - startdate));
+        startdate = System.currentTimeMillis();
 
         taskPanel.setContent(pages.get(currentPage));
         taskPanel.setCaption(forms.get(currentPage).getLabel());
@@ -123,6 +139,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
     private Component getComponent(XMLWidgetsDefinition widgets) {
 //        Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, "widgets = " + widgets.getId() + " " + widgets.getName() + " widgets.getSetVarScript() = " + widgets.getSetVarScript());
+        boolean debug = (widgets.getLabel().equalsIgnoreCase("Segundo Nombre"));
+        long startdate = System.currentTimeMillis();
 
         Component component = null;
         Object value = null;
@@ -159,39 +177,47 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                         options = dfd.getEnumerationValues();
                         value = dfd.getInitialValue();
                     }
-                } else if (SyntaxChecker.isScript(widgets.getInputScript())) {
+                } else if (GroovyExpression.isGroovyExpression(widgets.getInputScript())) {
                     if (task != null) {
-                        options = (Collection) PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getInputScript(), task, true);
+                        options = (Collection) groovyScripts.get(widgets.getInputScript());
                     } else if (task == null) {
-                        options = (Collection) PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getInputScript(), processDef.getUUID());
+                        options = (Collection) groovyScripts.get(widgets.getInputScript());
                     }
                 } else {
 //                    options = widgets.getInputScript();
                 }
                 // set list value
-                if (task != null && widgets.getDefaultValue() != null && SyntaxChecker.isScript(widgets.getDefaultValue())) {
-                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, true);
-                } else if (task == null && widgets.getDefaultValue() != null && SyntaxChecker.isScript(widgets.getDefaultValue())) {
-                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), processDef.getUUID());
-                } else {
-                    value = widgets.getDefaultValue();
-                }
+//                if (task != null && widgets.getDefaultValue() != null && GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
+//                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, false);
+//                } else if (task == null && widgets.getDefaultValue() != null && GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
+//                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), processDef.getUUID());
+//                } else {
+//                    value = widgets.getDefaultValue();
+//                }
+                value = groovyScripts.get(widgets.getDefaultValue());
+
             } else if (widgets.getType().equals("form:Table") || widgets.getType().equals("form:DynamicTable")) {
                 // define not lists
             } else {
                 if (task != null && widgets.getInputScript() != null && !widgets.getInputScript().isEmpty()) {
-                    if (SyntaxChecker.isScript(widgets.getInputScript())) {
-                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getInputScript(), task, true);
-                    } else {
-                        value = widgets.getInputScript();
-                    }
+//                    if (GroovyExpression.isGroovyExpression(widgets.getInputScript())) {
+//                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getInputScript(), task, false);
+//                    } else {
+//                        value = widgets.getInputScript();
+//                    }
+                    value = groovyScripts.get(widgets.getInputScript());
                 } else if (task != null && widgets.getDefaultValue() != null && !widgets.getDefaultValue().isEmpty()) {
-                    if (SyntaxChecker.isScript(widgets.getDefaultValue())) {
-                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, true);
-                    } else {
-                        value = widgets.getDefaultValue();
-                    }
+//                    if (GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
+//                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, false);
+//                    } else {
+//                        value = widgets.getDefaultValue();
+//                    }
+                    value = groovyScripts.get(widgets.getDefaultValue());
                 }
+            }
+            if (debug) {
+                System.out.println("define finish " + (System.currentTimeMillis() - startdate));
+                startdate = System.currentTimeMillis();
             }
             // define UI components
             if (widgets.getType().equals("form:TextFormField")) {
@@ -243,6 +269,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 component = getButton(widgets);
             }
 
+            if (debug) {
+                System.out.println("componet main finish " + (System.currentTimeMillis() - startdate));
+                startdate = System.currentTimeMillis();
+            }
+
             component = (component != null) ? component : new Label("");
             // add general atrubutes
             // setWidth
@@ -268,6 +299,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     ((AbstractField) component).addValidator(new GeneratedValidator(widgets, task, processDef));
                 }
             }
+
+            if (debug) {
+                System.out.println("component additional finish " + (System.currentTimeMillis() - startdate));
+                startdate = System.currentTimeMillis();
+            }
+
             return component;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -358,13 +395,16 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (components.containsKey(event.getButton())) {
                 Button btn = event.getButton();
                 if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
-//                    System.out.println("DEBUG 1 ");
+                    long startdate = System.currentTimeMillis();
                     commit();
-//                    System.out.println("DEBUG 2 ");
+                    System.out.println("commit " + (System.currentTimeMillis() - startdate));
+                    startdate = System.currentTimeMillis();
                     setProcessVariables();
-//                    System.out.println("DEBUG 3 ");
+                    System.out.println("setProcessVariables " + (System.currentTimeMillis() - startdate));
+                    startdate = System.currentTimeMillis();
                     executeButtonActions(getWidgets(btn));
-//                    System.out.println("DEBUG 4 ");
+                    System.out.println("executeButtonActions " + (System.currentTimeMillis() - startdate));
+                    startdate = System.currentTimeMillis();
                     if (task == null) {
                         ProcessInstanceUUID piUUID = PbPortlet.getCurrent().bpmModule.startNewProcess(processDef.getUUID(), piVariables);
                         if (hasAttachments) {
@@ -376,6 +416,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                             saveAttachments(task.getProcessInstanceUUID().toString());
                         }
                     }
+                    System.out.println("finishTask " + (System.currentTimeMillis() - startdate));
+                    startdate = System.currentTimeMillis();
                     close();
 
                 } else if (getWidgets(btn).getType().equals("form:NextFormButton")) {
@@ -575,6 +617,35 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 processDataFields.put(dfd.getName(), dfd);
             }
         }
+    }
+
+    private void prepareGroovyScripts() throws Exception {
+        HashMap<String, String> scripts = new HashMap<String, String>();
+
+        for (XMLFormDefinition form : forms) {
+            ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
+
+            for (XMLWidgetsDefinition widgets : widgetsList) {
+                if (widgets.getInputScript() != null) {
+                    scripts.put(widgets.getInputScript(), widgets.getInputScript());
+                } else if (widgets.getDefaultValue() != null) {
+                    scripts.put(widgets.getDefaultValue(), widgets.getDefaultValue());
+                }
+            }
+        }
+        if (task != null) {
+            groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, task.getUUID(), false, false);
+        } else if (task == null) {
+            groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, processDef.getUUID(), null, true);
+        }
+        System.out.println(groovyScripts);
+
+    }
+
+    private String getPureScript(String script) {
+        script = script.replace(GroovyExpression.START_DELIMITER, "");
+        int end = script.indexOf(GroovyExpression.END_DELIMITER);
+        return script.substring(0, end > 0 ? end : script.length());
     }
 
     private void executeButtonActions(XMLWidgetsDefinition button) throws Exception {

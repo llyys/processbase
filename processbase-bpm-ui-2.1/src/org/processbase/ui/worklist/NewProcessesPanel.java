@@ -77,8 +77,8 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
                 }
             }
 
-            for (Object id : treeTable.getItemIds()){
-                if (treeTable.getParent(id)==null && !treeTable.hasChildren(id)){
+            for (Object id : treeTable.getItemIds()) {
+                if (treeTable.getParent(id) == null && !treeTable.hasChildren(id)) {
                     treeTable.removeItem(id);
                 }
             }
@@ -103,7 +103,7 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
         } else {
             treeTable.setChildrenAllowed(item, false);
             treeTable.setParent(item, parent);
-            TableLinkButton teb = new TableLinkButton(item.getProcessDef().getLabel(), item.getProcessDef().getDescription(), null, item.getProcessDef(), this, Constants.ACTION_OPEN);
+            TableLinkButton teb = new TableLinkButton(item.getProcessDef().getLabel() != null ? item.getProcessDef().getLabel() : item.getProcessDef().getName(), item.getProcessDef().getDescription(), null, item.getProcessDef(), this, Constants.ACTION_OPEN);
             woItem.getItemProperty("processName").setValue(teb);
             woItem.getItemProperty("processDescription").setValue(item.getProcessDef().getDescription());
             woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
@@ -143,7 +143,7 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
                 } else if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms().size() > 0) {
                     FormGenerator fg = new FormGenerator(process, xmlProcess);
                     this.getApplication().getMainWindow().addWindow(fg.getWindow());
-                } else if (xmlProcess.isByPassFormsGeneration()){
+                } else if (xmlProcess.isByPassFormsGeneration()) {
                     PbPortlet.getCurrent().bpmModule.startNewProcess(process.getUUID());
                     showImportantInformation(PbPortlet.getCurrent().messages.getString("processStarted"));
                 }
