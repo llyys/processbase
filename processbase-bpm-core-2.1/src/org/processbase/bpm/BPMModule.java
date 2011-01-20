@@ -65,12 +65,12 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.ow2.bonita.util.GroovyException;
+import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.bpm.diagram.Diagram;
 import org.processbase.bpm.forms.BonitaFormParcer;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.bpm.forms.XMLTaskDefinition;
-import org.processbase.core.SyntaxChecker;
 
 /**
  *
@@ -612,7 +612,7 @@ public class BPMModule {
     }
 
     public Object evaluateExpression(String expression, ActivityInstance ai, boolean propagate) throws InstanceNotFoundException, GroovyException, Exception {
-        if (expression != null && SyntaxChecker.isScript(expression)) {
+        if (expression != null && GroovyExpression.isGroovyExpression(expression)) {
             initContext();
             return runtimeAPI.evaluateGroovyExpression(expression, ai.getUUID(), false, propagate);
         } else {
@@ -621,7 +621,7 @@ public class BPMModule {
     }
 
     public Object evaluateExpression(String expression, ProcessDefinitionUUID pduuid) throws InstanceNotFoundException, GroovyException, Exception {
-        if (expression != null && SyntaxChecker.isScript(expression)) {
+        if (expression != null && GroovyExpression.isGroovyExpression(expression)) {
             initContext();
             return runtimeAPI.evaluateGroovyExpression(expression, pduuid);
         } else {
