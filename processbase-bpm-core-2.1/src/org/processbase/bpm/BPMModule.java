@@ -224,12 +224,8 @@ public class BPMModule {
 
     public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
         initContext();
-        for (String varKey : pVars.keySet()) {
-            setProcessInstanceVariable(task.getProcessInstanceUUID(), varKey, pVars.get(varKey));
-        }
-        for (String varKey : aVars.keySet()) {
-            setActivityInstanceVariable(task.getUUID(), varKey, aVars.get(varKey));
-        }
+        runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
+        runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         runtimeAPI.finishTask(task.getUUID(), b);
     }
 
@@ -632,6 +628,17 @@ public class BPMModule {
     public Object evaluateGroovyExpression(String expression, ProcessDefinitionUUID pduuid) throws InstanceNotFoundException, GroovyException, Exception {
         initContext();
         return runtimeAPI.evaluateGroovyExpression(expression, pduuid);
+    }
+
+    public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions,
+            ActivityInstanceUUID activityUUID, boolean useActivityScope, boolean propagate)
+            throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
+        return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
+    }
+
+    public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
+            throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
+        return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
     }
 
     public void cancelProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
