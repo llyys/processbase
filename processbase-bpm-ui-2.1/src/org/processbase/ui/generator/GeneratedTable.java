@@ -81,7 +81,6 @@ public class GeneratedTable extends Table
             if (widgets.getType().equals("form:DynamicTable") && !widgets.getReadOnly()) {
                 setEditable(true);
                 if (widgets.getAllowAddRemoveRow()) {
-                    System.out.println("DEBUG " + columnHeaders.get(0));
                     setColumnFooter(columnHeaders.get(0), PbPortlet.getCurrent().messages.getString("addRow"));
                     setFooterVisible(true);
                     addListener((Table.FooterClickListener) this);

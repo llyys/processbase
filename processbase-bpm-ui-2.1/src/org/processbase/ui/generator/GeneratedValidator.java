@@ -49,23 +49,18 @@ public class GeneratedValidator implements Validator {
         try {
             if (!isValid(value)) {
                 if (task != null) {
-                    System.out.println("-------------------------0");
                     throw new InvalidValueException((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), task, true));
                 } else {
-                    System.out.println("-------------------------00");
                     throw new InvalidValueException((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), processDef.getUUID()));
                 }
             }
         } catch (InstanceNotFoundException ex) {
-            System.out.println("-------------------------1");
             Logger.getLogger(GeneratedValidator.class.getName()).log(Level.SEVERE, ex.getMessage());
             throw new InvalidValueException(ex.getMessage());
         } catch (GroovyException ex) {
-            System.out.println("-------------------------2");
             Logger.getLogger(GeneratedValidator.class.getName()).log(Level.SEVERE, ex.getMessage());
             throw new InvalidValueException(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println("-------------------------3");
             Logger.getLogger(GeneratedValidator.class.getName()).log(Level.SEVERE, ex.getMessage());
             throw new InvalidValueException(ex.getMessage());
         }

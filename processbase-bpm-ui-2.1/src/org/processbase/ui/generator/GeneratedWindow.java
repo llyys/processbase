@@ -96,21 +96,10 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     protected void generateWindow() throws Exception {
-
         forms = task == null ? xmlProcess.getForms() : xmlProcess.getTasks().get(task.getActivityName()).getForms();
-
-        long startdate = System.currentTimeMillis();
         prepareAttachments();
-        System.out.println("attachments " + (System.currentTimeMillis() - startdate));
-        startdate = System.currentTimeMillis();
         prepareVariables();
-        System.out.println("prepare variables " + (System.currentTimeMillis() - startdate));
-        startdate = System.currentTimeMillis();
         prepareGroovyScripts();
-        System.out.println("prepare groovy " + (System.currentTimeMillis() - startdate));
-        startdate = System.currentTimeMillis();
-
-
         for (XMLFormDefinition form : forms) {
             GridLayout page = new GridLayout(form.getnColumn(), form.getnLine());
             page.setMargin(false, true, true, true);
@@ -119,29 +108,19 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
             for (XMLWidgetsDefinition widgets : widgetsList) {
-//                startdate = System.currentTimeMillis();
                 Component component = getComponent(widgets);
-//                System.out.println("finish "  + widgets.getLabel() +" "+ (System.currentTimeMillis() - startdate));
                 if (component != null) {
-//                    Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, "component = " + component.getClass().getName());
                     components.put(component, widgets);
                     page.addComponent(component, widgets.getColumn(), widgets.getLine(), widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() - 1 : 0), widgets.getLine());
                 }
             }
 
         }
-        System.out.println("forms " + (System.currentTimeMillis() - startdate));
-        startdate = System.currentTimeMillis();
-
         taskPanel.setContent(pages.get(currentPage));
         taskPanel.setCaption(forms.get(currentPage).getLabel());
     }
 
     private Component getComponent(XMLWidgetsDefinition widgets) {
-//        Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, "widgets = " + widgets.getId() + " " + widgets.getName() + " widgets.getSetVarScript() = " + widgets.getSetVarScript());
-        boolean debug = (widgets.getLabel().equalsIgnoreCase("Segundo Nombre"));
-        long startdate = System.currentTimeMillis();
-
         Component component = null;
         Object value = null;
         DataFieldDefinition dfd = null;
@@ -215,10 +194,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     value = groovyScripts.get(widgets.getDefaultValue());
                 }
             }
-            if (debug) {
-                System.out.println("define finish " + (System.currentTimeMillis() - startdate));
-                startdate = System.currentTimeMillis();
-            }
+
             // define UI components
             if (widgets.getType().equals("form:TextFormField")) {
                 component = getTextField(widgets, value, false, false);
@@ -269,11 +245,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 component = getButton(widgets);
             }
 
-            if (debug) {
-                System.out.println("componet main finish " + (System.currentTimeMillis() - startdate));
-                startdate = System.currentTimeMillis();
-            }
-
             component = (component != null) ? component : new Label("");
             // add general atrubutes
             // setWidth
@@ -298,11 +269,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if (widgets.getValidatorName() != null) {
                     ((AbstractField) component).addValidator(new GeneratedValidator(widgets, task, processDef));
                 }
-            }
-
-            if (debug) {
-                System.out.println("component additional finish " + (System.currentTimeMillis() - startdate));
-                startdate = System.currentTimeMillis();
             }
 
             return component;
@@ -395,16 +361,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (components.containsKey(event.getButton())) {
                 Button btn = event.getButton();
                 if (getWidgets(btn).getType().equals("form:SubmitFormButton")) {
-                    long startdate = System.currentTimeMillis();
                     commit();
-                    System.out.println("commit " + (System.currentTimeMillis() - startdate));
-                    startdate = System.currentTimeMillis();
                     setProcessVariables();
-                    System.out.println("setProcessVariables " + (System.currentTimeMillis() - startdate));
-                    startdate = System.currentTimeMillis();
                     executeButtonActions(getWidgets(btn));
-                    System.out.println("executeButtonActions " + (System.currentTimeMillis() - startdate));
-                    startdate = System.currentTimeMillis();
                     if (task == null) {
                         ProcessInstanceUUID piUUID = PbPortlet.getCurrent().bpmModule.startNewProcess(processDef.getUUID(), piVariables);
                         if (hasAttachments) {
@@ -416,8 +375,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                             saveAttachments(task.getProcessInstanceUUID().toString());
                         }
                     }
-                    System.out.println("finishTask " + (System.currentTimeMillis() - startdate));
-                    startdate = System.currentTimeMillis();
                     close();
 
                 } else if (getWidgets(btn).getType().equals("form:NextFormButton")) {
@@ -433,10 +390,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 }
             }
         } catch (InvalidValueException ex) {
-            // do nothing
-//            System.out.println("DEBUG 6 ");
+            showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         } catch (Exception ex) {
-//            System.out.println("DEBUG 7 ");
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
@@ -466,89 +421,36 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private void setProcessVariables() throws Exception {
+        Map<String, Object> piVariablesTemp = new HashMap<String, Object>();
+        Map<String, Object> aiVariablesTemp = new HashMap<String, Object>();
         for (Component comp : components.keySet()) {
             XMLWidgetsDefinition widgets = components.get(comp);
             if (widgets.getSetVarScript() != null) {
-                if (widgets.getType().equals("form:TextFormField")) {
+                if (comp instanceof AbstractField) {
                     if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+                        piVariablesTemp.put(widgets.getSetVarScript(), ((AbstractField) comp).getValue());
                     } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+                        aiVariablesTemp.put(widgets.getSetVarScript(), ((AbstractField) comp).getValue());
                     }
                 }
-                if (widgets.getType().equals("form:PasswordFormField")) {
+                if (comp instanceof GeneratedTable) {
                     if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+                        piVariablesTemp.put(widgets.getSetVarScript(), ((GeneratedTable) comp).getTableValue());
                     } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+                        aiVariablesTemp.put(widgets.getSetVarScript(), ((GeneratedTable) comp).getTableValue());
                     }
                 }
-                if (widgets.getType().equals("form:TextAreaFormField")) {
+                if (comp instanceof CheckBox) {
                     if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
+                        piVariablesTemp.put(widgets.getSetVarScript(), ((CheckBox) comp).booleanValue());
                     } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((TextField) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:RichTextAreaFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((RichTextArea) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((RichTextArea) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:SelectFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((NativeSelect) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((NativeSelect) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:RadioFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((OptionGroup) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((OptionGroup) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:DateFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((PopupDateField) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((PopupDateField) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:CheckBoxSingleFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((CheckBox) comp).booleanValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((CheckBox) comp).booleanValue());
-                    }
-                }
-                if (widgets.getType().equals("form:CheckBoxMultipleFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((OptionGroup) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((OptionGroup) comp).getValue());
-                    }
-                }
-                if (widgets.getType().equals("form:ListFormField")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((ListSelect) comp).getValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((ListSelect) comp).getValue());
-                    }
-
-                }
-                if (widgets.getType().equals("form:Table") || widgets.getType().equals("form:DynamicTable")) {
-                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
-                        piVariables.put(widgets.getSetVarScript(), ((GeneratedTable) comp).getTableValue());
-                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
-                        aiVariables.put(widgets.getSetVarScript(), ((GeneratedTable) comp).getTableValue());
+                        aiVariablesTemp.put(widgets.getSetVarScript(), ((CheckBox) comp).booleanValue());
                     }
                 }
             }
         }
+        piVariables = piVariablesTemp;
+        aiVariables = aiVariablesTemp;
     }
 
     private void saveAttachments(String processUUID) {
@@ -638,9 +540,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (task == null) {
             groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, processDef.getUUID(), null, true);
         }
-        System.out.println(groovyScripts);
-
-    }
+        }
 
     private String getPureScript(String script) {
         script = script.replace(GroovyExpression.START_DELIMITER, "");
@@ -649,9 +549,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private void executeButtonActions(XMLWidgetsDefinition button) throws Exception {
-        System.out.println("ACTIONS  = " + button.getActions().size());
         for (XMLActionDefinition action : button.getActions()) {
-            System.out.println("ACTION " + action.getExprScript() + " " + action.getSetVarScript());
             if (task != null) {
                 if (processDataFields.containsKey(action.getSetVarScript())) {
                     piVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), task, true));
