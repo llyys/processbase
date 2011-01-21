@@ -131,7 +131,8 @@ public class CategoryWindow extends PbWindow implements ClickListener {
                     addTableRow(pd);
                 } else {
                     Item woItem = processesComboBox.addItem(pd);
-                    processesComboBox.setItemCaption(pd, pd.getLabel() + " (version " + pd.getVersion() + ")");
+                    String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();
+                    processesComboBox.setItemCaption(pd, caption + " (version " + pd.getVersion() + ")");
                 }
             }
             table.setSortContainerPropertyId("name");
