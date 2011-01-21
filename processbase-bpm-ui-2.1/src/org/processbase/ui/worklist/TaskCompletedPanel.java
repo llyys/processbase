@@ -79,7 +79,8 @@ public class TaskCompletedPanel extends TablePanel {
     private void addTableRow(LightTaskInstance task) throws InstanceNotFoundException, Exception {
         Item woItem = table.addItem(task);
         LightProcessDefinition lpd = PbPortlet.getCurrent().bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
-        TableLinkButton teb = new TableLinkButton(lpd.getLabel() + "  #" + task.getProcessInstanceUUID().getInstanceNb(), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
+        String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
+        TableLinkButton teb = new TableLinkButton(processName + "  #" + task.getProcessInstanceUUID().getInstanceNb(), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
         woItem.getItemProperty("processName").setValue(teb);
         String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
         String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";

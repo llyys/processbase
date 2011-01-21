@@ -73,11 +73,19 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
             for (LightActivityInstance ai : ais) {
                 Item woItem = table.addItem(ai);
                 LightProcessDefinition lpd = PbPortlet.getCurrent().bpmModule.getLightProcessDefinition(ai.getProcessDefinitionUUID());
-                woItem.getItemProperty("processName").setValue(lpd.getLabel() + "  #" + ai.getProcessInstanceUUID().getInstanceNb());
-                String link = new String(ai.getActivityLabel() + " (")
-                        + (ai.getDynamicLabel() != null ? ai.getDynamicLabel() : " ") + " - "
-                        + (ai.getDynamicDescription() != null ? ai.getDynamicDescription() : " ") + ") ";
-                TableLinkButton teb = new TableLinkButton(link, ai.getActivityDescription(), null, ai, this, Constants.ACTION_OPEN);
+                String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
+                woItem.getItemProperty("processName").setValue(processName + "  #" + ai.getProcessInstanceUUID().getInstanceNb());
+                StringBuilder link = new StringBuilder(ai.getActivityLabel() != null ? ai.getActivityLabel() : ai.getActivityName());
+
+                if (ai.getDynamicLabel() != null && ai.getDynamicDescription() != null) {
+                    link.append("(").append(ai.getDynamicLabel()).append(" - ").append(ai.getDynamicDescription()).append(")");
+                } else if (ai.getDynamicLabel() != null && ai.getDynamicDescription() == null) {
+                    link.append("(").append(ai.getDynamicLabel()).append(")");
+                } else if (ai.getDynamicLabel() != null && ai.getDynamicDescription() != null) {
+                    link.append("(").append(ai.getDynamicDescription()).append(")");
+                }
+
+                TableLinkButton teb = new TableLinkButton(link.toString(), ai.getActivityDescription(), null, ai, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("label").setValue(teb);
                 woItem.getItemProperty("lastUpdate").setValue(ai.getLastUpdateDate());
                 woItem.getItemProperty("state").setValue(ai.getState());

@@ -231,7 +231,8 @@ public class AdminPortlet extends PbPortlet
             Collection<LightProcessDefinition> processes = PbPortlet.getCurrent().bpmModule.getLightProcessDefinitions(ProcessState.ENABLED);
             for (LightProcessDefinition pd : processes) {
                 Item woItem = processesComboBox.addItem(pd);
-                processesComboBox.setItemCaption(pd, pd.getLabel() + " (version " + pd.getVersion() + ")");
+                String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();
+                processesComboBox.setItemCaption(pd, caption + " (version " + pd.getVersion() + ")");
             }
         } catch (Exception ex) {
             ex.printStackTrace();

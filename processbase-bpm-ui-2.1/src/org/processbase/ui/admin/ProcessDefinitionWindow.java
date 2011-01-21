@@ -86,7 +86,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
     public void exec() {
         try {
-            setCaption(processDefinition.getLabel() + " (v." + processDefinition.getVersion() + ")");
+            String caption = processDefinition.getLabel() != null ? processDefinition.getLabel() : processDefinition.getName();
+            setCaption(caption + " (v." + processDefinition.getVersion() + ")");
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
@@ -96,14 +97,18 @@ public class ProcessDefinitionWindow extends PbWindow implements
             v1.setMargin(true, false, false, false);
             v1.setSizeFull();
 
-            Label pdLabel = new Label("<b>" + processDefinition.getLabel() + "</b>");
-            pdLabel.setContentMode(Label.CONTENT_XHTML);
-            v1.addComponent(pdLabel);
+            if (processDefinition.getLabel() != null) {
+                Label pdLabel = new Label("<b>" + processDefinition.getLabel() + "</b>");
+                pdLabel.setContentMode(Label.CONTENT_XHTML);
+                v1.addComponent(pdLabel);
+            }
 
-            Label pdDescription = new Label(processDefinition.getDescription());
-            pdDescription.setContentMode(Label.CONTENT_XHTML);
-            v1.addComponent(pdDescription);
-            v1.setExpandRatio(pdDescription, 1);
+            if (processDefinition.getDescription() != null) {
+                Label pdDescription = new Label(processDefinition.getDescription());
+                pdDescription.setContentMode(Label.CONTENT_XHTML);
+                v1.addComponent(pdDescription);
+                v1.setExpandRatio(pdDescription, 1);
+            }
 
             tabSheet.addTab(v1, PbPortlet.getCurrent().messages.getString("tabDescription"), null);
 
@@ -218,10 +223,9 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private void enableProcess() {
         ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
                 PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                enableBtn.booleanValue() ?
-                PbPortlet.getCurrent().messages.getString("questionEnableProcessDefinition") :
-                PbPortlet.getCurrent().messages.getString("questionDisableProcessDefinition")
-                ,
+                enableBtn.booleanValue()
+                ? PbPortlet.getCurrent().messages.getString("questionEnableProcessDefinition")
+                : PbPortlet.getCurrent().messages.getString("questionDisableProcessDefinition"),
                 PbPortlet.getCurrent().messages.getString("btnYes"),
                 PbPortlet.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
