@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.data.Validator.EmptyValueException;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.validator.DoubleValidator;
+import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
@@ -55,6 +57,7 @@ import org.processbase.bpm.forms.XMLWidgetsDefinition;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.HumanTaskWindow;
 import org.processbase.ui.template.ImmediateUpload;
+import org.processbase.ui.template.LongValidator;
 
 /**
  *
@@ -165,54 +168,45 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 } else {
 //                    options = widgets.getInputScript();
                 }
-                // set list value
-//                if (task != null && widgets.getDefaultValue() != null && GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
-//                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, false);
-//                } else if (task == null && widgets.getDefaultValue() != null && GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
-//                    value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), processDef.getUUID());
-//                } else {
-//                    value = widgets.getDefaultValue();
-//                }
                 value = groovyScripts.get(widgets.getDefaultValue());
 
             } else if (widgets.getType().equals("form:Table") || widgets.getType().equals("form:DynamicTable")) {
                 // define not lists
             } else {
                 if (task != null && widgets.getInputScript() != null && !widgets.getInputScript().isEmpty()) {
-//                    if (GroovyExpression.isGroovyExpression(widgets.getInputScript())) {
-//                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getInputScript(), task, false);
-//                    } else {
-//                        value = widgets.getInputScript();
-//                    }
                     value = groovyScripts.get(widgets.getInputScript());
                 } else if (task != null && widgets.getDefaultValue() != null && !widgets.getDefaultValue().isEmpty()) {
-//                    if (GroovyExpression.isGroovyExpression(widgets.getDefaultValue())) {
-//                        value = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpression(widgets.getDefaultValue(), task, false);
-//                    } else {
-//                        value = widgets.getDefaultValue();
-//                    }
                     value = groovyScripts.get(widgets.getDefaultValue());
                 }
+                if (widgets.getSetVarScript() != null
+                        && !GroovyExpression.isGroovyExpression(widgets.getSetVarScript())) {
+                    if (processDataFields.containsKey(widgets.getSetVarScript())) {
+                        dfd = processDataFields.get(widgets.getSetVarScript());
+                    } else if (activityDataFields.containsKey(widgets.getSetVarScript())) {
+                        dfd = activityDataFields.get(widgets.getSetVarScript());
+                    }
+                }
             }
+            System.out.println(widgets.getName() + " " + (value != null ? (value + " " + value.getClass().getName()) : ""));
 
             // define UI components
             if (widgets.getType().equals("form:TextFormField")) {
-                component = getTextField(widgets, value, false, false);
+                component = getTextField(widgets, value, dfd, false, false);
             }
             if (widgets.getType().equals("form:DateFormField")) {
                 component = getPopupDateField(widgets, value);
             }
             if (widgets.getType().equals("form:TextAreaFormField")) {
-                component = getTextField(widgets, value, false, false);
+                component = getTextField(widgets, value, dfd, false, false);
             }
             if (widgets.getType().equals("form:RichTextAreaFormField")) {
                 component = getRichTextArea(widgets, value);
             }
             if (widgets.getType().equals("form:TextInfo")) {
-                component = getTextField(widgets, value, true, false);
+                component = getTextField(widgets, value, dfd, true, false);
             }
             if (widgets.getType().equals("form:PasswordFormField")) {
-                component = getTextField(widgets, value, false, true);
+                component = getTextField(widgets, value, dfd, false, true);
             }
             if (widgets.getType().equals("form:MessageInfo")) {
                 component = getLabel(widgets, value);
@@ -266,9 +260,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 ((AbstractField) component).setDescription(widgets.getTooltip() != null ? widgets.getTooltip() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
-                if (widgets.getValidatorName() != null) {
-                    ((AbstractField) component).addValidator(new GeneratedValidator(widgets, task, processDef));
-                }
             }
 
             return component;
@@ -279,9 +270,21 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         return new Label("");
     }
 
-    private TextField getTextField(XMLWidgetsDefinition widgets, Object value, boolean readOnly, boolean secret) {
+    private TextField getTextField(XMLWidgetsDefinition widgets, Object value, DataFieldDefinition dfd, boolean readOnly, boolean secret) {
         TextField component = new TextField(widgets.getDisplayLabel());
+        if (widgets.getValidatorName() != null) {
+            component.addValidator(new GeneratedValidator(widgets, task, processDef));
+        } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
+            component.addValidator(
+                    new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
+                    + PbPortlet.getCurrent().messages.getString("validatorDoubleError")));
+        } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
+            component.addValidator(
+                    new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
+                    + PbPortlet.getCurrent().messages.getString("validatorLongError")));
+        }
         component.setValue(value);
+        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
         component.setNullRepresentation("");
         component.setReadOnly(readOnly);
         component.setSecret(secret);
@@ -540,7 +543,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (task == null) {
             groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, processDef.getUUID(), null, true);
         }
-        }
+    }
 
     private String getPureScript(String script) {
         script = script.replace(GroovyExpression.START_DELIMITER, "");
