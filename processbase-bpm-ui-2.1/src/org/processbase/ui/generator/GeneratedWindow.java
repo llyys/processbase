@@ -281,7 +281,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + PbPortlet.getCurrent().messages.getString("validatorLongError")));
+                    + PbPortlet.getCurrent().messages.getString("validatorIntegerError")));
         }
         component.setValue(value);
         System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
