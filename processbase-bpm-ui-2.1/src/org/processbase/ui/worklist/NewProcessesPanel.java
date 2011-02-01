@@ -132,8 +132,11 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
     public void openStartPage(LightProcessDefinition process) {
         try {
             String url = PbPortlet.getCurrent().bpmModule.getProcessMetaData(process.getUUID()).get(process.getUUID().toString());
+
+            PbPortlet.getCurrent().portletSession.removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
             PbPortlet.getCurrent().portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-            PbPortlet.getCurrent().portletSession.setAttribute("PROCESSBASE_SHARED_TASKINSTANCE", "NEW_PROCESS", PortletSession.APPLICATION_SCOPE);
+
+            PbPortlet.getCurrent().portletSession.setAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", process.getUUID(), PortletSession.APPLICATION_SCOPE);
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {

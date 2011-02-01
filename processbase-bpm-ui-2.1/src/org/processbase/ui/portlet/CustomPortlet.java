@@ -47,20 +47,24 @@ import org.processbase.ui.util.DocumentLibraryUtil;
  *
  * @author mgubaidullin
  */
-public abstract class PbPortlet
-        extends Application
+public abstract class CustomPortlet extends Application
         implements PortletListener, PortletRequestListener, TransactionListener {
 
-    private static ThreadLocal<PbPortlet> currentPortlet = new ThreadLocal<PbPortlet>();
+    private static ThreadLocal<CustomPortlet> currentPortlet = new ThreadLocal<CustomPortlet>();
     public PortletApplicationContext2 portletApplicationContext2;
     public PortletSession portletSession;
     public BPMModule bpmModule = null;
     public ResourceBundle messages = null;
     public DocumentLibraryUtil documentLibraryUtil = null;
-    
-    @Override
+    public String taskUUID = null;
+    public String processDefUUID = null;
+    public int type = 1;
+    public static final int TYPE_START_PROCESS = 0;
+    public static final int TYPE_TASK = 1;
+    public boolean initialized = false;
+
     public void init() {
-        System.out.println("PbPortlet init ");
+        System.out.println("CustomPortlet init ");
         setCurrent(this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
@@ -79,9 +83,24 @@ public abstract class PbPortlet
         if (getContext() != null) {
             getContext().addTransactionListener(this);
         }
-
+        if (!initialized
+                && CustomPortlet.getCurrent().portletSession.getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
+            CustomPortlet.getCurrent().taskUUID = ((CustomPortlet) CustomPortlet.getCurrent()).portletSession.getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+            CustomPortlet.getCurrent().type = TYPE_TASK;
+            initUI();
+        } else if (!initialized
+                && CustomPortlet.getCurrent().portletSession.getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
+            CustomPortlet.getCurrent().processDefUUID = ((CustomPortlet) CustomPortlet.getCurrent()).portletSession.getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+            CustomPortlet.getCurrent().type = TYPE_START_PROCESS;
+            initUI();
+        }
     }
 
+    public void initUI() {
+        System.out.println("CustomPortlet initUI ");
+    }
+
+    @Override
     public void onRequestStart(PortletRequest request, PortletResponse response) {
         if (getUser() == null) {
             try {
@@ -94,6 +113,20 @@ public abstract class PbPortlet
             } catch (SystemException e) {
                 e.printStackTrace();
             }
+        }
+        System.out.println("CustomPortlet initialized = " + initialized);
+        System.out.println("PROCESSBASE_SHARED_TASKINSTANCE = " + request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE));
+
+        if (initialized
+                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
+            taskUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+            type = TYPE_TASK;
+            initUI();
+        } else if (initialized
+                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
+            processDefUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+            type = TYPE_START_PROCESS;
+            initUI();
         }
     }
 
@@ -140,6 +173,8 @@ public abstract class PbPortlet
 
     @Override
     public void close() {
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
+        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
         this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
         super.close();
     }
@@ -155,14 +190,14 @@ public abstract class PbPortlet
     /**
      * @return the current application instance
      */
-    public static PbPortlet getCurrent() {
+    public static CustomPortlet getCurrent() {
         return currentPortlet.get();
     }
 
     /**
      * Set the current application instance
      */
-    public static void setCurrent(PbPortlet application) {
+    public static void setCurrent(CustomPortlet application) {
         if (getCurrent() == null) {
             currentPortlet.set(application);
         }
@@ -180,7 +215,7 @@ public abstract class PbPortlet
      */
     public void transactionStart(Application application, Object transactionData) {
         if (application == this) {
-            PbPortlet.setCurrent(this);
+            CustomPortlet.setCurrent(this);
             // Store current users locale
             setLocale(getLocale());
         }

@@ -187,7 +187,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     }
                 }
             }
-            System.out.println(widgets.getName() + " " + (value != null ? (value + " " + value.getClass().getName()) : ""));
+//            System.out.println(widgets.getName() + " " + (value != null ? (value + " " + value.getClass().getName()) : ""));
 
             // define UI components
             if (widgets.getType().equals("form:TextFormField")) {
@@ -284,7 +284,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     + PbPortlet.getCurrent().messages.getString("validatorIntegerError")));
         }
         component.setValue(value);
-        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
+//        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
         component.setNullRepresentation("");
         component.setReadOnly(readOnly);
         component.setSecret(secret);

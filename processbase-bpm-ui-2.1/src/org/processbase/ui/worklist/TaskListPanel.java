@@ -156,7 +156,9 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         try {
             String url = PbPortlet.getCurrent().bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
+                PbPortlet.getCurrent().portletSession.removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
                 PbPortlet.getCurrent().portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+
                 PbPortlet.getCurrent().portletSession.setAttribute("PROCESSBASE_SHARED_TASKINSTANCE", task.getUUID().toString(), PortletSession.APPLICATION_SCOPE);
                 this.getWindow().open(new ExternalResource(url));
             } else {

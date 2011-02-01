@@ -177,12 +177,18 @@ public class ProcessDefinitionWindow extends PbWindow implements
     public void refreshTable() {
         try {
             activitiesTable.removeAllItems();
+            // process level Custom UI
+            Item woItem = activitiesTable.addItem(processDefinition);
+            woItem.getItemProperty("activityLabel").setValue(processDefinition.getLabel() != null ? processDefinition.getLabel() : processDefinition.getName());
+            String url = processDefinition.getAMetaData(processDefinition.getUUID().toString());
+            woItem.getItemProperty("url").setValue(url != null ? url : new String());
+            // activity level Custom UI
             for (ActivityDefinition activityDefinition : processDefinition.getActivities()) {
                 if (activityDefinition.isTask()) {
-                    Item woItem = activitiesTable.addItem(activityDefinition);
+                    woItem = activitiesTable.addItem(activityDefinition);
 //                    woItem.getItemProperty("activityUUID").setValue(activityDefinition.getUUID().toString());
                     woItem.getItemProperty("activityLabel").setValue(activityDefinition.getLabel());
-                    String url = processDefinition.getAMetaData(activityDefinition.getUUID().toString());
+                    url = processDefinition.getAMetaData(activityDefinition.getUUID().toString());
                     woItem.getItemProperty("url").setValue(url != null ? url : new String());
                 }
             }
@@ -340,11 +346,21 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
     private void save() throws Exception {
         for (Object object : activitiesTable.getContainerDataSource().getItemIds()) {
-            ActivityDefinition activityDefinition = (ActivityDefinition) object;
-            if (activitiesTable.getItem(object).getItemProperty("url") != null && !activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
-                PbPortlet.getCurrent().bpmModule.addProcessMetaData(processDefinition.getUUID(), activityDefinition.getUUID().toString(), activitiesTable.getItem(object).getItemProperty("url").toString());
-            } else if (activitiesTable.getItem(object).getItemProperty("url") != null && activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
-                PbPortlet.getCurrent().bpmModule.deleteProcessMetaData(processDefinition.getUUID(), activityDefinition.getUUID().toString());
+            if (object instanceof ProcessDefinition) { // process level Custom UI
+                ProcessDefinition pd = (ProcessDefinition) object;
+                if (activitiesTable.getItem(object).getItemProperty("url") != null && !activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
+                    PbPortlet.getCurrent().bpmModule.addProcessMetaData(processDefinition.getUUID(), pd.getUUID().toString(), activitiesTable.getItem(object).getItemProperty("url").toString());
+                } else if (activitiesTable.getItem(object).getItemProperty("url") != null && activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
+                    PbPortlet.getCurrent().bpmModule.deleteProcessMetaData(processDefinition.getUUID(), pd.getUUID().toString());
+                }
+
+            } else if (object instanceof ActivityDefinition) { // activity level Custom UI
+                ActivityDefinition activityDefinition = (ActivityDefinition) object;
+                if (activitiesTable.getItem(object).getItemProperty("url") != null && !activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
+                    PbPortlet.getCurrent().bpmModule.addProcessMetaData(processDefinition.getUUID(), activityDefinition.getUUID().toString(), activitiesTable.getItem(object).getItemProperty("url").toString());
+                } else if (activitiesTable.getItem(object).getItemProperty("url") != null && activitiesTable.getItem(object).getItemProperty("url").toString().isEmpty()) {
+                    PbPortlet.getCurrent().bpmModule.deleteProcessMetaData(processDefinition.getUUID(), activityDefinition.getUUID().toString());
+                }
             }
         }
     }

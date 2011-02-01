@@ -20,6 +20,7 @@ import com.liferay.documentlibrary.DuplicateFileException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.User;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
@@ -45,9 +46,9 @@ public class DocumentLibraryUtil {
     private DLFolderLocalService folderService = null;
     private DLFileEntryLocalService fileService = null;
 
-    public DocumentLibraryUtil() {
+    public DocumentLibraryUtil(User currentUser) {
         try {
-            processBaseGroup = GroupLocalServiceUtil.getGroup(PbPortlet.getCurrent().getPortalUser().getCompanyId(), Constants.DL_GROUP);
+            processBaseGroup = GroupLocalServiceUtil.getGroup(currentUser.getCompanyId(), Constants.DL_GROUP);
             folderService = DLFolderLocalServiceUtil.getService();
             fileService = DLFileEntryLocalServiceUtil.getService();
         } catch (Exception ex) {

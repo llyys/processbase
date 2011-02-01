@@ -32,12 +32,20 @@ import com.vaadin.ui.VerticalLayout;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.portlet.PortletSession;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.Comment;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.bpm.BPMModule;
+import org.processbase.ui.portlet.CustomPortlet;
 import org.processbase.ui.portlet.PbPortlet;
 
 /**
@@ -66,19 +74,64 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     protected MenuBar.MenuItem priority2 = null;
     protected Panel taskPanel = new Panel();
     protected TabSheet tabSheet = new TabSheet();
-    protected RichTextArea commentEditor = new RichTextArea(PbPortlet.getCurrent().messages.getString("addComment"));
-    protected Button addCommentBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), (Button.ClickListener) this);
+    protected RichTextArea commentEditor = null;
+    protected Button addCommentBtn = null;
+    private boolean custom = false;
+    private BPMModule bpmModule = null;
+    private ResourceBundle messages = null;
+    private User currentUser = null;
+    private CustomPortlet customPortlet = null;
 
-    public HumanTaskWindow(String caption) {
+    public HumanTaskWindow(String caption, boolean custom) {
         super(caption);
+        this.custom = custom;
+    }
+
+    protected HumanTaskWindow(String caption) {
+        this(caption, false);
+    }
+
+    private void prepareCustom() {
+        try {
+            if (customPortlet.type == CustomPortlet.TYPE_START_PROCESS ){
+                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(customPortlet.processDefUUID));
+                setProcessDef(pd);
+            } else if (customPortlet.type == CustomPortlet.TYPE_TASK ){
+                TaskInstance ti = bpmModule.getTaskInstance(new ActivityInstanceUUID(customPortlet.taskUUID));
+                setTask(ti);
+            }
+            customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
+            customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+            customPortlet.initialized= true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void initUI() {
+        if (custom) {
+            System.out.println("APP = " + getApplication().getClass());
+            customPortlet = ((CustomPortlet)getApplication());
+            currentUser = customPortlet.getPortalUser();
+            bpmModule = customPortlet.bpmModule;
+            messages = customPortlet.messages;
+            prepareCustom();
+        } else {
+            currentUser = PbPortlet.getCurrent().getPortalUser();
+            bpmModule = PbPortlet.getCurrent().bpmModule;
+            messages = PbPortlet.getCurrent().messages;
+        }
+
+        commentEditor = new RichTextArea(messages.getString("addComment"));
+        addCommentBtn = new Button(messages.getString("btnSave"), (Button.ClickListener) this);
+
         mainLayout.setMargin(false);
         mainLayout.setSpacing(false);
         mainLayout.setStyleName("white");
 
-        mainLayout.setSizeFull();
+        if (!custom) { // set only for generated window
+            mainLayout.setSizeFull();
+        }
 
         layout.setSizeFull();
         layout.setMargin(true, true, true, true);
@@ -115,10 +168,10 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         repaintDatesMenu();
         repaintStateMenu();
 
-        priority0 = priority.addItem(PbPortlet.getCurrent().messages.getString("PRIORITY_NORMAL"), new ThemeResource("icons/attention_normal.png"), (MenuBar.Command) this);
-        priority1 = priority.addItem(PbPortlet.getCurrent().messages.getString("PRIORITY_HIGH"), new ThemeResource("icons/attention_high.png"), (MenuBar.Command) this);
+        priority0 = priority.addItem(messages.getString("PRIORITY_NORMAL"), new ThemeResource("icons/attention_normal.png"), (MenuBar.Command) this);
+        priority1 = priority.addItem(messages.getString("PRIORITY_HIGH"), new ThemeResource("icons/attention_high.png"), (MenuBar.Command) this);
         priority1.setStyleName("red");
-        priority2 = priority.addItem(PbPortlet.getCurrent().messages.getString("PRIORITY_URGENT"), new ThemeResource("icons/attention_urgent.png"), (MenuBar.Command) this);
+        priority2 = priority.addItem(messages.getString("PRIORITY_URGENT"), new ThemeResource("icons/attention_urgent.png"), (MenuBar.Command) this);
         priority2.setStyleName("red-bold");
         repaintPriorityMenu(task.getPriority());
 
@@ -168,7 +221,10 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         taskPanel.setSizeUndefined();
 
         vl.setComponentAlignment(taskPanel, Alignment.MIDDLE_CENTER);
-        tabSheet.addTab(vl, PbPortlet.getCurrent().messages.getString("taskDetails"), new ThemeResource("icons/document-txt.png"));
+        String tabCaption = task != null
+                ? messages.getString("taskDetails")
+                : (processDef.getLabel() != null ? processDef.getLabel() : processDef.getName());
+        tabSheet.addTab(vl, tabCaption, new ThemeResource("icons/document-txt.png"));
     }
 
     private void prepareComments() {
@@ -178,7 +234,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         commentsLayout.removeAllComponents();
         List<Comment> comments = new ArrayList<Comment>(0);
         try {
-            comments = PbPortlet.getCurrent().bpmModule.getCommentFeed(task.getProcessInstanceUUID());
+            comments = bpmModule.getCommentFeed(task.getProcessInstanceUUID());
         } catch (Exception ex) {
             Logger.getLogger(HumanTaskWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
@@ -186,13 +242,13 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         for (Comment comment : comments) {
             commentsLayout.addComponent(getCommentPanel(comment.getDate(), comment.getUserId(), comment.getMessage()));
         }
-        commentEditor = new RichTextArea(PbPortlet.getCurrent().messages.getString("addComment"));
+        commentEditor = new RichTextArea(messages.getString("addComment"));
         commentEditor.setWidth("100%");
         commentEditor.setNullRepresentation("");
         commentsLayout.addComponent(commentEditor);
         commentsLayout.addComponent(addCommentBtn);
 
-        tabSheet.addTab(commentsLayout, PbPortlet.getCurrent().messages.getString("comments") + " (" + comments.size() + ")", new ThemeResource("icons/comment_yellow.gif"));
+        tabSheet.addTab(commentsLayout, messages.getString("comments") + " (" + comments.size() + ")", new ThemeResource("icons/comment_yellow.gif"));
     }
 
     private Panel getCommentPanel(Date date, String userId, String message) {
@@ -210,22 +266,22 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public void menuSelected(MenuItem selectedItem) {
         try {
             if (selectedItem.equals(priority0)) {
-                PbPortlet.getCurrent().bpmModule.setActivityInstancePriority(task.getUUID(), 0);
+                bpmModule.setActivityInstancePriority(task.getUUID(), 0);
                 repaintPriorityMenu(0);
             } else if (selectedItem.equals(priority1)) {
-                PbPortlet.getCurrent().bpmModule.setActivityInstancePriority(task.getUUID(), 1);
+                bpmModule.setActivityInstancePriority(task.getUUID(), 1);
                 repaintPriorityMenu(1);
             } else if (selectedItem.equals(priority2)) {
-                PbPortlet.getCurrent().bpmModule.setActivityInstancePriority(task.getUUID(), 2);
+                bpmModule.setActivityInstancePriority(task.getUUID(), 2);
                 repaintPriorityMenu(2);
             } else if (selectedItem.equals(suspend)) {
-                task = PbPortlet.getCurrent().bpmModule.suspendTask(task.getUUID(), true);
+                task = bpmModule.suspendTask(task.getUUID(), true);
                 repaintStateMenu();
             } else if (selectedItem.equals(resume)) {
-                task = PbPortlet.getCurrent().bpmModule.resumeTask(task.getUUID(), true);
+                task = bpmModule.resumeTask(task.getUUID(), true);
                 repaintStateMenu();
             } else if (selectedItem.equals(actor) && !task.isTaskAssigned()) {
-                task = PbPortlet.getCurrent().bpmModule.assignAndStartTask(task.getUUID(), ((User) PbPortlet.getCurrent().getUser()).getScreenName());
+                task = bpmModule.assignAndStartTask(task.getUUID(), currentUser.getScreenName());
                 repaintActorMenu();
                 repaintStateMenu();
                 state.setEnabled(true);
@@ -253,21 +309,21 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         ThemeResource priorityIcon = null;
         switch (pri) {
             case 0:
-                priorityText = PbPortlet.getCurrent().messages.getString("priority") + ": " + PbPortlet.getCurrent().messages.getString("PRIORITY_NORMAL");
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_NORMAL");
                 priorityIcon = new ThemeResource("icons/attention_normal.png");
                 priority0.setEnabled(false);
                 priority1.setEnabled(true);
                 priority2.setEnabled(true);
                 break;
             case 1:
-                priorityText = PbPortlet.getCurrent().messages.getString("priority") + ": " + PbPortlet.getCurrent().messages.getString("PRIORITY_HIGH");
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_HIGH");
                 priorityIcon = new ThemeResource("icons/attention_high.png");
                 priority0.setEnabled(true);
                 priority1.setEnabled(false);
                 priority2.setEnabled(true);
                 break;
             case 2:
-                priorityText = PbPortlet.getCurrent().messages.getString("priority") + ": " + PbPortlet.getCurrent().messages.getString("PRIORITY_URGENT");
+                priorityText = messages.getString("priority") + ": " + messages.getString("PRIORITY_URGENT");
                 priorityIcon = new ThemeResource("icons/attention_urgent.png");
                 priority0.setEnabled(true);
                 priority1.setEnabled(true);
@@ -281,9 +337,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     private void repaintStateMenu() {
-        state.setText(PbPortlet.getCurrent().messages.getString("State") + ": " + PbPortlet.getCurrent().messages.getString(task.getState().toString()));
-        suspend.setText(PbPortlet.getCurrent().messages.getString("btnSuspend"));
-        resume.setText(PbPortlet.getCurrent().messages.getString("btnResume"));
+        state.setText(messages.getString("State") + ": " + messages.getString(task.getState().toString()));
+        suspend.setText(messages.getString("btnSuspend"));
+        resume.setText(messages.getString("btnResume"));
         if (task.getState() == ActivityState.SUSPENDED) {
             state.setIcon(new ThemeResource("icons/pause_normal.png"));
             suspend.setEnabled(false);
@@ -299,26 +355,26 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     private void repaintActorMenu() {
 
         if (task.isTaskAssigned()) {
-            actor.setText(PbPortlet.getCurrent().messages.getString("taskAssignedBy") + ": " + task.getTaskUser());
+            actor.setText(messages.getString("taskAssignedBy") + ": " + task.getTaskUser());
             actor.setIcon(new ThemeResource("icons/user.png"));
             actor.setStyleName("actor");
         } else {
-            actor.setText(PbPortlet.getCurrent().messages.getString("btnAccept"));
+            actor.setText(messages.getString("btnAccept"));
             actor.setIcon(new ThemeResource("icons/accept.png"));
             actor.setStyleName("actor");
         }
     }
 
     private void repaintDatesMenu() {
-        readyDate.setText(PbPortlet.getCurrent().messages.getString("taskReadyDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getReadyDate()}));
+        readyDate.setText(messages.getString("taskReadyDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getReadyDate()}));
         readyDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
         if (task.getExpectedEndDate() != null) {
-            expectedEndDate.setText(PbPortlet.getCurrent().messages.getString("taskExpectedEndDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getExpectedEndDate()}));
+            expectedEndDate.setText(messages.getString("taskExpectedEndDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getExpectedEndDate()}));
             expectedEndDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
         }
-        lastUpdatedDate.setText(PbPortlet.getCurrent().messages.getString("taskLastUpdateDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getLastUpdateDate()}));
+        lastUpdatedDate.setText(messages.getString("taskLastUpdateDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getLastUpdateDate()}));
         lastUpdatedDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
     }
@@ -339,7 +395,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         if (event.getButton().equals(addCommentBtn)) {
             try {
                 if (!commentEditor.getValue().toString().isEmpty()) {
-                    PbPortlet.getCurrent().bpmModule.addComment(task.getUUID(), commentEditor.getValue().toString(), PbPortlet.getCurrent().getPortalUser().getScreenName());
+                    bpmModule.addComment(task.getUUID(), commentEditor.getValue().toString(), currentUser.getScreenName());
                     prepareComments();
                 }
             } catch (Exception ex) {
@@ -348,5 +404,13 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
                 showError(ex.getMessage());
             }
         }
+    }
+
+    public LightProcessDefinition getProcessDef() {
+        return processDef;
+    }
+
+    public TaskInstance getTask() {
+        return task;
     }
 }
