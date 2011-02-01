@@ -57,8 +57,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     protected VerticalLayout mainLayout = new VerticalLayout();
     protected VerticalLayout layout = new VerticalLayout();
     protected VerticalLayout commentsLayout = new VerticalLayout();
-    protected TaskInstance task = null;
-    protected LightProcessDefinition processDef;
+    protected TaskInstance taskInstance = null;
+    protected LightProcessDefinition processDefinition;
     protected VerticalLayout topBar = new VerticalLayout();
     protected MenuBar menubar = new MenuBar();
     protected MenuBar.MenuItem actor = menubar.addItem("", (MenuBar.Command) this);
@@ -93,16 +93,15 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
     private void prepareCustom() {
         try {
-            if (customPortlet.type == CustomPortlet.TYPE_START_PROCESS ){
-                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(customPortlet.processDefUUID));
+            if (customPortlet.getType() == CustomPortlet.TYPE_START_PROCESS ){
+                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(customPortlet.processDefinitionUUID));
                 setProcessDef(pd);
-            } else if (customPortlet.type == CustomPortlet.TYPE_TASK ){
-                TaskInstance ti = bpmModule.getTaskInstance(new ActivityInstanceUUID(customPortlet.taskUUID));
-                setTask(ti);
+            } else if (customPortlet.getType() == CustomPortlet.TYPE_TASK ){
+                taskInstance = bpmModule.getTaskInstance(new ActivityInstanceUUID(customPortlet.taskInstanceUUID));
             }
             customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
             customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-            customPortlet.initialized= true;
+            customPortlet.setInitialized(true);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -137,7 +136,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         layout.setMargin(true, true, true, true);
         layout.setSpacing(false);
 
-        if (task != null) {
+        if (taskInstance != null) {
             prepareTopBar();
             addDescription();
         }
@@ -146,7 +145,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
         prepareTabSheet();
         preparePanel();
-        if (task != null) {
+        if (taskInstance != null) {
             prepareComments();
         }
 
@@ -173,7 +172,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         priority1.setStyleName("red");
         priority2 = priority.addItem(messages.getString("PRIORITY_URGENT"), new ThemeResource("icons/attention_urgent.png"), (MenuBar.Command) this);
         priority2.setStyleName("red-bold");
-        repaintPriorityMenu(task.getPriority());
+        repaintPriorityMenu(taskInstance.getPriority());
 
         topBar.addComponent(menubar, 0);
         topBar.setComponentAlignment(menubar, Alignment.TOP_LEFT);
@@ -183,8 +182,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
     private void addDescription() {
 
-        String dynLabel = task.getDynamicLabel();
-        String dynDescr = task.getDynamicDescription();
+        String dynLabel = taskInstance.getDynamicLabel();
+        String dynDescr = taskInstance.getDynamicDescription();
         StringBuilder text = new StringBuilder();
         if (dynLabel != null) {
             text.append("<b>").append(dynLabel).append("</b>");
@@ -192,8 +191,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         if (dynDescr != null) {
             text.append("<p>").append(dynDescr).append("</p>");
         }
-        if (task.getState() == ActivityState.FINISHED) {
-            String dynExec = task.getDynamicExecutionSummary();
+        if (taskInstance.getState() == ActivityState.FINISHED) {
+            String dynExec = taskInstance.getDynamicExecutionSummary();
             if (dynExec != null) {
                 text.append("<p>").append(dynExec).append("</p>");
             }
@@ -221,9 +220,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         taskPanel.setSizeUndefined();
 
         vl.setComponentAlignment(taskPanel, Alignment.MIDDLE_CENTER);
-        String tabCaption = task != null
+        String tabCaption = taskInstance != null
                 ? messages.getString("taskDetails")
-                : (processDef.getLabel() != null ? processDef.getLabel() : processDef.getName());
+                : (processDefinition.getLabel() != null ? processDefinition.getLabel() : processDefinition.getName());
         tabSheet.addTab(vl, tabCaption, new ThemeResource("icons/document-txt.png"));
     }
 
@@ -234,7 +233,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         commentsLayout.removeAllComponents();
         List<Comment> comments = new ArrayList<Comment>(0);
         try {
-            comments = bpmModule.getCommentFeed(task.getProcessInstanceUUID());
+            comments = bpmModule.getCommentFeed(taskInstance.getProcessInstanceUUID());
         } catch (Exception ex) {
             Logger.getLogger(HumanTaskWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
@@ -266,22 +265,22 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public void menuSelected(MenuItem selectedItem) {
         try {
             if (selectedItem.equals(priority0)) {
-                bpmModule.setActivityInstancePriority(task.getUUID(), 0);
+                bpmModule.setActivityInstancePriority(taskInstance.getUUID(), 0);
                 repaintPriorityMenu(0);
             } else if (selectedItem.equals(priority1)) {
-                bpmModule.setActivityInstancePriority(task.getUUID(), 1);
+                bpmModule.setActivityInstancePriority(taskInstance.getUUID(), 1);
                 repaintPriorityMenu(1);
             } else if (selectedItem.equals(priority2)) {
-                bpmModule.setActivityInstancePriority(task.getUUID(), 2);
+                bpmModule.setActivityInstancePriority(taskInstance.getUUID(), 2);
                 repaintPriorityMenu(2);
             } else if (selectedItem.equals(suspend)) {
-                task = bpmModule.suspendTask(task.getUUID(), true);
+                taskInstance = bpmModule.suspendTask(taskInstance.getUUID(), true);
                 repaintStateMenu();
             } else if (selectedItem.equals(resume)) {
-                task = bpmModule.resumeTask(task.getUUID(), true);
+                taskInstance = bpmModule.resumeTask(taskInstance.getUUID(), true);
                 repaintStateMenu();
-            } else if (selectedItem.equals(actor) && !task.isTaskAssigned()) {
-                task = bpmModule.assignAndStartTask(task.getUUID(), currentUser.getScreenName());
+            } else if (selectedItem.equals(actor) && !taskInstance.isTaskAssigned()) {
+                taskInstance = bpmModule.assignAndStartTask(taskInstance.getUUID(), currentUser.getScreenName());
                 repaintActorMenu();
                 repaintStateMenu();
                 state.setEnabled(true);
@@ -294,9 +293,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     private void enabletabSheet() {
-        if (task == null) {
+        if (taskInstance == null) {
             tabSheet.setEnabled(true);
-        } else if (task != null && task.isTaskAssigned() && task.getState() == ActivityState.EXECUTING) {
+        } else if (taskInstance != null && taskInstance.isTaskAssigned() && taskInstance.getState() == ActivityState.EXECUTING) {
             tabSheet.setEnabled(true);
         } else {
             tabSheet.setEnabled(false);
@@ -333,14 +332,14 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         priority.setText(priorityText);
         priority.setIcon(priorityIcon);
         priority.setStyleName(priorityStyle);
-        priority.setEnabled(task.isTaskAssigned());
+        priority.setEnabled(taskInstance.isTaskAssigned());
     }
 
     private void repaintStateMenu() {
-        state.setText(messages.getString("State") + ": " + messages.getString(task.getState().toString()));
+        state.setText(messages.getString("State") + ": " + messages.getString(taskInstance.getState().toString()));
         suspend.setText(messages.getString("btnSuspend"));
         resume.setText(messages.getString("btnResume"));
-        if (task.getState() == ActivityState.SUSPENDED) {
+        if (taskInstance.getState() == ActivityState.SUSPENDED) {
             state.setIcon(new ThemeResource("icons/pause_normal.png"));
             suspend.setEnabled(false);
             resume.setEnabled(true);
@@ -349,13 +348,13 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
             suspend.setEnabled(true);
             resume.setEnabled(false);
         }
-        state.setEnabled(task.isTaskAssigned());
+        state.setEnabled(taskInstance.isTaskAssigned());
     }
 
     private void repaintActorMenu() {
 
-        if (task.isTaskAssigned()) {
-            actor.setText(messages.getString("taskAssignedBy") + ": " + task.getTaskUser());
+        if (taskInstance.isTaskAssigned()) {
+            actor.setText(messages.getString("taskAssignedBy") + ": " + taskInstance.getTaskUser());
             actor.setIcon(new ThemeResource("icons/user.png"));
             actor.setStyleName("actor");
         } else {
@@ -366,21 +365,21 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     private void repaintDatesMenu() {
-        readyDate.setText(messages.getString("taskReadyDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getReadyDate()}));
+        readyDate.setText(messages.getString("taskReadyDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{taskInstance.getReadyDate()}));
         readyDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
-        if (task.getExpectedEndDate() != null) {
-            expectedEndDate.setText(messages.getString("taskExpectedEndDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getExpectedEndDate()}));
+        if (taskInstance.getExpectedEndDate() != null) {
+            expectedEndDate.setText(messages.getString("taskExpectedEndDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{taskInstance.getExpectedEndDate()}));
             expectedEndDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
         }
-        lastUpdatedDate.setText(messages.getString("taskLastUpdateDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{task.getLastUpdateDate()}));
+        lastUpdatedDate.setText(messages.getString("taskLastUpdateDate") + ": " + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM", new Object[]{taskInstance.getLastUpdateDate()}));
         lastUpdatedDate.setIcon(new ThemeResource("icons/calendar.png"));
 //            readyDate.setStyleName("actor");
     }
 
     public void setTask(TaskInstance task) {
-        this.task = task;
+        this.taskInstance = task;
     }
 
     public Panel getTaskPanel() {
@@ -388,14 +387,14 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void setProcessDef(LightProcessDefinition processDef) {
-        this.processDef = processDef;
+        this.processDefinition = processDef;
     }
 
     public void buttonClick(ClickEvent event) {
         if (event.getButton().equals(addCommentBtn)) {
             try {
                 if (!commentEditor.getValue().toString().isEmpty()) {
-                    bpmModule.addComment(task.getUUID(), commentEditor.getValue().toString(), currentUser.getScreenName());
+                    bpmModule.addComment(taskInstance.getUUID(), commentEditor.getValue().toString(), currentUser.getScreenName());
                     prepareComments();
                 }
             } catch (Exception ex) {
@@ -406,11 +405,11 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         }
     }
 
-    public LightProcessDefinition getProcessDef() {
-        return processDef;
+    public LightProcessDefinition getProcessDefinition() {
+        return processDefinition;
     }
 
     public TaskInstance getTask() {
-        return task;
+        return taskInstance;
     }
 }
