@@ -111,7 +111,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     page.addComponent(component, widgets.getColumn(), widgets.getLine(), widgets.getColumn() + (widgets.getHorizontalSpan() > 0 ? widgets.getHorizontalSpan() - 1 : 0), widgets.getLine());
                 }
             }
-
         }
         taskPanel.setContent(pages.get(currentPage));
         taskPanel.setCaption(forms.get(currentPage).getLabel());
@@ -171,6 +170,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     value = groovyScripts.get(widgets.getInputScript());
                 } else if (taskInstance != null && widgets.getDefaultValue() != null && !widgets.getDefaultValue().isEmpty()) {
                     value = groovyScripts.get(widgets.getDefaultValue());
+                } else if (taskInstance == null && widgets.getInputScript() != null && !widgets.getInputScript().isEmpty()) {
+                    value = groovyScripts.get(widgets.getInputScript());
                 }
                 if (widgets.getSetVarScript() != null
                         && !GroovyExpression.isGroovyExpression(widgets.getSetVarScript())) {
@@ -519,19 +520,19 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         this.xmlProcess = xmlProcess;
     }
 
-    
-
     private void prepareGroovyScripts() throws Exception {
         HashMap<String, String> scripts = new HashMap<String, String>();
 
         for (XMLFormDefinition form : forms) {
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
-
+            System.out.println("------------------------------------------------------------");
             for (XMLWidgetsDefinition widgets : widgetsList) {
                 if (widgets.getInputScript() != null) {
                     scripts.put(widgets.getInputScript(), widgets.getInputScript());
-                } else if (widgets.getDefaultValue() != null) {
+                }
+                if (widgets.getDefaultValue() != null) {
                     scripts.put(widgets.getDefaultValue(), widgets.getDefaultValue());
+                    System.out.println(widgets.getLabel() + " = " + widgets.getDefaultValue());
                 }
             }
         }

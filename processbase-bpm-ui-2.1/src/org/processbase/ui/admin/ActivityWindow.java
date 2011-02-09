@@ -143,9 +143,9 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         variablesTable.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("variableLabel"), null, null);
         variablesTable.addContainerProperty("type", String.class, null, PbPortlet.getCurrent().messages.getString("variableType"), null, null);
         variablesTable.addContainerProperty("value", Field.class, null, PbPortlet.getCurrent().messages.getString("variableValue"), null, null);
-        ;
+        
         variablesTable.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("variableDesc"), null, null);
-        ;
+        
         variablesTable.setPageLength(15);
         variablesTable.setSizeFull();
         variablesTable.setWidth("100%");
@@ -165,7 +165,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     public void addField(DataFieldDefinition dfd, Object value) {
         Field field = null;
         if (dfd.isEnumeration()) {
-            field = new Select(dfd.getName(), dfd.getEnumerationValues());
+            field = new ComboBox(dfd.getName(), dfd.getEnumerationValues());
             ((ComboBox) field).setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
             ((ComboBox) field).setMultiSelect(false);
             if (value instanceof java.lang.String) {
