@@ -60,7 +60,7 @@ public abstract class PbPortlet
     
     @Override
     public void init() {
-        System.out.println("PbPortlet init ");
+//        System.out.println("PbPortlet init ");
         setCurrent(this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
