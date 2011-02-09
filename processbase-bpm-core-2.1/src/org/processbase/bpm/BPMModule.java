@@ -638,6 +638,7 @@ public class BPMModule {
 
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
             throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
+        System.out.println(expressions);
         return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
     }
 
@@ -661,7 +662,8 @@ public class BPMModule {
         return queryRuntimeAPI.getCommentFeed(piuuid);
     }
 
-    private void test() throws Exception {
+    private ProcessInstance getProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
         initContext();
+        return queryRuntimeAPI.getProcessInstance(piuuid);
     }
 }

@@ -60,7 +60,6 @@ public class Constants {
     public static String ESB_MQ_DefaultDestination;
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
-
     public static String AUTH_HOST = "localhost";
     public static String AUTH_PORT = "8080";
     public static String AUTH_CLASS = "org.processbase.touchprocess.impl.LiferayAuthorization";
@@ -77,7 +76,7 @@ public class Constants {
                 BONITA_EJB_ENV.put("org.ow2.bonita.api-type", "EJB3");
                 BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
                 BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
-                BONITA_EJB_ENV.put("java.naming.factory.state", properties.getProperty("java.naming.factory.state"));
+                BONITA_EJB_ENV.put("java.naming.factory.state", properties.containsKey("java.naming.factory.state") ? properties.getProperty("java.naming.factory.state") : "");
                 BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
                 BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
 
