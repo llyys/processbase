@@ -525,14 +525,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
         for (XMLFormDefinition form : forms) {
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
-            System.out.println("------------------------------------------------------------");
             for (XMLWidgetsDefinition widgets : widgetsList) {
                 if (widgets.getInputScript() != null) {
                     scripts.put(widgets.getInputScript(), widgets.getInputScript());
                 }
                 if (widgets.getDefaultValue() != null) {
                     scripts.put(widgets.getDefaultValue(), widgets.getDefaultValue());
-                    System.out.println(widgets.getLabel() + " = " + widgets.getDefaultValue());
                 }
             }
         }
