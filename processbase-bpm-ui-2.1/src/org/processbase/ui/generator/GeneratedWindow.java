@@ -35,6 +35,7 @@ import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.RichTextArea;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
@@ -192,7 +193,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 component = getPopupDateField(widgets, value);
             }
             if (widgets.getType().equals("form:TextAreaFormField")) {
-                component = getTextField(widgets, value, dfd, false);
+                component = getTextArea(widgets, value, dfd, false);
             }
             if (widgets.getType().equals("form:RichTextAreaFormField")) {
                 component = getRichTextArea(widgets, value);
@@ -280,6 +281,17 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
+        component.setNullRepresentation("");
+        component.setReadOnly(readOnly);
+        return component;
+    }
+
+    private TextArea getTextArea(XMLWidgetsDefinition widgets, Object value, DataFieldDefinition dfd, boolean readOnly) {
+        TextArea component = new TextArea(widgets.getDisplayLabel());
+        if (widgets.getValidatorName() != null) {
+            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition));
+        } 
+        component.setValue(value);
         component.setNullRepresentation("");
         component.setReadOnly(readOnly);
         return component;
