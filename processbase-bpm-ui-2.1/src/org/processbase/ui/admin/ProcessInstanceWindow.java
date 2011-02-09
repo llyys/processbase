@@ -22,7 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.SplitPanel;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.light.LightProcessInstance;
@@ -30,7 +30,7 @@ import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.ByteArraySource;
 import org.processbase.ui.template.PbWindow;
-import org.vaadin.dialogs.ConfirmDialog;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *
@@ -47,7 +47,7 @@ public class ProcessInstanceWindow extends PbWindow implements
     private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
     private ActivitiesPanel activitiesPanel;
     private Embedded processImage = null;
-    private SplitPanel layout = new SplitPanel();
+    private VerticalSplitPanel layout = new VerticalSplitPanel();
     private VerticalLayout imageLayout = new VerticalLayout();
     private boolean managed = false;
 
@@ -89,7 +89,7 @@ public class ProcessInstanceWindow extends PbWindow implements
             layout.setMargin(false);
             layout.setSizeFull();
 //            Float f = layout.getHeight() - activitiesPanel.getHeight();
-            layout.setSplitPosition(400, SplitPanel.UNITS_PIXELS);
+            layout.setSplitPosition(400, VerticalSplitPanel.UNITS_PIXELS);
             layout.setLocked(true);
             layout.setStyleName(Reindeer.SPLITPANEL_SMALL);
             layout.addComponent(imageLayout);
@@ -100,7 +100,9 @@ public class ProcessInstanceWindow extends PbWindow implements
             }
 
             setContent(layout);
-            setCaption(PbPortlet.getCurrent().messages.getString("ProcessActivities") + " \"" + process.getProcessDefinitionUUID().getProcessName() + " " + process.getProcessDefinitionUUID().getProcessVersion() + " \"");
+            String pdUUID = process.getProcessDefinitionUUID().toString();
+            setCaption(PbPortlet.getCurrent().messages.getString("ProcessActivities") 
+                    + " \"" + pdUUID.split("--")[0] + " " + pdUUID.split("--")[1] + " \"");
             setWidth("90%");
             setHeight("95%");
             setModal(true);

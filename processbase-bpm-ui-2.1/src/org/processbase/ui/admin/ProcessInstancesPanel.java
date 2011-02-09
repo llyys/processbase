@@ -73,10 +73,11 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
             }
             for (LightProcessInstance pi : pis) {
                 Item woItem = table.addItem(pi);
-                TableLinkButton teb = new TableLinkButton(pi.getProcessDefinitionUUID().getProcessName() + "  #" + pi.getNb(), null, null, pi, this, Constants.ACTION_OPEN);
+                String pdUUID = pi.getProcessDefinitionUUID().toString();
+                TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0] + "  #" + pi.getNb(), null, null, pi, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("startedDate").setValue(pi.getStartedDate());
-                woItem.getItemProperty("version").setValue(pi.getProcessDefinitionUUID().getProcessVersion());
+                woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
                 woItem.getItemProperty("lastUpdate").setValue(pi.getLastUpdate());
                 woItem.getItemProperty("state").setValue(pi.getInstanceState());
             }

@@ -19,6 +19,7 @@ package org.processbase.ui.template;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.Alignment;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -89,7 +90,7 @@ public class ImmediateUpload extends VerticalLayout
         progressLayout.setSpacing(true);
         progressLayout.setVisible(false);
         progressLayout.addComponent(pi);
-        progressLayout.setComponentAlignment(pi, "middle");
+        progressLayout.setComponentAlignment(pi, Alignment.MIDDLE_CENTER);
         cancelBtn.setStyleName("small");
         progressLayout.addComponent(cancelBtn);
 

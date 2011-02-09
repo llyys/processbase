@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
@@ -74,7 +75,8 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 Item woItem = table.addItem(ai);
                 LightProcessDefinition lpd = PbPortlet.getCurrent().bpmModule.getLightProcessDefinition(ai.getProcessDefinitionUUID());
                 String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
-                woItem.getItemProperty("processName").setValue(processName + "  #" + ai.getProcessInstanceUUID().getInstanceNb());
+                String processInstanceUUID = ai.getProcessInstanceUUID().toString();
+                woItem.getItemProperty("processName").setValue(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2));
                 StringBuilder link = new StringBuilder(ai.getActivityLabel() != null ? ai.getActivityLabel() : ai.getActivityName());
 
                 if (ai.getDynamicLabel() != null && ai.getDynamicDescription() != null) {

@@ -37,7 +37,7 @@ import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.TableLinkButton;
-import org.vaadin.dialogs.ConfirmDialog;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *

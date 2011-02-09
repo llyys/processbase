@@ -64,9 +64,10 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
             Set<LightProcessInstance> processInstances = PbPortlet.getCurrent().bpmModule.getLightUserInstances();
             for (LightProcessInstance process : processInstances) {
                 Item woItem = table.addItem(process);
-                TableLinkButton teb = new TableLinkButton(process.getProcessDefinitionUUID().getProcessName() + "  #" + process.getNb(), null, null, process, this, Constants.ACTION_OPEN);
+                String pdUUID = process.getProcessDefinitionUUID().toString();
+                TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0] + "  #" + process.getNb(), null, null, process, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
-                woItem.getItemProperty("version").setValue(process.getProcessDefinitionUUID().getProcessVersion());
+                woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
                 woItem.getItemProperty("lastUpdate").setValue(process.getLastUpdate());
                 woItem.getItemProperty("state").setValue(PbPortlet.getCurrent().messages.getString(process.getInstanceState().toString()));
             }

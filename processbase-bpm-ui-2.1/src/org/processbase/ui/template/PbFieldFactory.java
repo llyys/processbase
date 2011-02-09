@@ -76,7 +76,6 @@ public class PbFieldFactory implements FormFieldFactory {
             RichTextArea ra = new RichTextArea();
             ra.setCaption(("taskText"));
             ra.setNullRepresentation("");
-            ra.setRows(15);
             ra.setRequired(true);
             ra.setRequiredError("Обязательное поле!");
             return ra;

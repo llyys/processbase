@@ -122,7 +122,8 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         woItem.getItemProperty("accepted").setValue(icon);
         LightProcessDefinition lpd = PbPortlet.getCurrent().bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
         String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
-        TableLinkButton teb = new TableLinkButton(processName + "  #" + task.getProcessInstanceUUID().getInstanceNb(), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
+        String processInstanceUUID = task.getProcessInstanceUUID().toString();
+        TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
         woItem.getItemProperty("processName").setValue(teb);
         String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
         String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";

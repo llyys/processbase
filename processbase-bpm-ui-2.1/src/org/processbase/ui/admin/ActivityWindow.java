@@ -23,18 +23,19 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Select;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.Date;
 import java.util.Set;
@@ -59,7 +60,7 @@ import org.processbase.ui.template.PbColumnGenerator;
  */
 public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.SelectedTabChangeListener {
 
-    private SplitPanel layout = new SplitPanel();
+    private VerticalSplitPanel layout = new VerticalSplitPanel();
     public ProcessDefinition processDefinition = null;
     private TaskInstance task = null;
     private LightActivityInstance lightActivity = null;
@@ -67,7 +68,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     private HorizontalLayout buttons = new HorizontalLayout();
     private Button closeBtn = new Button(PbPortlet.getCurrent().messages.getString("btnClose"), this);
     private Button reassignBtn = new Button(PbPortlet.getCurrent().messages.getString("btnReassign"), this);
-    private Button unAssignBtn = new Button(PbPortlet.getCurrent().messages.getString("btnUnassign"), this);
+    private CheckBox unAssignBtn = new CheckBox(PbPortlet.getCurrent().messages.getString("btnUnassign"), this);
     private Button assignBtn = new Button(PbPortlet.getCurrent().messages.getString("btnAssign"), this);
     private ListSelect candidatesList = new ListSelect(PbPortlet.getCurrent().messages.getString("candidates"));
     private ListSelect groupList = new ListSelect(PbPortlet.getCurrent().messages.getString("actorsGroups"));
@@ -141,8 +142,10 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         variablesTable.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("variableName"), null, null);
         variablesTable.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("variableLabel"), null, null);
         variablesTable.addContainerProperty("type", String.class, null, PbPortlet.getCurrent().messages.getString("variableType"), null, null);
-        variablesTable.addContainerProperty("value", Field.class, null, PbPortlet.getCurrent().messages.getString("variableValue"), null, null);;
-        variablesTable.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("variableDesc"), null, null);;
+        variablesTable.addContainerProperty("value", Field.class, null, PbPortlet.getCurrent().messages.getString("variableValue"), null, null);
+        ;
+        variablesTable.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("variableDesc"), null, null);
+        ;
         variablesTable.setPageLength(15);
         variablesTable.setSizeFull();
         variablesTable.setWidth("100%");
@@ -163,8 +166,8 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         Field field = null;
         if (dfd.isEnumeration()) {
             field = new Select(dfd.getName(), dfd.getEnumerationValues());
-            ((Select) field).setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
-            ((Select) field).setMultiSelect(false);
+            ((ComboBox) field).setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
+            ((ComboBox) field).setMultiSelect(false);
             if (value instanceof java.lang.String) {
                 field.setValue(value);
             } else {
@@ -205,10 +208,10 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         field.setDescription(dfd.getDescription() != null ? dfd.getDescription() : "");
 
         Item woItem = variablesTable.addItem(dfd);
-                woItem.getItemProperty("name").setValue(dfd.getName());
-                woItem.getItemProperty("label").setValue(dfd.getLabel());
-                woItem.getItemProperty("type").setValue(dfd.getDataTypeClassName());
-                woItem.getItemProperty("value").setValue(field);
+        woItem.getItemProperty("name").setValue(dfd.getName());
+        woItem.getItemProperty("label").setValue(dfd.getLabel());
+        woItem.getItemProperty("type").setValue(dfd.getDataTypeClassName());
+        woItem.getItemProperty("value").setValue(field);
     }
 
     public void addParticipantInfo() throws ParticipantNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ProcessNotFoundException, Exception {
@@ -231,7 +234,6 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         candidatesList.setWidth("100%");
         candidatesList.setRows(6);
 
-        unAssignBtn.setSwitchMode(true);
         unAssignBtn.setValue(task.isTaskAssigned());
 
         TextField taskUserField = new TextField(PbPortlet.getCurrent().messages.getString("taskAssignedBy"));

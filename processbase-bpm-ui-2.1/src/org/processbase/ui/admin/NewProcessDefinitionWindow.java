@@ -99,7 +99,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             file.delete();
             close();
         } catch (Exception ex) {
-            Logger.getLogger(NewProcessDefinitionWindow.class.getName()).log(Level.SEVERE,  "ERROR: " + ex.getMessage());
+            ex.printStackTrace();
             showError(ex.getMessage());
         }
     }

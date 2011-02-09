@@ -52,18 +52,18 @@ public abstract class CustomPortlet extends Application
         implements PortletListener, PortletRequestListener, TransactionListener {
 
     private static ThreadLocal<CustomPortlet> currentPortlet = new ThreadLocal<CustomPortlet>();
-    public PortletApplicationContext2 portletApplicationContext2;
-    public PortletSession portletSession;
-    public BPMModule bpmModule = null;
-    public ResourceBundle messages = null;
-    public DocumentLibraryUtil documentLibraryUtil = null;
-    public String taskInstanceUUID = null;
-    public String processDefinitionUUID = null;
+    private PortletApplicationContext2 portletApplicationContext2;
+    private PortletSession portletSession;
+    private BPMModule bpmModule = null;
+    private ResourceBundle messages = null;
+    private DocumentLibraryUtil documentLibraryUtil = null;
+    private String taskInstanceUUID = null;
+    private String processDefinitionUUID = null;
     private int type = 1;
     public static final int TYPE_START_PROCESS = 0;
     public static final int TYPE_TASK = 1;
     private boolean initialized = false;
-    public HumanTaskWindow taskWindow;
+    private HumanTaskWindow taskWindow;
 
     public void init() {
 //        System.out.println("CustomPortlet init ");
@@ -251,6 +251,58 @@ public abstract class CustomPortlet extends Application
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public BPMModule getBpmModule() {
+        return bpmModule;
+    }
+
+    public void setBpmModule(BPMModule bpmModule) {
+        this.bpmModule = bpmModule;
+    }
+
+    public DocumentLibraryUtil getDocumentLibraryUtil() {
+        return documentLibraryUtil;
+    }
+
+    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil) {
+        this.documentLibraryUtil = documentLibraryUtil;
+    }
+
+    public ResourceBundle getMessages() {
+        return messages;
+    }
+
+    public void setMessages(ResourceBundle messages) {
+        this.messages = messages;
+    }
+
+    public String getProcessDefinitionUUID() {
+        return processDefinitionUUID;
+    }
+
+    public void setProcessDefinitionUUID(String processDefinitionUUID) {
+        this.processDefinitionUUID = processDefinitionUUID;
+    }
+
+    public String getTaskInstanceUUID() {
+        return taskInstanceUUID;
+    }
+
+    public void setTaskInstanceUUID(String taskInstanceUUID) {
+        this.taskInstanceUUID = taskInstanceUUID;
+    }
+
+    public HumanTaskWindow getTaskWindow() {
+        return taskWindow;
+    }
+
+    public void setTaskWindow(HumanTaskWindow taskWindow) {
+        this.taskWindow = taskWindow;
+    }
+
+    public PortletSession getPortletSession() {
+        return this.portletSession;
     }
 
     

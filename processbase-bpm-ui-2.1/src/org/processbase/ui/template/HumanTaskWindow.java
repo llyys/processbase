@@ -31,11 +31,14 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.portlet.PortletSession;
+import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
@@ -80,7 +83,11 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
     private User currentUser = null;
-    private CustomPortlet customPortlet = null;
+    protected CustomPortlet customPortlet = null;
+    protected Map<String, Object> processInstanceVariables = new HashMap<String, Object>();
+    protected Map<String, Object> activityInstanceVariables = new HashMap<String, Object>();
+    protected Map<String, DataFieldDefinition> processDataFieldDefinitions = new HashMap<String, DataFieldDefinition>();
+    protected Map<String, DataFieldDefinition> activityDataFieldDefinitions = new HashMap<String, DataFieldDefinition>();
 
     public HumanTaskWindow(String caption, boolean custom) {
         super(caption);
@@ -93,14 +100,14 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
     private void prepareCustom() {
         try {
-            if (customPortlet.getType() == CustomPortlet.TYPE_START_PROCESS ){
-                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(customPortlet.processDefinitionUUID));
+            if (customPortlet.getType() == CustomPortlet.TYPE_START_PROCESS) {
+                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(customPortlet.getProcessDefinitionUUID()));
                 setProcessDef(pd);
-            } else if (customPortlet.getType() == CustomPortlet.TYPE_TASK ){
-                taskInstance = bpmModule.getTaskInstance(new ActivityInstanceUUID(customPortlet.taskInstanceUUID));
+            } else if (customPortlet.getType() == CustomPortlet.TYPE_TASK) {
+                taskInstance = bpmModule.getTaskInstance(new ActivityInstanceUUID(customPortlet.getTaskInstanceUUID()));
             }
-            customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
-            customPortlet.portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
+            customPortlet.getPortletSession().removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
+            customPortlet.getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
             customPortlet.setInitialized(true);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -109,17 +116,17 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 
     public void initUI() {
         if (custom) {
-            System.out.println("APP = " + getApplication().getClass());
-            customPortlet = ((CustomPortlet)getApplication());
+            customPortlet = ((CustomPortlet) getApplication());
             currentUser = customPortlet.getPortalUser();
-            bpmModule = customPortlet.bpmModule;
-            messages = customPortlet.messages;
+            bpmModule = customPortlet.getBpmModule();
+            messages = customPortlet.getMessages();
             prepareCustom();
         } else {
             currentUser = PbPortlet.getCurrent().getPortalUser();
             bpmModule = PbPortlet.getCurrent().bpmModule;
             messages = PbPortlet.getCurrent().messages;
         }
+        prepareVariables();
 
         commentEditor = new RichTextArea(messages.getString("addComment"));
         addCommentBtn = new Button(messages.getString("btnSave"), (Button.ClickListener) this);
@@ -412,4 +419,51 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public TaskInstance getTask() {
         return taskInstance;
     }
+
+    private void prepareVariables() {
+        try {
+            if (taskInstance != null) {
+                for (DataFieldDefinition dfd : bpmModule.getProcessDataFields(taskInstance.getProcessDefinitionUUID())) {
+                    processDataFieldDefinitions.put(dfd.getName(), dfd);
+                }
+                for (DataFieldDefinition dfd : bpmModule.getActivityDataFields(taskInstance.getActivityDefinitionUUID())) {
+                    activityDataFieldDefinitions.put(dfd.getName(), dfd);
+                }
+                processInstanceVariables.putAll(bpmModule.getProcessInstanceVariables(taskInstance.getProcessInstanceUUID()));
+                activityInstanceVariables.putAll(bpmModule.getActivityInstanceVariables(taskInstance.getUUID()));
+            } else {
+                for (DataFieldDefinition dfd : bpmModule.getProcessDataFields(processDefinition.getUUID())) {
+                    processDataFieldDefinitions.put(dfd.getName(), dfd);
+                }
+            }
+        } catch (Exception ex) {
+             ex.printStackTrace();
+        }
+    }
+
+    public Map<String, DataFieldDefinition> getActivityDataFieldDefinitions() {
+        return activityDataFieldDefinitions;
+    }
+
+    public Map<String, Object> getActivityInstanceVariables() {
+        return activityInstanceVariables;
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public Map<String, DataFieldDefinition> getProcessDataFieldDefinitions() {
+        return processDataFieldDefinitions;
+    }
+
+    public Map<String, Object> getProcessInstanceVariables() {
+        return processInstanceVariables;
+    }
+
+    public TabSheet getTabSheet() {
+        return tabSheet;
+    }
+
+    
 }

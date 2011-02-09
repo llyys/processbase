@@ -22,6 +22,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
@@ -46,7 +47,7 @@ import org.processbase.ui.template.ByteArraySource;
 import org.processbase.ui.template.PbWindow;
 import org.processbase.ui.template.PbTableFieldFactory;
 import org.processbase.ui.util.XMLManager;
-import org.vaadin.dialogs.ConfirmDialog;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *
@@ -67,7 +68,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private Button deleteAllBtn = new Button(PbPortlet.getCurrent().messages.getString("btnDeleteAll"), this);
     private Button deleteInstancesBtn = new Button(PbPortlet.getCurrent().messages.getString("btnDeleteInstances"), this);
     private Button downloadBtn = new Button(PbPortlet.getCurrent().messages.getString("btnDownload"), this);
-    private Button enableBtn = new Button(PbPortlet.getCurrent().messages.getString("btnEnable"), this);
+    private CheckBox enableBtn = new CheckBox(PbPortlet.getCurrent().messages.getString("btnEnable"), this);
     private Button archiveBtn = new Button(PbPortlet.getCurrent().messages.getString("btnArchive"), this);
     private Table activitiesTable = new Table();
     private File file;
@@ -136,7 +137,6 @@ public class ProcessDefinitionWindow extends PbWindow implements
             buttons.addComponent(expand);
             buttons.setExpandRatio(expand, 1);
 
-            enableBtn.setSwitchMode(true);
             enableBtn.setValue(processDefinition.getState().equals(ProcessState.ENABLED));
             buttons.addButton(enableBtn);
             buttons.setComponentAlignment(enableBtn, Alignment.MIDDLE_RIGHT);
