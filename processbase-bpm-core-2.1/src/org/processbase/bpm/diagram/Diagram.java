@@ -67,18 +67,9 @@ public class Diagram {
     }
 
     public byte[] getImage() throws IOException {
-        System.out.println("---------------------------------------------");
-        System.out.print("w=" + processImage.getWidth());
-        System.out.print("h=" + processImage.getHeight());
-        System.out.println("" + processImage.getWidth());
-        System.out.println("---------------------------------------------");
         parceProcesses();
         for (String pkey : processes.keySet()) {
             Process process = processes.get(pkey);
-            System.out.println("process.w = " + process.getWidth());
-            System.out.println("process.h = " + process.getHeight());
-            System.out.println("process.x = " + process.getX());
-            System.out.println("process.y = " + process.getY());
             int coefficientX = processImage.getWidth() * 100 / (process.getWidth() +20);
             int coefficientY = processImage.getHeight() * 100 / (process.getHeight() +20);
 
