@@ -72,8 +72,8 @@ public class Constants {
                 properties.loadFromXML(fis);
                 fis.close();
                 TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
-                System.setProperty("org.ow2.bonita.api-type", "EJB3");
-                BONITA_EJB_ENV.put("org.ow2.bonita.api-type", "EJB3");
+                System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
+                BONITA_EJB_ENV.put("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
                 BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
                 BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
                 BONITA_EJB_ENV.put("java.naming.factory.state", properties.containsKey("java.naming.factory.state") ? properties.getProperty("java.naming.factory.state") : "");

@@ -67,23 +67,40 @@ public class Diagram {
     }
 
     public byte[] getImage() throws IOException {
+        System.out.println("---------------------------------------------");
+        System.out.print("w=" + processImage.getWidth());
+        System.out.print("h=" + processImage.getHeight());
+        System.out.println("" + processImage.getWidth());
+        System.out.println("---------------------------------------------");
         parceProcesses();
         for (String pkey : processes.keySet()) {
             Process process = processes.get(pkey);
+            System.out.println("process.w = " + process.getWidth());
+            System.out.println("process.h = " + process.getHeight());
+            System.out.println("process.x = " + process.getX());
+            System.out.println("process.y = " + process.getY());
+            int coefficientX = processImage.getWidth() * 100 / (process.getWidth() +20);
+            int coefficientY = processImage.getHeight() * 100 / (process.getHeight() +20);
+
+
             for (String skey : process.getSteps().keySet()) {
                 Step step = process.getSteps().get(skey);
                 if (getStepState(step.getName()) != null) {
                     BufferedImage ind = Diagram.getImage(getStepState(step.getName()));
                     if (step.getType().equals("process:Task") || step.getType().equals("process:Activity")) {
+//                        processImage.createGraphics().drawImage(ind,
+//                                step.getX()/2 + process.getX() + step.getWidth()/2 /*- ind.getWidth() - 2*/,
+//                                step.getY()/2 + process.getY() + step.getHeight()/2 /*- ind.getHeight() - 2*/,
+//                                null);
                         processImage.createGraphics().drawImage(ind,
-                                step.getX()/2 + process.getX() + step.getWidth()/2 /*- ind.getWidth() - 2*/,
-                                step.getY()/2 + process.getY() + step.getHeight()/2 /*- ind.getHeight() - 2*/,
+                                step.getX()*coefficientX/100 + (step.getWidth()*coefficientX/100)/2  + 20 ,
+                                step.getY()*coefficientY/100 + (step.getHeight()*coefficientY/100)/2 + 4,
                                 null);
                     } else {
-                        processImage.createGraphics().drawImage(ind,
-                                step.getX() + process.getX() + step.getWidth() / 2 - ind.getWidth() / 2,
-                                step.getY() + process.getY() + step.getHeight() / 2 - ind.getHeight() / 2,
-                                null);
+//                        processImage.createGraphics().drawImage(ind,
+//                                step.getX() + process.getX() + step.getWidth() / 2 - ind.getWidth() / 2,
+//                                step.getY() + process.getY() + step.getHeight() / 2 - ind.getHeight() / 2,
+//                                null);
                     }
                 }
             }

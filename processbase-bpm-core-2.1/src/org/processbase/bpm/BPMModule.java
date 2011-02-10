@@ -665,4 +665,9 @@ public class BPMModule {
         initContext();
         return queryRuntimeAPI.getProcessInstance(piuuid);
     }
+
+    private void test(ProcessInstanceUUID piuuid) throws Exception {
+        initContext();
+        
+    }
 }
