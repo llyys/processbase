@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
 import org.processbase.core.Constants;
@@ -92,6 +93,7 @@ public class BPMModule {
     final RepairAPI repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
     final WebAPI webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
     final IdentityAPI identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
+    final BAMAPI bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
     private String currentUserUID;
 
     public BPMModule(String currentUserUID) {
@@ -683,26 +685,51 @@ public class BPMModule {
         return queryRuntimeAPI.getProcessInstance(piuuid);
     }
 
-    public  List<User> getAllUsers() throws Exception {
+    public List<User> getAllUsers() throws Exception {
         initContext();
         return identityAPI.getAllUsers();
     }
 
-    public  List<Role> getAllRoles() throws Exception {
+    public List<Role> getAllRoles() throws Exception {
         initContext();
         return identityAPI.getAllRoles();
     }
 
-    public  List<Group> getAllGroups() throws Exception {
+    public List<Group> getAllGroups() throws Exception {
         initContext();
         return identityAPI.getAllGroups();
     }
 
-    public  List<ProfileMetadata> getAllProfileMetadata() throws Exception {
+    public List<ProfileMetadata> getAllProfileMetadata() throws Exception {
         initContext();
         return identityAPI.getAllProfileMetadata();
     }
 
+    public User addUser(String username, String password, String firstName, String lastName, String title, String jobTitle, String managerUserUUID, Map<String, String> profileMetadata) throws Exception {
+        initContext();
+        return identityAPI.addUser(username, password, firstName, lastName, title, jobTitle, managerUserUUID, profileMetadata);
+    }
+
+    public void removeUserByUUID(String userUUID) throws Exception {
+        initContext();
+        identityAPI.removeUserByUUID(userUUID);
+    }
+
+    public ProfileMetadata addProfileMetadata(String name, String label) throws Exception {
+        initContext();
+        return identityAPI.addProfileMetadata(name, label);
+    }
+
+    public ProfileMetadata addProfileMetadata(String name) throws Exception {
+        initContext();
+        return identityAPI.addProfileMetadata(name);
+    }
+
+    public void removeProfileMetadataByUUID(String profileMetadataUUID) throws Exception {
+        initContext();
+        identityAPI.removeProfileMetadataByUUID(profileMetadataUUID);
+    }
+    
 
 //    private void test(ProcessInstanceUUID piuuid) throws Exception {
 //        initContext();
@@ -710,8 +737,6 @@ public class BPMModule {
 //    }
     private void test(ProcessInstanceUUID piuuid) throws Exception {
         initContext();
-
+//        bamAPI.
     }
-
-
 }
