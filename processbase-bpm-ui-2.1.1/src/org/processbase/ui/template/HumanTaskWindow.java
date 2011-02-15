@@ -465,5 +465,10 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         return tabSheet;
     }
 
+    public VerticalLayout getCommentsLayout() {
+        return commentsLayout;
+    }
+
+    
     
 }

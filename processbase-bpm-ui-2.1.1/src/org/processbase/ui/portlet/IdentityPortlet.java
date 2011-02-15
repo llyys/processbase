@@ -37,6 +37,7 @@ import org.processbase.ui.admin.NewCategoryWindow;
 import org.processbase.ui.admin.NewProcessDefinitionWindow;
 import org.processbase.ui.identity.GroupsPanel;
 import org.processbase.ui.identity.MetadataPanel;
+import org.processbase.ui.identity.NewMetadataWindow;
 import org.processbase.ui.identity.RolesPanel;
 import org.processbase.ui.identity.SyncUsersWindow;
 import org.processbase.ui.identity.UsersPanel;
@@ -176,11 +177,16 @@ public class IdentityPortlet extends PbPortlet
         } else if (event.getButton().equals(syncBtn)) {
             synchronizeIdentity();
         } else if (event.getButton().equals(btnAdd)) {
+            addIdentity();
         } else {
             activateButtons();
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
+            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+            if (event.getButton().equals(metadataBtn)){
+                syncBtn.setVisible(false);
+            }
         }
 
     }
@@ -195,6 +201,7 @@ public class IdentityPortlet extends PbPortlet
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         metadataBtn.setEnabled(true);
         btnAdd.setVisible(true);
+        syncBtn.setVisible(true);
     }
 
     public void windowClose(CloseEvent e) {
@@ -207,6 +214,18 @@ public class IdentityPortlet extends PbPortlet
             ncw.exec();
             ncw.addListener((Window.CloseListener) this);
             getMainWindow().addWindow(ncw);
+        }
+    }
+
+    private void addIdentity() {
+        if (mainLayout.getComponent(1) instanceof UsersPanel) {
+        } else if (mainLayout.getComponent(1) instanceof RolesPanel) {
+        } else if (mainLayout.getComponent(1) instanceof GroupsPanel) {
+        } else if (mainLayout.getComponent(1) instanceof MetadataPanel) {
+            NewMetadataWindow nmw = new NewMetadataWindow();
+            nmw.exec();
+            nmw.addListener((Window.CloseListener) this);
+            getMainWindow().addWindow(nmw);
         }
     }
 }

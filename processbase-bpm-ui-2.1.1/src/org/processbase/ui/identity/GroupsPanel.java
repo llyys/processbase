@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
+import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
@@ -46,11 +47,10 @@ public class GroupsPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("username", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionUsername"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("lastname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastname"), null, null);
-        table.addContainerProperty("firstname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionFirstname"), null, null);
-//
+        table.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionDescription"), null, null);
         table.setImmediate(true);
     }
 
@@ -58,16 +58,16 @@ public class GroupsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<User> users = PbPortlet.getCurrent().bpmModule.getAllUsers();
+            List<Group> groups = PbPortlet.getCurrent().bpmModule.getAllGroups();
 
-            for (User user : users) {
-                Item woItem = table.addItem(user);
-                TableLinkButton teb = new TableLinkButton(user.getUsername(), "", null, user, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("username").setValue(teb);
-                woItem.getItemProperty("lastname").setValue(user.getLastName());
-                woItem.getItemProperty("firstname").setValue(user.getFirstName());
+            for (Group group : groups) {
+                Item woItem = table.addItem(group);
+                TableLinkButton teb = new TableLinkButton(group.getName(), "", null, group, this, Constants.ACTION_OPEN);
+                woItem.getItemProperty("name").setValue(teb);
+                woItem.getItemProperty("label").setValue(group.getLabel());
+                woItem.getItemProperty("description").setValue(group.getDescription());
             }
-            table.setSortContainerPropertyId("username");
+            table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {

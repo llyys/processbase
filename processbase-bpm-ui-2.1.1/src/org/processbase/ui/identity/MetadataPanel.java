@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
+import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
@@ -42,15 +43,13 @@ public class MetadataPanel extends TablePanel implements
         initTableUI();
     }
 
-
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("username", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionUsername"), null, null);
-        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("lastname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastname"), null, null);
-        table.addContainerProperty("firstname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionFirstname"), null, null);
-//
+        table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionName"), null, null);
+        table.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLabel"), null, null);
+        table.setColumnExpandRatio("label", 1);
+        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -58,14 +57,14 @@ public class MetadataPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<User> users = PbPortlet.getCurrent().bpmModule.getAllUsers();
+            List<ProfileMetadata> metadatas = PbPortlet.getCurrent().bpmModule.getAllProfileMetadata();
 
-            for (User user : users) {
-                Item woItem = table.addItem(user);
-                TableLinkButton teb = new TableLinkButton(user.getUsername(), "", null, user, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("username").setValue(teb);
-                woItem.getItemProperty("lastname").setValue(user.getLastName());
-                woItem.getItemProperty("firstname").setValue(user.getFirstName());
+            for (ProfileMetadata metadata : metadatas) {
+                Item woItem = table.addItem(metadata);
+                woItem.getItemProperty("name").setValue(metadata.getName());
+                woItem.getItemProperty("label").setValue(metadata.getLabel());
+                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
+                woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
             table.setSortAscending(false);
@@ -81,11 +80,11 @@ public class MetadataPanel extends TablePanel implements
         super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
-                if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-                    CategoryWindow categoryWindow = new CategoryWindow((Category) execBtn.getTableValue());
-                    categoryWindow.exec();
-                    getApplication().getMainWindow().addWindow(categoryWindow);
+                    ProfileMetadata metadata = (ProfileMetadata) execBtn.getTableValue();
+                    PbPortlet.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
+                    table.removeItem(metadata);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
@@ -93,6 +92,4 @@ public class MetadataPanel extends TablePanel implements
             }
         }
     }
-
-    
 }
