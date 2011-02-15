@@ -46,4 +46,27 @@
             <short-title>AdminPortlet</short-title>
         </portlet-info>
     </portlet>
+    <portlet>
+        <portlet-name>IdentityPortlet</portlet-name>
+        <display-name>IdentityPortlet</display-name>
+        <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+        <init-param>
+            <name>application</name>
+            <value>org.processbase.ui.portlet.IdentityPortlet</value>
+        </init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>IdentityPortlet</title>
+            <short-title>IdentityPortlet</short-title>
+        </portlet-info>
+    </portlet>
 </portlet-app>

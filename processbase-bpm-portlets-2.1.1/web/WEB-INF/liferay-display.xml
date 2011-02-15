@@ -3,5 +3,6 @@
     <category name="PROCESSBASE">
         <portlet id="UserPortlet" />
         <portlet id="AdminPortlet" />
+        <portlet id="IdentityPortlet" />
     </category>
 </display>
