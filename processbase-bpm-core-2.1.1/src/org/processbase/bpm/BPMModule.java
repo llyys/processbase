@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
 import org.processbase.core.Constants;
 import org.ow2.bonita.facade.ManagementAPI;
@@ -56,6 +57,10 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
+import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.ProfileMetadata;
+import org.ow2.bonita.facade.identity.Role;
+import org.ow2.bonita.facade.identity.User;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.facade.runtime.Comment;
 import org.ow2.bonita.facade.runtime.InstanceState;
@@ -86,6 +91,7 @@ public class BPMModule {
     final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
     final RepairAPI repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
     final WebAPI webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
+    final IdentityAPI identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
     private String currentUserUID;
 
     public BPMModule(String currentUserUID) {
@@ -640,7 +646,11 @@ public class BPMModule {
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions,
             ActivityInstanceUUID activityUUID, boolean useActivityScope, boolean propagate)
             throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
-        return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
+        if (!expressions.isEmpty()) {
+            return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
+        } else {
+            return null;
+        }
     }
 
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
@@ -668,13 +678,40 @@ public class BPMModule {
         return queryRuntimeAPI.getCommentFeed(piuuid);
     }
 
-    private ProcessInstance getProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
+    public ProcessInstance getProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
         initContext();
         return queryRuntimeAPI.getProcessInstance(piuuid);
     }
 
+    public  List<User> getAllUsers() throws Exception {
+        initContext();
+        return identityAPI.getAllUsers();
+    }
+
+    public  List<Role> getAllRoles() throws Exception {
+        initContext();
+        return identityAPI.getAllRoles();
+    }
+
+    public  List<Group> getAllGroups() throws Exception {
+        initContext();
+        return identityAPI.getAllGroups();
+    }
+
+    public  List<ProfileMetadata> getAllProfileMetadata() throws Exception {
+        initContext();
+        return identityAPI.getAllProfileMetadata();
+    }
+
+
+//    private void test(ProcessInstanceUUID piuuid) throws Exception {
+//        initContext();
+//        identityAPI.addUser
+//    }
     private void test(ProcessInstanceUUID piuuid) throws Exception {
         initContext();
-        
+
     }
+
+
 }
