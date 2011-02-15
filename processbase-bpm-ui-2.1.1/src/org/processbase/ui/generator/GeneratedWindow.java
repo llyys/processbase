@@ -27,6 +27,7 @@ import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -127,7 +128,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (widgets.getType().equals("form:SelectFormField")
                     || widgets.getType().equals("form:RadioFormField")
                     || widgets.getType().equals("form:CheckBoxMultipleFormField")
-                    || widgets.getType().equals("form:ListFormField")) {
+                    || widgets.getType().equals("form:ListFormField")
+                    || widgets.getType().equals("form:SuggestBox")) {
                 // set list options
                 if ((widgets.getInputScript() == null || widgets.getInputScript().isEmpty())
                         && widgets.getEnum1() != null) {
@@ -210,6 +212,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (widgets.getType().equals("form:SelectFormField")) {
                 component = getNativeSelect(widgets, options, value);
             }
+            if (widgets.getType().equals("form:SuggestBox")) {
+                component = getComboBox(widgets, options, value);
+            }
             if (widgets.getType().equals("form:RadioFormField")) {
                 component = getOptionGroup(widgets, options, value, false);
             }
@@ -290,7 +295,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         TextArea component = new TextArea(widgets.getDisplayLabel());
         if (widgets.getValidatorName() != null) {
             component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition));
-        } 
+        }
         component.setValue(value);
         component.setNullRepresentation("");
         component.setReadOnly(readOnly);
@@ -339,6 +344,13 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
     private NativeSelect getNativeSelect(XMLWidgetsDefinition widgets, Collection options, Object value) {
         NativeSelect component = new NativeSelect(widgets.getDisplayLabel(), options);
+        component.setValue(value);
+        return component;
+    }
+
+    private ComboBox getComboBox(XMLWidgetsDefinition widgets, Collection options, Object value) {
+        ComboBox component = new ComboBox(widgets.getDisplayLabel(), options);
+        component.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
         component.setValue(value);
         return component;
     }

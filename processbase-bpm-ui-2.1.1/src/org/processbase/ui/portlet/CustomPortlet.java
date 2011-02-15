@@ -66,7 +66,7 @@ public abstract class CustomPortlet extends Application
     private HumanTaskWindow taskWindow;
 
     public void init() {
-        System.out.println("CustomPortlet init ");
+//        System.out.println("CustomPortlet init ");
         setCurrent(this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
@@ -100,7 +100,7 @@ public abstract class CustomPortlet extends Application
 
     public void initUI() {
         // create main window
-        System.out.println("DEBUG CustomPortlet.initUI---------");
+//        System.out.println("DEBUG CustomPortlet.initUI---------");
         taskWindow = new HumanTaskWindow("", true);
         setMainWindow(taskWindow);
         taskWindow.initUI();
@@ -108,7 +108,7 @@ public abstract class CustomPortlet extends Application
 
     @Override
     public void onRequestStart(PortletRequest request, PortletResponse response) {
-        System.out.println("DEBUG CustomPortlet.onRequestStart---------");
+//        System.out.println("DEBUG CustomPortlet.onRequestStart---------");
         if (getUser() == null) {
             try {
                 User user = PortalUtil.getUser(request);

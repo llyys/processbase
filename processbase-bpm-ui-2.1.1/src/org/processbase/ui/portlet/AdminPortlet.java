@@ -113,6 +113,7 @@ public class AdminPortlet extends PbPortlet
     private void prepareButtonBar() {
         // prepare categoriesBtn button
         categoriesBtn = new Button(this.messages.getString("categoriesBtn"), this);
+        categoriesBtn.setDescription(this.messages.getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(categoriesBtn, 0);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
