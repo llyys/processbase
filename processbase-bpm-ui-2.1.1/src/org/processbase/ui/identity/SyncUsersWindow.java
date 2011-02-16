@@ -86,7 +86,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
         table.addContainerProperty("firstname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionFirstname"), null, null);
         table.addContainerProperty("liferayStatus", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLiferayStatus"), null, null);
         table.addContainerProperty("bonitaStatus", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionBonitaStatus"), null, null);
-        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
+//        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
         table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 50);
         table.setSelectable(false);
@@ -124,7 +124,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     private void addTableRow(String userName) {
         Item woItem = table.addItem(userName);
         woItem.getItemProperty("username").setValue(userName);
-        woItem.getItemProperty("state").setValue(usersMap.get(userName));
+//        woItem.getItemProperty("state").setValue(usersMap.get(userName));
         if (usersMap.get(userName).equals("BONITA")) {
             woItem.getItemProperty("lastname").setValue(getBonitaUser(userName).getLastName());
             woItem.getItemProperty("firstname").setValue(getBonitaUser(userName).getFirstName());

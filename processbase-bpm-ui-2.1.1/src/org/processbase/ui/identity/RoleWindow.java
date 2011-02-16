@@ -20,9 +20,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import org.ow2.bonita.facade.identity.Role;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
@@ -31,16 +33,19 @@ import org.processbase.ui.template.PbWindow;
  *
  * @author mgubaidullin
  */
-public class NewMetadataWindow extends PbWindow implements ClickListener {
+public class RoleWindow extends PbWindow implements ClickListener {
 
+    private Role role = null;
     private ButtonBar buttons = new ButtonBar();
     private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
     private Button applyBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField metadataName = new TextField(PbPortlet.getCurrent().messages.getString("metadataName"));
-    private TextField metadataLabel = new TextField(PbPortlet.getCurrent().messages.getString("metadataLabel"));
+    private TextField roleName = new TextField(PbPortlet.getCurrent().messages.getString("roleName"));
+    private TextField roleLabel = new TextField(PbPortlet.getCurrent().messages.getString("roleLabel"));
+    private TextArea roleDescription = new TextArea(PbPortlet.getCurrent().messages.getString("roleDescription"));
 
-    public NewMetadataWindow() {
-        super(PbPortlet.getCurrent().messages.getString("newMetadata"));
+    public RoleWindow(Role role) {
+        super(role == null ? PbPortlet.getCurrent().messages.getString("newRole") : PbPortlet.getCurrent().messages.getString("role"));
+        this.role = role;
     }
 
     public void exec() {
@@ -51,10 +56,18 @@ public class NewMetadataWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            metadataName.setWidth("270px");
-            addComponent(metadataName);
-            metadataLabel.setWidth("270px");
-            addComponent(metadataLabel);
+            roleName.setWidth("270px");
+            addComponent(roleName);
+            roleLabel.setWidth("270px");
+            addComponent(roleLabel);
+            roleDescription.setWidth("270px");
+            addComponent(roleDescription);
+
+            if (role != null) {
+                roleName.setValue(role.getName());
+                roleLabel.setValue(role.getLabel());
+                roleDescription.setValue(role.getDescription());
+            }
 
 
             buttons.addButton(applyBtn);
@@ -77,7 +90,11 @@ public class NewMetadataWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                PbPortlet.getCurrent().bpmModule.addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
+                if (role == null) {
+                    PbPortlet.getCurrent().bpmModule.addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                } else {
+                    PbPortlet.getCurrent().bpmModule.updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                }
                 close();
             } else {
                 close();
@@ -87,5 +104,4 @@ public class NewMetadataWindow extends PbWindow implements ClickListener {
             showError(ex.getMessage());
         }
     }
-
 }

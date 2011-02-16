@@ -16,19 +16,17 @@
  */
 package org.processbase.ui.identity;
 
-import org.processbase.ui.admin.*;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
-import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *
@@ -46,7 +44,7 @@ public class MetadataPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionName"), null, null);
         table.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLabel"), null, null);
         table.setColumnExpandRatio("label", 1);
         table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
@@ -61,7 +59,8 @@ public class MetadataPanel extends TablePanel implements
 
             for (ProfileMetadata metadata : metadatas) {
                 Item woItem = table.addItem(metadata);
-                woItem.getItemProperty("name").setValue(metadata.getName());
+                TableLinkButton teb = new TableLinkButton(metadata.getName(), "", null, metadata, this, Constants.ACTION_OPEN);
+                woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(metadata.getLabel());
                 TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
@@ -80,16 +79,43 @@ public class MetadataPanel extends TablePanel implements
         super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
+            ProfileMetadata metadata = (ProfileMetadata) execBtn.getTableValue();
             if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-                    ProfileMetadata metadata = (ProfileMetadata) execBtn.getTableValue();
-                    PbPortlet.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
-                    table.removeItem(metadata);
+                    removeMetadata(metadata);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
                 }
+            } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+                MetadataWindow nmw = new MetadataWindow(metadata);
+                nmw.exec();
+                nmw.addListener((Window.CloseListener) this);
+                getWindow().addWindow(nmw);
             }
+
         }
+    }
+
+    private void removeMetadata(final ProfileMetadata metadata) {
+        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
+                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
+                PbPortlet.getCurrent().messages.getString("removeMetadata") + "?",
+                PbPortlet.getCurrent().messages.getString("btnYes"),
+                PbPortlet.getCurrent().messages.getString("btnNo"),
+                new ConfirmDialog.Listener() {
+
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            try {
+                                PbPortlet.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
+                                table.removeItem(metadata);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                showError(ex.getMessage());
+                            }
+                        }
+                    }
+                });
     }
 }

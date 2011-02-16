@@ -29,6 +29,7 @@ import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *
@@ -43,7 +44,6 @@ public class RolesPanel extends TablePanel implements
         initTableUI();
     }
 
-
     @Override
     public void initTableUI() {
         super.initTableUI();
@@ -51,6 +51,7 @@ public class RolesPanel extends TablePanel implements
         table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLabel"), null, null);
         table.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -66,6 +67,8 @@ public class RolesPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(role.getLabel());
                 woItem.getItemProperty("description").setValue(role.getDescription());
+                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
+                woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);
@@ -81,18 +84,42 @@ public class RolesPanel extends TablePanel implements
         super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
-                if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+            Role role = (Role) execBtn.getTableValue();
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-//                    CategoryWindow categoryWindow = new CategoryWindow((Category) execBtn.getTableValue());
-//                    categoryWindow.exec();
-//                    getApplication().getMainWindow().addWindow(categoryWindow);
+                    removeRole(role);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
                 }
+            } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+                RoleWindow nrw = new RoleWindow(role);
+                nrw.exec();
+                nrw.addListener((Window.CloseListener) this);
+                getWindow().addWindow(nrw);
             }
         }
     }
 
-    
+    private void removeRole(final Role role) {
+        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
+                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
+                PbPortlet.getCurrent().messages.getString("removeRole") + "?",
+                PbPortlet.getCurrent().messages.getString("btnYes"),
+                PbPortlet.getCurrent().messages.getString("btnNo"),
+                new ConfirmDialog.Listener() {
+
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            try {
+                                PbPortlet.getCurrent().bpmModule.removeRoleByUUID(role.getUUID());
+                                table.removeItem(role);
+                            } catch (Exception ex) {
+                                showError(ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
+    }
 }

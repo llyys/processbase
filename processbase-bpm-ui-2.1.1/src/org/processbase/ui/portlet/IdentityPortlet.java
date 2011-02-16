@@ -37,7 +37,8 @@ import org.processbase.ui.admin.NewCategoryWindow;
 import org.processbase.ui.admin.NewProcessDefinitionWindow;
 import org.processbase.ui.identity.GroupsPanel;
 import org.processbase.ui.identity.MetadataPanel;
-import org.processbase.ui.identity.NewMetadataWindow;
+import org.processbase.ui.identity.MetadataWindow;
+import org.processbase.ui.identity.RoleWindow;
 import org.processbase.ui.identity.RolesPanel;
 import org.processbase.ui.identity.SyncUsersWindow;
 import org.processbase.ui.identity.UsersPanel;
@@ -220,9 +221,13 @@ public class IdentityPortlet extends PbPortlet
     private void addIdentity() {
         if (mainLayout.getComponent(1) instanceof UsersPanel) {
         } else if (mainLayout.getComponent(1) instanceof RolesPanel) {
+            RoleWindow nrw = new RoleWindow(null);
+            nrw.exec();
+            nrw.addListener((Window.CloseListener) this);
+            getMainWindow().addWindow(nrw);
         } else if (mainLayout.getComponent(1) instanceof GroupsPanel) {
         } else if (mainLayout.getComponent(1) instanceof MetadataPanel) {
-            NewMetadataWindow nmw = new NewMetadataWindow();
+            MetadataWindow nmw = new MetadataWindow(null);
             nmw.exec();
             nmw.addListener((Window.CloseListener) this);
             getMainWindow().addWindow(nmw);
