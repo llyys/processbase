@@ -729,7 +729,26 @@ public class BPMModule {
         initContext();
         identityAPI.removeProfileMetadataByUUID(profileMetadataUUID);
     }
-    
+
+    public Role addRole(String name, String label, String description) throws Exception {
+        initContext();
+        return identityAPI.addRole(name, label, description);
+    }
+
+    public void removeRoleByUUID(String roleUUID)throws Exception {
+        initContext();
+        identityAPI.removeRoleByUUID(roleUUID);
+    }
+
+    public Role updateRoleByUUID(String roleUUID, String name, String label, String description) throws Exception{
+        initContext();
+        return identityAPI.updateRoleByUUID(roleUUID, name, label, description);
+    }
+
+    public ProfileMetadata updateProfileMetadataByUUID(String profileMetadataUUID, String name, String label) throws Exception{
+        initContext();
+        return identityAPI.updateProfileMetadataByUUID(profileMetadataUUID, name, label);
+    }
 
 //    private void test(ProcessInstanceUUID piuuid) throws Exception {
 //        initContext();
