@@ -735,25 +735,61 @@ public class BPMModule {
         return identityAPI.addRole(name, label, description);
     }
 
-    public void removeRoleByUUID(String roleUUID)throws Exception {
+    public void removeRoleByUUID(String roleUUID) throws Exception {
         initContext();
         identityAPI.removeRoleByUUID(roleUUID);
     }
 
-    public Role updateRoleByUUID(String roleUUID, String name, String label, String description) throws Exception{
+    public Role updateRoleByUUID(String roleUUID, String name, String label, String description) throws Exception {
         initContext();
         return identityAPI.updateRoleByUUID(roleUUID, name, label, description);
     }
 
-    public ProfileMetadata updateProfileMetadataByUUID(String profileMetadataUUID, String name, String label) throws Exception{
+    public ProfileMetadata updateProfileMetadataByUUID(String profileMetadataUUID, String name, String label) throws Exception {
         initContext();
         return identityAPI.updateProfileMetadataByUUID(profileMetadataUUID, name, label);
     }
 
-//    private void test(ProcessInstanceUUID piuuid) throws Exception {
-//        initContext();
-//        identityAPI.addUser
-//    }
+    public Group addGroup(String name, String label, String description, String parentGroupUUID) throws Exception {
+        initContext();
+        return identityAPI.addGroup(name, label, description, parentGroupUUID);
+    }
+
+    public Group addGroup(String name, String parentGroupUUID) throws Exception {
+        initContext();
+        return identityAPI.addGroup(name, parentGroupUUID);
+    }
+
+    public Group updateGroupByUUID(String groupUUID, String name, String label, String description, String parentGroupUUID) throws Exception {
+        initContext();
+        return identityAPI.updateGroupByUUID(groupUUID, name, label, description, parentGroupUUID);
+    }
+
+    public void removeGroupByUUID(String groupUUID) throws Exception {
+        initContext();
+        identityAPI.removeGroupByUUID(groupUUID);
+    }
+
+    public void updateUserProfessionalContactInfo(String userUUID, String email, String phoneNumber, String mobileNumber, String faxNumber, String building, String room, String address, String zipCode, String city, String state, String country, String website) throws Exception {
+        initContext();
+        identityAPI.updateUserProfessionalContactInfo(userUUID, email, phoneNumber, mobileNumber, faxNumber, building, room, address, zipCode, city, state, country, website);
+    }
+
+    public void updateUserPersonalContactInfo(String userUUID, String email, String phoneNumber, String mobileNumber, String faxNumber, String building, String room, String address, String zipCode, String city, String state, String country, String website) throws Exception {
+        initContext();
+        identityAPI.updateUserPersonalContactInfo(userUUID, email, phoneNumber, mobileNumber, faxNumber, building, room, address, zipCode, city, state, country, website);
+    }
+
+    public User updateUserByUUID(String userUUID, String username, String firstName, String lastName, String title, String jobTitle, String managerUserUUID, Map<String, String> profileMetadata) throws Exception {
+        initContext();
+        return identityAPI.updateUserByUUID(userUUID, username, firstName, lastName, title, jobTitle, managerUserUUID, profileMetadata);
+    }
+
+    public User updateUserPassword(String userUUID, String password) throws Exception{
+        initContext();
+        return identityAPI.updateUserPassword(userUUID, password);
+    }
+
     private void test(ProcessInstanceUUID piuuid) throws Exception {
         initContext();
 //        bamAPI.
