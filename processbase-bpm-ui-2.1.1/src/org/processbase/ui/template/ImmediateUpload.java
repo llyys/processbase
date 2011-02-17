@@ -123,7 +123,9 @@ public class ImmediateUpload extends VerticalLayout
             status.setValue("");
             deleteBtn.setVisible(false);
         } else if (event.getButton().equals(downloadBtn)) {
-            ByteArraySource bas = new ByteArraySource(PbPortlet.getCurrent().documentLibraryUtil.getFileBody(processUUID, dlFileEntry.getFileEntryId()));
+            ByteArraySource bas = new ByteArraySource(
+                    PbPortlet.getCurrent().documentLibraryUtil.getFileBody(
+                    PbPortlet.getCurrent().getPortalUser(), processUUID, dlFileEntry.getFileEntryId()));
             StreamResource streamResource = new StreamResource(bas, dlFileEntry.getDescription(), getApplication());
             streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
             getWindow().getWindow().open(streamResource, "_new");

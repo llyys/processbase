@@ -501,7 +501,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if (widgets.getType().equals("form:FileWidget")) {
                     try {
                         ImmediateUpload ui = (ImmediateUpload) comp;
-                        PbPortlet.getCurrent().documentLibraryUtil.addFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
+                        PbPortlet.getCurrent().documentLibraryUtil.addFile(PbPortlet.getCurrent().getPortalUser(), processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
                     } catch (PortalException ex) {
                         Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
                     } catch (SystemException ex) {
@@ -515,7 +515,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private void prepareAttachments() {
         if (taskInstance != null) {
             try {
-                processFiles = PbPortlet.getCurrent().documentLibraryUtil.getProcessFiles(taskInstance.getProcessInstanceUUID().toString());
+                processFiles = PbPortlet.getCurrent().documentLibraryUtil.getProcessFiles(
+                        PbPortlet.getCurrent().getPortalUser(),
+                        taskInstance.getProcessInstanceUUID().toString());
             } catch (SystemException ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }

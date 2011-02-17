@@ -28,6 +28,7 @@ import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.template.ConfirmDialog;
 
 /**
  *
@@ -42,7 +43,6 @@ public class UsersPanel extends TablePanel implements
         initTableUI();
     }
 
-
     @Override
     public void initTableUI() {
         super.initTableUI();
@@ -50,6 +50,8 @@ public class UsersPanel extends TablePanel implements
 //        table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("lastname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastname"), null, null);
         table.addContainerProperty("firstname", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionFirstname"), null, null);
+        table.addContainerProperty("email", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionEmail"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -65,6 +67,9 @@ public class UsersPanel extends TablePanel implements
                 woItem.getItemProperty("username").setValue(teb);
                 woItem.getItemProperty("lastname").setValue(user.getLastName());
                 woItem.getItemProperty("firstname").setValue(user.getFirstName());
+                woItem.getItemProperty("email").setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
+                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", user, this, Constants.ACTION_DELETE);
+                woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
             table.setSortAscending(false);
@@ -80,18 +85,42 @@ public class UsersPanel extends TablePanel implements
         super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
-                if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+            User user = (User) execBtn.getTableValue();
+            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-                    CategoryWindow categoryWindow = new CategoryWindow((Category) execBtn.getTableValue());
-                    categoryWindow.exec();
-                    getApplication().getMainWindow().addWindow(categoryWindow);
+                    removeUser(user);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
                 }
+            } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+                UserWindow nuw = new UserWindow(user);
+                nuw.exec();
+                nuw.addListener((Window.CloseListener) this);
+                getWindow().addWindow(nuw);
             }
         }
     }
 
-    
+    private void removeUser(final User user) {
+        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
+                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
+                PbPortlet.getCurrent().messages.getString("removeUser") + "?",
+                PbPortlet.getCurrent().messages.getString("btnYes"),
+                PbPortlet.getCurrent().messages.getString("btnNo"),
+                new ConfirmDialog.Listener() {
+
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            try {
+                                PbPortlet.getCurrent().bpmModule.removeUserByUUID(user.getUUID());
+                                table.removeItem(user);
+                            } catch (Exception ex) {
+                                showError(ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
+    }
 }

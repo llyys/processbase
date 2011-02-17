@@ -144,6 +144,8 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             woItem.getItemProperty("firstname").setValue(getLiferayUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
             woItem.getItemProperty("liferayStatus").setValue(getLiferayUser(userName).isActive() ? "ACTIVE" : "DISABLED");
+            TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
+            woItem.getItemProperty("actions").setValue(tlb);
         }
     }
 
@@ -199,6 +201,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     }
 
     private void addToBonita(final String userName) {
+        final SyncUsersWindow suw = this;
         ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
                 PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
                 PbPortlet.getCurrent().messages.getString("addToBonita") + "?",
@@ -213,9 +216,13 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                                 org.ow2.bonita.facade.identity.User user = PbPortlet.getCurrent().bpmModule.addUser(liferayUser.getScreenName(),
                                         "", liferayUser.getFirstName(), liferayUser.getLastName(),
                                         "", liferayUser.getJobTitle(), null, new HashMap<String, String>());
+                                PbPortlet.getCurrent().bpmModule.updateUserProfessionalContactInfo(
+                                        user.getUUID(), liferayUser.getEmailAddress(), "",
+                                        "", "", "", "", "", "", "", "", "", "");
                                 Item woItem = table.getItem(userName);
                                 woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
-                                woItem.getItemProperty("actions").setValue(null);
+                                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("deleteFromBonita"), "icons/cancel.png", userName, suw, Constants.ACTION_DELETE);
+                                woItem.getItemProperty("actions").setValue(tlb);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -225,6 +232,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     }
 
     private void deleteFromBonita(final String userName) {
+        final SyncUsersWindow suw = this;
         ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
                 PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
                 PbPortlet.getCurrent().messages.getString("deleteFromBonita") + "?",
@@ -236,7 +244,14 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                         if (dialog.isConfirmed()) {
                             try {
                                 PbPortlet.getCurrent().bpmModule.removeUserByUUID(getBonitaUser(userName).getUUID());
-                                table.removeItem(userName);
+                                Item woItem = table.getItem(userName);
+                                if (woItem.getItemProperty("liferayStatus").getValue().equals("ACTIVE")) {
+                                    woItem.getItemProperty("bonitaStatus").setValue("ABSENT");
+                                    TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("addToBonita"), "icons/accept.png", userName, suw, Constants.ACTION_ADD);
+                                    woItem.getItemProperty("actions").setValue(tlb);
+                                } else {
+                                    table.removeItem(userName);
+                                }
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }

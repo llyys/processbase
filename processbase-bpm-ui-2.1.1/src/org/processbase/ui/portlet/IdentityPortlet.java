@@ -35,13 +35,17 @@ import org.processbase.ui.template.TablePanel;
 import org.processbase.ui.admin.CategoriesPanel;
 import org.processbase.ui.admin.NewCategoryWindow;
 import org.processbase.ui.admin.NewProcessDefinitionWindow;
+import org.processbase.ui.identity.GroupWindow;
 import org.processbase.ui.identity.GroupsPanel;
 import org.processbase.ui.identity.MetadataPanel;
 import org.processbase.ui.identity.MetadataWindow;
 import org.processbase.ui.identity.RoleWindow;
 import org.processbase.ui.identity.RolesPanel;
 import org.processbase.ui.identity.SyncUsersWindow;
+import org.processbase.ui.identity.UserWindow;
 import org.processbase.ui.identity.UsersPanel;
+import org.processbase.ui.template.TreeTablePanel;
+import org.processbase.ui.template.WorkPanel;
 
 /**
  *
@@ -64,7 +68,7 @@ public class IdentityPortlet extends PbPortlet
     private Button groupsBtn = null;
     private Button metadataBtn = null;
     private Button syncBtn = null;
-    private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
+    private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
     @Override
     public void init() {
@@ -101,10 +105,12 @@ public class IdentityPortlet extends PbPortlet
         panels.put(metadataBtn, metadataPanel);
     }
 
-    private void setCurrentPanel(TablePanel tablePanel) {
-        mainLayout.replaceComponent(mainLayout.getComponent(1), tablePanel);
-        if (tablePanel.equals(rolesPanel) || tablePanel.equals(usersPanel)) {
-            tablePanel.refreshTable();
+    private void setCurrentPanel(WorkPanel workPanel) {
+        mainLayout.replaceComponent(mainLayout.getComponent(1), workPanel);
+        if (workPanel instanceof TablePanel) {
+            ((TablePanel) workPanel).refreshTable();
+        } else if (workPanel instanceof TreeTablePanel) {
+            ((TreeTablePanel) workPanel).refreshTable();
         }
     }
 
@@ -172,9 +178,11 @@ public class IdentityPortlet extends PbPortlet
     }
 
     public void buttonClick(ClickEvent event) {
-        TablePanel panel = panels.get(event.getButton());
-        if (event.getButton().equals(refreshBtn)) {
+        WorkPanel panel = panels.get(event.getButton());
+        if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TablePanel)) {
             ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+        } else if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TreeTablePanel)) {
+            ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
         } else if (event.getButton().equals(syncBtn)) {
             synchronizeIdentity();
         } else if (event.getButton().equals(btnAdd)) {
@@ -184,12 +192,15 @@ public class IdentityPortlet extends PbPortlet
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
-            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
-            if (event.getButton().equals(metadataBtn)){
+            if (mainLayout.getComponent(1) instanceof TablePanel) {
+                ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+            } else if (mainLayout.getComponent(1) instanceof TreeTablePanel) {
+                ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
+            }
+            if (!event.getButton().equals(usersBtn)) {
                 syncBtn.setVisible(false);
             }
         }
-
     }
 
     private void activateButtons() {
@@ -206,7 +217,11 @@ public class IdentityPortlet extends PbPortlet
     }
 
     public void windowClose(CloseEvent e) {
-        ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+        if (mainLayout.getComponent(1) instanceof TablePanel) {
+            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
+        } else if (mainLayout.getComponent(1) instanceof TreeTablePanel) {
+            ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
+        }
     }
 
     private void synchronizeIdentity() {
@@ -220,12 +235,20 @@ public class IdentityPortlet extends PbPortlet
 
     private void addIdentity() {
         if (mainLayout.getComponent(1) instanceof UsersPanel) {
+            UserWindow nuw = new UserWindow(null);
+            nuw.exec();
+            nuw.addListener((Window.CloseListener) this);
+            getMainWindow().addWindow(nuw);
         } else if (mainLayout.getComponent(1) instanceof RolesPanel) {
             RoleWindow nrw = new RoleWindow(null);
             nrw.exec();
             nrw.addListener((Window.CloseListener) this);
             getMainWindow().addWindow(nrw);
         } else if (mainLayout.getComponent(1) instanceof GroupsPanel) {
+            GroupWindow rgw = new GroupWindow(null);
+            rgw.exec();
+            rgw.addListener((Window.CloseListener) this);
+            getMainWindow().addWindow(rgw);
         } else if (mainLayout.getComponent(1) instanceof MetadataPanel) {
             MetadataWindow nmw = new MetadataWindow(null);
             nmw.exec();

@@ -56,14 +56,14 @@ public class DocumentLibraryUtil {
         }
     }
 
-    public DLFolder getFolder(String folderName) {
+    public DLFolder getFolder(User user, String folderName) {
         DLFolder result = null;
         try {
             result = folderService.getFolder(processBaseGroup.getGroupId(), 0, folderName);
         } catch (Exception nsfex) {
             if (result == null) {
                 try {
-                    result = folderService.addFolder(PbPortlet.getCurrent().getPortalUser().getUserId(), processBaseGroup.getGroupId(), 0, folderName, folderName, new ServiceContext());
+                    result = folderService.addFolder(user.getUserId(), processBaseGroup.getGroupId(), 0, folderName, folderName, new ServiceContext());
                 } catch (PortalException ex) {
                     ex.printStackTrace();
                 } catch (SystemException ex) {
@@ -74,20 +74,20 @@ public class DocumentLibraryUtil {
         return result;
     }
 
-    public List<DLFileEntry> getProcessFiles(String processUUID) throws SystemException {
-        return fileService.getFileEntries(processBaseGroup.getGroupId(), getFolder(processUUID).getFolderId());
+    public List<DLFileEntry> getProcessFiles(User user, String processUUID) throws SystemException {
+        return fileService.getFileEntries(processBaseGroup.getGroupId(), getFolder(user, processUUID).getFolderId());
     }
 
     public void deleteFile(long fileId) throws SystemException, PortalException {
         fileService.deleteDLFileEntry(fileId);
     }
 
-    public DLFileEntry addFile(String processUUID, String title, String description, File file, String[] tags) throws PortalException, SystemException {
+    public DLFileEntry addFile(User user, String processUUID, String title, String description, File file, String[] tags) throws PortalException, SystemException {
         DLFileEntry fileEntry = null;
         try {
-            fileEntry = fileService.addFileEntry(PbPortlet.getCurrent().getPortalUser().getUserId(),
+            fileEntry = fileService.addFileEntry(user.getUserId(),
                     processBaseGroup.getGroupId(),
-                    getFolder(processUUID).getFolderId(),
+                    getFolder(user, processUUID).getFolderId(),
                     file.getName(),
                     title,
                     description,
@@ -113,12 +113,12 @@ public class DocumentLibraryUtil {
         return fileEntry;
     }
 
-    public DLFileEntry addFile(String processUUID, String title, String description, String fileName, byte[] body, String[] tags) throws PortalException, SystemException {
+    public DLFileEntry addFile(User user, String processUUID, String title, String description, String fileName, byte[] body, String[] tags) throws PortalException, SystemException {
         DLFileEntry fileEntry = null;
         try {
-            fileEntry = fileService.addFileEntry(PbPortlet.getCurrent().getPortalUser().getUserId(),
+            fileEntry = fileService.addFileEntry(user.getUserId(),
                     processBaseGroup.getGroupId(),
-                    getFolder(processUUID).getFolderId(),
+                    getFolder(user, processUUID).getFolderId(),
                     fileName,
                     title,
                     description,
@@ -152,15 +152,15 @@ public class DocumentLibraryUtil {
         }
     }
 
-    public byte[] getFileBody(String processUUID, long fileId) {
+    public byte[] getFileBody(User user, String processUUID, long fileId) {
         byte[] result = null;
         try {
             DLFileEntry file = getFileEntry(fileId);
             result = new byte[Long.valueOf(file.getSize()).intValue()];
-            InputStream is = fileService.getFileAsStream(PbPortlet.getCurrent().getPortalUser().getCompanyId(),
-                    PbPortlet.getCurrent().getPortalUser().getUserId(),
+            InputStream is = fileService.getFileAsStream(user.getCompanyId(),
+                    user.getUserId(),
                     processBaseGroup.getGroupId(),
-                    getFolder(processUUID).getFolderId(),
+                    getFolder(user, processUUID).getFolderId(),
                     file.getName());
             is.read(result);
         } catch (PortalException ex) {
