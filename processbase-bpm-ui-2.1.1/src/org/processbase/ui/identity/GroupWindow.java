@@ -28,6 +28,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.List;
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.ButtonBar;
@@ -62,7 +63,7 @@ public class GroupWindow extends PbWindow implements ClickListener {
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             parentGroup.setWidth("270px");
-            parentGroup.setContainerDataSource(getGroupParent());
+            parentGroup.setContainerDataSource(getGroups());
             parentGroup.setItemCaptionPropertyId("path");
             parentGroup.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
             addComponent(parentGroup);
@@ -108,14 +109,14 @@ public class GroupWindow extends PbWindow implements ClickListener {
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
                             groupDescription.getValue().toString(),
-                            parentGroup.getValue().toString());
+                            parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
                 } else {
                     PbPortlet.getCurrent().bpmModule.updateGroupByUUID(
                             group.getUUID(),
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
                             groupDescription.getValue().toString(),
-                            parentGroup.getValue().toString());
+                            parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
                 }
                 close();
             } else {
@@ -127,7 +128,7 @@ public class GroupWindow extends PbWindow implements ClickListener {
         }
     }
 
-    public IndexedContainer getGroupParent() throws Exception {
+    public IndexedContainer getGroups() throws Exception {
         IndexedContainer container = new IndexedContainer();
         container.addContainerProperty("name", String.class, null);
         container.addContainerProperty("label", String.class, null);
@@ -146,10 +147,10 @@ public class GroupWindow extends PbWindow implements ClickListener {
     }
 
     private String getGroupPath(Group group) {
-        StringBuilder result = new StringBuilder("/" + group.getName() + "/");
+        StringBuilder result = new StringBuilder(IdentityAPI.GROUP_PATH_SEPARATOR + group.getName() + IdentityAPI.GROUP_PATH_SEPARATOR);
         Group parent = group.getParentGroup();
         while (parent != null) {
-            result.insert(0, "/" + parent.getName());
+            result.insert(0, IdentityAPI.GROUP_PATH_SEPARATOR + parent.getName());
             parent = parent.getParentGroup();
         }
         return result.toString();

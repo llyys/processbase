@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
@@ -67,8 +68,10 @@ public class RolesPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(role.getLabel());
                 woItem.getItemProperty("description").setValue(role.getDescription());
+                if (!role.getName().equals(IdentityAPI.ADMIN_ROLE_NAME) && !role.getName().equals(IdentityAPI.USER_ROLE_NAME)) {
                 TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
+            }
             }
             table.setSortContainerPropertyId("name");
             table.setSortAscending(false);

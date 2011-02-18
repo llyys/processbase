@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.List;
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
@@ -68,8 +69,10 @@ public class GroupsPanel extends TreeTablePanel implements
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(group.getLabel());
                 woItem.getItemProperty("description").setValue(group.getDescription());
-                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
-                woItem.getItemProperty("actions").setValue(tlb);
+                if (!group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
+                    TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
+                    woItem.getItemProperty("actions").setValue(tlb);
+                }
             }
 
             for (Group group : groups) {
