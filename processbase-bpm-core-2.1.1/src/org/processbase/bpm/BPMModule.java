@@ -59,6 +59,7 @@ import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
@@ -785,9 +786,39 @@ public class BPMModule {
         return identityAPI.updateUserByUUID(userUUID, username, firstName, lastName, title, jobTitle, managerUserUUID, profileMetadata);
     }
 
-    public User updateUserPassword(String userUUID, String password) throws Exception{
+    public User updateUserPassword(String userUUID, String password) throws Exception {
         initContext();
         return identityAPI.updateUserPassword(userUUID, password);
+    }
+
+    public void setUserMemberships(String userUUID, Collection<String> membershipUUIDs) throws Exception {
+        initContext();
+        identityAPI.setUserMemberships(userUUID, membershipUUIDs);
+    }
+
+    public void addMembershipToUser(String userUUID, String membershipUUID) throws Exception {
+        initContext();
+        identityAPI.addMembershipToUser(userUUID, membershipUUID);
+    }
+
+    public void addMembershipsToUser(String userUUID, Collection<String> membershipUUIDs) throws Exception {
+        initContext();
+        identityAPI.addMembershipsToUser(userUUID, membershipUUIDs);
+    }
+
+    public Membership getMembershipByUUID(String membershipUUID) throws Exception {
+        initContext();
+        return identityAPI.getMembershipByUUID(membershipUUID);
+    }
+
+    public void removeMembershipFromUser(String userUUID, String membershipUUID) throws Exception {
+        initContext();
+        identityAPI.removeMembershipFromUser(userUUID, membershipUUID);
+    }
+
+    public void removeMembershipsFromUser(String userUUID, Collection<String> membershipUUIDs) throws Exception {
+        initContext();
+        identityAPI.removeMembershipsFromUser(userUUID, membershipUUIDs);
     }
 
     private void test(ProcessInstanceUUID piuuid) throws Exception {
