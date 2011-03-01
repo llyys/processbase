@@ -86,6 +86,7 @@ public class KPIWindow extends PbWindow
             name.setRequired(true);
             layout.addComponent(name, 1, 0);
             description.setWidth("100%");
+            description.setRequired(true);
             layout.addComponent(description, 0, 1, 1, 1);
 
             HibernateUtil hutil = new HibernateUtil();

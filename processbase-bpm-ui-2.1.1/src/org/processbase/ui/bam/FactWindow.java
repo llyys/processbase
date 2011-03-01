@@ -61,12 +61,12 @@ public class FactWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            code.setWidth("270px");
+            code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
             code.addValidator(new RegexpValidator("^[a-z]\\w*$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
             addComponent(code);
-            name.setWidth("270px");
+            name.setWidth("265px");
             name.setMaxLength(500);
             name.setRequired(true);
             addComponent(name);
