@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 01.03.2011 14:08:13 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class name="org.processbase.bam.db.MetaDim" table="META_DIM">
+    <id name="id" type="long">
+      <column name="ID" precision="16" scale="0"/>
+      <generator class="sequence">
+        <param name="sequence">PB_SEQUENCE</param>
+      </generator>
+    </id>
+    <property name="code" type="string" unique="true">
+      <column length="16" name="CODE" not-null="true" unique="true"/>
+    </property>
+    <property name="name" type="string">
+      <column length="200" name="NAME" not-null="true"/>
+    </property>
+    <property name="valueType" type="string">
+      <column length="20" name="VALUE_TYPE" not-null="true"/>
+    </property>
+    <property name="valueLength" type="short">
+      <column length="5" name="VALUE_LENGTH" not-null="true"/>
+    </property>
+    <set inverse="false" name="metaKpis" table="META_KPI_DIM">
+      <key>
+        <column name="DIM_ID" not-null="true" precision="22" scale="0"/>
+      </key>
+      <many-to-many entity-name="org.processbase.bam.db.MetaKpi">
+        <column name="KPI_ID" not-null="true" precision="22" scale="0"/>
+      </many-to-many>
+    </set>
+  </class>
+</hibernate-mapping>
