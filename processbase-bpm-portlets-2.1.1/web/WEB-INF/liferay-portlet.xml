@@ -18,4 +18,16 @@
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
     </portlet>
+    <portlet>
+        <portlet-name>DashboardPortlet</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
+    <portlet>
+        <portlet-name>BAMPortlet</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
 </liferay-portlet-app>

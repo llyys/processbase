@@ -4,5 +4,7 @@
         <portlet id="UserPortlet" />
         <portlet id="AdminPortlet" />
         <portlet id="IdentityPortlet" />
+        <portlet id="DashboardPortlet" />
+        <portlet id="BAMPortlet" />
     </category>
 </display>

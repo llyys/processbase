@@ -69,4 +69,50 @@
             <short-title>IdentityPortlet</short-title>
         </portlet-info>
     </portlet>
+    <portlet>
+        <portlet-name>DashboardPortlet</portlet-name>
+        <display-name>DashboardPortlet</display-name>
+        <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+        <init-param>
+            <name>application</name>
+            <value>org.processbase.ui.portlet.DashboardPortlet</value>
+        </init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>DashboardPortlet</title>
+            <short-title>DashboardPortlet</short-title>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <portlet-name>BAMPortlet</portlet-name>
+        <display-name>BAMPortlet</display-name>
+        <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+        <init-param>
+            <name>application</name>
+            <value>org.processbase.ui.portlet.BAMPortlet</value>
+        </init-param>
+        <init-param>
+            <name>widgetset</name>
+            <value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+        </init-param>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>BAMPortlet</title>
+            <short-title>BAMPortlet</short-title>
+        </portlet-info>
+    </portlet>
 </portlet-app>
