@@ -64,7 +64,7 @@ public class FactWindow extends PbWindow
             code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[a-z]\\w*$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("265px");
             name.setMaxLength(500);

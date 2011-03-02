@@ -79,7 +79,7 @@ public class KPIWindow extends PbWindow
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w*$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
             layout.addComponent(code, 0, 0);
             name.setWidth("275px");
             name.setMaxLength(500);

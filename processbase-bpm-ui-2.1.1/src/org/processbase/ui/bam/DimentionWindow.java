@@ -48,6 +48,7 @@ public class DimentionWindow extends PbWindow
     private TextField code = new TextField(PbPortlet.getCurrent().messages.getString("code"));
     private TextField name = new TextField(PbPortlet.getCurrent().messages.getString("name"));
     private NativeSelect valueType = new NativeSelect(PbPortlet.getCurrent().messages.getString("valueType"));
+    private TextField length = new TextField(PbPortlet.getCurrent().messages.getString("length"));
 
     public DimentionWindow(MetaDim metaDim) {
         super(metaDim == null ? PbPortlet.getCurrent().messages.getString("newDimension")
@@ -66,24 +67,30 @@ public class DimentionWindow extends PbWindow
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[a-z]\\w*$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("270px");
             name.setMaxLength(500);
             name.setRequired(true);
             addComponent(name);
-            valueType.addItem("STRING");
-            valueType.addItem("DECIMAL");
-            valueType.addItem("DATE");
+            valueType.addItem("java.lang.String");
+            valueType.addItem("int");
+            valueType.addItem("long");
+            valueType.addItem("java.util.Date");
             valueType.setWidth("265px");
             valueType.setNullSelectionAllowed(false);
             valueType.setRequired(true);
             addComponent(valueType);
+            length.setWidth("270px");
+            length.setMaxLength(5);
+            length.setRequired(true);
+            addComponent(length);
 
             if (metaDim != null) {
                 code.setValue(metaDim.getCode());
                 name.setValue(metaDim.getName());
                 valueType.setValue(metaDim.getValueType());
+                length.setValue(metaDim.getValueLength());
             } else {
                 HibernateUtil hutil = new HibernateUtil();
                 code.setValue("D"+String.format("%05d", new Integer(hutil.getAllMetaDim().size()+1)));
@@ -98,7 +105,7 @@ public class DimentionWindow extends PbWindow
             buttons.setHeight("30px");
             buttons.setWidth("100%");
             addComponent(buttons);
-            setWidth("300px");
+            setWidth("305px");
             setResizable(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -114,6 +121,7 @@ public class DimentionWindow extends PbWindow
                 metaDim.setCode(code.getValue().toString());
                 metaDim.setName(name.getValue().toString());
                 metaDim.setValueType(valueType.getValue().toString());
+                metaDim.setValueLength(Short.parseShort(length.getValue().toString()));
                 HibernateUtil hutil = new HibernateUtil();
                 if (hutil.getMetaDimByCode(metaDim.getCode()).isEmpty()) {
                     hutil.addMetaDim(metaDim);

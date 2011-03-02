@@ -50,6 +50,7 @@ public class DimensionsPanel extends TablePanel implements
         table.addContainerProperty("code", String.class, null, PbPortlet.getCurrent().messages.getString("code"), null, null);
         table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("name"), null, null);
         table.addContainerProperty("valueType", String.class, null, PbPortlet.getCurrent().messages.getString("valueType"), null, null);
+        table.addContainerProperty("length", String.class, null, PbPortlet.getCurrent().messages.getString("length"), null, null);
         table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
@@ -69,6 +70,7 @@ public class DimensionsPanel extends TablePanel implements
                 woItem.getItemProperty("code").setValue(metaDim.getCode());
                 woItem.getItemProperty("name").setValue(metaDim.getName());
                 woItem.getItemProperty("valueType").setValue(metaDim.getValueType());
+                woItem.getItemProperty("length").setValue(metaDim.getValueLength());
                 TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
