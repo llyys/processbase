@@ -3,7 +3,6 @@ package org.processbase.bam.db;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,13 +25,13 @@ public class MetaDim implements java.io.Serializable {
     private String code;
     private String name;
     private String valueType;
-    private short valueLength;
+    private Short valueLength;
     private Set<MetaKpi> metaKpis = new HashSet<MetaKpi>(0);
 
     public MetaDim() {
     }
 
-    public MetaDim(long id, String code, String name, String valueType, short valueLength) {
+    public MetaDim(long id, String code, String name, String valueType, Short valueLength) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -40,7 +39,7 @@ public class MetaDim implements java.io.Serializable {
         this.valueLength = valueLength;
     }
 
-    public MetaDim(long id, String code, String name, String valueType, short valueLength, Set<MetaKpi> metaKpis) {
+    public MetaDim(long id, String code, String name, String valueType, Short valueLength, Set<MetaKpi> metaKpis) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -86,19 +85,18 @@ public class MetaDim implements java.io.Serializable {
         this.valueType = valueType;
     }
 
-    @Column(name = "VALUE_LENGTH", nullable = false, length = 4)
-    public short getValueLength() {
+    @Column(name = "VALUE_LENGTH", nullable = true, length = 4)
+    public Short getValueLength() {
         return valueLength;
     }
 
-    public void setValueLength(short valueLength) {
+    public void setValueLength(Short valueLength) {
         this.valueLength = valueLength;
     }
-
-
-
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "META_KPI_DIM", schema = "PBBAM2", joinColumns = {
+//
+    @ManyToMany(fetch = FetchType.LAZY)
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.REFRESH)
+    @JoinTable(name = "META_KPI_DIM", joinColumns = {
         @JoinColumn(name = "DIM_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
         @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)})
     public Set<MetaKpi> getMetaKpis() {

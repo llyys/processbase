@@ -4,13 +4,21 @@
  */
 package org.processbase.bam.db;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hibernate.Session;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.processbase.core.Constants;
 
 /**
  * Hibernate Utility class with a convenient method to get Session Factory object.
@@ -24,20 +32,23 @@ public class HibernateUtil {
 
     static {
         try {
+            if (!Constants.LOADED) {
+                Constants.loadConstants();
+            }
             configuration = new Configuration()
-                .setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect")
-                .setProperty("hibernate.connection.datasource", "jdbc/pbbam2")
-//                .setProperty("hibernate.connection.driver_class", "oracle.jdbc.OracleDriver")
-//                .setProperty("hibernate.connection.url", "jdbc:oracle:thin:@localhost:1521:maratdb")
-//                .setProperty("hibernate.connection.username", "pbbam2")
-//                .setProperty("hibernate.connection.password", "pbbam2");
-                 .addClass(org.processbase.bam.db.MetaDim.class)
-                  .addClass(org.processbase.bam.db.MetaFact.class)
-                   .addClass(org.processbase.bam.db.MetaKpi.class);
+                    .setProperty("hibernate.dialect", Constants.BAM_DB_DIALECT)
+//                    .setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect")
+//                    .setProperty("hibernate.connection.datasource", Constants.BAM_DB_POOLNAME) //
+                      .setProperty("hibernate.connection.url", "jdbc:oracle:thin:@localhost:1521:maratdb")
+                      .setProperty("hibernate.connection.username", "pbbam2")
+                      .setProperty("hibernate.connection.password", "pbbam2")
+//                      .setProperty("hibernate.show_sql", "true")
+                    .addClass(org.processbase.bam.db.MetaDim.class)
+                    .addClass(org.processbase.bam.db.MetaFact.class)
+                    .addClass(org.processbase.bam.db.MetaKpi.class);
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
-            // Log the exception. 
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            ex.printStackTrace();
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -50,22 +61,51 @@ public class HibernateUtil {
         return configuration;
     }
 
-    public void xxx(String sql){
-        Session session = getSessionFactory().openSession();
-        Transaction tx = null;
+    public DatabaseMetaData getDatabaseMetadata() {
+        Connection conn = null;
+        DatabaseMetaData result = null;
         try {
-            tx = session.beginTransaction();
-//            session.createSQLQuery(null)
-        } finally {
-            if (tx.isActive()) {
-                tx.rollback();
+            conn = configuration.buildSettings().getConnectionProvider().getConnection();
+            result = conn.getMetaData();
+        } catch (Exception ex){
+
+        } finally{
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(HibernateUtil.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
-            session.close();
+        }
+        return result;
+    }
+
+    public void executeScripts(ArrayList<String> scripts) throws Exception {
+        Connection conn = configuration.buildSettings().getConnectionProvider().getConnection();
+        for (String script : scripts) {
+            PreparedStatement ps = conn.prepareStatement(script);
+            ps.execute();
+        }
+        if (!conn.isClosed()) {
+            conn.close();
         }
     }
 
-    public void generateSchema(){
+    public void validateSchema() throws Exception {
+        Connection conn = configuration.buildSettings().getConnectionProvider().getConnection();
+        Dialect dialect = Dialect.getDialect(configuration.getProperties());
+        DatabaseMetadata metadata = new DatabaseMetadata(conn, dialect);
+        configuration.validateSchema(dialect, metadata);
+        if (!conn.isClosed()) {
+            conn.close();
+        }
+    }
+
+    public void generateSchema() {
         new SchemaExport(configuration).create(true, true);
+    }
+
+    public void dropSchema() {
+        new SchemaExport(configuration).drop(true, true);
     }
 
     public ArrayList<MetaDim> getAllMetaDim() {
@@ -116,13 +156,28 @@ public class HibernateUtil {
         }
     }
 
+    public ArrayList<MetaKpi> getAllMetaKpiByStatus(String status) {
+        Session session = getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            ArrayList<MetaKpi> result = (ArrayList<MetaKpi>) session.createQuery("from MetaKpi as metaKpi where metaKpi.status = :status").setString("status", status).list();
+            tx.commit();
+            return result;
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            session.close();
+        }
+    }
+
     public ArrayList<MetaDim> getMetaDimByCode(String code) {
         Session session = getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            ArrayList<MetaDim> result = (ArrayList<MetaDim>)
-                    session.createQuery("from MetaDim as metaDim where metaDim.code = :code").setString("code", code).list();
+            ArrayList<MetaDim> result = (ArrayList<MetaDim>) session.createQuery("from MetaDim as metaDim where metaDim.code = :code").setString("code", code).list();
             tx.commit();
             return result;
         } finally {
@@ -138,8 +193,7 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            ArrayList<MetaFact> result = (ArrayList<MetaFact>)
-                    session.createQuery("from MetaFact as metaFact where metaFact.code = :code").setString("code", code).list();
+            ArrayList<MetaFact> result = (ArrayList<MetaFact>) session.createQuery("from MetaFact as metaFact where metaFact.code = :code").setString("code", code).list();
             tx.commit();
             return result;
         } finally {
@@ -155,8 +209,7 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            ArrayList<MetaKpi> result = (ArrayList<MetaKpi>)
-                    session.createQuery("from MetaKpi as metaKpi where metaKpi.code = :code").setString("code", code).list();
+            ArrayList<MetaKpi> result = (ArrayList<MetaKpi>) session.createQuery("from MetaKpi as metaKpi where metaKpi.code = :code").setString("code", code).list();
             tx.commit();
             return result;
         } finally {

@@ -110,8 +110,9 @@ public class MetaKpi implements java.io.Serializable {
         this.status = status;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "META_KPI_DIM", schema = "PBBAM2", joinColumns = {
+    @ManyToMany(fetch = FetchType.LAZY)
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.REFRESH)
+    @JoinTable(name = "META_KPI_DIM", joinColumns = {
         @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
         @JoinColumn(name = "DIM_ID", nullable = false, updatable = false)})
     public Set<MetaDim> getMetaDims() {
@@ -122,8 +123,8 @@ public class MetaKpi implements java.io.Serializable {
         this.metaDims = metaDims;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "META_KPI_FACT", schema = "PBBAM2", joinColumns = {
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinTable(name = "META_KPI_FACT", joinColumns = {
         @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
         @JoinColumn(name = "FACT_ID", nullable = false, updatable = false)})
     public Set<MetaFact> getMetaFacts() {

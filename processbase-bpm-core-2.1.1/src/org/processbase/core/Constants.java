@@ -50,6 +50,8 @@ public class Constants {
     public static Properties properties = new Properties();
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
     public static String DL_GROUP = null;
+    public static String BAM_DB_POOLNAME;
+    public static String BAM_DB_DIALECT;
     public static String BAM_MQ_AddressList;
     public static String BAM_MQ_User;
     public static String BAM_MQ_Password;
@@ -92,6 +94,9 @@ public class Constants {
                 BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
                 APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
 
+                BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
+                BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
+
                 AUTH_HOST = properties.containsKey("AUTH_HOST") ? properties.getProperty("AUTH_HOST") : "localhost";
                 AUTH_PORT = properties.containsKey("AUTH_PORT") ? properties.getProperty("AUTH_PORT") : "8080";
                 AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
@@ -109,6 +114,9 @@ public class Constants {
                 properties.setProperty("PORTAL_HOST", "localhost");
                 properties.setProperty("PORTAL_PORT", "8080");
                 properties.setProperty("AUTH_CLASS", "org.processbase.touchprocess.impl.LiferayAuthorization");
+
+                properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
+                properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
 
                 FileOutputStream fos = new FileOutputStream(file);
                 properties.storeToXML(fos, null);

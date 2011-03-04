@@ -19,9 +19,9 @@
       <column length="20" name="VALUE_TYPE" not-null="true"/>
     </property>
     <property name="valueLength" type="short">
-      <column length="5" name="VALUE_LENGTH" not-null="true"/>
+      <column length="4" name="VALUE_LENGTH" not-null="false"/>
     </property>
-    <set inverse="false" name="metaKpis" table="META_KPI_DIM">
+    <set inverse="true" name="metaKpis" table="META_KPI_DIM" cascade="none" >
       <key>
         <column name="DIM_ID" not-null="true" precision="22" scale="0"/>
       </key>
