@@ -88,7 +88,7 @@ public class FactWindow extends PbWindow
             buttons.setHeight("30px");
             buttons.setWidth("100%");
             addComponent(buttons);
-            setWidth("300px");
+            setWidth("310px");
             setResizable(false);
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -75,6 +75,7 @@ public class KPIsPanel extends TablePanel implements
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                  woItem.getItemProperty("status").setValue(metaKpi.getStatus());
                 TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
+                tlb.setEnabled(metaKpi.getStatus().equals("EDITABLE"));
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");

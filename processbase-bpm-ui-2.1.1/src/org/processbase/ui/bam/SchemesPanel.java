@@ -19,12 +19,11 @@ package org.processbase.ui.bam;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
-import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 import org.processbase.bam.db.ScriptGenerator;
 import org.processbase.bam.db.HibernateUtil;
 import org.processbase.bam.db.MetaKpi;
@@ -42,9 +41,37 @@ public class SchemesPanel extends TablePanel implements
         Button.ClickListener,
         Window.CloseListener {
 
+    private GridLayout databaseInfo = new GridLayout(2, 2);
+    private Button generateMetaDataBtn = new Button(PbPortlet.getCurrent().messages.getString("generateMetaData"), this);
+
     public SchemesPanel() {
         super();
         initTableUI();
+        addDatabaseInfo();
+    }
+
+    private void addDatabaseInfo() {
+        databaseInfo.setMargin(false);
+        databaseInfo.setSpacing(true);
+        databaseInfo.setWidth("100%");
+        databaseInfo.removeAllComponents();
+        databaseInfo.addComponent(generateMetaDataBtn, 1, 0);
+        generateMetaDataBtn.setVisible(false);
+        try {
+            HibernateUtil hutil = new HibernateUtil();
+            DatabaseMetaData dbmd = hutil.getDatabaseMetadata();
+            StringBuilder info = new StringBuilder();
+            info.append("<b>").append(dbmd.getDatabaseProductName()).append(" ").append(dbmd.getDatabaseProductVersion()).append("</b>");
+            databaseInfo.addComponent(new Label(info.toString(), Label.CONTENT_XHTML), 0, 0);
+            info = new StringBuilder();
+            info.append("<b>").append(dbmd.getDriverName()).append(" ").append(dbmd.getDriverVersion()).append("</b>");
+            databaseInfo.addComponent(new Label(info.toString(), Label.CONTENT_XHTML), 0, 1);
+            hutil.validateSchema();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            generateMetaDataBtn.setVisible(true);
+        }
+        addComponent(databaseInfo, 0);
     }
 
     @Override
@@ -53,8 +80,7 @@ public class SchemesPanel extends TablePanel implements
         table.addContainerProperty("id", String.class, null, PbPortlet.getCurrent().messages.getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("code", String.class, null, PbPortlet.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("description"), null, null);
+        table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("name"), null, null);
         table.addContainerProperty("owner", String.class, null, PbPortlet.getCurrent().messages.getString("owner"), null, null);
         table.addContainerProperty("status", String.class, null, PbPortlet.getCurrent().messages.getString("State"), null, null);
         table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
@@ -68,18 +94,16 @@ public class SchemesPanel extends TablePanel implements
             table.removeAllItems();
             HibernateUtil hutil = new HibernateUtil();
 
-            ArrayList<MetaKpi> metaKpis = hutil.getAllMetaKpi();
+            ArrayList<MetaKpi> metaKpis = hutil.getAllMetaKpiByStatus(MetaKpi.EDITABLE);
 
             for (MetaKpi metaKpi : metaKpis) {
                 Item woItem = table.addItem(metaKpi);
                 woItem.getItemProperty("id").setValue(metaKpi.getId());
                 woItem.getItemProperty("code").setValue(metaKpi.getCode());
-                TableLinkButton teb = new TableLinkButton(metaKpi.getName(), "", null, metaKpi, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("name").setValue(teb);
-                woItem.getItemProperty("description").setValue(metaKpi.getDescription());
+                woItem.getItemProperty("name").setValue(metaKpi.getName());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                 woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnGenerate"), "icons/start.png", metaKpi, this, Constants.ACTION_START);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -97,9 +121,9 @@ public class SchemesPanel extends TablePanel implements
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
             MetaKpi metaKpi = (MetaKpi) execBtn.getTableValue();
-            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+            if (execBtn.getAction().equals(Constants.ACTION_START)) {
                 try {
-                    removeMetaKpi(metaKpi);
+                    generateTable(metaKpi);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
@@ -110,16 +134,15 @@ public class SchemesPanel extends TablePanel implements
                 nkw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(nkw);
             }
+        } else if (event.getButton().equals(generateMetaDataBtn)) {
+            generateMetaDataSchema();
         }
     }
 
-    private void removeMetaKpi(final MetaKpi metaKpi) {
-
-        ScriptGenerator srciptor = new ScriptGenerator();
+    private void generateMetaDataSchema() {
         ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
                 PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                //                PbPortlet.getCurrent().messages.getString("removeKPI") + "?",
-                srciptor.getCreateTableScript(metaKpi, "org.hibernate.dialect.Oracle10gDialect", ScriptGenerator.CREATE_SCRIPT),
+                PbPortlet.getCurrent().messages.getString("generateSchema") + "?",
                 PbPortlet.getCurrent().messages.getString("btnYes"),
                 PbPortlet.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
@@ -128,8 +151,34 @@ public class SchemesPanel extends TablePanel implements
                         if (dialog.isConfirmed()) {
                             try {
                                 HibernateUtil hutil = new HibernateUtil();
-                                hutil.getConfiguration().
-                                hutil.deleteMetaKpi(metaKpi);
+                                hutil.generateSchema();
+                                generateMetaDataBtn.setVisible(false);
+                            } catch (Exception ex) {
+                                showError(ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void generateTable(final MetaKpi metaKpi) {
+        ScriptGenerator srciptor = new ScriptGenerator();
+        final ArrayList<String> scripts = srciptor.getCreateTableScript(metaKpi, ScriptGenerator.CREATE_SCRIPT);
+        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
+                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
+                scripts.get(0),
+                PbPortlet.getCurrent().messages.getString("btnYes"),
+                PbPortlet.getCurrent().messages.getString("btnNo"),
+                new ConfirmDialog.Listener() {
+
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            try {
+                                HibernateUtil hutil = new HibernateUtil();
+                                hutil.executeScripts(scripts);
+                                metaKpi.setStatus(MetaKpi.NOT_EDITABLE);
+                                hutil.updateMetaKpi(metaKpi);
                                 refreshTable();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

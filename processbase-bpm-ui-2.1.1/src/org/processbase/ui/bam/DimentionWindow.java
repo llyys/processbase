@@ -16,6 +16,8 @@
  */
 package org.processbase.ui.bam;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
@@ -39,7 +41,7 @@ import org.processbase.ui.template.PbWindow;
  * @author mgubaidullin
  */
 public class DimentionWindow extends PbWindow
-        implements ClickListener {
+        implements ClickListener, ValueChangeListener {
 
     private MetaDim metaDim = null;
     private ButtonBar buttons = new ButtonBar();
@@ -73,17 +75,20 @@ public class DimentionWindow extends PbWindow
             name.setMaxLength(500);
             name.setRequired(true);
             addComponent(name);
-            valueType.addItem("java.lang.String");
             valueType.addItem("int");
+            valueType.addItem("java.lang.String");
             valueType.addItem("long");
             valueType.addItem("java.util.Date");
             valueType.setWidth("265px");
             valueType.setNullSelectionAllowed(false);
             valueType.setRequired(true);
+            valueType.addListener(this);
+            valueType.setImmediate(true);
             addComponent(valueType);
             length.setWidth("270px");
-            length.setMaxLength(5);
-            length.setRequired(true);
+            length.setMaxLength(4);
+            length.setEnabled(false);
+            length.setRequired(false);
             addComponent(length);
 
             if (metaDim != null) {
@@ -93,7 +98,7 @@ public class DimentionWindow extends PbWindow
                 length.setValue(metaDim.getValueLength());
             } else {
                 HibernateUtil hutil = new HibernateUtil();
-                code.setValue("D"+String.format("%05d", new Integer(hutil.getAllMetaDim().size()+1)));
+                code.setValue("D" + String.format("%05d", new Integer(hutil.getAllMetaDim().size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -105,7 +110,7 @@ public class DimentionWindow extends PbWindow
             buttons.setHeight("30px");
             buttons.setWidth("100%");
             addComponent(buttons);
-            setWidth("305px");
+            setWidth("310px");
             setResizable(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -121,7 +126,9 @@ public class DimentionWindow extends PbWindow
                 metaDim.setCode(code.getValue().toString());
                 metaDim.setName(name.getValue().toString());
                 metaDim.setValueType(valueType.getValue().toString());
-                metaDim.setValueLength(Short.parseShort(length.getValue().toString()));
+                if (length.getValue() != null && !length.getValue().toString().isEmpty()) {
+                    metaDim.setValueLength(Short.parseShort(length.getValue().toString()));
+                }
                 HibernateUtil hutil = new HibernateUtil();
                 if (hutil.getMetaDimByCode(metaDim.getCode()).isEmpty()) {
                     hutil.addMetaDim(metaDim);
@@ -142,8 +149,18 @@ public class DimentionWindow extends PbWindow
         for (Iterator<Component> iter = getComponentIterator(); iter.hasNext();) {
             Component c = iter.next();
             if (c instanceof AbstractField) {
-                ((AbstractField) c).commit();
+                ((AbstractField) c).validate();
             }
+        }
+    }
+
+    public void valueChange(ValueChangeEvent event) {
+        if (event.getProperty().getValue().equals("java.lang.String")) {
+            length.setEnabled(true);
+            length.setRequired(true);
+        } else {
+            length.setRequired(false);
+            length.setEnabled(false);
         }
     }
 }

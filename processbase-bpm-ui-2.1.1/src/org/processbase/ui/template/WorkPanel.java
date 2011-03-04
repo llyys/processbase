@@ -37,7 +37,7 @@ public class WorkPanel extends VerticalLayout {
         setSizeFull();
         addComponent(horizontalLayout);
         setExpandRatio(horizontalLayout, 1);
-        setMargin(false);
+        setMargin(true, false, false, false);
         setStyleName(Reindeer.LAYOUT_WHITE);
     }
 

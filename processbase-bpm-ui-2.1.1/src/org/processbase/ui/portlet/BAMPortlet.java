@@ -94,7 +94,6 @@ public class BAMPortlet extends PbPortlet
 
         schemesPanel = new SchemesPanel();
         panels.put(schemesBtn, schemesPanel);
-
     }
 
     private void setCurrentPanel(TablePanel tablePanel) {
@@ -133,12 +132,10 @@ public class BAMPortlet extends PbPortlet
         buttonBar.addComponent(expandLabel, 4);
         buttonBar.setExpandRatio(expandLabel, 1);
 
-
         // prepare add button
         btnAdd = new Button(this.messages.getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 5);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
-
 
         // prepare refresh button
         refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
@@ -150,6 +147,10 @@ public class BAMPortlet extends PbPortlet
 //        buttonBar.setHeight("48px");
         buttonBar.setMargin(false, true, false, true);
         buttonBar.setSpacing(true);
+    }
+
+    private void enableButtons(){
+
     }
 
     public User getCurrentUser() {
@@ -171,6 +172,9 @@ public class BAMPortlet extends PbPortlet
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
+            if (mainLayout.getComponent(1) instanceof SchemesPanel) {
+                btnAdd.setVisible(false);
+            }
         }
 
     }
@@ -184,6 +188,7 @@ public class BAMPortlet extends PbPortlet
         schemesBtn.setEnabled(true);
         factsBtn.setStyleName(Reindeer.BUTTON_LINK);
         factsBtn.setEnabled(true);
+        btnAdd.setVisible(true);
     }
 
     public void windowClose(CloseEvent e) {
