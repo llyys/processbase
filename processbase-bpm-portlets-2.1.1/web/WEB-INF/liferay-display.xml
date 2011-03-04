@@ -6,5 +6,6 @@
         <portlet id="IdentityPortlet" />
         <portlet id="DashboardPortlet" />
         <portlet id="BAMPortlet" />
+        <portlet id="ChartPortlet" />
     </category>
 </display>

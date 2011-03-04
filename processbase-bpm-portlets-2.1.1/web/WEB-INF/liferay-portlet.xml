@@ -30,4 +30,10 @@
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
     </portlet>
+    <portlet>
+        <portlet-name>ChartPortlet</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
 </liferay-portlet-app>
