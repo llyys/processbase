@@ -78,7 +78,6 @@ public class DimentionWindow extends PbWindow
             valueType.addItem("int");
             valueType.addItem("java.lang.String");
             valueType.addItem("long");
-            valueType.addItem("java.util.Date");
             valueType.setWidth("265px");
             valueType.setNullSelectionAllowed(false);
             valueType.setRequired(true);
