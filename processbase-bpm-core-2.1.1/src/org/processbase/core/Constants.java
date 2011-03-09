@@ -52,14 +52,10 @@ public class Constants {
     public static String DL_GROUP = null;
     public static String BAM_DB_POOLNAME;
     public static String BAM_DB_DIALECT;
-    public static String BAM_MQ_AddressList;
-    public static String BAM_MQ_User;
-    public static String BAM_MQ_Password;
-    public static String BAM_MQ_DefaultDestination;
-    public static String ESB_MQ_AddressList;
-    public static String ESB_MQ_User;
-    public static String ESB_MQ_Password;
-    public static String ESB_MQ_DefaultDestination;
+    public static String BAM_MQ_CONNECTION_FACTORY;
+    public static String BAM_MQ_DESTINATION_RESOURCE;
+    public static String ESB_MQ_AConnectionFactory;
+    public static String ESB_MQ_DestinationResource;
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
     public static String AUTH_HOST = "localhost";
@@ -82,14 +78,9 @@ public class Constants {
                 BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
                 BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
 
-//                BAM_MQ_AddressList = properties.getProperty("BAM_MQ_AddressList");
-//                BAM_MQ_User = properties.getProperty("BAM_MQ_User");
-//                BAM_MQ_Password = properties.getProperty("BAM_MQ_Password");
-//                BAM_MQ_DefaultDestination = properties.getProperty("BAM_MQ_DefaultDestination");
-//                ESB_MQ_AddressList = properties.getProperty("ESB_MQ_AddressList");
-//                ESB_MQ_User = properties.getProperty("ESB_MQ_User");
-//                ESB_MQ_Password = properties.getProperty("ESB_MQ_Password");
-//                ESB_MQ_DefaultDestination = properties.getProperty("ESB_MQ_DefaultDestination");
+                BAM_MQ_CONNECTION_FACTORY = properties.containsKey("BAM_MQ_CONNECTION_FACTORY") ? properties.getProperty("BAM_MQ_CONNECTION_FACTORY") : "jms/pbbamConnectionFactory";
+                BAM_MQ_DESTINATION_RESOURCE = properties.containsKey("BAM_MQ_DESTINATION_RESOURCE") ? properties.getProperty("BAM_MQ_DESTINATION_RESOURCE") : "jms/pbbamDestinationResource";
+
                 DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "DOCUMENTS";
                 BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
                 APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
