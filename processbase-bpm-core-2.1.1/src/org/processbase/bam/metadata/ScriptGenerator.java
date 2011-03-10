@@ -174,7 +174,7 @@ public class ScriptGenerator {
             addIndex(activityInstanceIter);
 
             PrimaryKey key = new PrimaryKey();
-            key.setName("PK_" + metaKpi.getCode());
+            key.setName(metaKpi.getCode() + "_PK");
             key.addColumn(id);
             table.setPrimaryKey(key);
             
@@ -238,7 +238,7 @@ public class ScriptGenerator {
         try {
             Dialect dialect = (Dialect) Class.forName(Constants.BAM_DB_DIALECT).newInstance();
             dimColumns.add(column);
-            result.add(Index.buildSqlCreateIndexString(dialect, "IX_" + column.getName(), table, dimColumns.iterator(), false, null, null));
+            result.add(Index.buildSqlCreateIndexString(dialect, table.getName()+ "_IDX_" + column.getName(), table, dimColumns.iterator(), false, null, null));
             dimColumns.clear();
         } catch (Exception ex) {
             ex.printStackTrace();

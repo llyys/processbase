@@ -4,12 +4,24 @@
  */
 package org.processbase.bam.message;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Vector;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.processbase.core.Constants;
 
 /**
@@ -17,6 +29,9 @@ import org.processbase.core.Constants;
  * @author marat
  */
 public class BAMMessageServlet extends HttpServlet {
+
+    private Vector paramOrder;
+    private Hashtable parameters;
 
     @Override
     public void init() throws ServletException {
@@ -31,29 +46,46 @@ public class BAMMessageServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String type = null;
+        String body = null;
         PrintWriter out = response.getWriter();
         response.setContentType("text/html;charset=UTF-8");
         try {
-//            for (Enumeration e = request.getParameterNames(); e.hasMoreElements();) {
-//                Object o = e.nextElement();
-//                System.out.println(o + " = " + request.getParameter((String) o));
-//            }
-            if (request.getParameter("type").toString().equalsIgnoreCase("json")) {
-//                System.out.println("JSON");
-                Kpi kpi = MessageController.jsonToKpi(request.getParameter("body"));
+            boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+//            System.out.println("isMultipart = " + isMultipart);
+            if (isMultipart) {
+                FileItemFactory factory = new DiskFileItemFactory();
+                ServletFileUpload upload = new ServletFileUpload(factory);
+                List items = upload.parseRequest(request);
+                Iterator iter = items.iterator();
+//                System.out.println("--------------------------------------- 1 ");
+                while (iter.hasNext()) {
+                    FileItem item = (FileItem) iter.next();
+                    if (item.isFormField()) {if (item.getFieldName().equals("body")){
+                            body = item.getString();
+                        } else if (item.getFieldName().equals("type")){
+                            type = item.getString();
+                        }
+                    }
+                }
+            } else {
+                type = request.getParameter("type").toString();
+                body = request.getParameter("body").toString();
+            }
+
+            if (type.equalsIgnoreCase("json")) {
+                Kpi kpi = MessageController.jsonToKpi(body);
                 MessageController.sendKpiToMQ(kpi);
-            } else if (request.getParameter("type").toString().equalsIgnoreCase("xml")) {
-                System.out.println("XML");
-                Kpi kpi = MessageController.xmlToKpi(request.getParameter("body"));
+            } else if (type.equalsIgnoreCase("xml")) {
+                Kpi kpi = MessageController.xmlToKpi(body);
                 MessageController.sendKpiToMQ(kpi);
             }
             out.println("OK");
         } catch (Exception ex) {
             out.println(ex.getMessage());
+            ex.printStackTrace();
         } finally {
             out.close();
         }
@@ -94,6 +126,4 @@ public class BAMMessageServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    
 }

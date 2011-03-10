@@ -15,7 +15,7 @@
     <property name="name" type="string">
       <column length="200" name="NAME" not-null="true"/>
     </property>
-    <set inverse="false" name="metaKpis" table="META_KPI_FACT">
+    <set cascade="none" inverse="true" name="metaKpis" table="META_KPI_FACT">
       <key>
         <column name="FACT_ID" not-null="true" precision="22" scale="0"/>
       </key>

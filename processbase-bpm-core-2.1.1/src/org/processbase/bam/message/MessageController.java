@@ -195,7 +195,6 @@ public class MessageController {
                 for (DimensionType dim : kpi.getDims()) {
                     sqlScript.append(dim.getCode()).append(",");
                     values.add(dim.getValue());
-                    System.out.println(dim.getCode() + " = " + dim.getValue());
                 }
             }
 
@@ -205,9 +204,6 @@ public class MessageController {
             }
 
             sqlScript.append("?)");
-            System.out.println(sqlScript.toString());
-
-
             conn = newConnection();
             
             PreparedStatement ps  =  conn.prepareStatement("SELECT PB_SEQUENCE.NEXTVAL from Dual");
@@ -238,10 +234,10 @@ public class MessageController {
             ex.printStackTrace();
         } finally {
             try {
-                if (conn != null && !conn.isClosed()) {
+                if (conn != null) {
                     conn.close();
                 }
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
             }
         }
     }

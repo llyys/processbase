@@ -57,7 +57,7 @@ public class Test {
         fact.setValue(new BigDecimal("120200.2342"));
 
         Kpi kpi = new Kpi();
-        kpi.setCode("KPI01");
+        kpi.setCode("K00001");
         Timestamp curr = new Timestamp(System.currentTimeMillis());
 //        curr.setNanos(123456789);
         kpi.setTimeStamp(curr);
@@ -90,11 +90,11 @@ public class Test {
         Gson gson = gb.create();
         String x = gson.toJson(kpi);
         System.out.println(x);
-        System.out.println(x.length());
+//        System.out.println(x.length());
 
         Kpi zzz = gson.fromJson(x, Kpi.class);
-        System.out.println(zzz.getDims().get(0).getCode());
-        System.out.println(zzz.getTimeStamp().toString());
+//        System.out.println(zzz.getDims().get(0).getCode());
+//        System.out.println(zzz.getTimeStamp().toString());
     }
 
     static private class sqlTimestampConverter implements JsonSerializer<Timestamp> {
