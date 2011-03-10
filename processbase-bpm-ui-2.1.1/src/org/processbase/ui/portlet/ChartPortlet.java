@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.portlet;
 
-import com.github.wolfie.refresher.Refresher;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
@@ -37,31 +36,32 @@ import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
 import com.vaadin.terminal.gwt.server.PortletRequestListener;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletMode;
+import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
+import org.processbase.ui.chart.ChartConfigurationPanel;
+import org.processbase.ui.chart.ChartViewPanel;
+import org.processbase.ui.template.PbWindow;
 
 /**
  *
  * @author mgubaidullin
  */
 public class ChartPortlet extends Application
-        implements PortletListener, PortletRequestListener, TransactionListener,
-        Refresher.RefreshListener{
+        implements PortletListener, PortletRequestListener, TransactionListener {
 
     private static ThreadLocal<ChartPortlet> currentPortlet = new ThreadLocal<ChartPortlet>();
+    public static ThreadLocal<PortletPreferences> portletPreferences = new ThreadLocal<PortletPreferences>();
     public PortletApplicationContext2 portletApplicationContext2;
     public PortletSession portletSession;
-    Window mainWindow;
-    VerticalLayout viewContent = new VerticalLayout();
-    VerticalLayout editContent = new VerticalLayout();
-    VerticalLayout helpContent = new VerticalLayout();
-    Label time = new Label("veiw");
+    private Window mainWindow;
+    private ChartViewPanel viewPanel;
+    private ChartConfigurationPanel configPanel;
+    public String portletId;
+    public ResourceBundle messages = null;
 
     @Override
     public void init() {
@@ -69,6 +69,7 @@ public class ChartPortlet extends Application
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
+        messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
         portletApplicationContext2 = (PortletApplicationContext2) getContext();
         portletSession = portletApplicationContext2.getPortletSession();
         portletApplicationContext2.addPortletListener((Application) this, (PortletListener) this);
@@ -76,34 +77,16 @@ public class ChartPortlet extends Application
         if (getContext() != null) {
             getContext().addTransactionListener(this);
         }
-
         mainWindow = new Window("Chart Application");
+        mainWindow.setSizeFull();
         setMainWindow(mainWindow);
 
-
-        
-        Refresher ref = new Refresher();
-        ref.setRefreshInterval(1000);
-        boolean addListener = ref.addListener(this);
-        viewContent.addComponent(ref);
-
-
-        editContent.addComponent(new Label("edit"));
-        helpContent.addComponent(new Label("help"));
-
-        // Start in the view mode
-        mainWindow.setContent(viewContent);
-
-    }
-
-    public void refresh(Refresher source) {
-        System.out.println(System.currentTimeMillis());
-        Date currentTime = new Date(System.currentTimeMillis());
-        time = new Label(currentTime.toString());
-        viewContent.addComponent(time);
+        configPanel = new ChartConfigurationPanel();
+        viewPanel = new ChartViewPanel();
     }
 
     public void onRequestStart(PortletRequest request, PortletResponse response) {
+        portletPreferences.set(request.getPreferences());
         if (getUser() == null) {
             try {
                 User user = PortalUtil.getUser(request);
@@ -122,6 +105,8 @@ public class ChartPortlet extends Application
     }
 
     public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
+        portletId = PortalUtil.getPortletId(request);
+
     }
 
     public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
@@ -133,11 +118,9 @@ public class ChartPortlet extends Application
     public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
         // Switch the view according to the portlet mode
         if (request.getPortletMode() == PortletMode.EDIT) {
-            window.setContent(editContent);
+            window.setContent(configPanel);
         } else if (request.getPortletMode() == PortletMode.VIEW) {
-            window.setContent(viewContent);
-        } else if (request.getPortletMode() == PortletMode.HELP) {
-            window.setContent(helpContent);
+            window.setContent(viewPanel);
         }
     }
 

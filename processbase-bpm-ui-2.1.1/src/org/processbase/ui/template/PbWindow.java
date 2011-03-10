@@ -62,13 +62,13 @@ public class PbWindow extends Window {
     }
 
     public void showMessage(String description, int type) {
-        StringBuffer desc = new StringBuffer();
+        StringBuilder desc = new StringBuilder();
         if (description != null) {
             int i = 0;
             for (; description.length() > i + 50; i = i + 50) {
-                desc.append("<br/> " + description.substring(i, i + 50));
+                desc.append("<br/> ").append(description.substring(i, i + 50));
             }
-            desc.append("<br/> " + description.substring(i));
+            desc.append("<br/> ").append(description.substring(i));
         } else {
             desc.append("<br/> null");
         }

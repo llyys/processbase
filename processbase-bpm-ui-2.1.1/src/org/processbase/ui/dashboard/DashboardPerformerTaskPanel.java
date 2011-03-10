@@ -126,8 +126,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
     private JFreeChart createchart(CategoryDataset dataset) {
 
         // create the chart...
-        JFreeChart c = ChartFactory.createBarChart3D("", // chart
-                // title
+        JFreeChart c = ChartFactory.createBarChart3D("", 
                 "", // domain axis label
                 "Tasks by performers", // range axis label
                 dataset, // data
