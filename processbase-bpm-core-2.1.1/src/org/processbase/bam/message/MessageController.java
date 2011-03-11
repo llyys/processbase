@@ -58,22 +58,21 @@ public class MessageController {
 
     static private class sqlTimestampConverter implements JsonSerializer<Timestamp> {
 
-        static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSZ");
-
+        static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
         public JsonElement serialize(Timestamp t, Type type, JsonSerializationContext jsc) {
             return new JsonPrimitive(sdf.format(t));
         }
     }
 
     public static String kpiToJson(Kpi kpi) {
-        GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSZ");
+        GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
         gb.registerTypeAdapter(Timestamp.class, new sqlTimestampConverter());
         Gson gson = gb.create();
         return gson.toJson(kpi);
     }
 
     public static Kpi jsonToKpi(String kpiString) {
-        GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSZ");
+        GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
         gb.registerTypeAdapter(Timestamp.class, new sqlTimestampConverter());
         Gson gson = gb.create();
         return gson.fromJson(kpiString, Kpi.class);
