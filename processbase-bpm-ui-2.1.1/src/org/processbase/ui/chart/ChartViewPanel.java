@@ -19,26 +19,21 @@ package org.processbase.ui.chart;
 import com.github.wolfie.refresher.Refresher;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import java.awt.Color;
-import java.awt.GradientPaint;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer3D;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 import org.processbase.bam.message.MessageController;
 import org.processbase.ui.portlet.ChartPortlet;
-import org.vaadin.ui.JFreeChartWrapper;
+import org.vaadin.vaadinvisualizations.AreaChart;
+import org.vaadin.vaadinvisualizations.BarChart;
+import org.vaadin.vaadinvisualizations.ColumnChart;
+import org.vaadin.vaadinvisualizations.Gauge;
+import org.vaadin.vaadinvisualizations.LineChart;
+import org.vaadin.vaadinvisualizations.PieChart;
 
 /**
  *
@@ -48,21 +43,33 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
 
     private javax.portlet.PortletPreferences portletPreferences;
     private Refresher ref = new Refresher();
-    private JFreeChart chart;
-    private JFreeChartWrapper chartWrapper;
-    String refreshInterval = null;
-    String sqlText = null;
-    String title = null;
-    String categoryAxisLabel = null;
-    String valueAxisLabel = null;
-    String valueColumn = null;
-    String rowKey = null;
-    String columnKey = null;
-    String orientation = null;
-    String chartType = null;
+    private BarChart barChart;
+    private ColumnChart columnChart;
+    private PieChart pieChart;
+    private LineChart lineChart;
+    private AreaChart areaChart;
+    private Gauge gauge;
+    private String refreshInterval = null;
+    private String sqlText = null;
+    private String title = null;
+    private String legend = null;
+    private String height = null;
+    private String width = null;
+    private String titleX = null;
+    private String titleY = null;
+    private String min = null;
+    private String max = null;
+    private String is3D = null;
+    private String isStacked = null;
+    private String chartType = null;
+    private HashMap<String, Integer> bars = new HashMap<String, Integer>();
+    private HashMap<String, double[]> values2 = new HashMap<String, double[]>();
+    private HashMap<String, Double> values1 = new HashMap<String, Double>();
+    private HashSet<String> labels = new HashSet<String>();
 
     public ChartViewPanel() {
         try {
+            removeAllComponents();
             portletPreferences = ChartPortlet.portletPreferences.get();
             for (String key : portletPreferences.getMap().keySet()) {
                 String[] value = portletPreferences.getMap().get(key);
@@ -72,39 +79,49 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
                     sqlText = value[0];
                 } else if (key.equals("chartType") && value.length > 0) {
                     chartType = value[0];
-                } else if (key.equals("orientation") && value.length > 0) {
-                    orientation = value[0];
-                } else if (key.equals("valueColumn") && value.length > 0) {
-                    valueColumn = value[0];
-                } else if (key.equals("rowKey") && value.length > 0) {
-                    rowKey = value[0];
-                } else if (key.equals("columnKey") && value.length > 0) {
-                    columnKey = value[0];
+                } else if (key.equals("min") && value.length > 0) {
+                    min = value[0];
+                } else if (key.equals("width") && value.length > 0) {
+                    width = value[0];
+                } else if (key.equals("titleX") && value.length > 0) {
+                    titleX = value[0];
+                } else if (key.equals("titleY") && value.length > 0) {
+                    titleY = value[0];
                 } else if (key.equals("title") && value.length > 0) {
                     title = value[0];
-                } else if (key.equals("categoryAxisLabel") && value.length > 0) {
-                    categoryAxisLabel = value[0];
-                } else if (key.equals("valueAxisLabel") && value.length > 0) {
-                    valueAxisLabel = value[0];
+                } else if (key.equals("legend") && value.length > 0) {
+                    legend = value[0];
+                } else if (key.equals("height") && value.length > 0) {
+                    height = value[0];
+                } else if (key.equals("max") && value.length > 0) {
+                    max = value[0];
+                } else if (key.equals("is3D") && value.length > 0) {
+                    is3D = value[0];
+                } else if (key.equals("isStacked") && value.length > 0) {
+                    isStacked = value[0];
                 }
             }
-            chart = ChartViewPanel.createchart(
-                    title,
-                    categoryAxisLabel,
-                    valueAxisLabel,
-                    getCategoryDataset(valueColumn, rowKey, columnKey, sqlText),
-                    orientation);
-            chartWrapper = new JFreeChartWrapper(chart);
-            addComponent(chartWrapper);
-            setMargin(true);
-            setSpacing(true);
-            setWidth("100%");
-            setStyleName(Reindeer.LAYOUT_WHITE);
 
-            if (refreshInterval !=null)
-            ref.setRefreshInterval(Integer.parseInt(refreshInterval)*1000);
-            boolean addListener = ref.addListener((Refresher.RefreshListener)this);
+            if (refreshInterval != null) {
+                ref.setRefreshInterval(Integer.parseInt(refreshInterval) * 1000);
+            }
+            ref.addListener((Refresher.RefreshListener) this);
             addComponent(ref);
+
+            if (chartType.equalsIgnoreCase("BarChart")) {
+                prepareBarChart();
+            } else if (chartType.equalsIgnoreCase("ColumnChart")) {
+                prepareColumnChart();
+            } else if (chartType.equalsIgnoreCase("PieChart")) {
+            } else if (chartType.equalsIgnoreCase("LineChart")) {
+                prepareLineChart();
+            } else if (chartType.equalsIgnoreCase("AreaChart")) {
+                 prepareAreaChart();
+            } else if (chartType.equalsIgnoreCase("Gauge")) {
+            }
+            setMargin(false);
+            setSpacing(true);
+            setStyleName(Reindeer.LAYOUT_WHITE);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -112,79 +129,181 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
     }
 
     public void refresh(Refresher source) {
+        refreshChart();
+    }
+
+    private void refreshChart() {
         try {
-            System.out.println(System.currentTimeMillis());
-            removeComponent(chartWrapper);
-            chart = ChartViewPanel.createchart(title, categoryAxisLabel, valueAxisLabel, getCategoryDataset(valueColumn, rowKey, columnKey, sqlText), orientation);
-            chartWrapper = new JFreeChartWrapper(chart);
-            addComponent(chartWrapper);
-        } catch (SQLException ex) {
-            Logger.getLogger(ChartViewPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+            prepareValues(sqlText);
+            for (String label : labels) {
+                if (chartType.equalsIgnoreCase("BarChart")) {
+                    barChart.remove(label);
+                } else if (chartType.equalsIgnoreCase("ColumnChart")) {
+                    columnChart.remove(label);
+                } else if (chartType.equalsIgnoreCase("PieChart")) {
+                } else if (chartType.equalsIgnoreCase("LineChart")) {
+                    lineChart.remove(label);
+                } else if (chartType.equalsIgnoreCase("AreaChart")) {
+                    areaChart.remove(label);
+                } else if (chartType.equalsIgnoreCase("Gauge")) {
+                }
+            }
+            for (String label : values2.keySet()) {
+                if (chartType.equalsIgnoreCase("BarChart")) {
+                    barChart.add(label, values2.get(label));
+                } else if (chartType.equalsIgnoreCase("ColumnChart")) {
+                    columnChart.add(label, values2.get(label));
+                } else if (chartType.equalsIgnoreCase("PieChart")) {
+                } else if (chartType.equalsIgnoreCase("LineChart")) {
+                    lineChart.add(label, values2.get(label));
+                } else if (chartType.equalsIgnoreCase("AreaChart")) {
+                    areaChart.add(label, values2.get(label));
+                } else if (chartType.equalsIgnoreCase("Gauge")) {
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    public static JFreeChart createchart(
-            String title,
-            String categoryAxisLabel,
-            String valueAxisLabel,
-            CategoryDataset dataset,
-            String orientation) {
+    private void prepareBarChart() {
+        barChart = new BarChart();
+        barChart.setOption("is3D", is3D != null && is3D.equalsIgnoreCase("true") ? true : false);
+        barChart.setOption("isStacked", isStacked != null && isStacked.equalsIgnoreCase("true") ? true : false);
+        barChart.setOption("legend", legend != null ? legend : "bottom");
+        barChart.setOption("title", title != null ? title : " ");
+        barChart.setOption("titleX", titleX != null ? titleX : " ");
+        barChart.setOption("titleY", titleY != null ? titleY : " ");
+        barChart.setOption("height", height != null ? Integer.parseInt(height) : 600);
+        barChart.setOption("width", width != null ? Integer.parseInt(width) : 600);
+        if (min != null && !min.isEmpty()) {
+            barChart.setOption("min", Integer.parseInt(min));
+        }
+        if (max != null && !max.isEmpty()) {
+            barChart.setOption("max", Integer.parseInt(max));
+        }
+        barChart.addXAxisLabel(title != null ? title : UUID.randomUUID().toString());
+        barChart.setOption("is3D", true);
 
-        JFreeChart c = ChartFactory.createBarChart3D(title,
-                categoryAxisLabel, // domain axis label
-                valueAxisLabel, // range axis label
-                dataset, // data
-                orientation.equals("HORIZONTAL") ? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
-                true, // include legend
-                true, // tooltips?
-                false // URLs?
-                );
+        refreshChart();
+        for (String bar : bars.keySet()) {
+            barChart.addBar(bar);
+        }
+        barChart.setSizeFull();
 
-        // set the background color for the chart...
-        c.setBackgroundPaint(Color.white);
-        c.setAntiAlias(true);
-
-        // get a reference to the plot for further customisation...
-        CategoryPlot plot = (CategoryPlot) c.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
-
-
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-        // disable bar outlines...
-        BarRenderer3D renderer = (BarRenderer3D) plot.getRenderer();
-        // renderer.setDrawBarOutline(false);
-
-        // set up gradient paints for series...
-        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.blue, 0.0f, 0.0f, new Color(0, 0, 64));
-        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.green, 0.0f, 0.0f, new Color(0, 64, 0));
-        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.red, 0.0f, 0.0f, new Color(64, 0, 0));
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-
-        CategoryAxis domainAxis = plot.getDomainAxis();
-//        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
-        // OPTIONAL CUSTOMISATION COMPLETED.
-
-        return c;
+        addComponent(barChart);
     }
 
-    public static CategoryDataset getCategoryDataset(String valueColumnName, String rowColumnName, String columnKeyColumnNam, String sql) throws SQLException {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private void prepareColumnChart() {
+        columnChart = new ColumnChart();
+        columnChart.setOption("is3D", is3D != null && is3D.equalsIgnoreCase("true") ? true : false);
+        columnChart.setOption("isStacked", isStacked != null && isStacked.equalsIgnoreCase("true") ? true : false);
+        columnChart.setOption("legend", legend != null ? legend : "bottom");
+        columnChart.setOption("title", title != null ? title : " ");
+        columnChart.setOption("titleX", titleX != null ? titleX : " ");
+        columnChart.setOption("titleY", titleY != null ? titleY : " ");
+        columnChart.setOption("height", height != null ? Integer.parseInt(height) : 600);
+        columnChart.setOption("width", width != null ? Integer.parseInt(width) : 600);
+        if (min != null && !min.isEmpty()) {
+            columnChart.setOption("min", Integer.parseInt(min));
+        }
+        if (max != null && !max.isEmpty()) {
+            columnChart.setOption("max", Integer.parseInt(max));
+        }
+        columnChart.addXAxisLabel(title != null ? title : UUID.randomUUID().toString());
+        columnChart.setOption("is3D", true);
+
+        refreshChart();
+        for (String bar : bars.keySet()) {
+            columnChart.addColumn(bar);
+        }
+        columnChart.setSizeFull();
+
+        addComponent(columnChart);
+    }
+
+    private void prepareLineChart() {
+        lineChart = new LineChart();
+        lineChart.setOption("is3D", is3D != null && is3D.equalsIgnoreCase("true") ? true : false);
+        lineChart.setOption("isStacked", isStacked != null && isStacked.equalsIgnoreCase("true") ? true : false);
+        lineChart.setOption("legend", legend != null ? legend : "bottom");
+        lineChart.setOption("title", title != null ? title : " ");
+        lineChart.setOption("titleX", titleX != null ? titleX : " ");
+        lineChart.setOption("titleY", titleY != null ? titleY : " ");
+        lineChart.setOption("height", height != null ? Integer.parseInt(height) : 600);
+        lineChart.setOption("width", width != null ? Integer.parseInt(width) : 600);
+        if (min != null && !min.isEmpty()) {
+            lineChart.setOption("min", Integer.parseInt(min));
+        }
+        if (max != null && !max.isEmpty()) {
+            lineChart.setOption("max", Integer.parseInt(max));
+        }
+        lineChart.addXAxisLabel(title != null ? title : UUID.randomUUID().toString());
+        lineChart.setOption("is3D", true);
+
+        refreshChart();
+        for (String bar : bars.keySet()) {
+            lineChart.addLine(bar);
+        }
+        lineChart.setSizeFull();
+
+        addComponent(lineChart);
+    }
+
+    private void prepareAreaChart() {
+        areaChart = new AreaChart();
+        areaChart.setOption("is3D", is3D != null && is3D.equalsIgnoreCase("true") ? true : false);
+        areaChart.setOption("isStacked", isStacked != null && isStacked.equalsIgnoreCase("true") ? true : false);
+        areaChart.setOption("legend", legend != null ? legend : "bottom");
+        areaChart.setOption("title", title != null ? title : " ");
+        areaChart.setOption("titleX", titleX != null ? titleX : " ");
+        areaChart.setOption("titleY", titleY != null ? titleY : " ");
+        areaChart.setOption("height", height != null ? Integer.parseInt(height) : 600);
+        areaChart.setOption("width", width != null ? Integer.parseInt(width) : 600);
+        if (min != null && !min.isEmpty()) {
+            areaChart.setOption("min", Integer.parseInt(min));
+        }
+        if (max != null && !max.isEmpty()) {
+            areaChart.setOption("max", Integer.parseInt(max));
+        }
+        areaChart.addXAxisLabel(title != null ? title : UUID.randomUUID().toString());
+        areaChart.setOption("is3D", true);
+
+        refreshChart();
+        for (String bar : bars.keySet()) {
+            areaChart.addArea(bar);
+        }
+        areaChart.setSizeFull();
+
+        addComponent(areaChart);
+    }
+
+    private void prepareValues(String sql) throws SQLException {
         Connection conn = null;
         try {
             conn = MessageController.newConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.execute();
             ResultSet rs = ps.getResultSet();
-            while (rs.next()) {
-                dataset.addValue(rs.getBigDecimal(valueColumnName), rs.getString(rowColumnName), rs.getString(columnKeyColumnNam));
+            values1.clear();
+            values2.clear();
+            bars.clear();
+            labels.clear();
+            if (rs.getMetaData().getColumnCount() == 2) {
+                while (rs.next()) {
+                    values1.put(rs.getString(1), rs.getDouble(2));
+                    labels.add(rs.getString(1));
+                }
+            } else if (rs.getMetaData().getColumnCount() == 3) {
+                while (rs.next()) {
+                    addBar(rs.getString(2));
+                    labels.add(rs.getString(1));
+                }
+                rs.first();
+                addValue2(rs.getString(1), rs.getString(2), rs.getDouble(3));
+                while (rs.next()) {
+                    addValue2(rs.getString(1), rs.getString(2), rs.getDouble(3));
+                }
             }
             ps.close();
         } finally {
@@ -193,6 +312,24 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
             }
 
         }
-        return dataset;
+    }
+
+    private void addBar(String barName) {
+        if (!bars.containsKey(barName)) {
+            bars.put(barName, bars.size());
+        }
+    }
+
+    private void addValue2(String label, String barName, double value) {
+//        System.out.println(label +  " " + barName +" " + value);
+        double[] valuesArray = null;
+        if (!values2.containsKey(label)) {
+            valuesArray = new double[bars.size()];
+        } else {
+            valuesArray = values2.get(label);
+        }
+        valuesArray[bars.get(barName).intValue()] = value;
+        values2.put(label, valuesArray);
+//        System.out.println("values2 = " + values2.size());
     }
 }

@@ -20,10 +20,13 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
+import javax.portlet.PortletModeException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -44,7 +47,6 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
 import org.processbase.ui.chart.ChartConfigurationPanel;
 import org.processbase.ui.chart.ChartViewPanel;
-import org.processbase.ui.template.PbWindow;
 
 /**
  *
@@ -85,6 +87,10 @@ public class ChartPortlet extends Application
         viewPanel = new ChartViewPanel();
     }
 
+    public void recreateChartView(){
+         viewPanel = new ChartViewPanel();
+    }
+
     public void onRequestStart(PortletRequest request, PortletResponse response) {
         portletPreferences.set(request.getPreferences());
         if (getUser() == null) {
@@ -116,12 +122,12 @@ public class ChartPortlet extends Application
     }
 
     public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
-        // Switch the view according to the portlet mode
         if (request.getPortletMode() == PortletMode.EDIT) {
             window.setContent(configPanel);
         } else if (request.getPortletMode() == PortletMode.VIEW) {
             window.setContent(viewPanel);
         }
+
     }
 
     public PortletApplicationContext2 getPortletApplicationContext2() {
@@ -193,5 +199,5 @@ public class ChartPortlet extends Application
 
     public User getPortalUser() {
         return (User) getUser();
-    }
+    }    
 }
