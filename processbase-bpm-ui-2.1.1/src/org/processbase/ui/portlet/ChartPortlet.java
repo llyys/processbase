@@ -84,7 +84,7 @@ public class ChartPortlet extends Application
         setMainWindow(mainWindow);
 
         configPanel = new ChartConfigurationPanel();
-        viewPanel = new ChartViewPanel();
+        recreateChartView();
     }
 
     public void recreateChartView(){

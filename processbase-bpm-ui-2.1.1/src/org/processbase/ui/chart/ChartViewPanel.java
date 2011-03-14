@@ -113,11 +113,13 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
             } else if (chartType.equalsIgnoreCase("ColumnChart")) {
                 prepareColumnChart();
             } else if (chartType.equalsIgnoreCase("PieChart")) {
+                preparePieChart();
             } else if (chartType.equalsIgnoreCase("LineChart")) {
                 prepareLineChart();
             } else if (chartType.equalsIgnoreCase("AreaChart")) {
-                 prepareAreaChart();
+                prepareAreaChart();
             } else if (chartType.equalsIgnoreCase("Gauge")) {
+//                prepareGauge();
             }
             setMargin(false);
             setSpacing(true);
@@ -141,6 +143,7 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
                 } else if (chartType.equalsIgnoreCase("ColumnChart")) {
                     columnChart.remove(label);
                 } else if (chartType.equalsIgnoreCase("PieChart")) {
+                    pieChart.remove(label);
                 } else if (chartType.equalsIgnoreCase("LineChart")) {
                     lineChart.remove(label);
                 } else if (chartType.equalsIgnoreCase("AreaChart")) {
@@ -153,11 +156,15 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
                     barChart.add(label, values2.get(label));
                 } else if (chartType.equalsIgnoreCase("ColumnChart")) {
                     columnChart.add(label, values2.get(label));
-                } else if (chartType.equalsIgnoreCase("PieChart")) {
                 } else if (chartType.equalsIgnoreCase("LineChart")) {
                     lineChart.add(label, values2.get(label));
                 } else if (chartType.equalsIgnoreCase("AreaChart")) {
                     areaChart.add(label, values2.get(label));
+                }
+            }
+            for (String label : values1.keySet()) {
+                if (chartType.equalsIgnoreCase("PieChart")) {
+                    pieChart.add(label, values1.get(label));
                 } else if (chartType.equalsIgnoreCase("Gauge")) {
                 }
             }
@@ -192,6 +199,28 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
         barChart.setSizeFull();
 
         addComponent(barChart);
+    }
+
+    private void preparePieChart() {
+        pieChart = new PieChart();
+        pieChart.setOption("is3D", is3D != null && is3D.equalsIgnoreCase("true") ? true : false);
+        pieChart.setOption("isStacked", isStacked != null && isStacked.equalsIgnoreCase("true") ? true : false);
+        pieChart.setOption("legend", legend != null ? legend : "bottom");
+        pieChart.setOption("title", title != null ? title : " ");
+        pieChart.setOption("titleX", titleX != null ? titleX : " ");
+        pieChart.setOption("titleY", titleY != null ? titleY : " ");
+        pieChart.setOption("height", height != null ? Integer.parseInt(height) : 600);
+        pieChart.setOption("width", width != null ? Integer.parseInt(width) : 600);
+        if (min != null && !min.isEmpty()) {
+            pieChart.setOption("min", Integer.parseInt(min));
+        }
+        if (max != null && !max.isEmpty()) {
+            pieChart.setOption("max", Integer.parseInt(max));
+        }
+        pieChart.setOption("is3D", true);
+        refreshChart();
+        pieChart.setSizeFull();
+        addComponent(pieChart);
     }
 
     private void prepareColumnChart() {
