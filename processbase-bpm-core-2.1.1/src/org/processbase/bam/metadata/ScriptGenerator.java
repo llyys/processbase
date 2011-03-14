@@ -95,6 +95,20 @@ public class ScriptGenerator {
             kpiDay.setValue(kpiDayVal);
             addIndex(kpiDay);
 
+            Column kpiHour = new Column("KPI_HOUR");
+            SimpleValue kpiHourVal = new SimpleValue(table);
+            kpiHourVal.setTypeName(TypeFactory.basic("short").getName());
+            kpiHour.setLength(4);
+            kpiHour.setValue(kpiHourVal);
+            addIndex(kpiHour);
+
+            Column kpiMinute = new Column("KPI_MINUTE");
+            SimpleValue kpiMinuteVal = new SimpleValue(table);
+            kpiMinuteVal.setTypeName(TypeFactory.basic("short").getName());
+            kpiMinute.setLength(4);
+            kpiMinute.setValue(kpiMinuteVal);
+            addIndex(kpiMinute);
+
             Column kpiDayOfWeek = new Column("KPI_DAY_OF_WEEK");
             SimpleValue kpiDayOfWeekVal = new SimpleValue(table);
             kpiDayOfWeekVal.setTypeName(TypeFactory.basic("short").getName());
@@ -187,6 +201,8 @@ public class ScriptGenerator {
             table.addColumn(kpiWeek);
             table.addColumn(kpiDay);
             table.addColumn(kpiDayOfWeek);
+            table.addColumn(kpiHour);
+            table.addColumn(kpiMinute);
             table.addColumn(serverId);
             table.addColumn(eventId);
             table.addColumn(eventName);

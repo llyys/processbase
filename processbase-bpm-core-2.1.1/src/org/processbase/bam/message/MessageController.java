@@ -59,6 +59,7 @@ public class MessageController {
     static private class sqlTimestampConverter implements JsonSerializer<Timestamp> {
 
         static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+
         public JsonElement serialize(Timestamp t, Type type, JsonSerializationContext jsc) {
             return new JsonPrimitive(sdf.format(t));
         }
@@ -134,7 +135,7 @@ public class MessageController {
                 values.add(kpi.getServerID());
             }
             if (kpi.getTimeStamp() != null) {
-                sqlScript.append("KPI_TIMESTAMP, KPI_YEAR, KPI_QUATER, KPI_MONTH, KPI_WEEK, KPI_DAY, KPI_DAY_OF_WEEK, ");
+                sqlScript.append("KPI_TIMESTAMP, KPI_YEAR, KPI_QUATER, KPI_MONTH, KPI_WEEK, KPI_DAY, KPI_DAY_OF_WEEK, KPI_HOUR, KPI_MINUTE, ");
                 values.add(kpi.getTimeStamp());
                 Calendar calendar = new GregorianCalendar();
                 calendar.setTimeInMillis(kpi.getTimeStamp().getTime());
@@ -144,7 +145,9 @@ public class MessageController {
                 values.add(calendar.get(Calendar.MONTH) + 1);
                 values.add(calendar.get(Calendar.WEEK_OF_YEAR));
                 values.add(calendar.get(Calendar.DAY_OF_MONTH));
-                values.add(calendar.get(Calendar.DAY_OF_WEEK ) - 1);
+                values.add(calendar.get(Calendar.DAY_OF_WEEK) - 1);
+                values.add(calendar.get(Calendar.HOUR) + (calendar.get(Calendar.AM_PM) == Calendar.PM ? 12 : 0));
+                values.add(calendar.get(Calendar.MINUTE));
             }
             if (kpi.getEventID() != null) {
                 sqlScript.append("EVENT_ID,");
@@ -204,8 +207,8 @@ public class MessageController {
 
             sqlScript.append("?)");
             conn = newConnection();
-            
-            PreparedStatement ps  =  conn.prepareStatement("SELECT PB_SEQUENCE.NEXTVAL from Dual");
+
+            PreparedStatement ps = conn.prepareStatement("SELECT PB_SEQUENCE.NEXTVAL from Dual");
             ps.execute();
             ps.getResultSet().next();
             Integer sequenceNextVal = ps.getResultSet().getInt(1);
