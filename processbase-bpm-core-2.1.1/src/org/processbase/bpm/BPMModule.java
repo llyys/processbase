@@ -821,9 +821,8 @@ public class BPMModule {
         identityAPI.removeMembershipsFromUser(userUUID, membershipUUIDs);
     }
 
-    private void test(ProcessInstanceUUID piuuid) throws Exception {
+    public Membership getMembershipForRoleAndGroup(String roleUUID, String groupUUID) throws Exception {
         initContext();
-//        queryDefinitionAPI.
-//        bamAPI.
+        return identityAPI.getMembershipForRoleAndGroup(roleUUID, groupUUID);
     }
 }
