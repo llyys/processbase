@@ -60,11 +60,8 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
-
             layout.addComponent(table);
-
             refreshTable();
-
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -92,7 +89,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
         table.setSelectable(false);
         table.setImmediate(true);
         table.setWidth("100%");
-        table.setPageLength(10);
+        table.setPageLength(15);
     }
 
     public void refreshTable() {

@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.identity;
 
-import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Alignment;
@@ -31,6 +30,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -69,6 +69,7 @@ public class UserWindow extends PbWindow
     private PasswordField password = new PasswordField(PbPortlet.getCurrent().messages.getString("password"));
     private Table tableMembership = new Table();
     private Table tableMetadata = new Table();
+    private ArrayList<String> deletedMembership = new ArrayList<String>();
 
     public UserWindow(User user) {
         super(user == null ? PbPortlet.getCurrent().messages.getString("newUser") : PbPortlet.getCurrent().messages.getString("user"));
@@ -178,15 +179,38 @@ public class UserWindow extends PbWindow
                             user.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
                 }
+                saveUserMembership();
                 close();
             } else if (event.getButton().equals(addBtn)) {
                 addTableMembershipRow(null);
             } else if (event.getButton().equals(closeBtn)) {
                 close();
+            } else if (event.getButton() instanceof TableLinkButton) {
+                TableLinkButton tlb = (TableLinkButton) event.getButton();
+                if (tabSheet.getSelectedTab().equals(userMembership)) {
+                    String uuid = (String) tlb.getTableValue();
+                    tableMembership.removeItem(uuid);
+                    if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
+                        deletedMembership.add(uuid);
+                    }
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+        }
+    }
+
+    private void saveUserMembership() throws Exception {
+        for (String muuid : deletedMembership){
+            PbPortlet.getCurrent().bpmModule.removeMembershipFromUser(user.getUUID(), muuid);
+        }
+        for (Object itemId : tableMembership.getItemIds()) {
+            Item woItem = tableMembership.getItem(itemId);
+            ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
+            ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
+            Membership membership = PbPortlet.getCurrent().bpmModule.getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
+            PbPortlet.getCurrent().bpmModule.addMembershipToUser(user.getUUID(), membership.getUUID());
         }
     }
 
@@ -196,7 +220,7 @@ public class UserWindow extends PbWindow
         tableMembership.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
         tableMembership.setImmediate(true);
         tableMembership.setWidth("100%");
-        tableMembership.setPageLength(7);
+        tableMembership.setPageLength(10);
     }
 
     private void refreshTableMembership() {
@@ -210,7 +234,7 @@ public class UserWindow extends PbWindow
     }
 
     private void addTableMembershipRow(Membership membership) throws Exception {
-        String uuid = membership != null ? membership.getUUID() : UUID.randomUUID().toString();
+        String uuid = membership != null ? membership.getUUID() : "NEW_MEMBERSHIP_UUID_" + UUID.randomUUID().toString();
         Item woItem = tableMembership.addItem(uuid);
 
         ComboBox groups = new ComboBox();
@@ -225,11 +249,11 @@ public class UserWindow extends PbWindow
         roles.setItemCaptionPropertyId("name");
         roles.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
         roles.setValue(membership != null ? membership.getRole().getUUID() : null);
+
         woItem.getItemProperty("group").setValue(groups);
         woItem.getItemProperty("role").setValue(roles);
         TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
-
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
