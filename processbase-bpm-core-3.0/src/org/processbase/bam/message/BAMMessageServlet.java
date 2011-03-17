@@ -7,17 +7,11 @@ package org.processbase.bam.message;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.processbase.core.Constants;
 
 /**
@@ -49,23 +43,15 @@ public class BAMMessageServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         response.setContentType("text/html;charset=UTF-8");
         try {
-            boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+            boolean isMultipart = request.getParts().size() > 0;
 //            System.out.println("isMultipart = " + isMultipart);
             if (isMultipart) {
-                FileItemFactory factory = new DiskFileItemFactory();
-                ServletFileUpload upload = new ServletFileUpload(factory);
-                List items = upload.parseRequest(request);
-                Iterator iter = items.iterator();
-//                System.out.println("--------------------------------------- 1 ");
-                while (iter.hasNext()) {
-                    FileItem item = (FileItem) iter.next();
-                    if (item.isFormField()) {if (item.getFieldName().equals("body")){
-                            body = item.getString();
-                        } else if (item.getFieldName().equals("type")){
-                            type = item.getString();
-                        }
-                    }
-                }
+                byte[] b1 = new byte[Integer.parseInt(Long.valueOf(request.getPart("body").getSize()).toString())];
+                request.getPart("body").getInputStream().read(b1);
+                body = new String (b1);
+                byte[] b2 = new byte[Integer.parseInt(Long.valueOf(request.getPart("type").getSize()).toString())];
+                request.getPart("type").getInputStream().read(b2);
+                type = new String (b2);
             } else {
                 type = request.getParameter("type").toString();
                 body = request.getParameter("body").toString();
