@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0" xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
     <portlet>
-        <portlet-name>UserPortlet</portlet-name>
-        <display-name>UserPortlet</display-name>
+        <portlet-name>ConsolePortlet</portlet-name>
+        <display-name>ConsolePortlet</display-name>
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
         <init-param>
             <name>application</name>
-            <value>org.processbase.ui.portlet.UserPortlet</value>
+            <value>org.processbase.ui.portlet.PbPortlet</value>
+        </init-param>
+        <init-param>
+            <name>ui</name>
+            <value>ConsolePanel</value>
         </init-param>
         <init-param>
             <name>widgetset</name>
@@ -15,12 +19,10 @@
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
-            <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
-            <title>UserPortlet</title>
-            <short-title>UserPortlet</short-title>
+            <title>ConsolePortlet</title>
+            <short-title>ConsolePortlet</short-title>
         </portlet-info>
     </portlet>
     <portlet>
@@ -29,7 +31,11 @@
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
         <init-param>
             <name>application</name>
-            <value>org.processbase.ui.portlet.AdminPortlet</value>
+            <value>org.processbase.ui.portlet.PbPortlet</value>
+        </init-param>
+        <init-param>
+            <name>ui</name>
+            <value>AdminPanel</value>
         </init-param>
         <init-param>
             <name>widgetset</name>
@@ -38,8 +44,6 @@
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
-            <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
             <title>AdminPortlet</title>
@@ -52,7 +56,11 @@
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
         <init-param>
             <name>application</name>
-            <value>org.processbase.ui.portlet.IdentityPortlet</value>
+            <value>org.processbase.ui.portlet.PbPortlet</value>
+        </init-param>
+        <init-param>
+            <name>ui</name>
+            <value>IdentityPanel</value>
         </init-param>
         <init-param>
             <name>widgetset</name>
@@ -61,8 +69,6 @@
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
-            <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
             <title>IdentityPortlet</title>
@@ -70,12 +76,16 @@
         </portlet-info>
     </portlet>
     <portlet>
-        <portlet-name>DashboardPortlet</portlet-name>
-        <display-name>DashboardPortlet</display-name>
+        <portlet-name>MonitoringPortlet</portlet-name>
+        <display-name>MonitoringPortlet</display-name>
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
         <init-param>
             <name>application</name>
-            <value>org.processbase.ui.portlet.DashboardPortlet</value>
+            <value>org.processbase.ui.portlet.PbPortlet</value>
+        </init-param>
+        <init-param>
+            <name>ui</name>
+            <value>MonitoringPanel</value>
         </init-param>
         <init-param>
             <name>widgetset</name>
@@ -84,12 +94,10 @@
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
-            <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
-            <title>DashboardPortlet</title>
-            <short-title>DashboardPortlet</short-title>
+            <title>MonitoringPortlet</title>
+            <short-title>MonitoringPortlet</short-title>
         </portlet-info>
     </portlet>
     <portlet>
@@ -98,7 +106,11 @@
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
         <init-param>
             <name>application</name>
-            <value>org.processbase.ui.portlet.BAMPortlet</value>
+            <value>org.processbase.ui.portlet.PbPortlet</value>
+        </init-param>
+        <init-param>
+            <name>ui</name>
+            <value>BAMPanel</value>
         </init-param>
         <init-param>
             <name>widgetset</name>
@@ -107,8 +119,6 @@
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
-            <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
             <title>BAMPortlet</title>
@@ -131,7 +141,6 @@
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
             <portlet-mode>edit</portlet-mode>
-            <portlet-mode>help</portlet-mode>
         </supports>
         <portlet-info>
             <title>ChartPortlet</title>

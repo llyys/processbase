@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <liferay-portlet-app>
     <portlet>
-        <portlet-name>UserPortlet</portlet-name>
+        <portlet-name>ConsolePortlet</portlet-name>
         <instanceable>true</instanceable>
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
@@ -19,7 +19,7 @@
         <private-session-attributes>false</private-session-attributes>
     </portlet>
     <portlet>
-        <portlet-name>DashboardPortlet</portlet-name>
+        <portlet-name>MonitoringPortlet</portlet-name>
         <instanceable>true</instanceable>
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>

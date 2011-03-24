@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <display>
     <category name="PROCESSBASE">
-        <portlet id="UserPortlet" />
+        <portlet id="ConsolePortlet" />
         <portlet id="AdminPortlet" />
         <portlet id="IdentityPortlet" />
-        <portlet id="DashboardPortlet" />
+        <portlet id="MonitoringPortlet" />
         <portlet id="BAMPortlet" />
         <portlet id="ChartPortlet" />
     </category>
