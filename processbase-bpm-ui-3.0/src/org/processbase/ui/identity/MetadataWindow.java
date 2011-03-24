@@ -24,7 +24,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 
@@ -36,13 +36,13 @@ public class MetadataWindow extends PbWindow implements ClickListener {
 
     private ProfileMetadata metadata = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField metadataName = new TextField(PbPortlet.getCurrent().messages.getString("metadataName"));
-    private TextField metadataLabel = new TextField(PbPortlet.getCurrent().messages.getString("metadataLabel"));
+    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
+    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
+    private TextField metadataName = new TextField(Processbase.getCurrent().messages.getString("metadataName"));
+    private TextField metadataLabel = new TextField(Processbase.getCurrent().messages.getString("metadataLabel"));
 
     public MetadataWindow(ProfileMetadata metadata) {
-        super(metadata == null ? PbPortlet.getCurrent().messages.getString("newMetadata") : PbPortlet.getCurrent().messages.getString("metadata"));
+        super(metadata == null ? Processbase.getCurrent().messages.getString("newMetadata") : Processbase.getCurrent().messages.getString("metadata"));
         this.metadata = metadata;
     }
 
@@ -86,9 +86,9 @@ public class MetadataWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (metadata == null) {
-                    PbPortlet.getCurrent().bpmModule.addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
+                    Processbase.getCurrent().bpmModule.addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
                 } else {
-                    PbPortlet.getCurrent().bpmModule.updateProfileMetadataByUUID(metadata.getUUID(), metadataName.getValue().toString(), metadataLabel.getValue().toString());
+                    Processbase.getCurrent().bpmModule.updateProfileMetadataByUUID(metadata.getUUID(), metadataName.getValue().toString(), metadataLabel.getValue().toString());
                 }
                 close();
             } else {

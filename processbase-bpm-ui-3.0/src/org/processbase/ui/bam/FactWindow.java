@@ -29,7 +29,7 @@ import com.vaadin.ui.themes.Reindeer;
 import java.util.Iterator;
 import org.processbase.bam.metadata.HibernateUtil;
 import org.processbase.bam.metadata.MetaFact;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 
@@ -42,14 +42,14 @@ public class FactWindow extends PbWindow
 
     private MetaFact metaFact = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(PbPortlet.getCurrent().messages.getString("btnClose"), this);
-    private Button saveBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField code = new TextField(PbPortlet.getCurrent().messages.getString("code"));
-    private TextField name = new TextField(PbPortlet.getCurrent().messages.getString("name"));
+    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
+    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
+    private TextField code = new TextField(Processbase.getCurrent().messages.getString("code"));
+    private TextField name = new TextField(Processbase.getCurrent().messages.getString("name"));
 
     public FactWindow(MetaFact metaFact) {
-        super(metaFact == null ? PbPortlet.getCurrent().messages.getString("newFact")
-                : PbPortlet.getCurrent().messages.getString("fact") + metaFact.getCode());
+        super(metaFact == null ? Processbase.getCurrent().messages.getString("newFact")
+                : Processbase.getCurrent().messages.getString("fact") + metaFact.getCode());
         this.metaFact = metaFact;
     }
 
@@ -64,7 +64,7 @@ public class FactWindow extends PbWindow
             code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", Processbase.getCurrent().messages.getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("265px");
             name.setMaxLength(500);
@@ -107,7 +107,7 @@ public class FactWindow extends PbWindow
                 if (hutil.getMetaFactByCode(metaFact.getCode()).isEmpty()) {
                     hutil.addMetaFact(metaFact);
                 } else {
-                    throw new Exception(PbPortlet.getCurrent().messages.getString("uniqueFactCode"));
+                    throw new Exception(Processbase.getCurrent().messages.getString("uniqueFactCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

@@ -27,7 +27,7 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.GroovyException;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -49,9 +49,9 @@ public class GeneratedValidator implements Validator {
         try {
             if (!isValid(value)) {
                 if (task != null) {
-                    throw new InvalidValueException((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), task, true));
+                    throw new InvalidValueException((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), task, true));
                 } else {
-                    throw new InvalidValueException((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), processDef.getUUID()));
+                    throw new InvalidValueException((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getValidatorLabel(), processDef.getUUID()));
                 }
             }
         } catch (InstanceNotFoundException ex) {
@@ -92,6 +92,6 @@ public class GeneratedValidator implements Validator {
             validator = new RegexFieldValidator(widgets.getValidatorParameter());
         }
         FormFieldValue ffv = new FormFieldValue((Serializable) value, null);
-        return validator.validate(ffv, PbPortlet.getCurrent().getLocale());
+        return validator.validate(ffv, Processbase.getCurrent().getLocale());
     }
 }

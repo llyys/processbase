@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.TableLinkButton;
 
 /**
@@ -81,11 +81,11 @@ public class GeneratedTable extends Table
             if (widgets.getType().equals("form:DynamicTable") && !widgets.getReadOnly()) {
                 setEditable(true);
                 if (widgets.getAllowAddRemoveRow()) {
-                    setColumnFooter(columnHeaders.get(0), PbPortlet.getCurrent().messages.getString("addRow"));
+                    setColumnFooter(columnHeaders.get(0), Processbase.getCurrent().messages.getString("addRow"));
                     setFooterVisible(true);
                     addListener((Table.FooterClickListener) this);
-                    columnHeaders.add(PbPortlet.getCurrent().messages.getString("tableCaptionActions"));
-                    addContainerProperty(PbPortlet.getCurrent().messages.getString("tableCaptionActions"), TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
+                    columnHeaders.add(Processbase.getCurrent().messages.getString("tableCaptionActions"));
+                    addContainerProperty(Processbase.getCurrent().messages.getString("tableCaptionActions"), TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
                 }
             }
             setVisibleColumns(columnHeaders.toArray());
@@ -102,9 +102,9 @@ public class GeneratedTable extends Table
                     if (widgets.getType().equals("form:Table")) {
                         woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
                     } else if (widgets.getType().equals("form:DynamicTable")) {
-                        if (columnHeaders.get(i).equals(PbPortlet.getCurrent().messages.getString("tableCaptionActions"))) {
-                            TableLinkButton execBtn = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                            woItem.getItemProperty(PbPortlet.getCurrent().messages.getString("tableCaptionActions")).setValue(execBtn);
+                        if (columnHeaders.get(i).equals(Processbase.getCurrent().messages.getString("tableCaptionActions"))) {
+                            TableLinkButton execBtn = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                            woItem.getItemProperty(Processbase.getCurrent().messages.getString("tableCaptionActions")).setValue(execBtn);
                         } else {
                             woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
                         }
@@ -141,53 +141,53 @@ public class GeneratedTable extends Table
 
     private void preparedForTask() throws Exception {
         if (widgets.getMaxRowForPagination() != null) {
-            setPageLength(Integer.valueOf((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
+            setPageLength(Integer.valueOf((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
         } else {
             setPageLength(5);
         }
         if (widgets.getColumnForInitialSelectionIndex() != null) {
-            indexColumn = Integer.valueOf((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
+            indexColumn = Integer.valueOf((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
         }
         if (widgets.getInputWidth() != null) {
             setWidth(widgets.getInputWidth());
         }
         if (widgets.getHorizontalHeader() != null) {
-            columnHeaders.addAll((Collection<? extends String>) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getHorizontalHeader(), task, true));
+            columnHeaders.addAll((Collection<? extends String>) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getHorizontalHeader(), task, true));
         }
         if (widgets.getVerticalHeader() != null) {
-            rowHeaders.addAll((Collection<? extends String>) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getVerticalHeader(), task, true));
+            rowHeaders.addAll((Collection<? extends String>) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getVerticalHeader(), task, true));
         }
         if (widgets.getInputScript() != null) {
-            Collection v = (Collection) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getInputScript(), task, true);
+            Collection v = (Collection) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getInputScript(), task, true);
             values.addAll(v != null ? v : new ArrayList());
         }
         if (widgets.getSelectedValues() != null) {
-            Collection sv = (Collection) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getSelectedValues(), task, true);
+            Collection sv = (Collection) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getSelectedValues(), task, true);
             selectedValues.addAll(sv != null ? sv : new ArrayList());
         }
     }
 
     private void preparedForNewProcess() throws Exception {
         if (widgets.getMaxRowForPagination() != null) {
-            setPageLength(Integer.valueOf((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
+            setPageLength(Integer.valueOf((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
         } else {
             setPageLength(5);
         }
         if (widgets.getColumnForInitialSelectionIndex() != null) {
-            indexColumn = Integer.valueOf((String) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
+            indexColumn = Integer.valueOf((String) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
         }
         if (widgets.getInputWidth() != null) {
             setWidth(widgets.getInputWidth());
         }
         if (widgets.getHorizontalHeader() != null) {
-            columnHeaders.addAll((Collection<? extends String>) PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getHorizontalHeader(), processDef.getUUID()));
+            columnHeaders.addAll((Collection<? extends String>) Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getHorizontalHeader(), processDef.getUUID()));
         }
         if (widgets.getInputScript() != null) {
-            Object v = PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getInputScript(), processDef.getUUID());
+            Object v = Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getInputScript(), processDef.getUUID());
             values = v != null ? (List<List>) v : new ArrayList<List>();
         }
         if (widgets.getSelectedValues() != null) {
-            Object sv = PbPortlet.getCurrent().bpmModule.evaluateExpression(widgets.getSelectedValues(), processDef.getUUID());
+            Object sv = Processbase.getCurrent().bpmModule.evaluateExpression(widgets.getSelectedValues(), processDef.getUUID());
             selectedValues = sv != null ? (List) sv : new ArrayList();
         }
     }
@@ -196,9 +196,9 @@ public class GeneratedTable extends Table
         Object id = Math.random();
         Item woItem = addItem(id);
         for (int i = 0; i < columnHeaders.size(); i++) {
-            if (columnHeaders.get(i).equals(PbPortlet.getCurrent().messages.getString("tableCaptionActions"))) {
-                TableLinkButton execBtn = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                woItem.getItemProperty(PbPortlet.getCurrent().messages.getString("tableCaptionActions")).setValue(execBtn);
+            if (columnHeaders.get(i).equals(Processbase.getCurrent().messages.getString("tableCaptionActions"))) {
+                TableLinkButton execBtn = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                woItem.getItemProperty(Processbase.getCurrent().messages.getString("tableCaptionActions")).setValue(execBtn);
             } else {
                 woItem.getItemProperty(columnHeaders.get(i)).setValue("");
             }

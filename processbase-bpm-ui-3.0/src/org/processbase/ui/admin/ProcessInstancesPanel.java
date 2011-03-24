@@ -26,7 +26,7 @@ import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -45,17 +45,17 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("startedDate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("startedDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startedDate", new PbColumnGenerator());
         table.setColumnWidth("startedDate", 100);
-        table.addContainerProperty("lastUpdate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastUpdate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 100);
-        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("state", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setVisibleColumns(new Object[]{"name", "version", "startedDate", "lastUpdate", "state"});
 
@@ -67,9 +67,9 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
             table.removeAllItems();
             Set<LightProcessInstance> pis = null;
             if (filter != null){
-                pis = PbPortlet.getCurrent().bpmModule.getLightProcessInstances(filter);
+                pis = Processbase.getCurrent().bpmModule.getLightProcessInstances(filter);
             } else {
-                pis = PbPortlet.getCurrent().bpmModule.getLightProcessInstances();
+                pis = Processbase.getCurrent().bpmModule.getLightProcessInstances();
             }
             for (LightProcessInstance pi : pis) {
                 Item woItem = table.addItem(pi);

@@ -20,75 +20,82 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.EventRequest;
-import javax.portlet.EventResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-import org.processbase.core.Constants;
+
 import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2.PortletListener;
 import com.vaadin.terminal.gwt.server.PortletRequestListener;
-import com.vaadin.ui.Window;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import javax.portlet.PortletSession;
+import javax.portlet.PortletConfig;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.util.DocumentLibraryUtil;
-
+import org.processbase.core.Constants;
+import org.processbase.ui.Processbase;
+import org.processbase.ui.panel.AdminPanel;
+import org.processbase.ui.panel.BAMPanel;
+import org.processbase.ui.panel.ConsolePanel;
+import org.processbase.ui.panel.IdentityPanel;
+import org.processbase.ui.panel.MonitoringPanel;
+import org.processbase.ui.template.PbWindow;
 /**
  *
  * @author mgubaidullin
  */
-public abstract class PbPortlet
-        extends Application
-        implements PortletListener, PortletRequestListener, TransactionListener {
+public class PbPortlet extends Application implements PortletRequestListener {
 
-    private static ThreadLocal<PbPortlet> currentPortlet = new ThreadLocal<PbPortlet>();
-    public PortletApplicationContext2 portletApplicationContext2;
-    public PortletSession portletSession;
-    public BPMModule bpmModule = null;
-    public ResourceBundle messages = null;
-    public DocumentLibraryUtil documentLibraryUtil = null;
-    
+    PbWindow mainWindow;
+
     @Override
     public void init() {
 //        System.out.println("PbPortlet init ");
-        setCurrent(this);
-        if (!Constants.LOADED) {
-            Constants.loadConstants();
-        }
-        messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
-        bpmModule = new BPMModule(getPortalUser().getScreenName());
-        documentLibraryUtil = new DocumentLibraryUtil(getPortalUser());
-
-        portletApplicationContext2 = (PortletApplicationContext2) getContext();
-        portletSession = portletApplicationContext2.getPortletSession();
-        portletApplicationContext2.addPortletListener((Application) this, (PortletListener) this);
-
         setTheme("processbase");
         setLogoutURL(Constants.TASKLIST_PAGE_URL);
-
-        if (getContext() != null) {
-            getContext().addTransactionListener(this);
+        Processbase.getCurrent().portletApplicationContext2 = (PortletApplicationContext2) getContext();
+//        Processbase.getCurrent().portletApplicationContext2.addPortletListener((Application) this, (PortletListener) this);
+        PortletConfig config = Processbase.getCurrent().portletApplicationContext2.getPortletConfig();
+        mainWindow = new PbWindow("Processbase User Portlet");
+        mainWindow.setSizeFull();
+        if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")){
+            ConsolePanel ui = new ConsolePanel();
+            mainWindow.setContent(ui);
+            ui.initUI();
+        } else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")){
+            AdminPanel ui = new AdminPanel();
+            mainWindow.setContent(ui);
+            ui.initUI();
+        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")){
+            IdentityPanel ui = new IdentityPanel();
+            mainWindow.setContent(ui);
+            ui.initUI();
+        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")){
+            BAMPanel ui = new BAMPanel();
+            mainWindow.setContent(ui);
+            ui.initUI();
+        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")){
+            MonitoringPanel ui = new MonitoringPanel();
+            mainWindow.setContent(ui);
+            ui.initUI();
         }
-
+        setMainWindow(mainWindow);
     }
 
     public void onRequestStart(PortletRequest request, PortletResponse response) {
-        if (getUser() == null) {
+//        System.out.println("PbPortlet onRequestStart ");
+        if (Processbase.getCurrent() == null) {
             try {
+                Processbase.setCurrent(new Processbase());
                 User user = PortalUtil.getUser(request);
-                setUser(user);
+                Processbase.getCurrent().setPortalUser(user);
                 Locale locale = request.getLocale();
                 setLocale(locale);
+                Processbase.getCurrent().messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
+                Processbase.getCurrent().bpmModule = new BPMModule(Processbase.getCurrent().getPortalUser().getScreenName());
+                Processbase.getCurrent().documentLibraryUtil = new DocumentLibraryUtil(Processbase.getCurrent().getPortalUser());
+                Processbase.getCurrent().setPortletSession(request.getPortletSession());
+                
             } catch (PortalException e) {
                 e.printStackTrace();
             } catch (SystemException e) {
@@ -98,102 +105,6 @@ public abstract class PbPortlet
     }
 
     public void onRequestEnd(PortletRequest request, PortletResponse response) {
-//        System.out.println("PORTLET onRequestEnd ");
-    }
-
-    public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
-//        System.out.println("PORTLET handleRenderRequest ");
-        if (portletSession.getAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE) == null) {
-            portletSession.setAttribute("PROCESSBASE_PORTLET_CREATED", "PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
-        }
-    }
-
-    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
-//        System.out.println("PORTLET handleActionRequest ");
-    }
-
-    public void handleEventRequest(EventRequest request, EventResponse response, Window window) {
-//        System.out.println("PORTLET handleEventRequest ");
-    }
-
-    public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
-//        System.out.println("PORTLET handleResourceRequest ");
-    }
-
-    public PortletApplicationContext2 getPortletApplicationContext2() {
-        return this.portletApplicationContext2;
-    }
-
-    public static SystemMessages getSystemMessages() {
-        CustomizedSystemMessages m = new CustomizedSystemMessages();
-        m.setSessionExpiredURL(null);
-        m.setSessionExpiredNotificationEnabled(true);
-        m.setSessionExpiredCaption(null);
-        m.setSessionExpiredMessage("Session expired!");
-        m.setCommunicationErrorCaption(null);
-//        m.setCommunicationErrorMessage("Ошибка соединения!");
-        m.setOutOfSyncCaption(null);
-        m.setInternalErrorCaption(null);
-        m.setInternalErrorMessage("Internal error!");
-        return m;
-    }
-
-    @Override
-    public void close() {
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
-        super.close();
-    }
-
-    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
-        this.portletApplicationContext2 = portletApplicationContext2;
-    }
-
-    public void setPortletSession(PortletSession portletSession) {
-        this.portletSession = portletSession;
-    }
-
-    /**
-     * @return the current application instance
-     */
-    public static PbPortlet getCurrent() {
-        return currentPortlet.get();
-    }
-
-    /**
-     * Set the current application instance
-     */
-    public static void setCurrent(PbPortlet application) {
-        if (getCurrent() == null) {
-            currentPortlet.set(application);
-        }
-    }
-
-    /**
-     * Remove the current application instance
-     */
-    public static void removeCurrent() {
-        currentPortlet.remove();
-    }
-
-    /**
-     * TransactionListener
-     */
-    public void transactionStart(Application application, Object transactionData) {
-        if (application == this) {
-            PbPortlet.setCurrent(this);
-            // Store current users locale
-            setLocale(getLocale());
-        }
-    }
-
-    public void transactionEnd(Application application, Object transactionData) {
-        if (application == this) {
-            // Remove locale from the executing thread
-            removeCurrent();
-        }
-    }
-
-    public User getPortalUser() {
-        return (User) getUser();
+        
     }
 }

@@ -25,7 +25,7 @@ import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ConfirmDialog;
 
 /**
@@ -44,10 +44,10 @@ public class MetadataPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionName"), null, null);
-        table.addContainerProperty("label", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionName"), null, null);
+        table.addContainerProperty("label", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionLabel"), null, null);
         table.setColumnExpandRatio("label", 1);
-        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -55,14 +55,14 @@ public class MetadataPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<ProfileMetadata> metadatas = PbPortlet.getCurrent().bpmModule.getAllProfileMetadata();
+            List<ProfileMetadata> metadatas = Processbase.getCurrent().bpmModule.getAllProfileMetadata();
 
             for (ProfileMetadata metadata : metadatas) {
                 Item woItem = table.addItem(metadata);
                 TableLinkButton teb = new TableLinkButton(metadata.getName(), "", null, metadata, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(metadata.getLabel());
-                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
@@ -98,17 +98,17 @@ public class MetadataPanel extends TablePanel implements
     }
 
     private void removeMetadata(final ProfileMetadata metadata) {
-        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
-                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                PbPortlet.getCurrent().messages.getString("removeMetadata") + "?",
-                PbPortlet.getCurrent().messages.getString("btnYes"),
-                PbPortlet.getCurrent().messages.getString("btnNo"),
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                Processbase.getCurrent().messages.getString("removeMetadata") + "?",
+                Processbase.getCurrent().messages.getString("btnYes"),
+                Processbase.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                PbPortlet.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
+                                Processbase.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
                                 table.removeItem(metadata);
                             } catch (Exception ex) {
                                 ex.printStackTrace();

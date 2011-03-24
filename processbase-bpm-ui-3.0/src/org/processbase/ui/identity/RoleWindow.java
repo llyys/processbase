@@ -25,7 +25,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.facade.identity.Role;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 
@@ -37,14 +37,14 @@ public class RoleWindow extends PbWindow implements ClickListener {
 
     private Role role = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField roleName = new TextField(PbPortlet.getCurrent().messages.getString("roleName"));
-    private TextField roleLabel = new TextField(PbPortlet.getCurrent().messages.getString("roleLabel"));
-    private TextArea roleDescription = new TextArea(PbPortlet.getCurrent().messages.getString("roleDescription"));
+    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
+    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
+    private TextField roleName = new TextField(Processbase.getCurrent().messages.getString("roleName"));
+    private TextField roleLabel = new TextField(Processbase.getCurrent().messages.getString("roleLabel"));
+    private TextArea roleDescription = new TextArea(Processbase.getCurrent().messages.getString("roleDescription"));
 
     public RoleWindow(Role role) {
-        super(role == null ? PbPortlet.getCurrent().messages.getString("newRole") : PbPortlet.getCurrent().messages.getString("role"));
+        super(role == null ? Processbase.getCurrent().messages.getString("newRole") : Processbase.getCurrent().messages.getString("role"));
         this.role = role;
     }
 
@@ -91,9 +91,9 @@ public class RoleWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (role == null) {
-                    PbPortlet.getCurrent().bpmModule.addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                    Processbase.getCurrent().bpmModule.addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
                 } else {
-                    PbPortlet.getCurrent().bpmModule.updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                    Processbase.getCurrent().bpmModule.updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
                 }
                 close();
             } else {

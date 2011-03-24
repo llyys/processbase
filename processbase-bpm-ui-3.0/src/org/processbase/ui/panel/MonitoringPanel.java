@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.portlet;
+package org.processbase.ui.panel;
 
-import com.liferay.portal.model.User;
+import org.processbase.ui.Processbase;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
-import java.util.Locale;
-import javax.portlet.PortletSession;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 import com.vaadin.ui.Alignment;
@@ -39,11 +37,9 @@ import org.processbase.ui.template.DashboardPanel;
  *
  * @author mgubaidullin
  */
-public class DashboardPortlet extends PbPortlet
+public class MonitoringPanel extends VerticalLayout
         implements Button.ClickListener, Window.CloseListener {
 
-    private PbWindow dashboardWindow;
-    private VerticalLayout mainLayout = new VerticalLayout();
     private ButtonBar buttonBar = new ButtonBar();
     private DashboardPerformerTaskPanel dashboardPerformerTaskPanel;
     private DashboardProcessesPanel dashboardProcessesPanel;
@@ -54,29 +50,15 @@ public class DashboardPortlet extends PbPortlet
     private Button dashboardProcessBtn = null;
     private HashMap<Button, DashboardPanel> panels = new HashMap<Button, DashboardPanel>();
 
-    @Override
-    public void init() {
-        super.init();
-        this.setTheme("processbase");
-        prepareMainWindow();
-    }
-
-    private void prepareMainWindow() {
-
-        mainLayout.setMargin(false);
-
-        dashboardWindow = new PbWindow("Dashboard Portlet");
-        dashboardWindow.setContent(mainLayout);
-        dashboardWindow.setSizeFull();
-
-        this.setMainWindow(dashboardWindow);
+   public void initUI() {
+        setMargin(false);
 
         prepareButtonBar();
-        mainLayout.addComponent(buttonBar, 0);
+        addComponent(buttonBar, 0);
 
         dashboardProcessesPanel = new DashboardProcessesPanel();
         panels.put(dashboardProcessBtn, dashboardProcessesPanel);
-        mainLayout.addComponent(dashboardProcessesPanel, 1);
+        addComponent(dashboardProcessesPanel, 1);
         dashboardProcessesPanel.refresh();
 
         dashboardPerformerTaskPanel = new DashboardPerformerTaskPanel();
@@ -88,26 +70,26 @@ public class DashboardPortlet extends PbPortlet
     }
 
     private void setCurrentPanel(DashboardPanel dashboardPanel) {
-        mainLayout.replaceComponent(mainLayout.getComponent(1), dashboardPanel);
+        replaceComponent(getComponent(1), dashboardPanel);
         dashboardPanel.refresh();
     }
 
     private void prepareButtonBar() {
         // prepare dashboardProcessBtn button
-        dashboardProcessBtn = new Button(this.messages.getString("startedProcesses"), this);
+        dashboardProcessBtn = new Button(Processbase.getCurrent().messages.getString("startedProcesses"), this);
         dashboardProcessBtn.setStyleName("special");
         dashboardProcessBtn.setEnabled(false);
         buttonBar.addComponent(dashboardProcessBtn, 0);
         buttonBar.setComponentAlignment(dashboardProcessBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardPerformersBtn button
-        dashboardPerformersBtn = new Button(this.messages.getString("taskByPerformers"), this);
+        dashboardPerformersBtn = new Button(Processbase.getCurrent().messages.getString("taskByPerformers"), this);
         dashboardPerformersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardPerformersBtn, 1);
         buttonBar.setComponentAlignment(dashboardPerformersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardUsersBtn button
-        dashboardUsersBtn = new Button(this.messages.getString("taskByUser"), this);
+        dashboardUsersBtn = new Button(Processbase.getCurrent().messages.getString("taskByUser"), this);
         dashboardUsersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardUsersBtn, 2);
         buttonBar.setComponentAlignment(dashboardUsersBtn, Alignment.MIDDLE_LEFT);
@@ -119,7 +101,7 @@ public class DashboardPortlet extends PbPortlet
 
 
         // prepare refresh button
-        refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
@@ -130,18 +112,10 @@ public class DashboardPortlet extends PbPortlet
         buttonBar.setSpacing(true);
     }
 
-    public User getCurrentUser() {
-        return ((User) portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE));
-    }
-
-    public Locale getCurrentLocale() {
-        return (Locale) portletApplicationContext2.getPortletSession().getAttribute("org.apache.struts.action.LOCALE", PortletSession.APPLICATION_SCOPE);
-    }
-
     public void buttonClick(ClickEvent event) {
         DashboardPanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
-            ((DashboardPanel) mainLayout.getComponent(1)).refresh();
+            ((DashboardPanel) getComponent(1)).refresh();
         } else {
             activateButtons();
             event.getButton().setStyleName("special");
@@ -161,6 +135,6 @@ public class DashboardPortlet extends PbPortlet
     }
 
     public void windowClose(CloseEvent e) {
-        ((DashboardPanel) mainLayout.getComponent(1)).refresh();
+        ((DashboardPanel) getComponent(1)).refresh();
     }
 }

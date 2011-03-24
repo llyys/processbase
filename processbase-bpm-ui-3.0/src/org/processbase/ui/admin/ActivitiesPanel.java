@@ -25,7 +25,7 @@ import org.processbase.ui.template.PbColumnGenerator;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightActivityInstance;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -42,7 +42,7 @@ public class ActivitiesPanel extends TablePanel {
         try {
             this.processInstanceUUID = processInstanceUUID;
 //            this.processDefinition = bpmModule.getProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
-            this.activities = PbPortlet.getCurrent().bpmModule.getActivityInstances(processInstanceUUID);
+            this.activities = Processbase.getCurrent().bpmModule.getActivityInstances(processInstanceUUID);
 //            this.buttonBar.setVisible(false);
             initTableUI();
         } catch (Exception ex) {
@@ -52,20 +52,20 @@ public class ActivitiesPanel extends TablePanel {
 
     @Override
     public void initTableUI() {
-        table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionTask"), null, null);
-        table.addContainerProperty("type", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionTask"), null, null);
-        table.addContainerProperty("createdDate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionCreatedDate"), null, null);
+        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("type", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("createdDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
         table.setColumnWidth("createdDate", 100);
-        table.addContainerProperty("startdeDate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("startdeDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startdeDate", new PbColumnGenerator());
         table.setColumnWidth("startdeDate", 100);
-        table.addContainerProperty("endDate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionFinishedDate"), null, null);
+        table.addContainerProperty("endDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
         table.setColumnWidth("endDate", 100);
-        table.addContainerProperty("candidates", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionCandidates"), null, null);
-        table.addContainerProperty("taskuser", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionTaskUser"), null, null);
-        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("candidates", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionCandidates"), null, null);
+        table.addContainerProperty("taskuser", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionTaskUser"), null, null);
+        table.addContainerProperty("state", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setPageLength(5);
     }
@@ -78,11 +78,11 @@ public class ActivitiesPanel extends TablePanel {
                 if (lai.isAutomatic() || lai.isTask()) {
                     Item woItem = table.addItem(lai);
                     woItem.getItemProperty("name").setValue(lai.getActivityLabel());
-                    woItem.getItemProperty("type").setValue(lai.isTask() ? PbPortlet.getCurrent().messages.getString("task") : PbPortlet.getCurrent().messages.getString("automatic"));
+                    woItem.getItemProperty("type").setValue(lai.isTask() ? Processbase.getCurrent().messages.getString("task") : Processbase.getCurrent().messages.getString("automatic"));
                     woItem.getItemProperty("createdDate").setValue(lai.getReadyDate());
                     woItem.getItemProperty("startdeDate").setValue(lai.getStartedDate());
                     woItem.getItemProperty("endDate").setValue(lai.getEndedDate());
-                    woItem.getItemProperty("state").setValue(PbPortlet.getCurrent().messages.getString(lai.getState().toString()));
+                    woItem.getItemProperty("state").setValue(Processbase.getCurrent().messages.getString(lai.getState().toString()));
                     if (lai.isTask()) {
                         woItem.getItemProperty("candidates").setValue(lai.getTask().getTaskCandidates());
                         woItem.getItemProperty("taskuser").setValue(lai.getTask().getTaskUser());

@@ -26,7 +26,7 @@ import org.processbase.bam.metadata.MetaDim;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ConfirmDialog;
 
 /**
@@ -45,13 +45,13 @@ public class DimensionsPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("id", String.class, null, PbPortlet.getCurrent().messages.getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, Processbase.getCurrent().messages.getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, PbPortlet.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, PbPortlet.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("valueType", String.class, null, PbPortlet.getCurrent().messages.getString("valueType"), null, null);
-        table.addContainerProperty("length", String.class, null, PbPortlet.getCurrent().messages.getString("length"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, Processbase.getCurrent().messages.getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("name"), null, null);
+        table.addContainerProperty("valueType", String.class, null, Processbase.getCurrent().messages.getString("valueType"), null, null);
+        table.addContainerProperty("length", String.class, null, Processbase.getCurrent().messages.getString("length"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -71,7 +71,7 @@ public class DimensionsPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaDim.getName());
                 woItem.getItemProperty("valueType").setValue(metaDim.getValueType());
                 woItem.getItemProperty("length").setValue(metaDim.getValueLength());
-                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -106,11 +106,11 @@ public class DimensionsPanel extends TablePanel implements
     }
 
     private void removeMetaDim(final MetaDim metaDim) {
-        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
-                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                PbPortlet.getCurrent().messages.getString("removeDimension") + "?",
-                PbPortlet.getCurrent().messages.getString("btnYes"),
-                PbPortlet.getCurrent().messages.getString("btnNo"),
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                Processbase.getCurrent().messages.getString("removeDimension") + "?",
+                Processbase.getCurrent().messages.getString("btnYes"),
+                Processbase.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

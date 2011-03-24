@@ -55,7 +55,7 @@ import org.processbase.bpm.forms.XMLActionDefinition;
 import org.processbase.bpm.forms.XMLFormDefinition;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.HumanTaskWindow;
 import org.processbase.ui.template.ImmediateUpload;
 import org.processbase.ui.template.LongValidator;
@@ -257,7 +257,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             component.setReadOnly(widgets.getReadOnly() != null ? widgets.getReadOnly() : false);
             if (component instanceof AbstractField) {
                 ((AbstractField) component).setRequired(widgets.getMandatory() != null ? widgets.getMandatory() : false);
-                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + PbPortlet.getCurrent().messages.getString("fieldRequired"));
+                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + Processbase.getCurrent().messages.getString("fieldRequired"));
                 ((AbstractField) component).setDescription(widgets.getTooltip() != null ? widgets.getTooltip() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
@@ -278,11 +278,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + PbPortlet.getCurrent().messages.getString("validatorDoubleError")));
+                    + Processbase.getCurrent().messages.getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + PbPortlet.getCurrent().messages.getString("validatorIntegerError")));
+                    + Processbase.getCurrent().messages.getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -309,11 +309,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + PbPortlet.getCurrent().messages.getString("validatorDoubleError")));
+                    + Processbase.getCurrent().messages.getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + PbPortlet.getCurrent().messages.getString("validatorIntegerError")));
+                    + Processbase.getCurrent().messages.getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -406,12 +406,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     setProcessVariables();
                     executeButtonActions(getWidgets(btn));
                     if (taskInstance == null) {
-                        ProcessInstanceUUID piUUID = PbPortlet.getCurrent().bpmModule.startNewProcess(processDefinition.getUUID(), processInstanceVariables);
+                        ProcessInstanceUUID piUUID = Processbase.getCurrent().bpmModule.startNewProcess(processDefinition.getUUID(), processInstanceVariables);
                         if (hasAttachments) {
                             saveAttachments(piUUID.toString());
                         }
                     } else {
-                        PbPortlet.getCurrent().bpmModule.finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables);
+                        Processbase.getCurrent().bpmModule.finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables);
                         if (hasAttachments) {
                             saveAttachments(taskInstance.getProcessInstanceUUID().toString());
                         }
@@ -501,7 +501,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if (widgets.getType().equals("form:FileWidget")) {
                     try {
                         ImmediateUpload ui = (ImmediateUpload) comp;
-                        PbPortlet.getCurrent().documentLibraryUtil.addFile(PbPortlet.getCurrent().getPortalUser(), processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
+                        Processbase.getCurrent().documentLibraryUtil.addFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
                     } catch (PortalException ex) {
                         Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
                     } catch (SystemException ex) {
@@ -515,9 +515,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private void prepareAttachments() {
         if (taskInstance != null) {
             try {
-                processFiles = PbPortlet.getCurrent().documentLibraryUtil.getProcessFiles(
-                        PbPortlet.getCurrent().getPortalUser(),
-                        taskInstance.getProcessInstanceUUID().toString());
+                processFiles = Processbase.getCurrent().documentLibraryUtil.getProcessFiles(taskInstance.getProcessInstanceUUID().toString());
             } catch (SystemException ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
@@ -561,9 +559,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             }
         }
         if (taskInstance != null) {
-            groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
+            groovyScripts = Processbase.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
         } else if (taskInstance == null) {
-            groovyScripts = PbPortlet.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
+            groovyScripts = Processbase.getCurrent().bpmModule.evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
         }
     }
 
@@ -577,13 +575,13 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         for (XMLActionDefinition action : button.getActions()) {
             if (taskInstance != null) {
                 if (processDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    processInstanceVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), taskInstance, true));
+                    processInstanceVariables.put(action.getSetVarScript(), Processbase.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), taskInstance, true));
                 } else if (activityDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    activityInstanceVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), taskInstance, true));
+                    activityInstanceVariables.put(action.getSetVarScript(), Processbase.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), taskInstance, true));
                 }
             } else {
                 if (processDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    processInstanceVariables.put(action.getSetVarScript(), PbPortlet.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), processDefinition.getUUID()));
+                    processInstanceVariables.put(action.getSetVarScript(), Processbase.getCurrent().bpmModule.evaluateExpression(action.getExprScript(), processDefinition.getUUID()));
 
                 }
             }

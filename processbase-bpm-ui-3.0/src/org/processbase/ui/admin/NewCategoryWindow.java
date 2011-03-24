@@ -24,7 +24,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.facade.runtime.Category;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 
@@ -35,12 +35,12 @@ import org.processbase.ui.template.PbWindow;
 public class NewCategoryWindow extends PbWindow implements ClickListener {
 
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField categoryName = new TextField(PbPortlet.getCurrent().messages.getString("categoryName"));
+    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
+    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
+    private TextField categoryName = new TextField(Processbase.getCurrent().messages.getString("categoryName"));
 
     public NewCategoryWindow() {
-        super(PbPortlet.getCurrent().messages.getString("newCategory"));
+        super(Processbase.getCurrent().messages.getString("newCategory"));
     }
 
     public void exec() {
@@ -75,7 +75,7 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                PbPortlet.getCurrent().bpmModule.addCategory(categoryName.getValue().toString(), "", "", "");
+                Processbase.getCurrent().bpmModule.addCategory(categoryName.getValue().toString(), "", "", "");
                 close();
             } else {
                 close();

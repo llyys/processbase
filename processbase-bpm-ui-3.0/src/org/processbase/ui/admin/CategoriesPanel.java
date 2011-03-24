@@ -25,7 +25,7 @@ import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.runtime.Category;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -44,9 +44,9 @@ public class CategoriesPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionCategory"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionCategory"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("uuid", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionUUID"), null, null);
+        table.addContainerProperty("uuid", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionUUID"), null, null);
 //        table.setColumnWidth("uuid", 50);
 //        table.addContainerProperty("deployedBy", String.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
 //        table.addContainerProperty("deployedDate", Date.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
@@ -58,7 +58,7 @@ public class CategoriesPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<Category> categories = PbPortlet.getCurrent().bpmModule.getAllCategories();
+            Set<Category> categories = Processbase.getCurrent().bpmModule.getAllCategories();
 
             for (Category category : categories) {
                 Item woItem = table.addItem(category);

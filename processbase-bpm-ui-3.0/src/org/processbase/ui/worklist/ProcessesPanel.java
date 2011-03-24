@@ -27,7 +27,7 @@ import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.core.Constants;
 import org.processbase.ui.admin.ProcessInstanceWindow;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -44,14 +44,14 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("lastUpdate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastUpdate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 100);
-        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("state", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setVisibleColumns(new Object[]{"name", "version", "lastUpdate", "state"});
         
@@ -61,7 +61,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Set<LightProcessInstance> processInstances = PbPortlet.getCurrent().bpmModule.getLightUserInstances();
+            Set<LightProcessInstance> processInstances = Processbase.getCurrent().bpmModule.getLightUserInstances();
             for (LightProcessInstance process : processInstances) {
                 Item woItem = table.addItem(process);
                 String pdUUID = process.getProcessDefinitionUUID().toString();
@@ -69,7 +69,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
                 woItem.getItemProperty("lastUpdate").setValue(process.getLastUpdate());
-                woItem.getItemProperty("state").setValue(PbPortlet.getCurrent().messages.getString(process.getInstanceState().toString()));
+                woItem.getItemProperty("state").setValue(Processbase.getCurrent().messages.getString(process.getInstanceState().toString()));
             }
              this.rowCount = processInstances.size();
         } catch (Exception ex) {

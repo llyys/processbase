@@ -19,7 +19,7 @@ package org.processbase.ui.template;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -57,7 +57,7 @@ public class PbWindow extends Window {
         } else {
             desc.append("<br/> null");
         }
-        showNotification(PbPortlet.getCurrent().messages.getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
+        showNotification(Processbase.getCurrent().messages.getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
 
     }
 
@@ -74,13 +74,13 @@ public class PbWindow extends Window {
         }
         switch (type) {
             case Notification.TYPE_WARNING_MESSAGE:
-                showNotification(PbPortlet.getCurrent().messages.getString("warningCaption"), desc.substring(0), type);
+                showNotification(Processbase.getCurrent().messages.getString("warningCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_HUMANIZED_MESSAGE:
-                showNotification(PbPortlet.getCurrent().messages.getString("informationCaption"), desc.substring(0), type);
+                showNotification(Processbase.getCurrent().messages.getString("informationCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_ERROR_MESSAGE:
-                showNotification(PbPortlet.getCurrent().messages.getString("exceptionCaption"), desc.substring(0), type);
+                showNotification(Processbase.getCurrent().messages.getString("exceptionCaption"), desc.substring(0), type);
                 break;
         }
     }

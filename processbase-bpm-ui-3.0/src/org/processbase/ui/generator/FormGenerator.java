@@ -19,7 +19,7 @@ package org.processbase.ui.generator;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.forms.XMLProcessDefinition;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -34,7 +34,7 @@ public class FormGenerator {
             XMLProcessDefinition xmlProcess
             ) throws Exception {
         genWindow = new GeneratedWindow(task.getActivityLabel());
-        genWindow.setTask(PbPortlet.getCurrent().bpmModule.getTaskInstance(task.getUUID()));
+        genWindow.setTask(Processbase.getCurrent().bpmModule.getTaskInstance(task.getUUID()));
         genWindow.setXMLProcess(xmlProcess);
         genWindow.initUI();
     }

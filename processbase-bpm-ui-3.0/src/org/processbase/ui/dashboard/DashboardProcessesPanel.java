@@ -35,7 +35,7 @@ import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.DashboardPanel;
 
 /**
@@ -61,12 +61,12 @@ public class DashboardProcessesPanel extends DashboardPanel {
             midnight.set(Calendar.SECOND, 0);
             midnight.set(Calendar.MILLISECOND, 0);
 
-            Set<ProcessDefinition> pds = PbPortlet.getCurrent().bpmModule.getProcessDefinitions();
+            Set<ProcessDefinition> pds = Processbase.getCurrent().bpmModule.getProcessDefinitions();
             ArrayList<Double> processAll = new ArrayList<Double>(pds.size());
             ArrayList<Double> processToday = new ArrayList<Double>(pds.size());
             ArrayList<String> processNames = new ArrayList<String>(pds.size());
             for (ProcessDefinition pd : pds) {
-                Set<LightProcessInstance> pis = PbPortlet.getCurrent().bpmModule.getLightProcessInstances(pd.getUUID());
+                Set<LightProcessInstance> pis = Processbase.getCurrent().bpmModule.getLightProcessInstances(pd.getUUID());
                 double countAll = 0;
                 double countToday = 0;
                 for (LightProcessInstance pi : pis) {
@@ -103,7 +103,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
     private InvientCharts createchart(ArrayList<String> processNames, ArrayList<XYSeries> xySeries) {
 
         InvientChartsConfig chartConfig = new InvientChartsConfig();
-        chartConfig.getTitle().setText(PbPortlet.getCurrent().messages.getString("startedProcesses"));
+        chartConfig.getTitle().setText(Processbase.getCurrent().messages.getString("startedProcesses"));
         chartConfig.getSubtitle().setText("Source: PROCESSBASSE BPMS");
 
         CategoryAxis xAxis = new CategoryAxis();
@@ -117,7 +117,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
 
         NumberYAxis yAxis = new NumberYAxis();
         yAxis.setAllowDecimals(false);
-        yAxis.setTitle(new AxisTitle(PbPortlet.getCurrent().messages.getString("processCount")));
+        yAxis.setTitle(new AxisTitle(Processbase.getCurrent().messages.getString("processCount")));
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
         chartConfig.setYAxes(yAxesSet);

@@ -26,7 +26,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.ByteArraySource;
 import org.processbase.ui.template.PbWindow;
@@ -40,10 +40,10 @@ public class ProcessInstanceWindow extends PbWindow implements  Button.ClickList
 
     private LightProcessInstance process;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(PbPortlet.getCurrent().messages.getString("btnClose"), this);
-    private Button refreshBtn = new Button(PbPortlet.getCurrent().messages.getString("btnRefresh"), this);
-    private Button deleteBtn = new Button(PbPortlet.getCurrent().messages.getString("btnDelete"), this);
-    private Button cancelBtn = new Button(PbPortlet.getCurrent().messages.getString("btnCancel"), this);
+    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
+    private Button refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+    private Button deleteBtn = new Button(Processbase.getCurrent().messages.getString("btnDelete"), this);
+    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
     private ActivitiesPanel activitiesPanel;
     private Embedded processImage = null;
     private VerticalSplitPanel layout = new VerticalSplitPanel();
@@ -58,7 +58,7 @@ public class ProcessInstanceWindow extends PbWindow implements  Button.ClickList
 
     public void exec() {
         try {
-            ByteArraySource bas = new ByteArraySource(PbPortlet.getCurrent().bpmModule.getProcessDiagramm(process));
+            ByteArraySource bas = new ByteArraySource(Processbase.getCurrent().bpmModule.getProcessDiagramm(process));
             StreamResource imageResource = new StreamResource(bas, "processInstance.png", this.getApplication());
             imageResource.setCacheTime(1000);
             processImage = new Embedded("", imageResource);
@@ -100,7 +100,7 @@ public class ProcessInstanceWindow extends PbWindow implements  Button.ClickList
 
             setContent(layout);
             String pdUUID = process.getProcessDefinitionUUID().toString();
-            setCaption(PbPortlet.getCurrent().messages.getString("ProcessActivities") 
+            setCaption(Processbase.getCurrent().messages.getString("ProcessActivities")
                     + " \"" + pdUUID.split("--")[0] + " " + pdUUID.split("--")[1] + " \"");
             setWidth("90%");
             setHeight("95%");
@@ -130,18 +130,18 @@ public class ProcessInstanceWindow extends PbWindow implements  Button.ClickList
     }
 
     private void delete() {
-        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
-                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                PbPortlet.getCurrent().messages.getString("questionDeleteProcessInstance"),
-                PbPortlet.getCurrent().messages.getString("btnYes"),
-                PbPortlet.getCurrent().messages.getString("btnNo"),
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                Processbase.getCurrent().messages.getString("questionDeleteProcessInstance"),
+                Processbase.getCurrent().messages.getString("btnYes"),
+                Processbase.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                PbPortlet.getCurrent().bpmModule.deleteProcessInstance(process.getProcessInstanceUUID());
-                                showInformation(PbPortlet.getCurrent().messages.getString("executedSuccessfully"));
+                                Processbase.getCurrent().bpmModule.deleteProcessInstance(process.getProcessInstanceUUID());
+                                showInformation(Processbase.getCurrent().messages.getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
@@ -152,18 +152,18 @@ public class ProcessInstanceWindow extends PbWindow implements  Button.ClickList
     }
 
     private void cancel() {
-        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
-                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                PbPortlet.getCurrent().messages.getString("questionCancelProcessInstance"),
-                PbPortlet.getCurrent().messages.getString("btnYes"),
-                PbPortlet.getCurrent().messages.getString("btnNo"),
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                Processbase.getCurrent().messages.getString("questionCancelProcessInstance"),
+                Processbase.getCurrent().messages.getString("btnYes"),
+                Processbase.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                PbPortlet.getCurrent().bpmModule.cancelProcessInstance(process.getProcessInstanceUUID());
-                                showInformation(PbPortlet.getCurrent().messages.getString("executedSuccessfully"));
+                                Processbase.getCurrent().bpmModule.cancelProcessInstance(process.getProcessInstanceUUID());
+                                showInformation(Processbase.getCurrent().messages.getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();

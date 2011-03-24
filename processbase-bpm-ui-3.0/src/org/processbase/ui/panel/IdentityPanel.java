@@ -14,27 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.portlet;
+package org.processbase.ui.panel;
 
-import com.liferay.portal.model.User;
+import org.processbase.ui.Processbase;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
-import java.util.Locale;
-import javax.portlet.PortletSession;
-import org.processbase.ui.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.template.ButtonBar;
-import org.processbase.ui.template.PbWindow;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import org.processbase.ui.template.TablePanel;
-import org.processbase.ui.admin.CategoriesPanel;
-import org.processbase.ui.admin.NewCategoryWindow;
-import org.processbase.ui.admin.NewProcessDefinitionWindow;
 import org.processbase.ui.identity.GroupWindow;
 import org.processbase.ui.identity.GroupsPanel;
 import org.processbase.ui.identity.MetadataPanel;
@@ -51,11 +44,9 @@ import org.processbase.ui.template.WorkPanel;
  *
  * @author mgubaidullin
  */
-public class IdentityPortlet extends PbPortlet
+public class IdentityPanel extends VerticalLayout
         implements Button.ClickListener, Window.CloseListener {
 
-    private PbWindow identityWindow;
-    private VerticalLayout mainLayout = new VerticalLayout();
     private ButtonBar buttonBar = new ButtonBar();
     private UsersPanel usersPanel;
     private RolesPanel rolesPanel;
@@ -70,29 +61,15 @@ public class IdentityPortlet extends PbPortlet
     private Button syncBtn = null;
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
-    @Override
-    public void init() {
-        super.init();
-        this.setTheme("processbase");
-        prepareMainWindow();
-    }
-
-    private void prepareMainWindow() {
-
-        mainLayout.setMargin(false);
-
-        identityWindow = new PbWindow("Processbase Identity Portlet");
-        identityWindow.setContent(mainLayout);
-        identityWindow.setSizeFull();
-
-        this.setMainWindow(identityWindow);
+    public void initUI() {
+        setMargin(false);
 
         prepareButtonBar();
-        mainLayout.addComponent(buttonBar, 0);
+        addComponent(buttonBar, 0);
 
         usersPanel = new UsersPanel();
         panels.put(usersBtn, usersPanel);
-        mainLayout.addComponent(usersPanel, 1);
+        addComponent(usersPanel, 1);
         usersPanel.refreshTable();
 
         rolesPanel = new RolesPanel();
@@ -106,7 +83,7 @@ public class IdentityPortlet extends PbPortlet
     }
 
     private void setCurrentPanel(WorkPanel workPanel) {
-        mainLayout.replaceComponent(mainLayout.getComponent(1), workPanel);
+        replaceComponent(getComponent(1), workPanel);
         if (workPanel instanceof TablePanel) {
             ((TablePanel) workPanel).refreshTable();
         } else if (workPanel instanceof TreeTablePanel) {
@@ -116,26 +93,26 @@ public class IdentityPortlet extends PbPortlet
 
     private void prepareButtonBar() {
         // prepare usersBtn button
-        usersBtn = new Button(this.messages.getString("usersBtn"), this);
+        usersBtn = new Button(Processbase.getCurrent().messages.getString("usersBtn"), this);
         usersBtn.setStyleName("special");
         usersBtn.setEnabled(false);
         buttonBar.addComponent(usersBtn, 0);
         buttonBar.setComponentAlignment(usersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare rolesBtn button
-        rolesBtn = new Button(this.messages.getString("rolesBtn"), this);
+        rolesBtn = new Button(Processbase.getCurrent().messages.getString("rolesBtn"), this);
         rolesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(rolesBtn, 1);
         buttonBar.setComponentAlignment(rolesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare groupsBtn button
-        groupsBtn = new Button(this.messages.getString("groupsBtn"), this);
+        groupsBtn = new Button(Processbase.getCurrent().messages.getString("groupsBtn"), this);
         groupsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(groupsBtn, 2);
         buttonBar.setComponentAlignment(groupsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare metadataBtn button
-        metadataBtn = new Button(this.messages.getString("metadataBtn"), this);
+        metadataBtn = new Button(Processbase.getCurrent().messages.getString("metadataBtn"), this);
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(metadataBtn, 3);
         buttonBar.setComponentAlignment(metadataBtn, Alignment.MIDDLE_LEFT);
@@ -146,18 +123,18 @@ public class IdentityPortlet extends PbPortlet
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare refresh button
-        refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(this.messages.getString("btnAdd"), this);
+        btnAdd = new Button(Processbase.getCurrent().messages.getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare sync button
-        syncBtn = new Button(this.messages.getString("syncBtn"), this);
-        syncBtn.setDescription(this.messages.getString("syncBtnDescription"));
+        syncBtn = new Button(Processbase.getCurrent().messages.getString("syncBtn"), this);
+        syncBtn.setDescription(Processbase.getCurrent().messages.getString("syncBtnDescription"));
         buttonBar.addComponent(syncBtn, 6);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
 
@@ -169,20 +146,12 @@ public class IdentityPortlet extends PbPortlet
         buttonBar.setSpacing(true);
     }
 
-    public User getCurrentUser() {
-        return ((User) portletApplicationContext2.getPortletSession().getAttribute("PROCESSBASE_USER", PortletSession.APPLICATION_SCOPE));
-    }
-
-    public Locale getCurrentLocale() {
-        return (Locale) portletApplicationContext2.getPortletSession().getAttribute("org.apache.struts.action.LOCALE", PortletSession.APPLICATION_SCOPE);
-    }
-
     public void buttonClick(ClickEvent event) {
         WorkPanel panel = panels.get(event.getButton());
-        if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TablePanel)) {
-            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
-        } else if (event.getButton().equals(refreshBtn) && (mainLayout.getComponent(1) instanceof TreeTablePanel)) {
-            ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
+        if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TablePanel)) {
+            ((TablePanel) getComponent(1)).refreshTable();
+        } else if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TreeTablePanel)) {
+            ((TreeTablePanel) getComponent(1)).refreshTable();
         } else if (event.getButton().equals(syncBtn)) {
             synchronizeIdentity();
         } else if (event.getButton().equals(btnAdd)) {
@@ -192,10 +161,10 @@ public class IdentityPortlet extends PbPortlet
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
-            if (mainLayout.getComponent(1) instanceof TablePanel) {
-                ((TablePanel) mainLayout.getComponent(1)).refreshTable();
-            } else if (mainLayout.getComponent(1) instanceof TreeTablePanel) {
-                ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
+            if (getComponent(1) instanceof TablePanel) {
+                ((TablePanel) getComponent(1)).refreshTable();
+            } else if (getComponent(1) instanceof TreeTablePanel) {
+                ((TreeTablePanel) getComponent(1)).refreshTable();
             }
             if (!event.getButton().equals(usersBtn)) {
                 syncBtn.setVisible(false);
@@ -217,43 +186,43 @@ public class IdentityPortlet extends PbPortlet
     }
 
     public void windowClose(CloseEvent e) {
-        if (mainLayout.getComponent(1) instanceof TablePanel) {
-            ((TablePanel) mainLayout.getComponent(1)).refreshTable();
-        } else if (mainLayout.getComponent(1) instanceof TreeTablePanel) {
-            ((TreeTablePanel) mainLayout.getComponent(1)).refreshTable();
+        if (getComponent(1) instanceof TablePanel) {
+            ((TablePanel) getComponent(1)).refreshTable();
+        } else if (getComponent(1) instanceof TreeTablePanel) {
+            ((TreeTablePanel) getComponent(1)).refreshTable();
         }
     }
 
     private void synchronizeIdentity() {
-        if (mainLayout.getComponent(1) instanceof UsersPanel) {
+        if (getComponent(1) instanceof UsersPanel) {
             SyncUsersWindow ncw = new SyncUsersWindow();
             ncw.exec();
             ncw.addListener((Window.CloseListener) this);
-            getMainWindow().addWindow(ncw);
+            getApplication().getMainWindow().addWindow(ncw);
         }
     }
 
     private void addIdentity() {
-        if (mainLayout.getComponent(1) instanceof UsersPanel) {
+        if (getComponent(1) instanceof UsersPanel) {
             UserWindow nuw = new UserWindow(null);
             nuw.exec();
             nuw.addListener((Window.CloseListener) this);
-            getMainWindow().addWindow(nuw);
-        } else if (mainLayout.getComponent(1) instanceof RolesPanel) {
+            getApplication().getMainWindow().addWindow(nuw);
+        } else if (getComponent(1) instanceof RolesPanel) {
             RoleWindow nrw = new RoleWindow(null);
             nrw.exec();
             nrw.addListener((Window.CloseListener) this);
-            getMainWindow().addWindow(nrw);
-        } else if (mainLayout.getComponent(1) instanceof GroupsPanel) {
+            getApplication().getMainWindow().addWindow(nrw);
+        } else if (getComponent(1) instanceof GroupsPanel) {
             GroupWindow rgw = new GroupWindow(null);
             rgw.exec();
             rgw.addListener((Window.CloseListener) this);
-            getMainWindow().addWindow(rgw);
-        } else if (mainLayout.getComponent(1) instanceof MetadataPanel) {
+            getApplication().getMainWindow().addWindow(rgw);
+        } else if (getComponent(1) instanceof MetadataPanel) {
             MetadataWindow nmw = new MetadataWindow(null);
             nmw.exec();
             nmw.addListener((Window.CloseListener) this);
-            getMainWindow().addWindow(nmw);
+            getApplication().getMainWindow().addWindow(nmw);
         }
     }
 }

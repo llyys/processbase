@@ -26,7 +26,7 @@ import org.processbase.bam.metadata.MetaKpi;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ConfirmDialog;
 
 /**
@@ -45,14 +45,14 @@ public class KPIsPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("id", String.class, null, PbPortlet.getCurrent().messages.getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, Processbase.getCurrent().messages.getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, PbPortlet.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("description", String.class, null, PbPortlet.getCurrent().messages.getString("description"), null, null);
-        table.addContainerProperty("owner", String.class, null, PbPortlet.getCurrent().messages.getString("owner"), null, null);
-        table.addContainerProperty("status", String.class, null, PbPortlet.getCurrent().messages.getString("State"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, Processbase.getCurrent().messages.getString("code"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("name"), null, null);
+        table.addContainerProperty("description", String.class, null, Processbase.getCurrent().messages.getString("description"), null, null);
+        table.addContainerProperty("owner", String.class, null, Processbase.getCurrent().messages.getString("owner"), null, null);
+        table.addContainerProperty("status", String.class, null, Processbase.getCurrent().messages.getString("State"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -74,7 +74,7 @@ public class KPIsPanel extends TablePanel implements
                 woItem.getItemProperty("description").setValue(metaKpi.getDescription());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                  woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(PbPortlet.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
                 tlb.setEnabled(metaKpi.getStatus().equals("EDITABLE"));
                 woItem.getItemProperty("actions").setValue(tlb);
             }
@@ -110,11 +110,11 @@ public class KPIsPanel extends TablePanel implements
     }
 
     private void removeMetaKpi(final MetaKpi metaKpi) {
-        ConfirmDialog.show(PbPortlet.getCurrent().getMainWindow(),
-                PbPortlet.getCurrent().messages.getString("windowCaptionConfirm"),
-                PbPortlet.getCurrent().messages.getString("removeKPI") + "?",
-                PbPortlet.getCurrent().messages.getString("btnYes"),
-                PbPortlet.getCurrent().messages.getString("btnNo"),
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                Processbase.getCurrent().messages.getString("removeKPI") + "?",
+                Processbase.getCurrent().messages.getString("btnYes"),
+                Processbase.getCurrent().messages.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

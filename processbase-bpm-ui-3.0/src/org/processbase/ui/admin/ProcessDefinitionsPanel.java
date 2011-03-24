@@ -27,7 +27,7 @@ import org.processbase.ui.template.TableLinkButton;
 import org.processbase.ui.template.TablePanel;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.PbColumnGenerator;
 
 /**
@@ -46,13 +46,13 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     @Override
     public void initTableUI() {
         super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("deployedBy", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
-        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
-        table.addContainerProperty("deployedDate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
+        table.addContainerProperty("deployedBy", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
+        table.addContainerProperty("state", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("deployedDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
     }
@@ -61,7 +61,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<ProcessDefinition> pds = PbPortlet.getCurrent().bpmModule.getProcesses();
+            Set<ProcessDefinition> pds = Processbase.getCurrent().bpmModule.getProcesses();
             for (ProcessDefinition pd : pds) {
                 Item woItem = table.addItem(pd);
                 TableLinkButton teb = new TableLinkButton(pd.getLabel() != null ? pd.getLabel() : pd.getName(), pd.getDescription(), null, pd, this, Constants.ACTION_OPEN);
@@ -88,7 +88,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 try {
                     ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
-                    ProcessDefinition processDefinition = PbPortlet.getCurrent().bpmModule.getProcessDefinition(pd);
+                    ProcessDefinition processDefinition = Processbase.getCurrent().bpmModule.getProcessDefinition(pd);
                     ProcessDefinitionWindow processDefinitionWindow = new ProcessDefinitionWindow(processDefinition);
                     processDefinitionWindow.exec();
                     processDefinitionWindow.addListener((Window.CloseListener) this);

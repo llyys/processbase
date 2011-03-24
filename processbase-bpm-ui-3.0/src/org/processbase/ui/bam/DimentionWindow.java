@@ -32,7 +32,7 @@ import com.vaadin.ui.themes.Reindeer;
 import java.util.Iterator;
 import org.processbase.bam.metadata.HibernateUtil;
 import org.processbase.bam.metadata.MetaDim;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
 
@@ -45,16 +45,16 @@ public class DimentionWindow extends PbWindow
 
     private MetaDim metaDim = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(PbPortlet.getCurrent().messages.getString("btnClose"), this);
-    private Button saveBtn = new Button(PbPortlet.getCurrent().messages.getString("btnSave"), this);
-    private TextField code = new TextField(PbPortlet.getCurrent().messages.getString("code"));
-    private TextField name = new TextField(PbPortlet.getCurrent().messages.getString("name"));
-    private NativeSelect valueType = new NativeSelect(PbPortlet.getCurrent().messages.getString("valueType"));
-    private TextField length = new TextField(PbPortlet.getCurrent().messages.getString("length"));
+    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
+    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
+    private TextField code = new TextField(Processbase.getCurrent().messages.getString("code"));
+    private TextField name = new TextField(Processbase.getCurrent().messages.getString("name"));
+    private NativeSelect valueType = new NativeSelect(Processbase.getCurrent().messages.getString("valueType"));
+    private TextField length = new TextField(Processbase.getCurrent().messages.getString("length"));
 
     public DimentionWindow(MetaDim metaDim) {
-        super(metaDim == null ? PbPortlet.getCurrent().messages.getString("newDimension")
-                : PbPortlet.getCurrent().messages.getString("dimension") + metaDim.getCode());
+        super(metaDim == null ? Processbase.getCurrent().messages.getString("newDimension")
+                : Processbase.getCurrent().messages.getString("dimension") + metaDim.getCode());
         this.metaDim = metaDim;
     }
 
@@ -69,7 +69,7 @@ public class DimentionWindow extends PbWindow
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", PbPortlet.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", Processbase.getCurrent().messages.getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("270px");
             name.setMaxLength(500);
@@ -132,7 +132,7 @@ public class DimentionWindow extends PbWindow
                 if (hutil.getMetaDimByCode(metaDim.getCode()).isEmpty()) {
                     hutil.addMetaDim(metaDim);
                 } else {
-                    throw new Exception(PbPortlet.getCurrent().messages.getString("uniqueDimCode"));
+                    throw new Exception(Processbase.getCurrent().messages.getString("uniqueDimCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

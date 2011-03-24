@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.ui.template.PbWindow;
 
 /**
@@ -53,7 +53,7 @@ public class NewProcessDefinitionWindow extends PbWindow
     private String fileType = null;
 
     public NewProcessDefinitionWindow() {
-        super(PbPortlet.getCurrent().messages.getString("newProcessDefinition"));
+        super(Processbase.getCurrent().messages.getString("newProcessDefinition"));
     }
 
     public void exec() {
@@ -65,7 +65,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(PbPortlet.getCurrent().messages.getString("btnUpload"));
+            upload.setButtonCaption(Processbase.getCurrent().messages.getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -90,11 +90,11 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = PbPortlet.getCurrent().bpmModule.deploy(businessArchive, PbPortlet.getCurrent().messages.getString("emptyCategory"));
-                showInformation(PbPortlet.getCurrent().messages.getString("processUploaded") + ": " + deployResult.getLabel());
+                ProcessDefinition deployResult = Processbase.getCurrent().bpmModule.deploy(businessArchive, Processbase.getCurrent().messages.getString("emptyCategory"));
+                showInformation(Processbase.getCurrent().messages.getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {
-                PbPortlet.getCurrent().bpmModule.deployJar(originalFilename, readData);
-                showWarning(PbPortlet.getCurrent().messages.getString("jarUploaded") + ": " + originalFilename);
+                Processbase.getCurrent().bpmModule.deployJar(originalFilename, readData);
+                showWarning(Processbase.getCurrent().messages.getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();

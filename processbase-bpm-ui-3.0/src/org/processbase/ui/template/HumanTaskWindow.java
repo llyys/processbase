@@ -49,7 +49,7 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.portlet.CustomPortlet;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 
 /**
  *
@@ -82,7 +82,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     private boolean custom = false;
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
-    private User currentUser = null;
+    private String currentUserName = null;
     protected CustomPortlet customPortlet = null;
     protected Map<String, Object> processInstanceVariables = new HashMap<String, Object>();
     protected Map<String, Object> activityInstanceVariables = new HashMap<String, Object>();
@@ -115,16 +115,11 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void initUI() {
+        currentUserName = Processbase.getCurrent().getUserName();
+        bpmModule = Processbase.getCurrent().bpmModule;
+        messages = Processbase.getCurrent().messages;
         if (custom) {
-            customPortlet = ((CustomPortlet) getApplication());
-            currentUser = customPortlet.getPortalUser();
-            bpmModule = customPortlet.getBpmModule();
-            messages = customPortlet.getMessages();
             prepareCustom();
-        } else {
-            currentUser = PbPortlet.getCurrent().getPortalUser();
-            bpmModule = PbPortlet.getCurrent().bpmModule;
-            messages = PbPortlet.getCurrent().messages;
         }
         prepareVariables();
 
@@ -287,7 +282,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
                 taskInstance = bpmModule.resumeTask(taskInstance.getUUID(), true);
                 repaintStateMenu();
             } else if (selectedItem.equals(actor) && !taskInstance.isTaskAssigned()) {
-                taskInstance = bpmModule.assignAndStartTask(taskInstance.getUUID(), currentUser.getScreenName());
+                taskInstance = bpmModule.assignAndStartTask(taskInstance.getUUID(), currentUserName);
                 repaintActorMenu();
                 repaintStateMenu();
                 state.setEnabled(true);
@@ -401,7 +396,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         if (event.getButton().equals(addCommentBtn)) {
             try {
                 if (!commentEditor.getValue().toString().isEmpty()) {
-                    bpmModule.addComment(taskInstance.getUUID(), commentEditor.getValue().toString(), currentUser.getScreenName());
+                    bpmModule.addComment(taskInstance.getUUID(), commentEditor.getValue().toString(), currentUserName);
                     prepareComments();
                 }
             } catch (Exception ex) {
@@ -437,7 +432,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
                 }
             }
         } catch (Exception ex) {
-             ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
@@ -449,8 +444,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         return activityInstanceVariables;
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public String getCurrentUser() {
+        return currentUserName;
     }
 
     public Map<String, DataFieldDefinition> getProcessDataFieldDefinitions() {
@@ -468,7 +463,4 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public VerticalLayout getCommentsLayout() {
         return commentsLayout;
     }
-
-    
-    
 }

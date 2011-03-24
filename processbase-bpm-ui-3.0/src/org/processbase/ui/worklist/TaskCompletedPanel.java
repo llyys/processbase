@@ -33,7 +33,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.bpm.forms.XMLTaskDefinition;
-import org.processbase.ui.portlet.PbPortlet;
+import org.processbase.ui.Processbase;
 import org.processbase.core.Constants;
 import org.processbase.ui.generator.FormGenerator;
 
@@ -50,10 +50,10 @@ public class TaskCompletedPanel extends TablePanel {
 
     @Override
     public void initTableUI() {
-        table.addContainerProperty("processName", Component.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionProcess"), null, null);
-        table.addContainerProperty("taskName", Label.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("processName", Component.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("taskName", Label.class, null, Processbase.getCurrent().messages.getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 1);
-        table.addContainerProperty("lastUpdate", Date.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 100);
     }
@@ -62,7 +62,7 @@ public class TaskCompletedPanel extends TablePanel {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Collection<LightTaskInstance> tasks = PbPortlet.getCurrent().bpmModule.getLightTaskList(ActivityState.FINISHED);
+            Collection<LightTaskInstance> tasks = Processbase.getCurrent().bpmModule.getLightTaskList(ActivityState.FINISHED);
             for (LightTaskInstance task : tasks) {
                 addTableRow(task);
             }
@@ -78,7 +78,7 @@ public class TaskCompletedPanel extends TablePanel {
 
     private void addTableRow(LightTaskInstance task) throws InstanceNotFoundException, Exception {
         Item woItem = table.addItem(task);
-        LightProcessDefinition lpd = PbPortlet.getCurrent().bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
+        LightProcessDefinition lpd = Processbase.getCurrent().bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
         String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
         String processInstanceUUID = task.getProcessInstanceUUID().toString();
         TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
@@ -96,7 +96,7 @@ public class TaskCompletedPanel extends TablePanel {
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightTaskInstance task = (LightTaskInstance) ((TableLinkButton) event.getButton()).getTableValue();
-                LightTaskInstance newTask = PbPortlet.getCurrent().bpmModule.getTaskInstance(task.getUUID());
+                LightTaskInstance newTask = Processbase.getCurrent().bpmModule.getTaskInstance(task.getUUID());
                 openTaskPage(task);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -107,16 +107,16 @@ public class TaskCompletedPanel extends TablePanel {
 
     public void openTaskPage(LightTaskInstance task) {
         try {
-            String url = PbPortlet.getCurrent().bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
-            PbPortlet.getCurrent().portletSession.removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-            PbPortlet.getCurrent().portletSession.setAttribute("PROCESSBASE_SHARED_TASKINSTANCE", task.getUUID().toString(), PortletSession.APPLICATION_SCOPE);
+            String url = Processbase.getCurrent().bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+            Processbase.getCurrent().removeSessionAttribute("TASKINSTANCE");
+            Processbase.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = PbPortlet.getCurrent().bpmModule.getXMLProcessDefinition(task.getProcessDefinitionUUID());
+                XMLProcessDefinition xmlProcess = Processbase.getCurrent().bpmModule.getXMLProcessDefinition(task.getProcessDefinitionUUID());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() && taskDef.getForms() == null) {
-                    showError(PbPortlet.getCurrent().messages.getString("ERROR_UI_NOT_DEFINED"));
+                    showError(Processbase.getCurrent().messages.getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
                     FormGenerator fg = new FormGenerator(task, xmlProcess);
                     this.getApplication().getMainWindow().addWindow(fg.getWindow());
