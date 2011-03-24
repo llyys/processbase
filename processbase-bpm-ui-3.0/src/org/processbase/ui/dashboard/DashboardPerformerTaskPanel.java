@@ -16,26 +16,42 @@
  */
 package org.processbase.ui.dashboard;
 
+import com.invient.vaadin.charts.Color.RGB;
+import com.invient.vaadin.charts.InvientCharts;
+import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
+import com.invient.vaadin.charts.InvientCharts.Series;
+import com.invient.vaadin.charts.InvientCharts.SeriesType;
+import com.invient.vaadin.charts.InvientCharts.XYSeries;
+import com.invient.vaadin.charts.InvientChartsConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
+import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitleAlign;
+import com.invient.vaadin.charts.InvientChartsConfig.BarConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.CategoryAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.DataLabel;
+import com.invient.vaadin.charts.InvientChartsConfig.HorzAlign;
+import com.invient.vaadin.charts.InvientChartsConfig.Legend;
+import com.invient.vaadin.charts.InvientChartsConfig.Legend.Layout;
+import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.Position;
+import com.invient.vaadin.charts.InvientChartsConfig.VertAlign;
+import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer3D;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Random;
+
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.DashboardPanel;
-import org.vaadin.ui.JFreeChartWrapper;
 
 /**
  *
@@ -51,129 +67,145 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
     public void initUI() {
     }
 
-    @Override
     public void refresh() {
         try {
-            super.refresh();
             Date now = new Date();
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-            HashMap<String, Integer> readyTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> execTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> suspendTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> expireTasks = new HashMap<String, Integer>();
+            HashMap<String, Double> readyTasks = new HashMap<String, Double>();
+            HashMap<String, Double> execTasks = new HashMap<String, Double>();
+            HashMap<String, Double> suspendTasks = new HashMap<String, Double>();
+            HashMap<String, Double> expireTasks = new HashMap<String, Double>();
+
+            HashSet<String> performersNames = new HashSet<String>();
 
             Collection<LightActivityInstance> ais = PbPortlet.getCurrent().bpmModule.getActivityInstances();
             for (LightActivityInstance ai : ais) {
+                ActivityDefinition ad = PbPortlet.getCurrent().bpmModule.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
+                if (!ad.getPerformers().isEmpty()) {
+                    performersNames.add(ad.getPerformers().toString());
+                }
                 if (ai.isTask() && ai.getState().equals(ActivityState.READY)) {
-                    ActivityDefinition ad = PbPortlet.getCurrent().bpmModule.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
                     if (readyTasks.containsKey(ad.getPerformers().toString())) {
-                        Integer c = readyTasks.get(ad.getPerformers().toString());
-                        readyTasks.put(ad.getPerformers().toString(), c.intValue() + 1);
+                        Double c = readyTasks.get(ad.getPerformers().toString());
+                        readyTasks.put(ad.getPerformers().toString(), c.doubleValue() + 1);
                     } else {
-                        readyTasks.put(ad.getPerformers().toString(), 1);
+                        readyTasks.put(ad.getPerformers().toString(), 1.0);
                     }
                 } else if (ai.isTask() && ai.getState().equals(ActivityState.EXECUTING)) {
-                    ActivityDefinition ad = PbPortlet.getCurrent().bpmModule.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
                     if (execTasks.containsKey(ad.getPerformers().toString())) {
-                        Integer c = execTasks.get(ad.getPerformers().toString());
-                        execTasks.put(ad.getPerformers().toString(), c.intValue() + 1);
+                        Double c = execTasks.get(ad.getPerformers().toString());
+                        execTasks.put(ad.getPerformers().toString(), c.doubleValue() + 1);
                     } else {
-                        execTasks.put(ad.getPerformers().toString(), 1);
+                        execTasks.put(ad.getPerformers().toString(), 1.0);
                     }
                 } else if (ai.isTask() && ai.getState().equals(ActivityState.SUSPENDED)) {
-                    ActivityDefinition ad = PbPortlet.getCurrent().bpmModule.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
                     if (suspendTasks.containsKey(ad.getPerformers().toString())) {
-                        Integer c = suspendTasks.get(ad.getPerformers().toString());
-                        suspendTasks.put(ad.getPerformers().toString(), c.intValue() + 1);
+                        Double c = suspendTasks.get(ad.getPerformers().toString());
+                        suspendTasks.put(ad.getPerformers().toString(), c.doubleValue() + 1);
                     } else {
-                        suspendTasks.put(ad.getPerformers().toString(), 1);
+                        suspendTasks.put(ad.getPerformers().toString(), 1.0);
                     }
                 }
                 if (ai.isTask()
                         && (ai.getState().equals(ActivityState.EXECUTING) || ai.getState().equals(ActivityState.READY) || ai.getState().equals(ActivityState.SUSPENDED))
                         && ai.getExpectedEndDate() != null && ai.getExpectedEndDate().before(now)) {
-                    ActivityDefinition ad = PbPortlet.getCurrent().bpmModule.getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
                     if (expireTasks.containsKey(ad.getPerformers().toString())) {
-                        Integer c = expireTasks.get(ad.getPerformers().toString());
-                        expireTasks.put(ad.getPerformers().toString(), c.intValue() + 1);
+                        Double c = expireTasks.get(ad.getPerformers().toString());
+                        expireTasks.put(ad.getPerformers().toString(), c.doubleValue() + 1);
                     } else {
-                        expireTasks.put(ad.getPerformers().toString(), 1);
+                        expireTasks.put(ad.getPerformers().toString(), 1.0);
                     }
                 }
             }
+            ArrayList<XYSeries> xySeries = new ArrayList<XYSeries>();
+            XYSeries seriesDataREADY = new XYSeries("READY");
+            ArrayList<Double> r = new ArrayList<Double>();
+            XYSeries seriesDataEXECUTING = new XYSeries("EXECUTING");
+            ArrayList<Double> rEXECUTING = new ArrayList<Double>();
+            XYSeries seriesDataSUSPEND = new XYSeries("SUSPEND");
+            ArrayList<Double> rSUSPEND = new ArrayList<Double>();
+            XYSeries seriesDataEXPIRED = new XYSeries("EXPIRED");
+            ArrayList<Double> rEXPIRED = new ArrayList<Double>();
 
-            for (String perf : readyTasks.keySet()) {
-                dataset.setValue(readyTasks.get(perf), PbPortlet.getCurrent().messages.getString("READY"), perf);
+            for (String perf : performersNames) {
+                r.add(readyTasks.containsKey(perf) ? readyTasks.get(perf) : 0);
+                rEXECUTING.add(execTasks.containsKey(perf) ? execTasks.get(perf) : 0);
+                rSUSPEND.add(suspendTasks.containsKey(perf) ? suspendTasks.get(perf) : 0);
+                rEXPIRED.add(expireTasks.containsKey(perf) ? expireTasks.get(perf) : 0);
             }
-            for (String perf : execTasks.keySet()) {
-                dataset.setValue(execTasks.get(perf), PbPortlet.getCurrent().messages.getString("EXECUTING"), perf);
-            }
-            for (String perf : suspendTasks.keySet()) {
-                dataset.setValue(suspendTasks.get(perf), PbPortlet.getCurrent().messages.getString("SUSPENDED"), perf);
-            }
-            for (String perf : expireTasks.keySet()) {
-                dataset.setValue(expireTasks.get(perf), PbPortlet.getCurrent().messages.getString("EXPIRED"), perf);
-            }
-            JFreeChart chart = createchart(dataset);
-            JFreeChartWrapper xyChartWrapper = new JFreeChartWrapper(chart);
+            seriesDataREADY.setSeriesPoints(getPoints(seriesDataREADY, r));
+            xySeries.add(seriesDataREADY);
+            seriesDataEXECUTING.setSeriesPoints(getPoints(seriesDataEXECUTING, rEXECUTING));
+            xySeries.add(seriesDataEXECUTING);
+            seriesDataSUSPEND.setSeriesPoints(getPoints(seriesDataSUSPEND, rSUSPEND));
+            xySeries.add(seriesDataSUSPEND);
+            seriesDataEXPIRED.setSeriesPoints(getPoints(seriesDataEXPIRED, rEXPIRED));
+            xySeries.add(seriesDataEXPIRED);
+
             removeAllComponents();
-            addComponent(xyChartWrapper);
+            InvientCharts ich = createchart(new ArrayList(performersNames), xySeries);
+            ich.setWidth("100%");
+            addComponent(ich);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private JFreeChart createchart(CategoryDataset dataset) {
+    private InvientCharts createchart(ArrayList<String> performersNames, ArrayList<XYSeries> xySeries) {
+        InvientChartsConfig chartConfig = new InvientChartsConfig();
+        chartConfig.getGeneralChartConfig().setType(SeriesType.BAR);
 
-        // create the chart...
-        JFreeChart c = ChartFactory.createBarChart3D("", 
-                "", // domain axis label
-                "Tasks by performers", // range axis label
-                dataset, // data
-                PlotOrientation.HORIZONTAL, // orientation
-                true, // include legend
-                true, // tooltips?
-                false // URLs?
-                );
+        chartConfig.getTitle().setText(PbPortlet.getCurrent().messages.getString("taskByPerformers"));
+        chartConfig.getSubtitle().setText("Source: PROCESSBASE BPMS");
 
-        // set the background color for the chart...
-        c.setBackgroundPaint(Color.white);
+        CategoryAxis xAxisMain = new CategoryAxis();
+        xAxisMain.setCategories(performersNames);
+        LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
+        xAxesSet.add(xAxisMain);
+        chartConfig.setXAxes(xAxesSet);
 
-        // get a reference to the plot for further customisation...
-        CategoryPlot plot = (CategoryPlot) c.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
+        NumberYAxis yAxis = new NumberYAxis();
+        yAxis.setAllowDecimals(false);
+        yAxis.setTitle(new AxisTitle(PbPortlet.getCurrent().messages.getString("processCount")));
+        yAxis.getTitle().setAlign(AxisTitleAlign.HIGH);
+        LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
+        yAxesSet.add(yAxis);
+        chartConfig.setYAxes(yAxesSet);
 
+        Legend legend = new Legend();
+        legend.setLayout(Layout.VERTICAL);
+        legend.setPosition(new Position());
+        legend.getPosition().setAlign(HorzAlign.RIGHT);
+        legend.getPosition().setVertAlign(VertAlign.TOP);
+        legend.getPosition().setX(-50);
+        legend.getPosition().setY(50);
+        legend.setFloating(true);
+        legend.setBorderWidth(1);
+        legend.setBackgroundColor(new RGB(255, 255, 255));
+        legend.setShadow(true);
+        chartConfig.setLegend(legend);
 
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        InvientCharts barChart = new InvientCharts(chartConfig);
+        for (XYSeries xy : xySeries) {
+            barChart.addSeries(xy);
+        }
+        return barChart;
 
-        // disable bar outlines...
-        BarRenderer3D renderer = (BarRenderer3D) plot.getRenderer();
-        // renderer.setDrawBarOutline(false);
+    }
 
-        // set up gradient paints for series...
-        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.YELLOW, 0.0f,
-                0.0f, new Color(0, 0, 64));
-        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.GREEN, 0.0f,
-                0.0f, new Color(0, 64, 0));
-        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.BLUE, 0.0f,
-                0.0f, new Color(64, 0, 0));
-        GradientPaint gp3 = new GradientPaint(0.0f, 0.0f, Color.RED, 0.0f,
-                0.0f, new Color(64, 0, 0));
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-        renderer.setSeriesPaint(3, gp3);
+    private static LinkedHashSet<DecimalPoint> getPoints(Series series,
+            double... values) {
+        LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+        for (double value : values) {
+            points.add(new DecimalPoint(series, value));
+        }
+        return points;
+    }
 
-        CategoryAxis domainAxis = plot.getDomainAxis();
-//        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
-        // OPTIONAL CUSTOMISATION COMPLETED.
-
-        return c;
-
+    private static LinkedHashSet<DecimalPoint> getPoints(Series series, ArrayList<Double> values) {
+        LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+        for (double value : values) {
+            points.add(new DecimalPoint(series, value));
+        }
+        return points;
     }
 }

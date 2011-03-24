@@ -16,33 +16,36 @@
  */
 package org.processbase.ui.dashboard;
 
-import java.awt.Color;
-import java.awt.GradientPaint;
+import com.invient.vaadin.charts.Color.RGB;
+import com.invient.vaadin.charts.InvientCharts;
+import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
+import com.invient.vaadin.charts.InvientCharts.SeriesType;
+import com.invient.vaadin.charts.InvientCharts.XYSeries;
+import com.invient.vaadin.charts.InvientChartsConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.Margin;
+import com.invient.vaadin.charts.InvientChartsConfig.PieConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.PieDataLabel;
+import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
+import com.vaadin.ui.HorizontalLayout;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer3D;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
+import java.util.LinkedHashSet;
+import java.util.Random;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.DashboardPanel;
-import org.vaadin.ui.JFreeChartWrapper;
 
 /**
  *
  * @author marat gubaidullin
  */
 public class DashboardUserTaskPanel extends DashboardPanel {
+
+    private HashMap<String, RGB> colors = new HashMap<String, RGB>();
 
     public DashboardUserTaskPanel() {
         super();
@@ -52,130 +55,139 @@ public class DashboardUserTaskPanel extends DashboardPanel {
     public void initUI() {
     }
 
-    @Override
     public void refresh() {
         try {
-            super.refresh();
             Date now = new Date();
             GregorianCalendar midnight = new GregorianCalendar();
             midnight.set(Calendar.HOUR, 0);
+            midnight.set(Calendar.AM_PM, Calendar.AM);
             midnight.set(Calendar.MINUTE, 0);
             midnight.set(Calendar.SECOND, 0);
             midnight.set(Calendar.MILLISECOND, 0);
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-            HashMap<String, Integer> startedTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> todayStartTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> todayDoneTasks = new HashMap<String, Integer>();
-            HashMap<String, Integer> expiredTasks = new HashMap<String, Integer>();
+            HashMap<String, Double> startedTasks = new HashMap<String, Double>();
+            HashMap<String, Double> todayStartTasks = new HashMap<String, Double>();
+            HashMap<String, Double> todayDoneTasks = new HashMap<String, Double>();
+            HashMap<String, Double> expiredTasks = new HashMap<String, Double>();
 
             Collection<LightActivityInstance> ais = PbPortlet.getCurrent().bpmModule.getActivityInstances();
             for (LightActivityInstance ai : ais) {
                 if (ai.isTask() && ai.getTask().isTaskAssigned() && ai.getState().equals(ActivityState.EXECUTING)) {
                     if (startedTasks.containsKey(ai.getTask().getTaskUser())) {
-                        Integer c = startedTasks.get(ai.getTask().getTaskUser());
-                        startedTasks.put(ai.getTask().getTaskUser(), c.intValue() + 1);
+                        Double c = startedTasks.get(ai.getTask().getTaskUser());
+                        startedTasks.put(ai.getTask().getTaskUser(), c.doubleValue() + 1);
                     } else {
-                        startedTasks.put(ai.getTask().getTaskUser().toString(), 1);
+                        startedTasks.put(ai.getTask().getTaskUser().toString(), 1.0);
                     }
                     if (ai.getTask().getCreatedDate().after(midnight.getTime())) {
                         if (todayStartTasks.containsKey(ai.getTask().getTaskUser())) {
-                            Integer c = todayStartTasks.get(ai.getTask().getTaskUser());
-                            todayStartTasks.put(ai.getTask().getTaskUser(), c.intValue() + 1);
+                            Double c = todayStartTasks.get(ai.getTask().getTaskUser());
+                            todayStartTasks.put(ai.getTask().getTaskUser(), c.doubleValue() + 1);
                         } else {
-                            todayStartTasks.put(ai.getTask().getTaskUser().toString(), 1);
+                            todayStartTasks.put(ai.getTask().getTaskUser().toString(), 1.0);
                         }
                     }
                 } else if (ai.isTask() && ai.getTask().isTaskAssigned()
                         && ai.getState().equals(ActivityState.FINISHED) && ai.getTask().getEndedDate().after(midnight.getTime())) {
                     if (todayDoneTasks.containsKey(ai.getTask().getTaskUser())) {
-                        Integer c = todayDoneTasks.get(ai.getTask().getTaskUser());
-                        todayDoneTasks.put(ai.getTask().getTaskUser(), c.intValue() + 1);
+                        Double c = todayDoneTasks.get(ai.getTask().getTaskUser());
+                        todayDoneTasks.put(ai.getTask().getTaskUser(), c.doubleValue() + 1);
                     } else {
-                        todayDoneTasks.put(ai.getTask().getTaskUser().toString(), 1);
+                        todayDoneTasks.put(ai.getTask().getTaskUser().toString(), 1.0);
                     }
                 }
                 if (ai.isTask() && ai.getTask().isTaskAssigned()
                         && (ai.getState().equals(ActivityState.EXECUTING) || ai.getState().equals(ActivityState.READY) || ai.getState().equals(ActivityState.SUSPENDED))
                         && ai.getExpectedEndDate() != null && ai.getExpectedEndDate().before(now)) {
                     if (expiredTasks.containsKey(ai.getTask().getTaskUser())) {
-                        Integer c = expiredTasks.get(ai.getTask().getTaskUser());
-                        expiredTasks.put(ai.getTask().getTaskUser(), c.intValue() + 1);
+                        Double c = expiredTasks.get(ai.getTask().getTaskUser());
+                        expiredTasks.put(ai.getTask().getTaskUser(), c.doubleValue() + 1);
                     } else {
-                        expiredTasks.put(ai.getTask().getTaskUser(), 1);
+                        expiredTasks.put(ai.getTask().getTaskUser(), 1.0);
                     }
                 }
             }
-
-            for (String perf : startedTasks.keySet()) {
-                dataset.setValue(startedTasks.get(perf), PbPortlet.getCurrent().messages.getString("EXECUTING"), perf);
-            }
-            for (String perf : todayStartTasks.keySet()) {
-                dataset.setValue(todayStartTasks.get(perf), PbPortlet.getCurrent().messages.getString("todayDone"), perf);
-            }
-            for (String perf : todayDoneTasks.keySet()) {
-                dataset.setValue(todayDoneTasks.get(perf), PbPortlet.getCurrent().messages.getString("todayDone"), perf);
-            }
-            for (String perf : expiredTasks.keySet()) {
-                dataset.setValue(expiredTasks.get(perf), PbPortlet.getCurrent().messages.getString("EXPIRED"), perf);
-            }
-            JFreeChart chart = createchart(dataset);
-            JFreeChartWrapper xyChartWrapper = new JFreeChartWrapper(chart);
             removeAllComponents();
-            addComponent(xyChartWrapper);
+
+            PieConfig pieCfg1 = new PieConfig();
+            pieCfg1.setInnerSize(65);
+            pieCfg1.setDataLabel(new PieDataLabel(false));
+
+            XYSeries series1 = new XYSeries("Started", SeriesType.PIE, pieCfg1);
+            LinkedHashSet<DecimalPoint> points1 = new LinkedHashSet<DecimalPoint>();
+            for (String perf : todayStartTasks.keySet()) {
+                DecimalPoint point1 = new DecimalPoint(series1, perf, todayStartTasks.get(perf));
+                point1.setConfig(new PointConfig(getColor(perf)));
+                points1.add(point1);
+            }
+//            DecimalPoint point1 = new DecimalPoint(series1, "ivan", 4.0);
+//            point1.setConfig(new PointConfig(getColor("ivan")));
+//            points1.add(point1);
+//            point1 = new DecimalPoint(series1, "marat", 3.0);
+//            point1.setConfig(new PointConfig(getColor("marat")));
+//            points1.add(point1);
+            series1.setSeriesPoints(points1);
+
+            PieConfig pieCfg2 = new PieConfig();
+            pieCfg2.setInnerSize(150);
+            pieCfg2.setDataLabel(new PieDataLabel());
+            pieCfg2.setColor(new RGB(0, 0, 0));
+            pieCfg2.getDataLabel().setConnectorColor(new RGB(0, 0, 0));
+            XYSeries series2 = new XYSeries("Finished", SeriesType.PIE, pieCfg2);
+            LinkedHashSet<DecimalPoint> points2 = new LinkedHashSet<DecimalPoint>();
+            for (String perf : todayDoneTasks.keySet()) {
+                DecimalPoint point2 = new DecimalPoint(series2, perf, todayDoneTasks.get(perf));
+                point2.setConfig(new PointConfig(getColor(perf)));
+                points2.add(point2);
+            }
+//            DecimalPoint point2 = new DecimalPoint(series2, "ivan", 10.0);
+//            point2.setConfig(new PointConfig(getColor("ivan")));
+//            points2.add(point2);
+//            point2 = new DecimalPoint(series2, "marat", 8.0);
+//            point2.setConfig(new PointConfig(getColor("marat")));
+//            points2.add(point2);
+            series2.setSeriesPoints(points2);
+
+            InvientCharts ich2 = createchart(series1, series2);
+            ich2.setWidth("100%");
+            addComponent(ich2);
+
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private JFreeChart createchart(CategoryDataset dataset) {
+    private InvientCharts createchart(XYSeries series1, XYSeries series2) {
+        InvientChartsConfig chartConfig = new InvientChartsConfig();
+        chartConfig.getGeneralChartConfig().setType(SeriesType.PIE);
 
-        // create the chart...
-        JFreeChart c = ChartFactory.createBarChart3D("", // chart
-                // title
-                "", // domain axis label
-                "Tasks by user", // range axis label
-                dataset, // data
-                PlotOrientation.HORIZONTAL, // orientation
-                true, // include legend
-                true, // tooltips?
-                false // URLs?
-                );
+        chartConfig.getGeneralChartConfig().setMargin(new Margin());
+        chartConfig.getGeneralChartConfig().getMargin().setTop(50);
+        chartConfig.getGeneralChartConfig().getMargin().setRight(0);
+        chartConfig.getGeneralChartConfig().getMargin().setBottom(0);
+        chartConfig.getGeneralChartConfig().getMargin().setLeft(0);
+        chartConfig.getTitle().setText(PbPortlet.getCurrent().messages.getString("taskByUser"));
 
-        // set the background color for the chart...
-        c.setBackgroundPaint(Color.white);
+        chartConfig.getTooltip().setFormatterJsFunc(
+                "function() {"
+                + " return '<b>'+ this.series.name +'</b><br/>'+ "
+                + "     this.point.name +': '+ this.y; " + "}");
 
-        // get a reference to the plot for further customisation...
-        CategoryPlot plot = (CategoryPlot) c.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
+        InvientCharts chart = new InvientCharts(chartConfig);
+        chart.addSeries(series1);
+        chart.addSeries(series2);
+        return chart;
 
+    }
 
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-        // disable bar outlines...
-        BarRenderer3D renderer = (BarRenderer3D) plot.getRenderer();
-        // renderer.setDrawBarOutline(false);
-
-        // set up gradient paints for series...
-        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.YELLOW, 0.0f,
-                0.0f, new Color(0, 0, 64));
-        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.GREEN, 0.0f,
-                0.0f, new Color(0, 64, 0));
-        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.RED, 0.0f,
-                0.0f, new Color(64, 0, 0));
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-
-        CategoryAxis domainAxis = plot.getDomainAxis();
-//        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
-        // OPTIONAL CUSTOMISATION COMPLETED.
-
-        return c;
-
+    private RGB getColor(String name) {
+        if (colors.containsKey(name)) {
+            return colors.get(name);
+        } else {
+            Random x = new Random();
+            RGB rgb = new RGB(x.nextInt(255), x.nextInt(255), x.nextInt(255));
+            colors.put(name, rgb);
+            return rgb;
+        }
     }
 }

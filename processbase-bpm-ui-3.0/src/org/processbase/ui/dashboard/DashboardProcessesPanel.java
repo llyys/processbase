@@ -16,26 +16,27 @@
  */
 package org.processbase.ui.dashboard;
 
-import java.awt.Color;
-import java.awt.GradientPaint;
+import com.invient.vaadin.charts.InvientCharts;
+import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
+import com.invient.vaadin.charts.InvientCharts.Series;
+import com.invient.vaadin.charts.InvientCharts.SeriesType;
+import com.invient.vaadin.charts.InvientCharts.XYSeries;
+import com.invient.vaadin.charts.InvientChartsConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
+import com.invient.vaadin.charts.InvientChartsConfig.CategoryAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer3D;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.DashboardPanel;
-import org.vaadin.ui.JFreeChartWrapper;
 
 /**
  *
@@ -51,91 +52,89 @@ public class DashboardProcessesPanel extends DashboardPanel {
     public void initUI() {
     }
 
-    @Override
     public void refresh() {
         try {
-            super.refresh();
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             GregorianCalendar midnight = new GregorianCalendar();
             midnight.set(Calendar.HOUR, 0);
+            midnight.set(Calendar.AM_PM, Calendar.AM);
             midnight.set(Calendar.MINUTE, 0);
             midnight.set(Calendar.SECOND, 0);
             midnight.set(Calendar.MILLISECOND, 0);
 
             Set<ProcessDefinition> pds = PbPortlet.getCurrent().bpmModule.getProcessDefinitions();
+            ArrayList<Double> processAll = new ArrayList<Double>(pds.size());
+            ArrayList<Double> processToday = new ArrayList<Double>(pds.size());
+            ArrayList<String> processNames = new ArrayList<String>(pds.size());
             for (ProcessDefinition pd : pds) {
                 Set<LightProcessInstance> pis = PbPortlet.getCurrent().bpmModule.getLightProcessInstances(pd.getUUID());
-                int countAll = 0;
-                int countToday = 0;
+                double countAll = 0;
+                double countToday = 0;
                 for (LightProcessInstance pi : pis) {
-                    if (pi.getInstanceState().equals(InstanceState.STARTED)){
+                    if (pi.getInstanceState().equals(InstanceState.STARTED)) {
                         countAll++;
                     }
-                    if (pi.getStartedDate().after(midnight.getTime())){
+                    if (pi.getStartedDate().after(midnight.getTime())) {
                         countToday++;
                     }
                 }
-                dataset.setValue(countAll, "All", pd.getLabel());
-                dataset.setValue(countToday, "Today", pd.getLabel());
+                processNames.add(pd.getLabel());
+                processAll.add(new Double(countAll));
+                processToday.add(new Double(countToday));
             }
-            JFreeChart chart = createchart(dataset);
-            JFreeChartWrapper xyChartWrapper = new JFreeChartWrapper(chart);
+            ArrayList<XYSeries> xySeries = new ArrayList<XYSeries>();
+
+            XYSeries seriesDataAll = new XYSeries("All", SeriesType.COLUMN);
+            seriesDataAll.setSeriesPoints(getPoints(seriesDataAll, processAll));
+            xySeries.add(seriesDataAll);
+
+            XYSeries seriesDataToday = new XYSeries("Today", SeriesType.COLUMN);
+            seriesDataToday.setSeriesPoints(getPoints(seriesDataToday, processToday));
+            xySeries.add(seriesDataToday);
+
             removeAllComponents();
-            addComponent(xyChartWrapper);
+            InvientCharts ich = createchart(processNames, xySeries);
+            ich.setWidth("100%");
+            addComponent(ich);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private JFreeChart createchart(CategoryDataset dataset) {
+    private InvientCharts createchart(ArrayList<String> processNames, ArrayList<XYSeries> xySeries) {
 
-        // create the chart...
-        JFreeChart c = ChartFactory.createBarChart3D("", // chart
-                // title
-                "Process Definition", // domain axis label
-                "Started processes", // range axis label
-                dataset, // data
-                PlotOrientation.HORIZONTAL, // orientation
-                true, // include legend
-                true, // tooltips?
-                false // URLs?
-                );
+        InvientChartsConfig chartConfig = new InvientChartsConfig();
+        chartConfig.getTitle().setText(PbPortlet.getCurrent().messages.getString("startedProcesses"));
+        chartConfig.getSubtitle().setText("Source: PROCESSBASSE BPMS");
 
-        // set the background color for the chart...
-        c.setBackgroundPaint(Color.white);
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setCategories(processNames);
+//        xAxis.setLabel(new XAxisDataLabel());
+//        xAxis.getLabel().setRotation(-45);
+//        xAxis.getLabel().setAlign(HorzAlign.RIGHT);
+        LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
+        xAxesSet.add(xAxis);
+        chartConfig.setXAxes(xAxesSet);
 
-        // get a reference to the plot for further customisation...
-        CategoryPlot plot = (CategoryPlot) c.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
+        NumberYAxis yAxis = new NumberYAxis();
+        yAxis.setAllowDecimals(false);
+        yAxis.setTitle(new AxisTitle(PbPortlet.getCurrent().messages.getString("processCount")));
+        LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
+        yAxesSet.add(yAxis);
+        chartConfig.setYAxes(yAxesSet);
 
+        InvientCharts chart = new InvientCharts(chartConfig);
 
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        for (XYSeries xy : xySeries) {
+            chart.addSeries(xy);
+        }
+        return chart;
+    }
 
-        // disable bar outlines...
-        BarRenderer3D renderer = (BarRenderer3D) plot.getRenderer();
-        // renderer.setDrawBarOutline(false);
-
-        // set up gradient paints for series...
-        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.blue, 0.0f,
-                0.0f, new Color(0, 0, 64));
-        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.green, 0.0f,
-                0.0f, new Color(0, 64, 0));
-        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.red, 0.0f,
-                0.0f, new Color(64, 0, 0));
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-
-        CategoryAxis domainAxis = plot.getDomainAxis();
-//        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
-        // OPTIONAL CUSTOMISATION COMPLETED.
-
-        return c;
-
+    private static LinkedHashSet<DecimalPoint> getPoints(Series series, ArrayList<Double> values) {
+        LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+        for (double value : values) {
+            points.add(new DecimalPoint(series, value));
+        }
+        return points;
     }
 }

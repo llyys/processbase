@@ -18,7 +18,6 @@ package org.processbase.ui.template;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 
@@ -26,9 +25,7 @@ import com.vaadin.ui.Window.CloseEvent;
  *
  * @author mgubaidullin
  */
-public class DashboardPanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
-
-    protected GridLayout gridPanel;
+public abstract class DashboardPanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
 
     public DashboardPanel() {
         super();
@@ -36,11 +33,9 @@ public class DashboardPanel extends WorkPanel implements Button.ClickListener, W
     }
 
     public void initUI() {
-        
     }
 
-    public void refresh() {
-    }
+    public abstract void refresh();
 
     @Override
     public void buttonClick(ClickEvent event) {
