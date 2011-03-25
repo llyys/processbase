@@ -39,19 +39,18 @@ public class DimensionsPanel extends TablePanel implements
 
     public DimensionsPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("id", String.class, null, Processbase.getCurrent().messages.getString("id"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, Processbase.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("valueType", String.class, null, Processbase.getCurrent().messages.getString("valueType"), null, null);
-        table.addContainerProperty("length", String.class, null, Processbase.getCurrent().messages.getString("length"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
+        table.addContainerProperty("valueType", String.class, null, ((Processbase)getApplication()).getMessages().getString("valueType"), null, null);
+        table.addContainerProperty("length", String.class, null, ((Processbase)getApplication()).getMessages().getString("length"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -71,7 +70,7 @@ public class DimensionsPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaDim.getName());
                 woItem.getItemProperty("valueType").setValue(metaDim.getValueType());
                 woItem.getItemProperty("length").setValue(metaDim.getValueLength());
-                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -98,19 +97,19 @@ public class DimensionsPanel extends TablePanel implements
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 DimentionWindow ndw = new DimentionWindow(metaDim);
-                ndw.exec();
                 ndw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(ndw);
+                ndw.initUI();
             }
         }
     }
 
     private void removeMetaDim(final MetaDim metaDim) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("removeDimension") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("removeDimension") + "?",
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

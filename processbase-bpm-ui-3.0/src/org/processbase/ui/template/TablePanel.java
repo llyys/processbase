@@ -35,15 +35,11 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
 
     public TablePanel() {
         super();
-        initUI();
     }
 
-    public TablePanel(PortletApplicationContext2 portletApplicationContext2) {
-        super(portletApplicationContext2);
-        initUI();
-    }
-
+    @Override
     public void initUI() {
+        super.initUI();
         table.setSizeFull();
         table.setPageLength(15);
         table.addStyleName("striped");
@@ -53,9 +49,6 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
         horizontalLayout.addComponent(table, 0);
         horizontalLayout.setComponentAlignment(table, Alignment.TOP_LEFT);
         horizontalLayout.setExpandRatio(table, 1);
-    }
-
-    public void initTableUI() {
     }
 
     public void refreshTable() {

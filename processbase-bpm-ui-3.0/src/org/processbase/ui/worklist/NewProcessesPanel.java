@@ -17,7 +17,6 @@
 package org.processbase.ui.worklist;
 
 import org.processbase.core.Constants;
-import org.processbase.ui.generator.FormGenerator;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
@@ -25,7 +24,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import java.util.Collection;
 import java.util.Set;
-import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.processbase.ui.template.TableLinkButton;
@@ -33,6 +31,7 @@ import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.bpm.forms.XMLProcessDefinition;
 import org.processbase.ui.Processbase;
+import org.processbase.ui.generator.GeneratedWindow;
 import org.processbase.ui.template.TreeTablePanel;
 import org.processbase.ui.util.CategoryAndProcessDefinition;
 
@@ -44,18 +43,17 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
 
     public NewProcessesPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        treeTable.addContainerProperty("category", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionCategory"), null, null);
-        treeTable.addContainerProperty("processName", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcess"), null, null);
+    public void initUI() {
+        super.initUI();
+        treeTable.addContainerProperty("category", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionCategory"), null, null);
+        treeTable.addContainerProperty("processName", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcess"), null, null);
         treeTable.setColumnExpandRatio("processName", 1);
-        treeTable.addContainerProperty("processDescription", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionDescription"), null, null);
+        treeTable.addContainerProperty("processDescription", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDescription"), null, null);
         treeTable.setColumnExpandRatio("processDescription", 1);
-        treeTable.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
+        treeTable.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
         treeTable.setVisibleColumns(new Object[]{"category", "processName", "processDescription", "version"});
     }
 
@@ -63,8 +61,8 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
     public void refreshTable() {
         treeTable.removeAllItems();
         try {
-            Set<Category> categories = Processbase.getCurrent().bpmModule.getAllCategories();
-            Collection<LightProcessDefinition> processes = Processbase.getCurrent().bpmModule.getLightProcessDefinitions(ProcessState.ENABLED);
+            Set<Category> categories = ((Processbase) getApplication()).getBpmModule().getAllCategories();
+            Collection<LightProcessDefinition> processes = ((Processbase) getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
 
             for (Category category : categories) {
                 CategoryAndProcessDefinition capParent = new CategoryAndProcessDefinition(category, null);
@@ -76,13 +74,11 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
                     }
                 }
             }
-
             for (Object id : treeTable.getItemIds()) {
                 if (treeTable.getParent(id) == null && !treeTable.hasChildren(id)) {
                     treeTable.removeItem(id);
                 }
             }
-
             this.rowCount = processes.size();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -116,7 +112,7 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightProcessDefinition process = (LightProcessDefinition) ((TableLinkButton) event.getButton()).getTableValue();
-                LightProcessDefinition refreshProcess = Processbase.getCurrent().bpmModule.getLightProcessDefinition(process.getUUID());
+                LightProcessDefinition refreshProcess = ((Processbase) getApplication()).getBpmModule().getLightProcessDefinition(process.getUUID());
                 if (refreshProcess.getState() != ProcessState.ENABLED) {
                     treeTable.removeItem(process);
                 } else {
@@ -131,24 +127,26 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
 
     public void openStartPage(LightProcessDefinition process) {
         try {
-            String url = Processbase.getCurrent().bpmModule.getProcessMetaData(process.getUUID()).get(process.getUUID().toString());
+            String url = ((Processbase) getApplication()).getBpmModule().getProcessMetaData(process.getUUID()).get(process.getUUID().toString());
 
-            Processbase.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
-            Processbase.getCurrent().removeSessionAttribute("TASKINSTANCE");
-
-            Processbase.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
+                ((Processbase) getApplication()).removeSessionAttribute("PROCESSINSTANCE");
+                ((Processbase) getApplication()).removeSessionAttribute("TASKINSTANCE");
+                ((Processbase) getApplication()).setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = Processbase.getCurrent().bpmModule.getXMLProcessDefinition(process.getUUID());
+                XMLProcessDefinition xmlProcess = ((Processbase) getApplication()).getBpmModule().getXMLProcessDefinition(process.getUUID());
                 if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms() == null) {
-                    showError(Processbase.getCurrent().messages.getString("ERROR_UI_NOT_DEFINED"));
+                    showError(((Processbase) getApplication()).getMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms().size() > 0) {
-                    FormGenerator fg = new FormGenerator(process, xmlProcess);
-                    this.getApplication().getMainWindow().addWindow(fg.getWindow());
+                    GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
+                    genWindow.setProcessDef(process);
+                    genWindow.setXMLProcess(xmlProcess);
+                    this.getApplication().getMainWindow().addWindow(genWindow);
+                    genWindow.initUI();
                 } else if (xmlProcess.isByPassFormsGeneration()) {
-                    Processbase.getCurrent().bpmModule.startNewProcess(process.getUUID());
-                    showImportantInformation(Processbase.getCurrent().messages.getString("processStarted"));
+                    ((Processbase) getApplication()).getBpmModule().startNewProcess(process.getUUID());
+                    showImportantInformation(((Processbase) getApplication()).getMessages().getString("processStarted"));
                 }
             }
         } catch (Exception ex) {

@@ -48,50 +48,53 @@ public class CategoryWindow extends PbWindow implements ClickListener {
     private Category category = null;
     private ButtonBar bar = new ButtonBar();
     private ButtonBar buttons = new ButtonBar();
-    private Button deleteBtn = new Button(Processbase.getCurrent().messages.getString("btnDelete"), this);
-    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
-    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private Button addBtn = new Button(Processbase.getCurrent().messages.getString("btnAdd"), this);
-//    private Button addBtn = new Button(ProcessbasePortlet.getCurrent().messages.getString("btnAdd"), this);
+    private Button deleteBtn;
+    private Button cancelBtn;
+    private Button saveBtn;
+    private Button addBtn;
     private Table table = new Table();
-    private ComboBox processesComboBox = new ComboBox(Processbase.getCurrent().messages.getString("processToCategory"));
+    private ComboBox processesComboBox ;
 
     public CategoryWindow(Category category) {
         super(category.getName());
         this.category = category;
-        initTableUI();
     }
 
-    public void exec() {
+    public void initUI() {
         try {
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
-
-
+            
+            processesComboBox = new ComboBox(((Processbase) getApplication()).getMessages().getString("processToCategory"));
             processesComboBox.setFilteringMode(Filtering.FILTERINGMODE_CONTAINS);
 //            processesComboBox.setItemCaptionPropertyId("name");
             processesComboBox.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             processesComboBox.setWidth("100%");
+
             bar.setWidth("100%");
             bar.addComponent(processesComboBox);
             bar.setExpandRatio(processesComboBox, 1);
+            
+            addBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnAdd"), this);
             bar.addComponent(addBtn);
             bar.setComponentAlignment(addBtn, Alignment.BOTTOM_RIGHT);
 
             layout.addComponent(bar);
             layout.addComponent(table);
 
-            refreshTable();
-
-            deleteBtn.setDescription(Processbase.getCurrent().messages.getString("deleteCategory"));
+            deleteBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDelete"), this);
+            deleteBtn.setDescription(((Processbase) getApplication()).getMessages().getString("deleteCategory"));
+            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
+            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
             buttons.addButton(deleteBtn);
             buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_RIGHT);
             buttons.addButton(saveBtn);
             buttons.setComponentAlignment(saveBtn, Alignment.MIDDLE_RIGHT);
-            buttons.setExpandRatio(saveBtn, 1);
+            buttons.setExpandRatio(saveBtn,
+                    1);
             buttons.addButton(cancelBtn);
             buttons.setComponentAlignment(cancelBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -101,30 +104,29 @@ public class CategoryWindow extends PbWindow implements ClickListener {
             setWidth("70%");
 //            setHeight("70%");
             setResizable(false);
+
+            table.addContainerProperty("name", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcessName"), null, null);
+            table.setColumnExpandRatio("name", 1);
+            table.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
+            table.setColumnWidth("version", 50);
+            table.addContainerProperty("deployedBy", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDeployedBy"), null, null);
+            table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+            table.setColumnWidth("actions", 50);
+            table.setSelectable(false);
+            table.setImmediate(true);
+            table.setWidth("100%");
+            table.setPageLength(10);
+            refreshTable();
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
 
-    public void initTableUI() {
-        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
-        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
-        table.setColumnWidth("version", 50);
-        table.addContainerProperty("deployedBy", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
-        table.setColumnWidth("actions", 50);
-        table.setSelectable(false);
-        table.setImmediate(true);
-        table.setWidth("100%");
-        table.setPageLength(10);
-    }
-
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Collection<LightProcessDefinition> processes = Processbase.getCurrent().bpmModule.getLightProcessDefinitions(ProcessState.ENABLED);
+            Collection<LightProcessDefinition> processes = ((Processbase) getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
 
             for (LightProcessDefinition pd : processes) {
                 if (pd.getCategoryNames().contains(category.getName())) {
@@ -149,7 +151,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
         woItem.getItemProperty("name").setValue(pd.getLabel());
         woItem.getItemProperty("version").setValue(pd.getVersion());
         woItem.getItemProperty("deployedBy").setValue(pd.getDeployedBy());
-        TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnRemove"), "icons/cancel.png", pd, this);
+        TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnRemove"), "icons/cancel.png", pd, this);
         woItem.getItemProperty("actions").setValue(tlb);
     }
 
@@ -185,22 +187,22 @@ public class CategoryWindow extends PbWindow implements ClickListener {
             LightProcessDefinition lpd = (LightProcessDefinition) object;
             Set<String> cats = lpd.getCategoryNames();
             cats.add(category.getName());
-            Processbase.getCurrent().bpmModule.setProcessCategories(lpd.getUUID(), cats);
+            ((Processbase) getApplication()).getBpmModule().setProcessCategories(lpd.getUUID(), cats);
         }
         for (Object object : processesComboBox.getItemIds()) {
             LightProcessDefinition lpd = (LightProcessDefinition) object;
             Set<String> cats2 = lpd.getCategoryNames();
             cats2.remove(category.getName());
-            Processbase.getCurrent().bpmModule.setProcessCategories(lpd.getUUID(), cats2);
+            ((Processbase) getApplication()).getBpmModule().setProcessCategories(lpd.getUUID(), cats2);
         }
     }
 
     private void delete() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("questionDeleteCategory"),
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getMessages().getString("questionDeleteCategory"),
+                ((Processbase) getApplication()).getMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -208,7 +210,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
                             try {
                                 Set<String> cats = new HashSet<String>();
                                 cats.add(category.getName());
-                                Processbase.getCurrent().bpmModule.deleteCategories(cats);
+                                ((Processbase) getApplication()).getBpmModule().deleteCategories(cats);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }

@@ -22,7 +22,6 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import org.processbase.ui.template.ButtonBar;
-import org.processbase.ui.template.PbWindow;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -35,14 +34,13 @@ import org.processbase.ui.bam.FactsPanel;
 import org.processbase.ui.bam.KPIWindow;
 import org.processbase.ui.bam.KPIsPanel;
 import org.processbase.ui.bam.SchemesPanel;
-import org.processbase.ui.portlet.PbPortlet;
 import org.processbase.ui.template.TablePanel;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BAMPanel extends VerticalLayout
+public class BAMConfigurationPanel extends VerticalLayout
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -67,6 +65,7 @@ public class BAMPanel extends VerticalLayout
         dimensionsPanel = new DimensionsPanel();
         panels.put(dimensionsBtn, dimensionsPanel);
         addComponent(dimensionsPanel, 1);
+        dimensionsPanel.initUI();
         dimensionsPanel.refreshTable();
 
         factsPanel = new FactsPanel();
@@ -81,31 +80,34 @@ public class BAMPanel extends VerticalLayout
 
     private void setCurrentPanel(TablePanel tablePanel) {
         replaceComponent(getComponent(1), tablePanel);
+        if (!tablePanel.isInitialized()){
+            tablePanel.initUI();
+        }
         tablePanel.refreshTable();
     }
 
     private void prepareButtonBar() {
         // prepare dimensionsBtn button
-        dimensionsBtn = new Button(Processbase.getCurrent().messages.getString("dimensions"), this);
+        dimensionsBtn = new Button(((Processbase)getApplication()).getMessages().getString("dimensions"), this);
         dimensionsBtn.setStyleName("special");
         dimensionsBtn.setEnabled(false);
         buttonBar.addComponent(dimensionsBtn, 0);
         buttonBar.setComponentAlignment(dimensionsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare factsBtn button
-        factsBtn = new Button(Processbase.getCurrent().messages.getString("facts"), this);
+        factsBtn = new Button(((Processbase)getApplication()).getMessages().getString("facts"), this);
         factsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(factsBtn, 1);
         buttonBar.setComponentAlignment(factsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare kpisBtn button
-        kpisBtn = new Button(Processbase.getCurrent().messages.getString("kpis"), this);
+        kpisBtn = new Button(((Processbase)getApplication()).getMessages().getString("kpis"), this);
         kpisBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(kpisBtn, 2);
         buttonBar.setComponentAlignment(kpisBtn, Alignment.MIDDLE_LEFT);
 
         // prepare schemesBtn button
-        schemesBtn = new Button(Processbase.getCurrent().messages.getString("schemes"), this);
+        schemesBtn = new Button(((Processbase)getApplication()).getMessages().getString("schemes"), this);
         schemesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(schemesBtn, 3);
         buttonBar.setComponentAlignment(schemesBtn, Alignment.MIDDLE_LEFT);
@@ -116,12 +118,12 @@ public class BAMPanel extends VerticalLayout
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare add button
-        btnAdd = new Button(Processbase.getCurrent().messages.getString("btnAdd"), this);
+        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 5);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare refresh button
-        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
@@ -173,19 +175,19 @@ public class BAMPanel extends VerticalLayout
     private void addBAMConfig() {
         if (getComponent(1) instanceof DimensionsPanel) {
             DimentionWindow ndw = new DimentionWindow(null);
-            ndw.exec();
             ndw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(ndw);
+            ndw.initUI();
         } else if (getComponent(1) instanceof FactsPanel) {
             FactWindow nfw = new FactWindow(null);
-            nfw.exec();
             nfw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(nfw);
+            nfw.initUI();
         } else if (getComponent(1) instanceof KPIsPanel) {
             KPIWindow nkw = new KPIWindow(null);
-            nkw.exec();
             nkw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(nkw);
+            nkw.initUI();
         }
     }
 }

@@ -70,6 +70,7 @@ public class IdentityPanel extends VerticalLayout
         usersPanel = new UsersPanel();
         panels.put(usersBtn, usersPanel);
         addComponent(usersPanel, 1);
+        usersPanel.initUI();
         usersPanel.refreshTable();
 
         rolesPanel = new RolesPanel();
@@ -84,6 +85,9 @@ public class IdentityPanel extends VerticalLayout
 
     private void setCurrentPanel(WorkPanel workPanel) {
         replaceComponent(getComponent(1), workPanel);
+        if (!workPanel.isInitialized()){
+            workPanel.initUI();
+        }
         if (workPanel instanceof TablePanel) {
             ((TablePanel) workPanel).refreshTable();
         } else if (workPanel instanceof TreeTablePanel) {
@@ -93,26 +97,26 @@ public class IdentityPanel extends VerticalLayout
 
     private void prepareButtonBar() {
         // prepare usersBtn button
-        usersBtn = new Button(Processbase.getCurrent().messages.getString("usersBtn"), this);
+        usersBtn = new Button(((Processbase)getApplication()).getMessages().getString("usersBtn"), this);
         usersBtn.setStyleName("special");
         usersBtn.setEnabled(false);
         buttonBar.addComponent(usersBtn, 0);
         buttonBar.setComponentAlignment(usersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare rolesBtn button
-        rolesBtn = new Button(Processbase.getCurrent().messages.getString("rolesBtn"), this);
+        rolesBtn = new Button(((Processbase)getApplication()).getMessages().getString("rolesBtn"), this);
         rolesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(rolesBtn, 1);
         buttonBar.setComponentAlignment(rolesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare groupsBtn button
-        groupsBtn = new Button(Processbase.getCurrent().messages.getString("groupsBtn"), this);
+        groupsBtn = new Button(((Processbase)getApplication()).getMessages().getString("groupsBtn"), this);
         groupsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(groupsBtn, 2);
         buttonBar.setComponentAlignment(groupsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare metadataBtn button
-        metadataBtn = new Button(Processbase.getCurrent().messages.getString("metadataBtn"), this);
+        metadataBtn = new Button(((Processbase)getApplication()).getMessages().getString("metadataBtn"), this);
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(metadataBtn, 3);
         buttonBar.setComponentAlignment(metadataBtn, Alignment.MIDDLE_LEFT);
@@ -123,18 +127,18 @@ public class IdentityPanel extends VerticalLayout
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare refresh button
-        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(Processbase.getCurrent().messages.getString("btnAdd"), this);
+        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare sync button
-        syncBtn = new Button(Processbase.getCurrent().messages.getString("syncBtn"), this);
-        syncBtn.setDescription(Processbase.getCurrent().messages.getString("syncBtnDescription"));
+        syncBtn = new Button(((Processbase)getApplication()).getMessages().getString("syncBtn"), this);
+        syncBtn.setDescription(((Processbase)getApplication()).getMessages().getString("syncBtnDescription"));
         buttonBar.addComponent(syncBtn, 6);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
 
@@ -196,33 +200,33 @@ public class IdentityPanel extends VerticalLayout
     private void synchronizeIdentity() {
         if (getComponent(1) instanceof UsersPanel) {
             SyncUsersWindow ncw = new SyncUsersWindow();
-            ncw.exec();
             ncw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(ncw);
+            ncw.initUI();
         }
     }
 
     private void addIdentity() {
         if (getComponent(1) instanceof UsersPanel) {
             UserWindow nuw = new UserWindow(null);
-            nuw.exec();
             nuw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(nuw);
+            nuw.initUI();
         } else if (getComponent(1) instanceof RolesPanel) {
             RoleWindow nrw = new RoleWindow(null);
-            nrw.exec();
             nrw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(nrw);
+            nrw.initUI();
         } else if (getComponent(1) instanceof GroupsPanel) {
             GroupWindow rgw = new GroupWindow(null);
-            rgw.exec();
             rgw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(rgw);
+            rgw.initUI();
         } else if (getComponent(1) instanceof MetadataPanel) {
             MetadataWindow nmw = new MetadataWindow(null);
-            nmw.exec();
             nmw.addListener((Window.CloseListener) this);
             getApplication().getMainWindow().addWindow(nmw);
+            nmw.initUI();
         }
     }
 }

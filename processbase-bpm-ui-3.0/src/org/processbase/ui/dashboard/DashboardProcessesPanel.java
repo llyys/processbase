@@ -61,12 +61,12 @@ public class DashboardProcessesPanel extends DashboardPanel {
             midnight.set(Calendar.SECOND, 0);
             midnight.set(Calendar.MILLISECOND, 0);
 
-            Set<ProcessDefinition> pds = Processbase.getCurrent().bpmModule.getProcessDefinitions();
+            Set<ProcessDefinition> pds = ((Processbase)getApplication()).getBpmModule().getProcessDefinitions();
             ArrayList<Double> processAll = new ArrayList<Double>(pds.size());
             ArrayList<Double> processToday = new ArrayList<Double>(pds.size());
             ArrayList<String> processNames = new ArrayList<String>(pds.size());
             for (ProcessDefinition pd : pds) {
-                Set<LightProcessInstance> pis = Processbase.getCurrent().bpmModule.getLightProcessInstances(pd.getUUID());
+                Set<LightProcessInstance> pis = ((Processbase)getApplication()).getBpmModule().getLightProcessInstances(pd.getUUID());
                 double countAll = 0;
                 double countToday = 0;
                 for (LightProcessInstance pi : pis) {
@@ -103,7 +103,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
     private InvientCharts createchart(ArrayList<String> processNames, ArrayList<XYSeries> xySeries) {
 
         InvientChartsConfig chartConfig = new InvientChartsConfig();
-        chartConfig.getTitle().setText(Processbase.getCurrent().messages.getString("startedProcesses"));
+        chartConfig.getTitle().setText(((Processbase)getApplication()).getMessages().getString("startedProcesses"));
         chartConfig.getSubtitle().setText("Source: PROCESSBASSE BPMS");
 
         CategoryAxis xAxis = new CategoryAxis();
@@ -117,7 +117,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
 
         NumberYAxis yAxis = new NumberYAxis();
         yAxis.setAllowDecimals(false);
-        yAxis.setTitle(new AxisTitle(Processbase.getCurrent().messages.getString("processCount")));
+        yAxis.setTitle(new AxisTitle(((Processbase)getApplication()).getMessages().getString("processCount")));
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
         chartConfig.setYAxes(yAxesSet);

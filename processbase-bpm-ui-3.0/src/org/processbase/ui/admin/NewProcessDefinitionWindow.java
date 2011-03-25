@@ -26,8 +26,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
@@ -53,11 +51,12 @@ public class NewProcessDefinitionWindow extends PbWindow
     private String fileType = null;
 
     public NewProcessDefinitionWindow() {
-        super(Processbase.getCurrent().messages.getString("newProcessDefinition"));
+        super();
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            setCaption(((Processbase)getApplication()).getMessages().getString("newProcessDefinition"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -65,7 +64,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(Processbase.getCurrent().messages.getString("btnUpload"));
+            upload.setButtonCaption(((Processbase)getApplication()).getMessages().getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -90,11 +89,11 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = Processbase.getCurrent().bpmModule.deploy(businessArchive, Processbase.getCurrent().messages.getString("emptyCategory"));
-                showInformation(Processbase.getCurrent().messages.getString("processUploaded") + ": " + deployResult.getLabel());
+                ProcessDefinition deployResult = ((Processbase)getApplication()).getBpmModule().deploy(businessArchive, ((Processbase)getApplication()).getMessages().getString("emptyCategory"));
+                showInformation(((Processbase)getApplication()).getMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {
-                Processbase.getCurrent().bpmModule.deployJar(originalFilename, readData);
-                showWarning(Processbase.getCurrent().messages.getString("jarUploaded") + ": " + originalFilename);
+                ((Processbase)getApplication()).getBpmModule().deployJar(originalFilename, readData);
+                showWarning(((Processbase)getApplication()).getMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();

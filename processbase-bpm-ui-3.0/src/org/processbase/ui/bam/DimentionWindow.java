@@ -45,31 +45,42 @@ public class DimentionWindow extends PbWindow
 
     private MetaDim metaDim = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
-    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField code = new TextField(Processbase.getCurrent().messages.getString("code"));
-    private TextField name = new TextField(Processbase.getCurrent().messages.getString("name"));
-    private NativeSelect valueType = new NativeSelect(Processbase.getCurrent().messages.getString("valueType"));
-    private TextField length = new TextField(Processbase.getCurrent().messages.getString("length"));
+    private Button closeBtn;
+    private Button saveBtn;
+    private TextField code;
+    private TextField name;
+    private NativeSelect valueType;
+    private TextField length;
 
     public DimentionWindow(MetaDim metaDim) {
-        super(metaDim == null ? Processbase.getCurrent().messages.getString("newDimension")
-                : Processbase.getCurrent().messages.getString("dimension") + metaDim.getCode());
+        super();
         this.metaDim = metaDim;
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            if (metaDim == null) {
+                setCaption(((Processbase) getApplication()).getMessages().getString("newDimension"));
+            } else {
+                setCaption(((Processbase) getApplication()).getMessages().getString("dimension") + metaDim.getCode());
+            }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
+            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
+            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
+            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
+            valueType = new NativeSelect(((Processbase) getApplication()).getMessages().getString("valueType"));
+            length = new TextField(((Processbase) getApplication()).getMessages().getString("length"));
+
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", Processbase.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("270px");
             name.setMaxLength(500);
@@ -132,7 +143,7 @@ public class DimentionWindow extends PbWindow
                 if (hutil.getMetaDimByCode(metaDim.getCode()).isEmpty()) {
                     hutil.addMetaDim(metaDim);
                 } else {
-                    throw new Exception(Processbase.getCurrent().messages.getString("uniqueDimCode"));
+                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueDimCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

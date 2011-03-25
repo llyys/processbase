@@ -35,26 +35,30 @@ import org.processbase.ui.template.PbWindow;
 public class NewCategoryWindow extends PbWindow implements ClickListener {
 
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField categoryName = new TextField(Processbase.getCurrent().messages.getString("categoryName"));
+    private Button cancelBtn ;
+    private Button applyBtn;
+    private TextField categoryName;
 
     public NewCategoryWindow() {
-        super(Processbase.getCurrent().messages.getString("newCategory"));
+        super();
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            setCaption(((Processbase) getApplication()).getMessages().getString("newCategory"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
+            categoryName = new TextField(((Processbase) getApplication()).getMessages().getString("categoryName"));
             categoryName.setWidth("270px");
             addComponent(categoryName);
 
-
+            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            
             buttons.addButton(applyBtn);
             buttons.setComponentAlignment(applyBtn, Alignment.MIDDLE_RIGHT);
             buttons.setExpandRatio(applyBtn, 1);
@@ -75,7 +79,7 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                Processbase.getCurrent().bpmModule.addCategory(categoryName.getValue().toString(), "", "", "");
+                ((Processbase) getApplication()).getBpmModule().addCategory(categoryName.getValue().toString(), "", "", "");
                 close();
             } else {
                 close();

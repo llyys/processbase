@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.identity;
 
-import org.processbase.ui.admin.*;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -24,11 +23,8 @@ import com.vaadin.ui.Window;
 import java.util.List;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
-import org.ow2.bonita.facade.identity.User;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
-import org.processbase.ui.template.TablePanel;
-import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ConfirmDialog;
 import org.processbase.ui.template.TreeTablePanel;
@@ -43,17 +39,16 @@ public class GroupsPanel extends TreeTablePanel implements
 
     public GroupsPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        treeTable.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionName"), null, null);
+    public void initUI() {
+        super.initUI();
+        treeTable.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionName"), null, null);
         treeTable.setColumnExpandRatio("name", 1);
-        treeTable.addContainerProperty("label", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionLabel"), null, null);
-        treeTable.addContainerProperty("description", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionDescription"), null, null);
-        treeTable.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        treeTable.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLabel"), null, null);
+        treeTable.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionDescription"), null, null);
+        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
         treeTable.setImmediate(true);
     }
 
@@ -61,7 +56,7 @@ public class GroupsPanel extends TreeTablePanel implements
     public void refreshTable() {
         try {
             treeTable.removeAllItems();
-            List<Group> groups = Processbase.getCurrent().bpmModule.getAllGroups();
+            List<Group> groups = ((Processbase)getApplication()).getBpmModule().getAllGroups();
             for (Group group : groups) {
                 System.out.println("group = " + group.getName() + " parent = " + group.getParentGroup());
                 Item woItem = treeTable.addItem(group.getUUID());
@@ -70,7 +65,7 @@ public class GroupsPanel extends TreeTablePanel implements
                 woItem.getItemProperty("label").setValue(group.getLabel());
                 woItem.getItemProperty("description").setValue(group.getDescription());
                 if (!group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
-                    TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
+                    TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
                     woItem.getItemProperty("actions").setValue(tlb);
                 }
             }
@@ -107,25 +102,25 @@ public class GroupsPanel extends TreeTablePanel implements
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 GroupWindow ngw = new GroupWindow(group);
-                ngw.exec();
                 ngw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(ngw);
+                ngw.initUI();
             }
         }
     }
 
     private void removeGroup(final Group group) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("removeGroup") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("removeGroup") + "?",
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                Processbase.getCurrent().bpmModule.removeGroupByUUID(group.getUUID());
+                                ((Processbase)getApplication()).getBpmModule().removeGroupByUUID(group.getUUID());
                                 treeTable.removeItem(group.getUUID());
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

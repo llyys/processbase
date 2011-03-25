@@ -3,7 +3,6 @@ package org.processbase.ui;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -14,16 +13,15 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 import java.util.Locale;
 
 /**
  *
  * @author mgubaidullin
  */
-public class LoginWindow extends Window implements Handler {
+public class LoginPanel extends GridLayout implements Handler {
 
-    private GridLayout grid = new GridLayout(3, 2);
     private Panel panel = new Panel();
     public FormLayout form = new FormLayout();
     private VerticalLayout vlayout = new VerticalLayout();
@@ -36,21 +34,17 @@ public class LoginWindow extends Window implements Handler {
     private Locale locale = null;
     private Embedded logo = null;
 
-    public LoginWindow() {
-        super("PROCESSBASE BPMS");
-        setName("PROCESSBASE BPMS");
-        initUI();
+    public LoginPanel() {
+        super(3, 2);
     }
 
-    private void initUI() {
-        setTheme("processbase");
-        addComponent(grid);
-        grid.setWidth("100%");
-        grid.setHeight("100%");
-        grid.addComponent(labelLeft, 0, 0);
-        grid.addComponent(labelRight, 2, 0);
-        grid.addComponent(panel, 1, 1);
-        grid.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
+    public void initUI() {
+        setWidth("100%");
+        setHeight("100%");
+        addComponent(labelLeft, 0, 0);
+        addComponent(labelRight, 2, 0);
+        addComponent(panel, 1, 1);
+        setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 
         panel.setWidth("285px");
 
@@ -99,11 +93,12 @@ public class LoginWindow extends Window implements Handler {
 
     public void okHandler() {
         try {
-//            POEM.getCurrent().authenticate((String) address.getValue(), (String) port.getValue(), (String) username.getValue(), (String) password.getValue());
-//            open(new ExternalResource(POEM.getCurrent().getURL()));
+            username.commit();
+            password.commit();
+            ((PbApplication)getApplication()).authenticate(username.getValue().toString(), password.getValue().toString());
         } catch (Exception ex) {
              ex.printStackTrace();
-            showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            getApplication().getMainWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
 }

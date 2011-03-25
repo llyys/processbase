@@ -66,52 +66,61 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     private LightActivityInstance lightActivity = null;
     private Set<DataFieldDefinition> dfds = null;
     private HorizontalLayout buttons = new HorizontalLayout();
-    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
-    private Button reassignBtn = new Button(Processbase.getCurrent().messages.getString("btnReassign"), this);
-    private CheckBox unAssignBtn = new CheckBox(Processbase.getCurrent().messages.getString("btnUnassign"), this);
-    private Button assignBtn = new Button(Processbase.getCurrent().messages.getString("btnAssign"), this);
-    private ListSelect candidatesList = new ListSelect(Processbase.getCurrent().messages.getString("candidates"));
-    private ListSelect groupList = new ListSelect(Processbase.getCurrent().messages.getString("actorsGroups"));
+    private Button closeBtn;
+    private Button reassignBtn;
+    private CheckBox unAssignBtn;
+    private Button assignBtn;
+    private ListSelect candidatesList;
+    private ListSelect groupList;
     private TabSheet tabSheet = new TabSheet();
     private VerticalLayout variablesLayout = new VerticalLayout();
     private GridLayout participantLayout = new GridLayout(4, 4);
     private VerticalLayout stateLayout = new VerticalLayout();
     protected Table assignUpdatesTable = new Table();
     protected Table stateUpdatesTable = new Table();
-    protected Table variablesTable = new Table(Processbase.getCurrent().messages.getString("processVariables"));
+    protected Table variablesTable;
 
     public ActivityWindow(LightActivityInstance lightActivity) {
         super(lightActivity.getActivityLabel());
+        this.lightActivity = lightActivity;
+    }
+
+    public void initUI() throws ParticipantNotFoundException, ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ActivityNotFoundException, Exception {
+        setContent(layout);
+        setCaption(((Processbase) getApplication()).getMessages().getString("defaultTaskWindowCaption2") + " " + lightActivity.getActivityName());
+
         try {
-            this.lightActivity = lightActivity;
-            this.processDefinition = Processbase.getCurrent().bpmModule.getProcessDefinition(lightActivity.getProcessDefinitionUUID());
+            processDefinition = ((Processbase) getApplication()).getBpmModule().getProcessDefinition(lightActivity.getProcessDefinitionUUID());
             if (lightActivity.isTask()) {
-                task = Processbase.getCurrent().bpmModule.getTaskInstance(lightActivity.getUUID());
+                task = ((Processbase) getApplication()).getBpmModule().getTaskInstance(lightActivity.getUUID());
             }
-            this.dfds = Processbase.getCurrent().bpmModule.getProcessDataFields(lightActivity.getProcessDefinitionUUID());
-            exec();
+            dfds = ((Processbase) getApplication()).getBpmModule().getProcessDataFields(lightActivity.getProcessDefinitionUUID());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
+        closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
+        reassignBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnReassign"), this);
+        unAssignBtn = new CheckBox(((Processbase) getApplication()).getMessages().getString("btnUnassign"), this);
+        assignBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnAssign"), this);
+        candidatesList = new ListSelect(((Processbase) getApplication()).getMessages().getString("candidates"));
+        groupList = new ListSelect(((Processbase) getApplication()).getMessages().getString("actorsGroups"));
+        variablesTable = new Table(((Processbase) getApplication()).getMessages().getString("processVariables"));
 
-    public void exec() throws ParticipantNotFoundException, ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ActivityNotFoundException, Exception {
-        this.setContent(layout);
-        setCaption(Processbase.getCurrent().messages.getString("defaultTaskWindowCaption2") + " " + lightActivity.getActivityName());
+
         tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
         tabSheet.setSizeFull();
         if (task != null) {
             addParticipantInfo();
             participantLayout.setSizeFull();
-            tabSheet.addTab(participantLayout, Processbase.getCurrent().messages.getString("taskPerformer"), null);
+            tabSheet.addTab(participantLayout, ((Processbase) getApplication()).getMessages().getString("taskPerformer"), null);
         }
         try {
             addVariablesInfo();
             variablesLayout.setSizeFull();
-            tabSheet.addTab(variablesLayout, Processbase.getCurrent().messages.getString("processVariables"), null);
+            tabSheet.addTab(variablesLayout, ((Processbase) getApplication()).getMessages().getString("processVariables"), null);
             addStateInfo();
             stateLayout.setSizeFull();
-            tabSheet.addTab(stateLayout, Processbase.getCurrent().messages.getString("taskStateUpdates"), null);
+            tabSheet.addTab(stateLayout, ((Processbase) getApplication()).getMessages().getString("taskStateUpdates"), null);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -139,13 +148,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     }
 
     public void addVariablesInfo() throws ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ParticipantNotFoundException, Exception {
-        variablesTable.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("variableName"), null, null);
-        variablesTable.addContainerProperty("label", String.class, null, Processbase.getCurrent().messages.getString("variableLabel"), null, null);
-        variablesTable.addContainerProperty("type", String.class, null, Processbase.getCurrent().messages.getString("variableType"), null, null);
-        variablesTable.addContainerProperty("value", Field.class, null, Processbase.getCurrent().messages.getString("variableValue"), null, null);
-        
-        variablesTable.addContainerProperty("description", String.class, null, Processbase.getCurrent().messages.getString("variableDesc"), null, null);
-        
+        variablesTable.addContainerProperty("name", String.class, null, ((Processbase) getApplication()).getMessages().getString("variableName"), null, null);
+        variablesTable.addContainerProperty("label", String.class, null, ((Processbase) getApplication()).getMessages().getString("variableLabel"), null, null);
+        variablesTable.addContainerProperty("type", String.class, null, ((Processbase) getApplication()).getMessages().getString("variableType"), null, null);
+        variablesTable.addContainerProperty("value", Field.class, null, ((Processbase) getApplication()).getMessages().getString("variableValue"), null, null);
+
+        variablesTable.addContainerProperty("description", String.class, null, ((Processbase) getApplication()).getMessages().getString("variableDesc"), null, null);
+
         variablesTable.setPageLength(15);
         variablesTable.setSizeFull();
         variablesTable.setWidth("100%");
@@ -153,7 +162,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         for (DataFieldDefinition dfd : dfds) {
             Object value = null;
             try {
-                value = Processbase.getCurrent().bpmModule.getProcessInstanceVariable(lightActivity.getProcessInstanceUUID(), dfd.getName());
+                value = ((Processbase) getApplication()).getBpmModule().getProcessInstanceVariable(lightActivity.getProcessInstanceUUID(), dfd.getName());
             } catch (Exception ex) {
                 value = "MAYBE CUSTOM CLASS VALUE";
             }
@@ -216,7 +225,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
     public void addParticipantInfo() throws ParticipantNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ProcessNotFoundException, Exception {
         participantLayout.removeAllComponents();
-        Set<String> groupNames = Processbase.getCurrent().bpmModule.getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getPerformers();//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
+        Set<String> groupNames = ((Processbase) getApplication()).getBpmModule().getProcessActivity(task.getProcessDefinitionUUID(), task.getActivityName()).getPerformers();//        ParticipantDefinition participantDefinition = bpmModule.getProcessParticipant(processDefinition.getProcessDefinitionUUID(), participantName);
         for (String name : groupNames) {
             groupList.addItem(name);
         }
@@ -236,7 +245,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
         unAssignBtn.setValue(task.isTaskAssigned());
 
-        TextField taskUserField = new TextField(Processbase.getCurrent().messages.getString("taskAssignedBy"));
+        TextField taskUserField = new TextField(((Processbase) getApplication()).getMessages().getString("taskAssignedBy"));
         if (task.isTaskAssigned()) {
             taskUserField.setValue(task.getTaskUser());
         }
@@ -261,11 +270,11 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
 
         assignUpdatesTable.removeAllItems();
         assignUpdatesTable.removeGeneratedColumn("UpdatedDate");
-        assignUpdatesTable.addContainerProperty("UpdatedDate", Date.class, null, Processbase.getCurrent().messages.getString("taskUpdatedDate"), null, null);
+        assignUpdatesTable.addContainerProperty("UpdatedDate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("taskUpdatedDate"), null, null);
         assignUpdatesTable.addGeneratedColumn("UpdatedDate", new PbColumnGenerator());
-        assignUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, Processbase.getCurrent().messages.getString("taskUpdatedBy"), null, null);
-        assignUpdatesTable.addContainerProperty("Candidates", String.class, null, Processbase.getCurrent().messages.getString("taskCandidates"), null, null);
-        assignUpdatesTable.addContainerProperty("AssignedUserId", String.class, null, Processbase.getCurrent().messages.getString("taskAssignedBy"), null, null);
+        assignUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskUpdatedBy"), null, null);
+        assignUpdatesTable.addContainerProperty("Candidates", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskCandidates"), null, null);
+        assignUpdatesTable.addContainerProperty("AssignedUserId", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskAssignedBy"), null, null);
         for (AssignUpdate assignUpdate : task.getAssignUpdates()) {
             Item woItem = assignUpdatesTable.addItem(assignUpdate);
             woItem.getItemProperty("UpdatedDate").setValue(assignUpdate.getUpdatedDate());
@@ -277,7 +286,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         assignUpdatesTable.setSortAscending(false);
         assignUpdatesTable.sort();
         assignUpdatesTable.setPageLength(8);
-        assignUpdatesTable.setCaption(Processbase.getCurrent().messages.getString("taskAssignUpdates"));
+        assignUpdatesTable.setCaption(((Processbase) getApplication()).getMessages().getString("taskAssignUpdates"));
         assignUpdatesTable.setSizeFull();
         participantLayout.addComponent(assignUpdatesTable, 0, 3, 3, 3);
         participantLayout.setWidth("100%");
@@ -289,13 +298,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         stateLayout.removeAllComponents();
         stateUpdatesTable.removeAllItems();
         stateUpdatesTable.removeGeneratedColumn("UpdatedDate");
-        stateUpdatesTable.addContainerProperty("UpdatedDate", Date.class, null, Processbase.getCurrent().messages.getString("taskUpdatedDate"), null, null);
+        stateUpdatesTable.addContainerProperty("UpdatedDate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("taskUpdatedDate"), null, null);
         stateUpdatesTable.addGeneratedColumn("UpdatedDate", new PbColumnGenerator());
-        stateUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, Processbase.getCurrent().messages.getString("taskUpdatedBy"), null, null);
+        stateUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskUpdatedBy"), null, null);
         stateUpdatesTable.setColumnWidth("UpdatedBy", 150);
-        stateUpdatesTable.addContainerProperty("InitialState", String.class, null, Processbase.getCurrent().messages.getString("taskInitialState"), null, null);
+        stateUpdatesTable.addContainerProperty("InitialState", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskInitialState"), null, null);
         stateUpdatesTable.setColumnWidth("InitialState", 150);
-        stateUpdatesTable.addContainerProperty("ActivityState", String.class, null, Processbase.getCurrent().messages.getString("taskActivityState"), null, null);
+        stateUpdatesTable.addContainerProperty("ActivityState", String.class, null, ((Processbase) getApplication()).getMessages().getString("taskActivityState"), null, null);
         stateUpdatesTable.setColumnWidth("ActivityState", 150);
         if (task != null) {
             for (StateUpdate stateUpdate : task.getStateUpdates()) {
@@ -310,7 +319,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         stateUpdatesTable.setSortAscending(false);
         stateUpdatesTable.sort();
         stateUpdatesTable.setPageLength(5);
-        stateUpdatesTable.setCaption(Processbase.getCurrent().messages.getString("taskAssignUpdates"));
+        stateUpdatesTable.setCaption(((Processbase) getApplication()).getMessages().getString("taskAssignUpdates"));
         stateLayout.addComponent(stateUpdatesTable);
         stateUpdatesTable.setSizeFull();
         stateLayout.setWidth("100%");
@@ -331,13 +340,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         } else {
             try {
                 if (event.getButton().equals(unAssignBtn) && !unAssignBtn.booleanValue()) {
-                    Processbase.getCurrent().bpmModule.unassignTask(task.getUUID());
+                    ((Processbase) getApplication()).getBpmModule().unassignTask(task.getUUID());
                 } else if (event.getButton().equals(reassignBtn)) {
-                    Processbase.getCurrent().bpmModule.assignTask(task.getUUID());
+                    ((Processbase) getApplication()).getBpmModule().assignTask(task.getUUID());
                 } else if (event.getButton().equals(assignBtn) && candidatesList.getValue() != null) {
-                    Processbase.getCurrent().bpmModule.assignTask(task.getUUID(), candidatesList.getValue().toString());
+                    ((Processbase) getApplication()).getBpmModule().assignTask(task.getUUID(), candidatesList.getValue().toString());
                 }
-                this.task = Processbase.getCurrent().bpmModule.getTaskInstance(task.getUUID());
+                this.task = ((Processbase) getApplication()).getBpmModule().getTaskInstance(task.getUUID());
                 addParticipantInfo();
                 addStateInfo();
             } catch (Exception ex) {

@@ -59,9 +59,9 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
         taskListPanel = new TaskListPanel();
         panels.put(myTaskListBtn, taskListPanel);
         addComponent(taskListPanel, 1);
+        taskListPanel.initUI();
         taskListPanel.refreshTable();
-        myTaskListBtn.setCaption(Processbase.getCurrent().messages.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
-
+        myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
 
         taskCompletedPanel = new TaskCompletedPanel();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
@@ -76,6 +76,9 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
 
     private void setCurrentPanel(WorkPanel workPanel) {
         replaceComponent(getComponent(1), workPanel);
+        if (!workPanel.isInitialized()){
+                workPanel.initUI();
+            }
         if (workPanel instanceof TablePanel){
             ((TablePanel)workPanel).refreshTable();
         } else if (workPanel instanceof TreeTablePanel){
@@ -87,32 +90,32 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
     private void prepareButtonBar() {
 
         // prepare myNewProcessesBtn button
-        myNewProcessesBtn = new Button(Processbase.getCurrent().messages.getString("myNewProcessesBtn"), this);
+        myNewProcessesBtn = new Button(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"), this);
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myNewProcessesBtn, 0);
         buttonBar.setComponentAlignment(myNewProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        myTaskListBtn = new Button(Processbase.getCurrent().messages.getString("myTaskListBtn"), this);
+        myTaskListBtn = new Button(((Processbase)getApplication()).getMessages().getString("myTaskListBtn"), this);
         myTaskListBtn.setStyleName("special");
         myTaskListBtn.setEnabled(false);
         buttonBar.addComponent(myTaskListBtn, 1);
         buttonBar.setComponentAlignment(myTaskListBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        myProcessesBtn = new Button(Processbase.getCurrent().messages.getString("myProcessesBtn"), this);
+        myProcessesBtn = new Button(((Processbase)getApplication()).getMessages().getString("myProcessesBtn"), this);
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myProcessesBtn, 2);
         buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskCompletedBtn button
-        myTaskCompletedBtn = new Button(Processbase.getCurrent().messages.getString("myTaskCompletedBtn"), this);
+        myTaskCompletedBtn = new Button(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn"), this);
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myTaskCompletedBtn, 3);
         buttonBar.setComponentAlignment(myTaskCompletedBtn, Alignment.MIDDLE_LEFT);
 
         // prepare help button
-        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
@@ -138,31 +141,31 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
             setCurrentPanel(panel);
         }
         if (!myTaskListBtn.isEnabled()) {
-            myTaskListBtn.setCaption(Processbase.getCurrent().messages.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+            myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
-            myProcessesBtn.setCaption(Processbase.getCurrent().messages.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
+            myProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
         } else if (!myTaskCompletedBtn.isEnabled()) {
-            myTaskCompletedBtn.setCaption(Processbase.getCurrent().messages.getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
+            myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
         } else if (!myNewProcessesBtn.isEnabled()) {
-            myNewProcessesBtn.setCaption(Processbase.getCurrent().messages.getString("myNewProcessesBtn"));
+            myNewProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"));
         }
     }
 
     private void activateButtons() {
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myProcessesBtn.setEnabled(true);
-        myProcessesBtn.setCaption(Processbase.getCurrent().messages.getString("myProcessesBtn"));
+        myProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myProcessesBtn"));
 
         myTaskListBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskListBtn.setEnabled(true);
-        myTaskListBtn.setCaption(Processbase.getCurrent().messages.getString("myTaskListBtn"));
+        myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn"));
 
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskCompletedBtn.setEnabled(true);
-        myTaskCompletedBtn.setCaption(Processbase.getCurrent().messages.getString("myTaskCompletedBtn"));
+        myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn"));
 
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myNewProcessesBtn.setEnabled(true);
-        myNewProcessesBtn.setCaption(Processbase.getCurrent().messages.getString("myNewProcessesBtn"));
+        myNewProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"));
     }
 }

@@ -29,6 +29,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class WorkPanel extends VerticalLayout {
 
     protected HorizontalLayout horizontalLayout = new HorizontalLayout();
+    private boolean initialized = false;
     
     public WorkPanel() {
         super();
@@ -41,34 +42,10 @@ public class WorkPanel extends VerticalLayout {
         setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
-
-
-
-    public WorkPanel(PortletApplicationContext2 portletApplicationContext2) {
-        super();
-//        try {
-//            this.portletApplicationContext2 = portletApplicationContext2;
-//            this.messages = ResourceBundle.getBundle("resources/MessagesBundle", getCurrentLocale());
-//            this.bpmModule = new BPMModule(this.getCurrentUser().getScreenName());
-//            refreshBtn = new Button(this.messages.getString("btnRefresh"), this);
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//        // prepare help button
-//        buttonBar.addComponent(refreshBtn);
-//        buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_LEFT);
-
-        horizontalLayout.setSizeFull();
-//        horizontalLayout.setStyleName(Reindeer.LAYOUT_WHITE);
-
-        setSizeFull();
-//        addComponent(buttonBar);
-        addComponent(horizontalLayout);
-        setExpandRatio(horizontalLayout, 1);
-        setMargin(false);
-        setStyleName(Reindeer.LAYOUT_WHITE);
+    public void initUI(){
+        initialized = true;
     }
-    
+
     public void windowClose(CloseEvent e) {
     }
 
@@ -91,5 +68,15 @@ public class WorkPanel extends VerticalLayout {
     public PbWindow getPbWindow(){
         return (PbWindow) this.getWindow();
     }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
+
+    
     
 }

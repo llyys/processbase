@@ -35,10 +35,11 @@ public class TreeTablePanel extends WorkPanel implements Button.ClickListener, W
 
     public TreeTablePanel() {
         super();
-        initUI();
     }
 
+    @Override
     public void initUI() {
+        super.initUI();
         treeTable.setSizeFull();
         treeTable.setPageLength(15);
         treeTable.addStyleName("striped");
@@ -50,8 +51,6 @@ public class TreeTablePanel extends WorkPanel implements Button.ClickListener, W
         horizontalLayout.setExpandRatio(treeTable, 1);
     }
 
-    public void initTableUI() {
-    }
 
     public void refreshTable() {
     }

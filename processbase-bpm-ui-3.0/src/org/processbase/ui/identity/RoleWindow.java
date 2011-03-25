@@ -37,24 +37,35 @@ public class RoleWindow extends PbWindow implements ClickListener {
 
     private Role role = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField roleName = new TextField(Processbase.getCurrent().messages.getString("roleName"));
-    private TextField roleLabel = new TextField(Processbase.getCurrent().messages.getString("roleLabel"));
-    private TextArea roleDescription = new TextArea(Processbase.getCurrent().messages.getString("roleDescription"));
+    private Button cancelBtn;
+    private Button applyBtn;
+    private TextField roleName;
+    private TextField roleLabel;
+    private TextArea roleDescription;
 
     public RoleWindow(Role role) {
-        super(role == null ? Processbase.getCurrent().messages.getString("newRole") : Processbase.getCurrent().messages.getString("role"));
+        super();
         this.role = role;
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            if (role == null) {
+                setCaption(((Processbase) getApplication()).getMessages().getString("newRole"));
+            } else {
+                setCaption(((Processbase) getApplication()).getMessages().getString("role"));
+            }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
+
+            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            roleName = new TextField(((Processbase) getApplication()).getMessages().getString("roleName"));
+            roleLabel = new TextField(((Processbase) getApplication()).getMessages().getString("roleLabel"));
+            roleDescription = new TextArea(((Processbase) getApplication()).getMessages().getString("roleDescription"));
 
             roleName.setWidth("270px");
             addComponent(roleName);
@@ -91,9 +102,9 @@ public class RoleWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (role == null) {
-                    Processbase.getCurrent().bpmModule.addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                    ((Processbase) getApplication()).getBpmModule().addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
                 } else {
-                    Processbase.getCurrent().bpmModule.updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                    ((Processbase) getApplication()).getBpmModule().updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
                 }
                 close();
             } else {

@@ -38,16 +38,15 @@ public class MetadataPanel extends TablePanel implements
 
     public MetadataPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionName"), null, null);
-        table.addContainerProperty("label", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionLabel"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionName"), null, null);
+        table.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLabel"), null, null);
         table.setColumnExpandRatio("label", 1);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -55,14 +54,14 @@ public class MetadataPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<ProfileMetadata> metadatas = Processbase.getCurrent().bpmModule.getAllProfileMetadata();
+            List<ProfileMetadata> metadatas = ((Processbase)getApplication()).getBpmModule().getAllProfileMetadata();
 
             for (ProfileMetadata metadata : metadatas) {
                 Item woItem = table.addItem(metadata);
                 TableLinkButton teb = new TableLinkButton(metadata.getName(), "", null, metadata, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(metadata.getLabel());
-                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
@@ -89,9 +88,9 @@ public class MetadataPanel extends TablePanel implements
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 MetadataWindow nmw = new MetadataWindow(metadata);
-                nmw.exec();
                 nmw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(nmw);
+                nmw.initUI();
             }
 
         }
@@ -99,16 +98,16 @@ public class MetadataPanel extends TablePanel implements
 
     private void removeMetadata(final ProfileMetadata metadata) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("removeMetadata") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("removeMetadata") + "?",
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                Processbase.getCurrent().bpmModule.removeProfileMetadataByUUID(metadata.getUUID());
+                                ((Processbase)getApplication()).getBpmModule().removeProfileMetadataByUUID(metadata.getUUID());
                                 table.removeItem(metadata);
                             } catch (Exception ex) {
                                 ex.printStackTrace();

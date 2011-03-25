@@ -45,7 +45,7 @@ import org.processbase.ui.admin.NewProcessDefinitionWindow;
  *
  * @author mgubaidullin
  */
-public class AdminPanel extends VerticalLayout
+public class BPMConfigurationPanel extends VerticalLayout
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -72,6 +72,7 @@ public class AdminPanel extends VerticalLayout
         processDefinitionsPanel = new ProcessDefinitionsPanel();
         panels.put(processDefinitionBtn, processDefinitionsPanel);
         addComponent(processDefinitionsPanel, 1);
+        processDefinitionsPanel.initUI();
         processDefinitionsPanel.refreshTable();
 
         processInstancesPanel = new ProcessInstancesPanel();
@@ -88,6 +89,9 @@ public class AdminPanel extends VerticalLayout
 
     private void setCurrentPanel(TablePanel tablePanel) {
         replaceComponent(getComponent(1), tablePanel);
+        if (!tablePanel.isInitialized()){
+            tablePanel.initUI();
+        }
         if (tablePanel.equals(processDefinitionsPanel) || tablePanel.equals(categoriesPanel)) {
             tablePanel.refreshTable();
         }
@@ -95,27 +99,27 @@ public class AdminPanel extends VerticalLayout
 
     private void prepareButtonBar() {
         // prepare categoriesBtn button
-        categoriesBtn = new Button(Processbase.getCurrent().messages.getString("categoriesBtn"), this);
-        categoriesBtn.setDescription(Processbase.getCurrent().messages.getString("categoriesBtnTooltip"));
+        categoriesBtn = new Button(((Processbase)getApplication()).getMessages().getString("categoriesBtn"), this);
+        categoriesBtn.setDescription(((Processbase)getApplication()).getMessages().getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(categoriesBtn, 0);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        processDefinitionBtn = new Button(Processbase.getCurrent().messages.getString("processDefinitionBtn"), this);
+        processDefinitionBtn = new Button(((Processbase)getApplication()).getMessages().getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
         buttonBar.addComponent(processDefinitionBtn, 1);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        processInstancesBtn = new Button(Processbase.getCurrent().messages.getString("processInstancesBtn"), this);
+        processInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(processInstancesBtn, 2);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(Processbase.getCurrent().messages.getString("activityInstancesBtn"), this);
+        activityInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(activityInstancesBtn, 3);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -128,19 +132,19 @@ public class AdminPanel extends VerticalLayout
         // prepare processesComboBox
         processesComboBox = new ComboBox();
         processesComboBox.setWidth("250px");
-        processesComboBox.setInputPrompt(Processbase.getCurrent().messages.getString("selectProcessDefinition"));
-        processesComboBox.setDescription(Processbase.getCurrent().messages.getString("selectProcessDefinition"));
+        processesComboBox.setInputPrompt(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
+        processesComboBox.setDescription(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
         buttonBar.addComponent(processesComboBox, 5);
         buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
         processesComboBox.setVisible(false);
 
         // prepare refresh button
-        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(Processbase.getCurrent().messages.getString("btnAdd"), this);
+        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 7);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
@@ -165,14 +169,14 @@ public class AdminPanel extends VerticalLayout
         } else if (event.getButton().equals(btnAdd)) {
             if (getComponent(1) instanceof CategoriesPanel) {
                 NewCategoryWindow ncw = new NewCategoryWindow();
-                ncw.exec();
                 ncw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(ncw);
+                ncw.initUI();
             } else if (getComponent(1) instanceof ProcessDefinitionsPanel) {
                 NewProcessDefinitionWindow npdw = new NewProcessDefinitionWindow();
-                npdw.exec();
                 npdw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(npdw);
+                npdw.initUI();
             }
         } else {
             activateButtons();
@@ -204,7 +208,7 @@ public class AdminPanel extends VerticalLayout
     public void refreshProcessDefinitionCombo() {
         try {
             processesComboBox.removeAllItems();
-            Collection<LightProcessDefinition> processes = Processbase.getCurrent().bpmModule.getLightProcessDefinitions(ProcessState.ENABLED);
+            Collection<LightProcessDefinition> processes = ((Processbase)getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
             for (LightProcessDefinition pd : processes) {
                 Item woItem = processesComboBox.addItem(pd);
                 String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();

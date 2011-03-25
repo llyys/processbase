@@ -16,79 +16,136 @@
  */
 package org.processbase.ui;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
-
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.terminal.gwt.server.PortletRequestListener;
-import java.util.Enumeration;
-import java.util.Locale;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.ResourceBundle;
-import javax.portlet.PortletConfig;
+import javax.portlet.PortletSession;
+import javax.servlet.http.HttpSession;
 import org.processbase.bpm.BPMModule;
-import org.processbase.ui.util.DocumentLibraryUtil;
 import org.processbase.core.Constants;
-import org.processbase.ui.Processbase;
-import org.processbase.ui.panel.AdminPanel;
-import org.processbase.ui.panel.BAMPanel;
-import org.processbase.ui.panel.ConsolePanel;
-import org.processbase.ui.panel.IdentityPanel;
-import org.processbase.ui.panel.MonitoringPanel;
-import org.processbase.ui.template.PbWindow;
+import org.processbase.ui.util.DocumentLibraryUtil;
+import javax.enterprise.context.SessionScoped;
 
 /**
  *
  * @author mgubaidullin
  */
-public class PbApplication extends Application {
+@SessionScoped
+@SuppressWarnings("serial")
+public class PbApplication extends Application implements Processbase {
 
-    PbWindow mainWindow;
+    private MainWindow mainWindow;
+    private HttpSession httpSession = null;
+    private BPMModule bpmModule = null;
+    private ResourceBundle messages = null;
+    private String userName = null;
+    int type = STANDALONE;
 
     @Override
     public void init() {
-        System.out.println("PbPortlet init ");
+//        System.out.println("PbApplication init ");
+        if (!Constants.LOADED) {
+            Constants.loadConstants();
+        }
         setTheme("processbase");
         setLogoutURL(Constants.TASKLIST_PAGE_URL);
         try {
-            Processbase.setCurrent(new Processbase());
-//            User user = PortalUtil.getUser(request);
-//            Processbase.getCurrent().setPortalUser(user);
-//            Locale locale = getgetLocale();
-//            setLocale(locale);
-            Processbase.getCurrent().messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
-            Processbase.getCurrent().bpmModule = new BPMModule(Processbase.getCurrent().getUserName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
+            httpSession = applicationContext.getHttpSession();
+            setLocale(applicationContext.getBrowser().getLocale());
+            setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
+            mainWindow = new MainWindow();
+            setMainWindow(mainWindow);
+            mainWindow.initLogin();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-
-        mainWindow = new PbWindow("Processbase User Portlet");
-        mainWindow.setSizeFull();
-        ConsolePanel ui = new ConsolePanel();
-        mainWindow.setContent(ui);
-        ui.initUI();
-//        } else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")){
-//            AdminPanel ui = new AdminPanel();
-//            mainWindow.setContent(ui);
-//            ui.initUI();
-//        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")){
-//            IdentityPanel ui = new IdentityPanel();
-//            mainWindow.setContent(ui);
-//            ui.initUI();
-//        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")){
-//            BAMPanel ui = new BAMPanel();
-//            mainWindow.setContent(ui);
-//            ui.initUI();
-//        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")){
-//            MonitoringPanel ui = new MonitoringPanel();
-//            mainWindow.setContent(ui);
-//            ui.initUI();
-//        }
-        setMainWindow(mainWindow);
     }
+
+    public void authenticate(String login, String password) {
+//        System.out.println("username " + login + " pasword " + password);
+        setUserName(login);
+        setBpmModule(new BPMModule(getUserName()));
+        mainWindow.initUI();
+    }
+
+    public void setSessionAttribute(String name, String value) {
+        httpSession.setAttribute("PROCESSBASE_SHARED_" + name, value);
+    }
+
+    public void removeSessionAttribute(String name) {
+        httpSession.removeAttribute("PROCESSBASE_SHARED_" + name);
+    }
+
+    public void getSessionAttribute(String name) {
+        httpSession.getAttribute("PROCESSBASE_SHARED_" + name);
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public BPMModule getBpmModule() {
+        return bpmModule;
+    }
+
+    public void setBpmModule(BPMModule bpmModule) {
+        this.bpmModule = bpmModule;
+    }
+
+    public ResourceBundle getMessages() {
+        return messages;
+    }
+
+    public void setMessages(ResourceBundle messages) {
+        this.messages = messages;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public User getPortalUser() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setPortalUser(User portalUser) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public PortletSession getPortletSession() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setPortletSession(PortletSession portletSession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public DocumentLibraryUtil getDocumentLibraryUtil() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public PortletApplicationContext2 getPortletApplicationContext2() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
 }

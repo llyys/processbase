@@ -42,25 +42,37 @@ public class GroupWindow extends PbWindow implements ClickListener {
 
     private Group group = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
-    private Button applyBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField groupName = new TextField(Processbase.getCurrent().messages.getString("groupName"));
-    private TextField groupLabel = new TextField(Processbase.getCurrent().messages.getString("groupLabel"));
-    private TextArea groupDescription = new TextArea(Processbase.getCurrent().messages.getString("groupDescription"));
-    private ComboBox parentGroup = new ComboBox(Processbase.getCurrent().messages.getString("groupParent"));
+    private Button cancelBtn;
+    private Button applyBtn;
+    private TextField groupName;
+    private TextField groupLabel;
+    private TextArea groupDescription;
+    private ComboBox parentGroup;
 
     public GroupWindow(Group group) {
-        super(group == null ? Processbase.getCurrent().messages.getString("newGroup") : Processbase.getCurrent().messages.getString("group"));
+        super();
         this.group = group;
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            if (group == null) {
+                setCaption(((Processbase) getApplication()).getMessages().getString("newGroup"));
+            } else {
+                setCaption(((Processbase) getApplication()).getMessages().getString("group"));
+            }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
+
+            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            groupName = new TextField(((Processbase) getApplication()).getMessages().getString("groupName"));
+            groupLabel = new TextField(((Processbase) getApplication()).getMessages().getString("groupLabel"));
+            groupDescription = new TextArea(((Processbase) getApplication()).getMessages().getString("groupDescription"));
+            parentGroup = new ComboBox(((Processbase) getApplication()).getMessages().getString("groupParent"));
 
             parentGroup.setWidth("270px");
             parentGroup.setContainerDataSource(getGroups());
@@ -105,13 +117,13 @@ public class GroupWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (group == null) {
-                    Processbase.getCurrent().bpmModule.addGroup(
+                    ((Processbase) getApplication()).getBpmModule().addGroup(
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
                             groupDescription.getValue().toString(),
                             parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
                 } else {
-                    Processbase.getCurrent().bpmModule.updateGroupByUUID(
+                    ((Processbase) getApplication()).getBpmModule().updateGroupByUUID(
                             group.getUUID(),
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
@@ -134,7 +146,7 @@ public class GroupWindow extends PbWindow implements ClickListener {
         container.addContainerProperty("label", String.class, null);
         container.addContainerProperty("uuid", String.class, null);
         container.addContainerProperty("path", String.class, null);
-        List<Group> groups = Processbase.getCurrent().bpmModule.getAllGroups();
+        List<Group> groups = ((Processbase) getApplication()).getBpmModule().getAllGroups();
         for (Group groupX : groups) {
             Item item = container.addItem(groupX.getUUID());
             item.getItemProperty("name").setValue(groupX.getName());

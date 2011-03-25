@@ -26,13 +26,10 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -53,33 +50,43 @@ public class KPIWindow extends PbWindow
 
     private MetaKpi metaKpi = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
-    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField code = new TextField(Processbase.getCurrent().messages.getString("code"));
-    private TextField name = new TextField(Processbase.getCurrent().messages.getString("name"));
-    private TextField description = new TextField(Processbase.getCurrent().messages.getString("description"));
+    private Button closeBtn;
+    private Button saveBtn;
+    private TextField code;
+    private TextField name;
+    private TextField description;
     private TwinColSelect dimensions = new TwinColSelect();
     private TwinColSelect facts = new TwinColSelect();
     private GridLayout layout = new GridLayout(2, 5);
 
     public KPIWindow(MetaKpi metaKpi) {
-        super(metaKpi == null ? Processbase.getCurrent().messages.getString("newKPI")
-                : Processbase.getCurrent().messages.getString("kpi") + " " + metaKpi.getCode());
+        super();
         this.metaKpi = metaKpi;
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            if (metaKpi == null) {
+                setCaption(((Processbase) getApplication()).getMessages().getString("newKPI"));
+            } else {
+                setCaption(((Processbase) getApplication()).getMessages().getString("kpi") + " " + metaKpi.getCode());
+            }
             setModal(true);
             setContent(layout);
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
+            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
+            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
+            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
+            description = new TextField(((Processbase) getApplication()).getMessages().getString("description"));
+
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", Processbase.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
             layout.addComponent(code, 0, 0);
             name.setWidth("275px");
             name.setMaxLength(500);
@@ -100,8 +107,8 @@ public class KPIWindow extends PbWindow
 
             dimensions.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             dimensions.setWidth("570px");
-            dimensions.setLeftColumnCaption(Processbase.getCurrent().messages.getString("dimensionsAvailable"));
-            dimensions.setRightColumnCaption(Processbase.getCurrent().messages.getString("dimensionsSelected"));
+            dimensions.setLeftColumnCaption(((Processbase) getApplication()).getMessages().getString("dimensionsAvailable"));
+            dimensions.setRightColumnCaption(((Processbase) getApplication()).getMessages().getString("dimensionsSelected"));
             layout.addComponent(dimensions, 0, 2, 1, 2);
 
             // preparing facts
@@ -113,8 +120,8 @@ public class KPIWindow extends PbWindow
 
             facts.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             facts.setWidth("570px");
-            facts.setLeftColumnCaption(Processbase.getCurrent().messages.getString("factsAvailable"));
-            facts.setRightColumnCaption(Processbase.getCurrent().messages.getString("factsSelected"));
+            facts.setLeftColumnCaption(((Processbase) getApplication()).getMessages().getString("factsAvailable"));
+            facts.setRightColumnCaption(((Processbase) getApplication()).getMessages().getString("factsSelected"));
             layout.addComponent(facts, 0, 3, 1, 3);
 
             if (metaKpi != null) {
@@ -135,7 +142,7 @@ public class KPIWindow extends PbWindow
                     }
                     facts.setValue(preselected);
                 }
-                if (metaKpi.getStatus().equals(MetaKpi.NOT_EDITABLE)){
+                if (metaKpi.getStatus().equals(MetaKpi.NOT_EDITABLE)) {
                     code.setReadOnly(true);
                     name.setReadOnly(true);
                     description.setReadOnly(true);
@@ -143,7 +150,7 @@ public class KPIWindow extends PbWindow
                     facts.setReadOnly(true);
                 }
             } else {
-                code.setValue("K"+String.format("%05d", new Integer(hutil.getAllMetaKpi().size()+1)));
+                code.setValue("K" + String.format("%05d", new Integer(hutil.getAllMetaKpi().size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -192,7 +199,7 @@ public class KPIWindow extends PbWindow
                 metaKpi.setCode(code.getValue().toString());
                 metaKpi.setName(name.getValue().toString());
                 metaKpi.setDescription(description.getValue().toString());
-                metaKpi.setOwner(Processbase.getCurrent().getPortalUser().getScreenName());
+                metaKpi.setOwner(((Processbase) getApplication()).getUserName());
                 metaKpi.getMetaDims().clear();
                 if (dimensions.getValue() instanceof Set && !((Set) dimensions.getValue()).isEmpty()) {
                     metaKpi.getMetaDims().addAll((Set) dimensions.getValue());
@@ -206,7 +213,7 @@ public class KPIWindow extends PbWindow
                 if (x.isEmpty() || x.get(0).getId() > 0) {
                     hutil.updateMetaKpi(metaKpi);
                 } else {
-                    throw new Exception(Processbase.getCurrent().messages.getString("uniqueKpiCode"));
+                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueKpiCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

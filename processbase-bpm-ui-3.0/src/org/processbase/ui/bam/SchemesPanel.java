@@ -42,12 +42,10 @@ public class SchemesPanel extends TablePanel implements
         Window.CloseListener {
 
     private GridLayout databaseInfo = new GridLayout(2, 2);
-    private Button generateMetaDataBtn = new Button(Processbase.getCurrent().messages.getString("generateMetaData"), this);
+    private Button generateMetaDataBtn;
 
     public SchemesPanel() {
         super();
-        initTableUI();
-        addDatabaseInfo();
     }
 
     private void addDatabaseInfo() {
@@ -55,6 +53,7 @@ public class SchemesPanel extends TablePanel implements
         databaseInfo.setSpacing(true);
         databaseInfo.setWidth("100%");
         databaseInfo.removeAllComponents();
+        generateMetaDataBtn = new Button(((Processbase)getApplication()).getMessages().getString("generateMetaData"), this);
         databaseInfo.addComponent(generateMetaDataBtn, 1, 0);
         generateMetaDataBtn.setVisible(false);
         try {
@@ -75,17 +74,19 @@ public class SchemesPanel extends TablePanel implements
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("id", String.class, null, Processbase.getCurrent().messages.getString("id"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, Processbase.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("owner", String.class, null, Processbase.getCurrent().messages.getString("owner"), null, null);
-        table.addContainerProperty("status", String.class, null, Processbase.getCurrent().messages.getString("State"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
+        table.addContainerProperty("owner", String.class, null, ((Processbase)getApplication()).getMessages().getString("owner"), null, null);
+        table.addContainerProperty("status", String.class, null, ((Processbase)getApplication()).getMessages().getString("State"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
+
+        addDatabaseInfo();
     }
 
     @Override
@@ -103,7 +104,7 @@ public class SchemesPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaKpi.getName());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                 woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnGenerate"), "icons/start.png", metaKpi, this, Constants.ACTION_START);
+                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnGenerate"), "icons/start.png", metaKpi, this, Constants.ACTION_START);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -130,9 +131,9 @@ public class SchemesPanel extends TablePanel implements
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 KPIWindow nkw = new KPIWindow(metaKpi);
-                nkw.exec();
                 nkw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(nkw);
+                nkw.initUI();
             }
         } else if (event.getButton().equals(generateMetaDataBtn)) {
             generateMetaDataSchema();
@@ -141,10 +142,10 @@ public class SchemesPanel extends TablePanel implements
 
     private void generateMetaDataSchema() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("generateSchema") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("generateSchema") + "?",
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -166,10 +167,10 @@ public class SchemesPanel extends TablePanel implements
         ScriptGenerator srciptor = new ScriptGenerator();
         final ArrayList<String> scripts = srciptor.getCreateTableScript(metaKpi, ScriptGenerator.CREATE_SCRIPT);
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
                 scripts.get(0),
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

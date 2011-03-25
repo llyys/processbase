@@ -22,7 +22,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.ArrayList;
 import org.processbase.bam.metadata.HibernateUtil;
-import org.processbase.bam.metadata.MetaDim;
 import org.processbase.bam.metadata.MetaFact;
 import org.processbase.core.Constants;
 import org.processbase.ui.template.TableLinkButton;
@@ -40,17 +39,16 @@ public class FactsPanel extends TablePanel implements
 
     public FactsPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("id", String.class, null, Processbase.getCurrent().messages.getString("id"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, Processbase.getCurrent().messages.getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, Processbase.getCurrent().messages.getString("name"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -68,7 +66,7 @@ public class FactsPanel extends TablePanel implements
                 woItem.getItemProperty("id").setValue(metaFact.getId());
                 woItem.getItemProperty("code").setValue(metaFact.getCode());
                 woItem.getItemProperty("name").setValue(metaFact.getName());
-                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("btnDelete"), "icons/cancel.png", metaFact, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metaFact, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -95,19 +93,19 @@ public class FactsPanel extends TablePanel implements
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 FactWindow nfw = new FactWindow(metaFact);
-                nfw.exec();
                 nfw.addListener((Window.CloseListener) this);
                 getWindow().addWindow(nfw);
+                nfw.initUI();
             }
         }
     }
 
     private void removeMetaFact(final MetaFact metaFact) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("removeFact") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getMessages().getString("removeFact") + "?",
+                ((Processbase)getApplication()).getMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

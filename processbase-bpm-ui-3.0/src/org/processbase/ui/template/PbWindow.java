@@ -29,6 +29,11 @@ public class PbWindow extends Window {
 
     public boolean confirm = false;
 
+    public PbWindow() {
+    }
+
+    
+
     public PbWindow(String caption) {
         super(caption);
         ((Layout) getContent()).setStyleName(Reindeer.LAYOUT_WHITE);
@@ -57,7 +62,7 @@ public class PbWindow extends Window {
         } else {
             desc.append("<br/> null");
         }
-        showNotification(Processbase.getCurrent().messages.getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
+        showNotification(((Processbase)getApplication()).getMessages().getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
 
     }
 
@@ -74,13 +79,13 @@ public class PbWindow extends Window {
         }
         switch (type) {
             case Notification.TYPE_WARNING_MESSAGE:
-                showNotification(Processbase.getCurrent().messages.getString("warningCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getMessages().getString("warningCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_HUMANIZED_MESSAGE:
-                showNotification(Processbase.getCurrent().messages.getString("informationCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getMessages().getString("informationCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_ERROR_MESSAGE:
-                showNotification(Processbase.getCurrent().messages.getString("exceptionCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getMessages().getString("exceptionCaption"), desc.substring(0), type);
                 break;
         }
     }

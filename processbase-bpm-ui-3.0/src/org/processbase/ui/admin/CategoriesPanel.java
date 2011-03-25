@@ -37,16 +37,15 @@ public class CategoriesPanel extends TablePanel implements
 
     public CategoriesPanel() {
         super();
-        initTableUI();
     }
 
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionCategory"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionCategory"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("uuid", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionUUID"), null, null);
+        table.addContainerProperty("uuid", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionUUID"), null, null);
 //        table.setColumnWidth("uuid", 50);
 //        table.addContainerProperty("deployedBy", String.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
 //        table.addContainerProperty("deployedDate", Date.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
@@ -58,7 +57,7 @@ public class CategoriesPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<Category> categories = Processbase.getCurrent().bpmModule.getAllCategories();
+            Set<Category> categories = ((Processbase)getApplication()).getBpmModule().getAllCategories();
 
             for (Category category : categories) {
                 Item woItem = table.addItem(category);
@@ -85,8 +84,8 @@ public class CategoriesPanel extends TablePanel implements
                 if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 try {
                     CategoryWindow categoryWindow = new CategoryWindow((Category) execBtn.getTableValue());
-                    categoryWindow.exec();
                     getApplication().getMainWindow().addWindow(categoryWindow);
+                    categoryWindow.initUI();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());

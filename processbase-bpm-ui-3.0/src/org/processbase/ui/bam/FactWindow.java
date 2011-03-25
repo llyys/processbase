@@ -42,29 +42,38 @@ public class FactWindow extends PbWindow
 
     private MetaFact metaFact = null;
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
-    private Button saveBtn = new Button(Processbase.getCurrent().messages.getString("btnSave"), this);
-    private TextField code = new TextField(Processbase.getCurrent().messages.getString("code"));
-    private TextField name = new TextField(Processbase.getCurrent().messages.getString("name"));
+    private Button closeBtn;
+    private Button saveBtn;
+    private TextField code;
+    private TextField name;
 
     public FactWindow(MetaFact metaFact) {
-        super(metaFact == null ? Processbase.getCurrent().messages.getString("newFact")
-                : Processbase.getCurrent().messages.getString("fact") + metaFact.getCode());
+        super();
         this.metaFact = metaFact;
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            if (metaFact == null) {
+                setCaption(((Processbase) getApplication()).getMessages().getString("newFact"));
+            } else {
+                setCaption(((Processbase) getApplication()).getMessages().getString("fact") + metaFact.getCode());
+            }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
+            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
+            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
+            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
+            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
+
             code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", Processbase.getCurrent().messages.getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("265px");
             name.setMaxLength(500);
@@ -76,7 +85,7 @@ public class FactWindow extends PbWindow
                 name.setValue(metaFact.getName());
             } else {
                 HibernateUtil hutil = new HibernateUtil();
-                code.setValue("F"+String.format("%05d", new Integer(hutil.getAllMetaFact().size()+1)));
+                code.setValue("F" + String.format("%05d", new Integer(hutil.getAllMetaFact().size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -107,7 +116,7 @@ public class FactWindow extends PbWindow
                 if (hutil.getMetaFactByCode(metaFact.getCode()).isEmpty()) {
                     hutil.addMetaFact(metaFact);
                 } else {
-                    throw new Exception(Processbase.getCurrent().messages.getString("uniqueFactCode"));
+                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueFactCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

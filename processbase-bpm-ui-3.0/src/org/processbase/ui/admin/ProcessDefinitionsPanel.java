@@ -40,19 +40,18 @@ public class ProcessDefinitionsPanel extends TablePanel implements
 
     public ProcessDefinitionsPanel() {
         super();
-        initTableUI();
     }
 
     @Override
-    public void initTableUI() {
-        super.initTableUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionProcessName"), null, null);
+    public void initUI() {
+        super.initUI();
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("deployedBy", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
-        table.addContainerProperty("state", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionState"), null, null);
-        table.addContainerProperty("deployedDate", Date.class, null, Processbase.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
+        table.addContainerProperty("deployedBy", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDeployedBy"), null, null);
+        table.addContainerProperty("state", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("deployedDate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
     }
@@ -61,7 +60,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<ProcessDefinition> pds = Processbase.getCurrent().bpmModule.getProcesses();
+            Set<ProcessDefinition> pds = ((Processbase) getApplication()).getBpmModule().getProcesses();
             for (ProcessDefinition pd : pds) {
                 Item woItem = table.addItem(pd);
                 TableLinkButton teb = new TableLinkButton(pd.getLabel() != null ? pd.getLabel() : pd.getName(), pd.getDescription(), null, pd, this, Constants.ACTION_OPEN);
@@ -88,11 +87,11 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 try {
                     ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
-                    ProcessDefinition processDefinition = Processbase.getCurrent().bpmModule.getProcessDefinition(pd);
+                    ProcessDefinition processDefinition = ((Processbase) getApplication()).getBpmModule().getProcessDefinition(pd);
                     ProcessDefinitionWindow processDefinitionWindow = new ProcessDefinitionWindow(processDefinition);
-                    processDefinitionWindow.exec();
                     processDefinitionWindow.addListener((Window.CloseListener) this);
                     getApplication().getMainWindow().addWindow(processDefinitionWindow);
+                    processDefinitionWindow.initUI();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());

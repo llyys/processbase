@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.template;
 
-import com.liferay.portal.model.User;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -40,7 +39,6 @@ import java.util.logging.Logger;
 import javax.portlet.PortletSession;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.Comment;
 import org.ow2.bonita.facade.runtime.TaskInstance;
@@ -115,9 +113,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void initUI() {
-        currentUserName = Processbase.getCurrent().getUserName();
-        bpmModule = Processbase.getCurrent().bpmModule;
-        messages = Processbase.getCurrent().messages;
+        currentUserName = ((Processbase)getApplication()).getUserName();
+        bpmModule = ((Processbase)getApplication()).getBpmModule();
+        messages = ((Processbase)getApplication()).getMessages();
         if (custom) {
             prepareCustom();
         }

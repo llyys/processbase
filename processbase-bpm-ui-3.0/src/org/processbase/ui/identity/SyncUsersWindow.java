@@ -42,26 +42,27 @@ import org.processbase.core.Constants;
 public class SyncUsersWindow extends PbWindow implements ClickListener {
 
     private ButtonBar buttons = new ButtonBar();
-    private Button closeBtn = new Button(Processbase.getCurrent().messages.getString("btnClose"), this);
+    private Button closeBtn ;
     private Table table = new Table();
     private List<org.ow2.bonita.facade.identity.User> bonitaUsers = new ArrayList<org.ow2.bonita.facade.identity.User>();
     private List<com.liferay.portal.model.User> liferayUsers = new ArrayList<com.liferay.portal.model.User>();
     private HashMap<String, String> usersMap = new HashMap<String, String>();
 
     public SyncUsersWindow() {
-        super(Processbase.getCurrent().messages.getString("syncUsers"));
-        initTableUI();
+        super();
     }
 
-    public void exec() {
+    public void initUI() {
         try {
+            setCaption(((Processbase) getApplication()).getMessages().getString("syncUsers"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
             layout.addComponent(table);
-            refreshTable();
+
+            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -71,31 +72,30 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             setWidth("70%");
 //            setHeight("70%");
             setResizable(false);
+
+            table.addContainerProperty("username", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionUsername"), null, null);
+            table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLastname"), null, null);
+            table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionFirstname"), null, null);
+            table.addContainerProperty("liferayStatus", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLiferayStatus"), null, null);
+            table.addContainerProperty("bonitaStatus", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionBonitaStatus"), null, null);
+//        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
+            table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+            table.setColumnWidth("actions", 50);
+            table.setSelectable(false);
+            table.setImmediate(true);
+            table.setWidth("100%");
+            table.setPageLength(15);
+            refreshTable();
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
         }
     }
 
-    public void initTableUI() {
-        table.addContainerProperty("username", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionUsername"), null, null);
-        table.addContainerProperty("lastname", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionLastname"), null, null);
-        table.addContainerProperty("firstname", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionFirstname"), null, null);
-        table.addContainerProperty("liferayStatus", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionLiferayStatus"), null, null);
-        table.addContainerProperty("bonitaStatus", String.class, null, Processbase.getCurrent().messages.getString("tableCaptionBonitaStatus"), null, null);
-//        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, Processbase.getCurrent().messages.getString("tableCaptionActions"), null, null);
-        table.setColumnWidth("actions", 50);
-        table.setSelectable(false);
-        table.setImmediate(true);
-        table.setWidth("100%");
-        table.setPageLength(15);
-    }
-
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<org.ow2.bonita.facade.identity.User> bu = Processbase.getCurrent().bpmModule.getAllUsers();
+            List<org.ow2.bonita.facade.identity.User> bu = ((Processbase) getApplication()).getBpmModule().getAllUsers();
             if (!bu.isEmpty()) {
                 bonitaUsers.addAll(bu);
             }
@@ -127,21 +127,21 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             woItem.getItemProperty("firstname").setValue(getBonitaUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
             woItem.getItemProperty("liferayStatus").setValue("ABSENT");
-            TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
             woItem.getItemProperty("actions").setValue(tlb);
         } else if (usersMap.get(userName).equals("LIFERAY")) {
             woItem.getItemProperty("lastname").setValue(getLiferayUser(userName).getLastName());
             woItem.getItemProperty("firstname").setValue(getLiferayUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ABSENT");
             woItem.getItemProperty("liferayStatus").setValue(getLiferayUser(userName).isActive() ? "ACTIVE" : "DISABLED");
-            TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("addToBonita"), "icons/accept.png", userName, this, Constants.ACTION_ADD);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("addToBonita"), "icons/accept.png", userName, this, Constants.ACTION_ADD);
             woItem.getItemProperty("actions").setValue(tlb);
         } else if (usersMap.get(userName).equals("BOTH")) {
             woItem.getItemProperty("lastname").setValue(getLiferayUser(userName).getLastName());
             woItem.getItemProperty("firstname").setValue(getLiferayUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
             woItem.getItemProperty("liferayStatus").setValue(getLiferayUser(userName).isActive() ? "ACTIVE" : "DISABLED");
-            TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
             woItem.getItemProperty("actions").setValue(tlb);
         }
     }
@@ -200,25 +200,25 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     private void addToBonita(final String userName) {
         final SyncUsersWindow suw = this;
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("addToBonita") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getMessages().getString("addToBonita") + "?",
+                ((Processbase) getApplication()).getMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 com.liferay.portal.model.User liferayUser = getLiferayUser(userName);
-                                org.ow2.bonita.facade.identity.User user = Processbase.getCurrent().bpmModule.addUser(liferayUser.getScreenName(),
+                                org.ow2.bonita.facade.identity.User user = ((Processbase) getApplication()).getBpmModule().addUser(liferayUser.getScreenName(),
                                         "", liferayUser.getFirstName(), liferayUser.getLastName(),
                                         "", liferayUser.getJobTitle(), null, new HashMap<String, String>());
-                                Processbase.getCurrent().bpmModule.updateUserProfessionalContactInfo(
+                                ((Processbase) getApplication()).getBpmModule().updateUserProfessionalContactInfo(
                                         user.getUUID(), liferayUser.getEmailAddress(), "",
                                         "", "", "", "", "", "", "", "", "", "");
                                 Item woItem = table.getItem(userName);
                                 woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
-                                TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("deleteFromBonita"), "icons/cancel.png", userName, suw, Constants.ACTION_DELETE);
+                                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, suw, Constants.ACTION_DELETE);
                                 woItem.getItemProperty("actions").setValue(tlb);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -231,20 +231,20 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     private void deleteFromBonita(final String userName) {
         final SyncUsersWindow suw = this;
         ConfirmDialog.show(getApplication().getMainWindow(),
-                Processbase.getCurrent().messages.getString("windowCaptionConfirm"),
-                Processbase.getCurrent().messages.getString("deleteFromBonita") + "?",
-                Processbase.getCurrent().messages.getString("btnYes"),
-                Processbase.getCurrent().messages.getString("btnNo"),
+                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getMessages().getString("deleteFromBonita") + "?",
+                ((Processbase) getApplication()).getMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                Processbase.getCurrent().bpmModule.removeUserByUUID(getBonitaUser(userName).getUUID());
+                                ((Processbase) getApplication()).getBpmModule().removeUserByUUID(getBonitaUser(userName).getUUID());
                                 Item woItem = table.getItem(userName);
                                 if (woItem.getItemProperty("liferayStatus").getValue().equals("ACTIVE")) {
                                     woItem.getItemProperty("bonitaStatus").setValue("ABSENT");
-                                    TableLinkButton tlb = new TableLinkButton(Processbase.getCurrent().messages.getString("addToBonita"), "icons/accept.png", userName, suw, Constants.ACTION_ADD);
+                                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("addToBonita"), "icons/accept.png", userName, suw, Constants.ACTION_ADD);
                                     woItem.getItemProperty("actions").setValue(tlb);
                                 } else {
                                     table.removeItem(userName);

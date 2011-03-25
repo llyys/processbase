@@ -35,6 +35,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.ResourceBundle;
 import org.processbase.bpm.forms.XMLWidgetsDefinition;
 import org.processbase.ui.Processbase;
 
@@ -58,16 +59,18 @@ public class ImmediateUpload extends VerticalLayout
     private Upload upload = new Upload(null, (Upload.Receiver) this);
     private Button deleteBtn = new Button();
     private Button downloadBtn = new Button();
-    private Button cancelBtn = new Button(Processbase.getCurrent().messages.getString("btnCancel"), this);
+    private Button cancelBtn = new Button();;
     private String fileName;
     private String mtype;
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private DLFileEntry dlFileEntry;
     private String processUUID;
+    private ResourceBundle messages;
 
-    public ImmediateUpload(String processUUID, XMLWidgetsDefinition widgets, boolean readOnly, DLFileEntry dlFileEntry) {
+    public ImmediateUpload(String processUUID, XMLWidgetsDefinition widgets, boolean readOnly, DLFileEntry dlFileEntry, ResourceBundle messages) {
         this.processUUID = processUUID;
         this.dlFileEntry = dlFileEntry;
+        this.messages = messages;
         setSpacing(true);
 
         addComponent(statusLayout);
@@ -91,11 +94,12 @@ public class ImmediateUpload extends VerticalLayout
         progressLayout.setVisible(false);
         progressLayout.addComponent(pi);
         progressLayout.setComponentAlignment(pi, Alignment.MIDDLE_CENTER);
+        cancelBtn = new Button(messages.getString("btnCancel"), this);
         cancelBtn.setStyleName("small");
         progressLayout.addComponent(cancelBtn);
 
         deleteBtn.setStyleName(Reindeer.BUTTON_LINK);
-        deleteBtn.setDescription(Processbase.getCurrent().messages.getString("btnDelete"));
+        deleteBtn.setDescription(messages.getString("btnDelete"));
         deleteBtn.setIcon(new ThemeResource("icons/cancel.png"));
         deleteBtn.addListener((Button.ClickListener) this);
         deleteBtn.setVisible(false);
@@ -124,7 +128,7 @@ public class ImmediateUpload extends VerticalLayout
             deleteBtn.setVisible(false);
         } else if (event.getButton().equals(downloadBtn)) {
             ByteArraySource bas = new ByteArraySource(
-                    Processbase.getCurrent().documentLibraryUtil.getFileBody(processUUID, dlFileEntry.getFileEntryId()));
+                    ((Processbase)getApplication()).getDocumentLibraryUtil().getFileBody(processUUID, dlFileEntry.getFileEntryId()));
             StreamResource streamResource = new StreamResource(bas, dlFileEntry.getDescription(), getApplication());
             streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
             getWindow().getWindow().open(streamResource, "_new");
@@ -137,7 +141,7 @@ public class ImmediateUpload extends VerticalLayout
         progressLayout.setVisible(true);
         pi.setValue(0f);
         pi.setPollingInterval(500);
-        status.setValue(Processbase.getCurrent().messages.getString("labelUploading") + " \"" + event.getFilename() + "\"");
+        status.setValue(messages.getString("labelUploading") + " \"" + event.getFilename() + "\"");
     }
 
     public void updateProgress(long readBytes, long contentLength) {
@@ -147,12 +151,12 @@ public class ImmediateUpload extends VerticalLayout
 
     public void uploadSucceeded(SucceededEvent event) {
         // This method gets called when the upload finished successfully
-        status.setValue("\"" + event.getFilename() + "\" " + Processbase.getCurrent().messages.getString("labelIsUploaded"));
+        status.setValue("\"" + event.getFilename() + "\" " + messages.getString("labelIsUploaded"));
     }
 
     public void uploadFailed(FailedEvent event) {
         // This method gets called when the upload failed
-        status.setValue(Processbase.getCurrent().messages.getString("labelUploadingInterrupted"));
+        status.setValue(messages.getString("labelUploadingInterrupted"));
     }
 
     public void uploadFinished(FinishedEvent event) {

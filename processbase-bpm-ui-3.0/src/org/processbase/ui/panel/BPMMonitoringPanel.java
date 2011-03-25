@@ -22,7 +22,6 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import org.processbase.ui.template.ButtonBar;
-import org.processbase.ui.template.PbWindow;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -37,7 +36,7 @@ import org.processbase.ui.template.DashboardPanel;
  *
  * @author mgubaidullin
  */
-public class MonitoringPanel extends VerticalLayout
+public class BPMMonitoringPanel extends VerticalLayout
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -59,6 +58,7 @@ public class MonitoringPanel extends VerticalLayout
         dashboardProcessesPanel = new DashboardProcessesPanel();
         panels.put(dashboardProcessBtn, dashboardProcessesPanel);
         addComponent(dashboardProcessesPanel, 1);
+        dashboardProcessesPanel.initUI();
         dashboardProcessesPanel.refresh();
 
         dashboardPerformerTaskPanel = new DashboardPerformerTaskPanel();
@@ -71,25 +71,28 @@ public class MonitoringPanel extends VerticalLayout
 
     private void setCurrentPanel(DashboardPanel dashboardPanel) {
         replaceComponent(getComponent(1), dashboardPanel);
+        if (!dashboardPanel.isInitialized()){
+            dashboardPanel.initUI();
+        }
         dashboardPanel.refresh();
     }
 
     private void prepareButtonBar() {
         // prepare dashboardProcessBtn button
-        dashboardProcessBtn = new Button(Processbase.getCurrent().messages.getString("startedProcesses"), this);
+        dashboardProcessBtn = new Button(((Processbase)getApplication()).getMessages().getString("startedProcesses"), this);
         dashboardProcessBtn.setStyleName("special");
         dashboardProcessBtn.setEnabled(false);
         buttonBar.addComponent(dashboardProcessBtn, 0);
         buttonBar.setComponentAlignment(dashboardProcessBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardPerformersBtn button
-        dashboardPerformersBtn = new Button(Processbase.getCurrent().messages.getString("taskByPerformers"), this);
+        dashboardPerformersBtn = new Button(((Processbase)getApplication()).getMessages().getString("taskByPerformers"), this);
         dashboardPerformersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardPerformersBtn, 1);
         buttonBar.setComponentAlignment(dashboardPerformersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardUsersBtn button
-        dashboardUsersBtn = new Button(Processbase.getCurrent().messages.getString("taskByUser"), this);
+        dashboardUsersBtn = new Button(((Processbase)getApplication()).getMessages().getString("taskByUser"), this);
         dashboardUsersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardUsersBtn, 2);
         buttonBar.setComponentAlignment(dashboardUsersBtn, Alignment.MIDDLE_LEFT);
@@ -101,7 +104,7 @@ public class MonitoringPanel extends VerticalLayout
 
 
         // prepare refresh button
-        refreshBtn = new Button(Processbase.getCurrent().messages.getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
