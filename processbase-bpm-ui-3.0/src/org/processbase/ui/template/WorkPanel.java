@@ -34,12 +34,10 @@ public class WorkPanel extends VerticalLayout {
     public WorkPanel() {
         super();
         horizontalLayout.setSizeFull();
-//        horizontalLayout.setStyleName(Reindeer.LAYOUT_WHITE);
         setSizeFull();
         addComponent(horizontalLayout);
         setExpandRatio(horizontalLayout, 1);
         setMargin(true, false, false, false);
-        setStyleName(Reindeer.LAYOUT_WHITE);
     }
 
     public void initUI(){

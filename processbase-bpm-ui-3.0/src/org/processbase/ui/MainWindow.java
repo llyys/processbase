@@ -79,10 +79,15 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         tabs.addTab(bpmMonitoringPanel, ((Processbase)getApplication()).getMessages().getString("bpmMonitoring"), null);
 
         consolePanel.initUI();
+        consolePanel.setSizeFull();
         bpmConfigurationPanel.initUI();
+        bpmConfigurationPanel.setSizeFull();
         identityPanel.initUI();
+        identityPanel.setSizeFull();
         bamConfigurationPanel.initUI();
+        bamConfigurationPanel.setSizeFull();
         bpmMonitoringPanel.initUI();
+        bpmMonitoringPanel.setSizeFull();
 
         tabs.addListener((SelectedTabChangeListener) this);
         tabs.setImmediate(true);

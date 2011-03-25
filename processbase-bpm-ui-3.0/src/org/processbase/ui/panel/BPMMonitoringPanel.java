@@ -58,6 +58,7 @@ public class BPMMonitoringPanel extends VerticalLayout
         dashboardProcessesPanel = new DashboardProcessesPanel();
         panels.put(dashboardProcessBtn, dashboardProcessesPanel);
         addComponent(dashboardProcessesPanel, 1);
+        setExpandRatio(dashboardProcessesPanel, 1);
         dashboardProcessesPanel.initUI();
         dashboardProcessesPanel.refresh();
 
@@ -71,6 +72,7 @@ public class BPMMonitoringPanel extends VerticalLayout
 
     private void setCurrentPanel(DashboardPanel dashboardPanel) {
         replaceComponent(getComponent(1), dashboardPanel);
+        setExpandRatio(dashboardPanel, 1);
         if (!dashboardPanel.isInitialized()){
             dashboardPanel.initUI();
         }

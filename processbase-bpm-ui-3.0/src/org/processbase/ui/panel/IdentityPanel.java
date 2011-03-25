@@ -70,6 +70,7 @@ public class IdentityPanel extends VerticalLayout
         usersPanel = new UsersPanel();
         panels.put(usersBtn, usersPanel);
         addComponent(usersPanel, 1);
+        setExpandRatio(usersPanel, 1);
         usersPanel.initUI();
         usersPanel.refreshTable();
 
@@ -85,6 +86,7 @@ public class IdentityPanel extends VerticalLayout
 
     private void setCurrentPanel(WorkPanel workPanel) {
         replaceComponent(getComponent(1), workPanel);
+        setExpandRatio(workPanel, 1);
         if (!workPanel.isInitialized()){
             workPanel.initUI();
         }

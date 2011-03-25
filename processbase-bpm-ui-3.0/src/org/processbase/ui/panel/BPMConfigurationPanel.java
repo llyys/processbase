@@ -72,8 +72,10 @@ public class BPMConfigurationPanel extends VerticalLayout
         processDefinitionsPanel = new ProcessDefinitionsPanel();
         panels.put(processDefinitionBtn, processDefinitionsPanel);
         addComponent(processDefinitionsPanel, 1);
+        setExpandRatio(processDefinitionsPanel, 1);
         processDefinitionsPanel.initUI();
         processDefinitionsPanel.refreshTable();
+
 
         processInstancesPanel = new ProcessInstancesPanel();
         panels.put(processInstancesBtn, processInstancesPanel);
@@ -89,6 +91,7 @@ public class BPMConfigurationPanel extends VerticalLayout
 
     private void setCurrentPanel(TablePanel tablePanel) {
         replaceComponent(getComponent(1), tablePanel);
+        setExpandRatio(tablePanel, 1);
         if (!tablePanel.isInitialized()){
             tablePanel.initUI();
         }

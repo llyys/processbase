@@ -65,6 +65,7 @@ public class BAMConfigurationPanel extends VerticalLayout
         dimensionsPanel = new DimensionsPanel();
         panels.put(dimensionsBtn, dimensionsPanel);
         addComponent(dimensionsPanel, 1);
+        setExpandRatio(dimensionsPanel, 1);
         dimensionsPanel.initUI();
         dimensionsPanel.refreshTable();
 
@@ -80,6 +81,7 @@ public class BAMConfigurationPanel extends VerticalLayout
 
     private void setCurrentPanel(TablePanel tablePanel) {
         replaceComponent(getComponent(1), tablePanel);
+        setExpandRatio(tablePanel, 1);
         if (!tablePanel.isInitialized()){
             tablePanel.initUI();
         }

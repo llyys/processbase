@@ -59,6 +59,7 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
         taskListPanel = new TaskListPanel();
         panels.put(myTaskListBtn, taskListPanel);
         addComponent(taskListPanel, 1);
+        setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
         myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
@@ -71,11 +72,11 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
 
         newProcessesPanel = new NewProcessesPanel();
         panels.put(myNewProcessesBtn, newProcessesPanel);
-
     }
 
     private void setCurrentPanel(WorkPanel workPanel) {
         replaceComponent(getComponent(1), workPanel);
+        setExpandRatio(workPanel, 1);
         if (!workPanel.isInitialized()){
                 workPanel.initUI();
             }

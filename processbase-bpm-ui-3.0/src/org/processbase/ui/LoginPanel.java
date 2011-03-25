@@ -51,11 +51,11 @@ public class LoginPanel extends GridLayout implements Handler {
         username.setCaption("Username");
         form.addComponent(username);
         username.setWidth("100%");
+        username.focus();
 
         password.setCaption("Password");
         password.setSecret(true);
         password.setWidth("100%");
-        password.focus();
         form.addComponent(password);
 
         btnLogin = new Button("Login", this, "okHandler");
