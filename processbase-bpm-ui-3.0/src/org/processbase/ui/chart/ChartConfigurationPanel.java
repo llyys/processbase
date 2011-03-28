@@ -63,7 +63,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
     private TextField titleY = null;
     private TextField min = null;
     private TextField max = null;
-    private CheckBox is3D = null;
     private CheckBox isStacked = null;
     private Button btnSave;
     private Button btnTestSQL;
@@ -79,7 +78,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
         chartType.addItem("PieChart");
         chartType.addItem("LineChart");
         chartType.addItem("AreaChart");
-        chartType.addItem("Gauge");
 
         chartType.setWidth("100px");
 
@@ -110,12 +108,12 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
 
         height = new TextField(ChartPortlet.getCurrent().messages.getString("height"));
         height.setWidth("70px");
-        height.addValidator(new IntegerValidator(ChartPortlet.getCurrent().messages.getString("height") + " " + ChartPortlet.getCurrent().messages.getString("IntegerValidatorError")));
+//        height.addValidator(new IntegerValidator(ChartPortlet.getCurrent().messages.getString("height") + " " + ChartPortlet.getCurrent().messages.getString("IntegerValidatorError")));
         height.setRequired(true);
 
         width = new TextField(ChartPortlet.getCurrent().messages.getString("width"));
         width.setWidth("70px");
-        width.addValidator(new IntegerValidator(ChartPortlet.getCurrent().messages.getString("width") + " " + ChartPortlet.getCurrent().messages.getString("IntegerValidatorError")));
+//        width.addValidator(new IntegerValidator(ChartPortlet.getCurrent().messages.getString("width") + " " + ChartPortlet.getCurrent().messages.getString("IntegerValidatorError")));
         width.setRequired(true);
 
         min = new TextField(ChartPortlet.getCurrent().messages.getString("min"));
@@ -131,7 +129,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
         sqlText.setRequired(true);
         sqlText.setRows(7);
 
-        is3D = new CheckBox("3D");
         isStacked = new CheckBox("Stacked");
 
         btnSave = new Button(ChartPortlet.getCurrent().messages.getString("btnSave"), this);
@@ -143,7 +140,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
         buttons.addComponent(btnView);
 
         addComponent(chartType, 0, 0, 1, 0);
-        addComponent(is3D, 2, 0);
         addComponent(isStacked, 3, 0);
         
         addComponent(title, 0, 1, 1, 1);
@@ -194,8 +190,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
                     titleY.setValue(value[0]);
                 } else if (key.equals("isStacked") && value.length > 0) {
                     isStacked.setValue(Boolean.parseBoolean(value[0]));
-                } else if (key.equals("is3D") && value.length > 0) {
-                    is3D.setValue(Boolean.parseBoolean(value[0]));
                 } else if (key.equals("legend") && value.length > 0) {
                     legend.setValue(value[0]);
                 }
@@ -221,7 +215,6 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
                 portletPreferences.setValue("titleY", titleY.getValue() != null ? titleY.getValue().toString() : "");
                 portletPreferences.setValue("min", min.getValue() != null ? min.getValue().toString() : "");
                 portletPreferences.setValue("max", max.getValue() != null ? max.getValue().toString() : "");
-                portletPreferences.setValue("is3D", is3D.getValue() != null ? is3D.getValue().toString() : "false");
                 portletPreferences.setValue("isStacked", isStacked.getValue() != null ? isStacked.getValue().toString() : "false");
                 portletPreferences.store();
                 ChartPortlet.getCurrent().recreateChartView();
