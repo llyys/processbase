@@ -16,10 +16,8 @@
  */
 package org.processbase.ui;
 
-import com.liferay.portal.model.User;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import java.util.ResourceBundle;
-import javax.portlet.PortletSession;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.util.DocumentLibraryUtil;
 
@@ -43,9 +41,9 @@ public interface Processbase {
 
     public void setUserName(String userName);
 
-    public User getPortalUser();
-
-    public void setPortalUser(User portalUser);
+//    public User getPortalUser();
+//
+//    public void setPortalUser(User portalUser);
 
     public BPMModule getBpmModule();
 
@@ -55,9 +53,9 @@ public interface Processbase {
 
     public void setMessages(ResourceBundle messages);
 
-    public PortletSession getPortletSession();
-
-    public void setPortletSession(PortletSession portletSession);
+//    public PortletSession getPortletSession();
+//
+//    public void setPortletSession(PortletSession portletSession);
 
     public DocumentLibraryUtil getDocumentLibraryUtil();
 

@@ -110,11 +110,7 @@ public class BPMMonitoringPanel extends VerticalLayout
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
-        buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
-//        buttonBar.setHeight("48px");
-        buttonBar.setMargin(false, true, false, true);
-        buttonBar.setSpacing(true);
     }
 
     public void buttonClick(ClickEvent event) {

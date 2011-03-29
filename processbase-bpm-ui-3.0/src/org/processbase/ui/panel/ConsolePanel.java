@@ -120,13 +120,7 @@ public class ConsolePanel extends VerticalLayout implements Button.ClickListener
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
-
-
-        buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
-//        buttonBar.setHeight("48px");
-        buttonBar.setMargin(false, true, false, true);
-        buttonBar.setSpacing(true);
     }
 
     public void buttonClick(ClickEvent event) {

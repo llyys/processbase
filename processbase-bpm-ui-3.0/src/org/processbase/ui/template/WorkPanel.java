@@ -16,11 +16,9 @@
  */
 package org.processbase.ui.template;
 
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  *
@@ -37,7 +35,7 @@ public class WorkPanel extends VerticalLayout {
         setSizeFull();
         addComponent(horizontalLayout);
         setExpandRatio(horizontalLayout, 1);
-        setMargin(true, false, false, false);
+        setMargin(false, true, false, true);
     }
 
     public void initUI(){

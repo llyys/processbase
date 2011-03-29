@@ -18,6 +18,8 @@ package org.processbase.ui.template;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 
 /**
  *
@@ -31,11 +33,11 @@ public class ButtonBar extends HorizontalLayout {
     }
 
     public void initUI() {
-        setMargin(false, false, true, false);
+        setMargin(true, true, true, true);
         setSpacing(true);
 //        setWidth("100%");
 //        setSizeFull();
-//        setStyleName("white");
+        setStyleName("buttonbar");
     }
 
     public void addButton(Button button){

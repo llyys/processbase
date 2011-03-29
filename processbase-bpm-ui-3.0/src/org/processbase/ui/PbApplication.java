@@ -49,8 +49,8 @@ public class PbApplication extends Application implements Processbase {
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
-        setTheme("processbase");
-        setLogoutURL(Constants.TASKLIST_PAGE_URL);
+        setTheme("processbaseruno");
+//        setLogoutURL(Constants.TASKLIST_PAGE_URL);
         try {
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
             httpSession = applicationContext.getHttpSession();
@@ -115,21 +115,21 @@ public class PbApplication extends Application implements Processbase {
         this.type = type;
     }
 
-    public User getPortalUser() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+//    public User getPortalUser() {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
+//
+//    public void setPortalUser(User portalUser) {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
 
-    public void setPortalUser(User portalUser) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public PortletSession getPortletSession() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setPortletSession(PortletSession portletSession) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+//    public PortletSession getPortletSession() {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
+//
+//    public void setPortletSession(PortletSession portletSession) {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
 
     public DocumentLibraryUtil getDocumentLibraryUtil() {
         throw new UnsupportedOperationException("Not supported yet.");

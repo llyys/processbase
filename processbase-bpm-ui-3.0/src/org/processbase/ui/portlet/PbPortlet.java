@@ -26,7 +26,6 @@ import javax.portlet.PortletResponse;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.PortletRequestListener;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletConfig;
@@ -55,7 +54,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
     ResourceBundle messages = null;
     DocumentLibraryUtil documentLibraryUtil = null;
     String userName = null;
-    User portalUser = null;
+//    User portalUser = null;
     Locale locale = null;
     int type = LIFERAY_PORTAL;
     private boolean inited = false;
@@ -99,11 +98,12 @@ public class PbPortlet extends Application implements Processbase, PortletReques
         if (!inited) {
             try {
                 User user = PortalUtil.getUser(request);
-                setPortalUser(user);
+//                setPortalUser(user);
+                setUserName(user.getScreenName());
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
-                setBpmModule(new BPMModule(getPortalUser().getScreenName()));
-                setDocumentLibraryUtil(new DocumentLibraryUtil(getPortalUser()));
+                setBpmModule(new BPMModule(user.getScreenName()));
+                setDocumentLibraryUtil(new DocumentLibraryUtil(user));
                 setPortletSession(request.getPortletSession());
 
             } catch (PortalException e) {
@@ -154,11 +154,11 @@ public class PbPortlet extends Application implements Processbase, PortletReques
     }
 
     public String getUserName() {
-        return portalUser.getScreenName();
+        return userName;
     }
 
     public void setUserName(String userName) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.userName = userName;
     }
 
     public BPMModule getBpmModule() {
@@ -185,13 +185,13 @@ public class PbPortlet extends Application implements Processbase, PortletReques
         this.type = type;
     }
 
-    public User getPortalUser() {
-        return portalUser;
-    }
-
-    public void setPortalUser(User portalUser) {
-        this.portalUser = portalUser;
-    }
+//    public User getPortalUser() {
+//        return portalUser;
+//    }
+//
+//    public void setPortalUser(User portalUser) {
+//        this.portalUser = portalUser;
+//    }
 
     public PortletSession getPortletSession() {
         return portletSession;

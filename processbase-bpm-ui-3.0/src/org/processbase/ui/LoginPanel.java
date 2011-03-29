@@ -14,6 +14,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.Runo;
 import java.util.Locale;
 
 /**
@@ -59,6 +60,7 @@ public class LoginPanel extends GridLayout implements Handler {
         form.addComponent(password);
 
         btnLogin = new Button("Login", this, "okHandler");
+        btnLogin.setStyleName(Runo.BUTTON_DEFAULT);
         action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
         form.addComponent(btnLogin);
         form.setComponentAlignment(btnLogin, Alignment.BOTTOM_RIGHT);

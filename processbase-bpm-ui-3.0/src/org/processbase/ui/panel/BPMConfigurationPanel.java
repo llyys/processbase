@@ -150,14 +150,7 @@ public class BPMConfigurationPanel extends VerticalLayout
         btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 7);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
-
-
-
-        buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
-//        buttonBar.setHeight("48px");
-        buttonBar.setMargin(false, true, false, true);
-        buttonBar.setSpacing(true);
     }
 
     public void buttonClick(ClickEvent event) {

@@ -128,12 +128,7 @@ public class BAMConfigurationPanel extends VerticalLayout
         refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
-
-        buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
-//        buttonBar.setHeight("48px");
-        buttonBar.setMargin(false, true, false, true);
-        buttonBar.setSpacing(true);
     }
 
     private void enableButtons(){

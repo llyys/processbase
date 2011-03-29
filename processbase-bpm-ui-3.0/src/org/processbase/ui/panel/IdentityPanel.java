@@ -144,12 +144,7 @@ public class IdentityPanel extends VerticalLayout
         buttonBar.addComponent(syncBtn, 6);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
 
-
-        buttonBar.setStyleName("white");
         buttonBar.setWidth("100%");
-//        buttonBar.setHeight("48px");
-        buttonBar.setMargin(false, true, false, true);
-        buttonBar.setSpacing(true);
     }
 
     public void buttonClick(ClickEvent event) {

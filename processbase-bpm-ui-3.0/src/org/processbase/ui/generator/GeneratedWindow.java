@@ -16,8 +16,6 @@
  */
 package org.processbase.ui.generator;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.data.Validator.EmptyValueException;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -45,7 +43,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
@@ -503,9 +500,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     try {
                         ImmediateUpload ui = (ImmediateUpload) comp;
                         ((Processbase)getApplication()).getDocumentLibraryUtil().addFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
-                    } catch (PortalException ex) {
-                        Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
-                    } catch (SystemException ex) {
+                    } catch (Exception ex) {
                         Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
                     }
                 }
@@ -517,7 +512,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         if (taskInstance != null) {
             try {
                 processFiles = ((Processbase)getApplication()).getDocumentLibraryUtil().getProcessFiles(taskInstance.getProcessInstanceUUID().toString());
-            } catch (SystemException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
         }

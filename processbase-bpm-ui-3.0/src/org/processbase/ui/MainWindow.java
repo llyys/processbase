@@ -74,9 +74,9 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         mainLayout.setExpandRatio(margin, 1);
         tabs.addTab(consolePanel, ((Processbase)getApplication()).getMessages().getString("bpmConsole"), null);
         tabs.addTab(bpmConfigurationPanel, ((Processbase)getApplication()).getMessages().getString("bpmAdmin"), null);
-        tabs.addTab(identityPanel, ((Processbase)getApplication()).getMessages().getString("bpmIdentity"), null);
-        tabs.addTab(bamConfigurationPanel, ((Processbase)getApplication()).getMessages().getString("bamAdmin"), null);
-        tabs.addTab(bpmMonitoringPanel, ((Processbase)getApplication()).getMessages().getString("bpmMonitoring"), null);
+//        tabs.addTab(identityPanel, ((Processbase)getApplication()).getMessages().getString("bpmIdentity"), null);
+//        tabs.addTab(bamConfigurationPanel, ((Processbase)getApplication()).getMessages().getString("bamAdmin"), null);
+//        tabs.addTab(bpmMonitoringPanel, ((Processbase)getApplication()).getMessages().getString("bpmMonitoring"), null);
 
         consolePanel.initUI();
         consolePanel.setSizeFull();
@@ -109,7 +109,6 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setMargin(false);
-//        buttons.setStyleName(Reindeer.LAYOUT_BLACK);
         Button help = new Button("Help", new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
