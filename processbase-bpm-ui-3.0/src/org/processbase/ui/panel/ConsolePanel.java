@@ -24,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import org.processbase.ui.template.ButtonBar;
+import org.processbase.ui.template.PbPanel;
 import org.processbase.ui.template.TablePanel;
 import org.processbase.ui.template.TreeTablePanel;
 import org.processbase.ui.template.WorkPanel;
@@ -36,7 +37,7 @@ import org.processbase.ui.worklist.TaskListPanel;
  *
  * @author mgubaidullin
  */
-public class ConsolePanel extends VerticalLayout implements Button.ClickListener {
+public class ConsolePanel extends PbPanel implements Button.ClickListener {
 
     private ButtonBar buttonBar = new ButtonBar();
     private TaskListPanel taskListPanel;

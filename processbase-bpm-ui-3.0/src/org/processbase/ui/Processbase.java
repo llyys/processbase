@@ -16,10 +16,8 @@
  */
 package org.processbase.ui;
 
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import java.util.ResourceBundle;
 import org.processbase.bpm.BPMModule;
-import org.processbase.ui.util.DocumentLibraryUtil;
 
 /**
  *
@@ -30,6 +28,8 @@ public interface Processbase {
 //    static ThreadLocal<Processbase> currentProcessbase = new ThreadLocal<Processbase>();
     static int LIFERAY_PORTAL = 0;
     static int STANDALONE = 1;
+
+    public int getApplicationType();
 
     public void setSessionAttribute(String name, String value);
 
@@ -53,15 +53,7 @@ public interface Processbase {
 
     public void setMessages(ResourceBundle messages);
 
-//    public PortletSession getPortletSession();
-//
-//    public void setPortletSession(PortletSession portletSession);
+    public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception;
 
-    public DocumentLibraryUtil getDocumentLibraryUtil();
-
-    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil);
-
-    public PortletApplicationContext2 getPortletApplicationContext2();
-
-    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2);
+    public byte[] getFileBody(String processUUID, String name) throws Exception;
 }

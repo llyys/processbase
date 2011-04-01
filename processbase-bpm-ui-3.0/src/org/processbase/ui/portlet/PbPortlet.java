@@ -31,7 +31,6 @@ import java.util.ResourceBundle;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletSession;
 import org.processbase.bpm.BPMModule;
-import org.processbase.ui.util.DocumentLibraryUtil;
 import org.processbase.core.Constants;
 import org.processbase.ui.Processbase;
 import org.processbase.ui.panel.BPMConfigurationPanel;
@@ -40,6 +39,7 @@ import org.processbase.ui.panel.ConsolePanel;
 import org.processbase.ui.panel.IdentityPanel;
 import org.processbase.ui.panel.BPMMonitoringPanel;
 import org.processbase.ui.template.PbWindow;
+import org.processbase.ui.util.PortalDocumentLibrary;
 
 /**
  *
@@ -52,7 +52,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
     PortletSession portletSession = null;
     BPMModule bpmModule = null;
     ResourceBundle messages = null;
-    DocumentLibraryUtil documentLibraryUtil = null;
+    PortalDocumentLibrary documentLibrary = null;
     String userName = null;
 //    User portalUser = null;
     Locale locale = null;
@@ -103,7 +103,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
                 setBpmModule(new BPMModule(user.getScreenName()));
-                setDocumentLibraryUtil(new DocumentLibraryUtil(user));
+                setDocumentLibrary(new PortalDocumentLibrary(user));
                 setPortletSession(request.getPortletSession());
 
             } catch (PortalException e) {
@@ -201,12 +201,12 @@ public class PbPortlet extends Application implements Processbase, PortletReques
         this.portletSession = portletSession;
     }
 
-    public DocumentLibraryUtil getDocumentLibraryUtil() {
-        return documentLibraryUtil;
+    public PortalDocumentLibrary getDocumentLibrary() {
+        return documentLibrary;
     }
 
-    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil) {
-        this.documentLibraryUtil = documentLibraryUtil;
+    public void setDocumentLibrary(PortalDocumentLibrary documentLibrary) {
+        this.documentLibrary = documentLibrary;
     }
 
     public PortletApplicationContext2 getPortletApplicationContext2() {
@@ -215,5 +215,17 @@ public class PbPortlet extends Application implements Processbase, PortletReques
 
     public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
         this.portletApplicationContext2 = portletApplicationContext2;
+    }
+
+    public int getApplicationType() {
+        return Processbase.LIFERAY_PORTAL;
+    }
+
+    public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception{
+        this.getDocumentLibrary().saveFile(processUUID, fileName, fileName, fileBody);
+    }
+
+    public byte[] getFileBody(String processUUID, String name) throws Exception {
+        return getDocumentLibrary().getFileBody(processUUID, name);
     }
 }

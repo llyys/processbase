@@ -33,6 +33,7 @@ import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.bpm.BPMModule;
 import org.processbase.ui.Processbase;
 import org.processbase.ui.template.ButtonBar;
 import org.processbase.ui.template.PbWindow;
@@ -198,6 +199,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
     }
 
     private void delete() {
+        final BPMModule bpmModule =  ((Processbase) getApplication()).getBpmModule();
         ConfirmDialog.show(getApplication().getMainWindow(),
                 ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
                 ((Processbase) getApplication()).getMessages().getString("questionDeleteCategory"),
@@ -210,7 +212,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
                             try {
                                 Set<String> cats = new HashSet<String>();
                                 cats.add(category.getName());
-                                ((Processbase) getApplication()).getBpmModule().deleteCategories(cats);
+                               bpmModule.deleteCategories(cats);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }

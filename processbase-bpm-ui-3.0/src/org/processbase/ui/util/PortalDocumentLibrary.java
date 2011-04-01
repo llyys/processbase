@@ -39,14 +39,14 @@ import org.processbase.core.Constants;
  *
  * @author mgubaidullin
  */
-public class DocumentLibraryUtil {
+public class PortalDocumentLibrary {
 
     private Group processBaseGroup;
     private DLFolderLocalService folderService = null;
     private DLFileEntryLocalService fileService = null;
     private User currentUser;
 
-    public DocumentLibraryUtil(User currentUser) {
+    public PortalDocumentLibrary(User currentUser) {
         try {
             this.currentUser = currentUser;
             processBaseGroup = GroupLocalServiceUtil.getGroup(currentUser.getCompanyId(), Constants.DL_GROUP);
@@ -153,6 +153,23 @@ public class DocumentLibraryUtil {
         }
     }
 
+    public DLFileEntry getFileEntry(String processUUID, String title) {
+        try {
+            return fileService.getFileEntryByTitle(processBaseGroup.getGroupId(), getFolder(processUUID).getFolderId(), title);
+        } catch (PortalException ex) {
+            ex.printStackTrace();
+            return null;
+        } catch (SystemException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public byte[] getFileBody(String processUUID, String title) {
+        DLFileEntry file = getFileEntry(processUUID, title);
+        return getFileBody(processUUID, file.getFileEntryId());
+    }
+
     public byte[] getFileBody(String processUUID, long fileId) {
         byte[] result = null;
         try {
@@ -173,4 +190,9 @@ public class DocumentLibraryUtil {
         }
         return result;
     }
+
+    public void saveFile(String processUUID, String fileId, String fileName, byte[] fileBody) throws Exception{
+        addFile(processUUID, fileId, fileName, fileName, fileBody, new String[0]);
+    }
+
 }

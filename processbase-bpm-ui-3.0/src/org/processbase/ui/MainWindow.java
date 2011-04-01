@@ -17,11 +17,13 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 import org.processbase.ui.panel.BPMConfigurationPanel;
 import org.processbase.ui.panel.BAMConfigurationPanel;
 import org.processbase.ui.panel.ConsolePanel;
 import org.processbase.ui.panel.IdentityPanel;
 import org.processbase.ui.panel.BPMMonitoringPanel;
+import org.processbase.ui.template.PbPanel;
 import org.processbase.ui.template.PbWindow;
 
 /**
@@ -42,18 +44,18 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         super("PROCESSBASE BPMS");
     }
 
-    public void initLogin(){
+    public void initLogin() {
         mainLayout = (VerticalLayout) getContent();
         LoginPanel loginPanel = new LoginPanel();
         mainLayout.addComponent(loginPanel);
         loginPanel.initUI();
+
     }
 
-    public void initUI(){
+    public void initUI() {
         mainLayout = (VerticalLayout) getContent();
         mainLayout.removeAllComponents();
-        mainLayout.setMargin(false);
-        mainLayout.setStyleName(Reindeer.LAYOUT_WHITE);
+        mainLayout.setMargin(true);
 
         consolePanel = new ConsolePanel();
         bpmConfigurationPanel = new BPMConfigurationPanel();
@@ -63,31 +65,21 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
         mainLayout.setSizeFull();
         mainLayout.addComponent(getHeader());
-        CssLayout margin = new CssLayout();
-        margin.setMargin(false, true, true, true);
-        margin.setSizeFull();
         tabs = new TabSheet();
         tabs.setSizeFull();
-//        tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
-        margin.addComponent(tabs);
-        mainLayout.addComponent(margin);
-        mainLayout.setExpandRatio(margin, 1);
-        tabs.addTab(consolePanel, ((Processbase)getApplication()).getMessages().getString("bpmConsole"), null);
-        tabs.addTab(bpmConfigurationPanel, ((Processbase)getApplication()).getMessages().getString("bpmAdmin"), null);
-//        tabs.addTab(identityPanel, ((Processbase)getApplication()).getMessages().getString("bpmIdentity"), null);
-//        tabs.addTab(bamConfigurationPanel, ((Processbase)getApplication()).getMessages().getString("bamAdmin"), null);
-//        tabs.addTab(bpmMonitoringPanel, ((Processbase)getApplication()).getMessages().getString("bpmMonitoring"), null);
+        mainLayout.addComponent(tabs);
+        mainLayout.addComponent(tabs);
+        mainLayout.setExpandRatio(tabs, 1);
+        tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmConsole"), null);
+
+        tabs.addTab(bpmConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bpmAdmin"), null);
+        tabs.addTab(identityPanel, ((Processbase) getApplication()).getMessages().getString("bpmIdentity"), null);
+        tabs.addTab(bamConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bamAdmin"), null);
+        tabs.addTab(bpmMonitoringPanel, ((Processbase) getApplication()).getMessages().getString("bpmMonitoring"), null);
 
         consolePanel.initUI();
+        consolePanel.setInitialized(true);
         consolePanel.setSizeFull();
-        bpmConfigurationPanel.initUI();
-        bpmConfigurationPanel.setSizeFull();
-        identityPanel.initUI();
-        identityPanel.setSizeFull();
-        bamConfigurationPanel.initUI();
-        bamConfigurationPanel.setSizeFull();
-        bpmMonitoringPanel.initUI();
-        bpmMonitoringPanel.setSizeFull();
 
         tabs.addListener((SelectedTabChangeListener) this);
         tabs.setImmediate(true);
@@ -96,28 +88,15 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     Layout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
-        header.setMargin(false, true, false, true);
-        header.setSpacing(true);
-//        header.setStyleName(Reindeer.LAYOUT_BLUE);
+        header.setMargin(false);
+        header.setSpacing(false);
 
         ThemeResource themeResource = new ThemeResource("icons/processbase.png");
-        Embedded logo = new Embedded("", themeResource);
+        Embedded logo = new Embedded();
+        logo.setSource(themeResource);
         logo.setType(Embedded.TYPE_IMAGE);
 
         header.addComponent(logo);
-
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setMargin(false);
-        Button help = new Button("Help", new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                openHelpWindow();
-            }
-        });
-        help.setStyleName(Reindeer.BUTTON_LINK);
-        buttons.addComponent(help);
-        buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
 
         Button logout = new Button("Logout", new Button.ClickListener() {
 
@@ -126,33 +105,10 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             }
         });
         logout.setStyleName(Reindeer.BUTTON_LINK);
-        buttons.addComponent(logout);
-        header.addComponent(buttons);
-        header.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
+        header.addComponent(logout);
+        header.setComponentAlignment(logout, Alignment.MIDDLE_RIGHT);
 
         return header;
-    }
-    Window help = new Window("Help");
-
-    void openHelpWindow() {
-        if (!"initialized".equals(help.getData())) {
-            help.setData("initialized");
-            help.setCloseShortcut(KeyCode.ESCAPE, null);
-
-            help.center();
-            // help.setStyleName(Reindeer.WINDOW_LIGHT);
-            help.setWidth("400px");
-            help.setResizable(false);
-
-            Label helpText = new Label(
-                    "<strong>How To Use This Application</strong><p>Click around, explore. The purpose of this app is to show you what is possible to achieve with the Reindeer theme and its different styles.</p><p>Most of the UI controls that are visible in this application don't actually do anything. They are purely for show, like the menu items and the components that demostrate the different style names assosiated with the components.</p><strong>So, What Then?</strong><p>Go and use the styles you see here in your own application and make them beautiful!",
-                    Label.CONTENT_XHTML);
-            help.addComponent(helpText);
-
-        }
-        if (!getChildWindows().contains(help)) {
-            addWindow(help);
-        }
     }
 
     void openLogoutWindow() {
@@ -192,19 +148,19 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         buttons.addComponent(no);
 
         logout.addComponent(buttons);
-        ((VerticalLayout) logout.getContent()).setComponentAlignment(buttons,
-                "center");
+        ((VerticalLayout) logout.getContent()).setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
         ((VerticalLayout) logout.getContent()).setSpacing(true);
 
         addWindow(logout);
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-//        if (event.getTabSheet().getSelectedTab().equals(consolePanel)) {
-//            consolePanel.refreshTopologyData();
-//        } else if (event.getTabSheet().getSelectedTab().equals(adminPanel)) {
-//            adminPanel.refreshServiceAssembliesData();
-//        } else if (event.getTabSheet().getSelectedTab().equals(identityPanel)) {
-//        }
+        if (event.getTabSheet().getSelectedTab() instanceof PbPanel
+                && !((PbPanel) event.getTabSheet().getSelectedTab()).isInitialized()) {
+            ((PbPanel) event.getTabSheet().getSelectedTab()).initUI();
+            ((PbPanel) event.getTabSheet().getSelectedTab()).setInitialized(true);
+            ((PbPanel) event.getTabSheet().getSelectedTab()).setSizeFull();
+        }
+
     }
 }

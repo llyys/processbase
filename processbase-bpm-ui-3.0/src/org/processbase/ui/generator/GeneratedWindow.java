@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.generator;
 
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.data.Validator.EmptyValueException;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.DoubleValidator;
@@ -39,14 +38,21 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.runtime.AttachmentInstance;
+import org.ow2.bonita.facade.runtime.InitialAttachment;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
+import org.ow2.bonita.facade.runtime.impl.AttachmentInstanceImpl;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.bpm.forms.XMLActionDefinition;
@@ -70,7 +76,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private ArrayList<XMLFormDefinition> forms;
     private int currentPage = 0;
     private boolean hasAttachments = false;
-    private List<DLFileEntry> processFiles = null;
+    private List<AttachmentInstance> attachmentInstances = null;
+    private ArrayList<InitialAttachment> initialAttachments = new ArrayList<InitialAttachment>();
+    private Map<AttachmentInstance, byte[]> attachments = new HashMap<AttachmentInstance, byte[]>();
     private Map<String, Object> groovyScripts = new HashMap<String, Object>();
 
     public GeneratedWindow(String caption) {
@@ -255,7 +263,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             component.setReadOnly(widgets.getReadOnly() != null ? widgets.getReadOnly() : false);
             if (component instanceof AbstractField) {
                 ((AbstractField) component).setRequired(widgets.getMandatory() != null ? widgets.getMandatory() : false);
-                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + ((Processbase)getApplication()).getMessages().getString("fieldRequired"));
+                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + ((Processbase) getApplication()).getMessages().getString("fieldRequired"));
                 ((AbstractField) component).setDescription(widgets.getTooltip() != null ? widgets.getTooltip() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
@@ -272,15 +280,15 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private TextField getTextField(XMLWidgetsDefinition widgets, Object value, DataFieldDefinition dfd, boolean readOnly) {
         TextField component = new TextField(widgets.getDisplayLabel());
         if (widgets.getValidatorName() != null) {
-            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase)getApplication()).getBpmModule()));
+            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase) getApplication()).getBpmModule()));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase)getApplication()).getMessages().getString("validatorDoubleError")));
+                    + ((Processbase) getApplication()).getMessages().getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase)getApplication()).getMessages().getString("validatorIntegerError")));
+                    + ((Processbase) getApplication()).getMessages().getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -292,7 +300,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private TextArea getTextArea(XMLWidgetsDefinition widgets, Object value, DataFieldDefinition dfd, boolean readOnly) {
         TextArea component = new TextArea(widgets.getDisplayLabel());
         if (widgets.getValidatorName() != null) {
-            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase)getApplication()).getBpmModule()));
+            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase) getApplication()).getBpmModule()));
         }
         component.setValue(value);
         component.setNullRepresentation("");
@@ -303,15 +311,15 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private TextField getPasswordField(XMLWidgetsDefinition widgets, Object value, DataFieldDefinition dfd, boolean readOnly) {
         TextField component = new TextField(widgets.getDisplayLabel());
         if (widgets.getValidatorName() != null) {
-            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase)getApplication()).getBpmModule()));
+            component.addValidator(new GeneratedValidator(widgets, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase) getApplication()).getBpmModule()));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase)getApplication()).getMessages().getString("validatorDoubleError")));
+                    + ((Processbase) getApplication()).getMessages().getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase)getApplication()).getMessages().getString("validatorIntegerError")));
+                    + ((Processbase) getApplication()).getMessages().getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -374,13 +382,26 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private ImmediateUpload getUpload(XMLWidgetsDefinition widgets) {
-        DLFileEntry fe = null;
+        ImmediateUpload component = null;
         String processUUID = null;
+        AttachmentInstance ai = null;
+        String label = widgets.getDisplayLabel() != null ? widgets.getDisplayLabel() : widgets.getName();
+        boolean readonly = widgets.getReadOnly() != null ? widgets.getReadOnly() : false;
+        boolean hasFile = false;
         if (taskInstance != null) {
             processUUID = taskInstance.getProcessInstanceUUID().toString();
-            fe = findDLFileEntry(widgets.getInputScript());
+            ai = findAttachmentInstance(widgets.getInputScript());
+            if (ai.getFileName() != null) {
+                hasFile = true;
+                label = ai.getFileName();
+            }
+            System.out.println("--------------------------------------------");
+            ai = findAttachmentInstance(widgets.getInputScript());
+            System.out.println("widgets.getInputScript() = " + widgets.getInputScript() + " ");
+            System.out.println("ai = " + ai);
+            System.out.println("--------------------------------------------");
         }
-        ImmediateUpload component = new ImmediateUpload(processUUID, widgets, false, fe, ((Processbase)getApplication()).getMessages());
+        component = new ImmediateUpload(processUUID, widgets.getInputScript(), label, hasFile, readonly, ((Processbase) getApplication()).getMessages());
         return component;
     }
 
@@ -404,15 +425,21 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     setProcessVariables();
                     executeButtonActions(getWidgets(btn));
                     if (taskInstance == null) {
-                        ProcessInstanceUUID piUUID = ((Processbase)getApplication()).getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
                         if (hasAttachments) {
-                            saveAttachments(piUUID.toString());
+                            prepareInitialAttachmentsToSave();
+                        }
+                        ProcessInstanceUUID piUUID = ((Processbase) getApplication()).getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
+                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                            saveAttachmentsToPortal(piUUID.toString());
                         }
                     } else {
-                        ((Processbase)getApplication()).getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables);
                         if (hasAttachments) {
-                            saveAttachments(taskInstance.getProcessInstanceUUID().toString());
+                            prepareAttachmentsToSave();
                         }
+                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                            saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID().toString());
+                        }
+                        ((Processbase) getApplication()).getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
                     }
                     close();
 
@@ -492,36 +519,104 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         activityInstanceVariables = aiVariablesTemp;
     }
 
-    private void saveAttachments(String processUUID) {
-        for (Component comp : components.keySet()) {
-            XMLWidgetsDefinition widgets = components.get(comp);
-            if (widgets.getSetVarScript() != null) {
-                if (widgets.getType().equals("form:FileWidget")) {
-                    try {
+    private void prepareAttachmentsToSave() {
+        try {
+            attachments.clear();
+            for (Component comp : components.keySet()) {
+                XMLWidgetsDefinition widgets = components.get(comp);
+                if (widgets.getSetVarScript() != null) {
+                    if (widgets.getType().equals("form:FileWidget") && ((ImmediateUpload) comp).isNeedToSave()) {
                         ImmediateUpload ui = (ImmediateUpload) comp;
-                        ((Processbase)getApplication()).getDocumentLibraryUtil().addFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileName(), ui.getFileBody(), new String[]{});
-                    } catch (Exception ex) {
-                        Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+                        AttachmentInstanceImpl ai = new AttachmentInstanceImpl(
+                                widgets.getInputScript(),
+                                taskInstance.getProcessInstanceUUID(),
+                                ((Processbase) getApplication()).getUserName(),
+                                new Date());
+                        ai.setFileName(ui.getFileName());
+                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                            attachments.put(ai, new byte[0]);
+                        } else {
+                            attachments.put(ai, ui.getFileBody());
+                        }
+
                     }
                 }
             }
+        } catch (Exception ex) {
+            Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+    }
+
+    private void prepareInitialAttachmentsToSave() {
+        try {
+            attachments.clear();
+            for (Component comp : components.keySet()) {
+                XMLWidgetsDefinition widgets = components.get(comp);
+                if (widgets.getSetVarScript() != null) {
+                    if (widgets.getType().equals("form:FileWidget") && ((ImmediateUpload) comp).isNeedToSave()) {
+                        ImmediateUpload ui = (ImmediateUpload) comp;
+                        AttachmentInstanceImpl ai = new AttachmentInstanceImpl(
+                                widgets.getInputScript(),
+                                taskInstance.getProcessInstanceUUID(),
+                                ((Processbase) getApplication()).getUserName(),
+                                new Date());
+                        ai.setFileName(ui.getFileName());
+                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                            attachments.put(ai, new byte[0]);
+                        } else {
+                            attachments.put(ai, ui.getFileBody());
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+    }
+
+    private void saveAttachmentsToPortal(String processUUID) {
+        try {
+            for (Component comp : components.keySet()) {
+                XMLWidgetsDefinition widgets = components.get(comp);
+                if (widgets.getSetVarScript() != null) {
+                    if (widgets.getType().equals("form:FileWidget") && ((ImmediateUpload) comp).isNeedToSave()) {
+                        ImmediateUpload ui = (ImmediateUpload) comp;
+                        ((Processbase) getApplication()).saveFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileBody());
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
     }
 
     private void prepareAttachments() {
         if (taskInstance != null) {
             try {
-                processFiles = ((Processbase)getApplication()).getDocumentLibraryUtil().getProcessFiles(taskInstance.getProcessInstanceUUID().toString());
+                ProcessInstance pi = ((Processbase) getApplication()).getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
+                Set<String> names = new HashSet<String>();
+                for (AttachmentInstance ai : pi.getAttachments()) {
+                    names.add(ai.getName());
+                }
+                attachmentInstances = ((Processbase) getApplication()).getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
+                System.out.println("--------------------------------------------");
+                for (AttachmentInstance a : attachmentInstances) {
+                    System.out.println(a.getName() + " " + a.getFileName());
+                }
+                System.out.println("--------------------------------------------");
             } catch (Exception ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
+        } else {
+//            processDefinition.
         }
     }
 
-    private DLFileEntry findDLFileEntry(String name) {
-        for (DLFileEntry file : processFiles) {
-            if (file.getTitle().equals(name)) {
-                return file;
+    private AttachmentInstance findAttachmentInstance(String name) {
+        for (AttachmentInstance ai : attachmentInstances) {
+            if (ai.getName().equals(name)) {
+                return ai;
             }
         }
         return null;
@@ -555,9 +650,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             }
         }
         if (taskInstance != null) {
-            groovyScripts = ((Processbase)getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
+            groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
         } else if (taskInstance == null) {
-            groovyScripts = ((Processbase)getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
+            groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
         }
     }
 
@@ -571,13 +666,13 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         for (XMLActionDefinition action : button.getActions()) {
             if (taskInstance != null) {
                 if (processDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    processInstanceVariables.put(action.getSetVarScript(), ((Processbase)getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), taskInstance, true));
+                    processInstanceVariables.put(action.getSetVarScript(), ((Processbase) getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), taskInstance, true));
                 } else if (activityDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    activityInstanceVariables.put(action.getSetVarScript(), ((Processbase)getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), taskInstance, true));
+                    activityInstanceVariables.put(action.getSetVarScript(), ((Processbase) getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), taskInstance, true));
                 }
             } else {
                 if (processDataFieldDefinitions.containsKey(action.getSetVarScript())) {
-                    processInstanceVariables.put(action.getSetVarScript(), ((Processbase)getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), processDefinition.getUUID()));
+                    processInstanceVariables.put(action.getSetVarScript(), ((Processbase) getApplication()).getBpmModule().evaluateExpression(action.getExprScript(), processDefinition.getUUID()));
 
                 }
             }

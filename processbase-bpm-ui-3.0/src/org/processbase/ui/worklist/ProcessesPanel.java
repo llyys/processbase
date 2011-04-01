@@ -49,7 +49,7 @@ public class ProcessesPanel extends TablePanel implements Button.ClickListener {
         table.setColumnWidth("version", 50);
         table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
-        table.setColumnWidth("lastUpdate", 100);
+        table.setColumnWidth("lastUpdate", 110);
         table.addContainerProperty("state", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setVisibleColumns(new Object[]{"name", "version", "lastUpdate", "state"});

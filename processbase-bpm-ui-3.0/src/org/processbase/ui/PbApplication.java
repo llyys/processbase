@@ -16,16 +16,12 @@
  */
 package org.processbase.ui;
 
-import com.liferay.portal.model.User;
 import com.vaadin.Application;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.ResourceBundle;
-import javax.portlet.PortletSession;
 import javax.servlet.http.HttpSession;
 import org.processbase.bpm.BPMModule;
 import org.processbase.core.Constants;
-import org.processbase.ui.util.DocumentLibraryUtil;
 import javax.enterprise.context.SessionScoped;
 
 /**
@@ -64,11 +60,15 @@ public class PbApplication extends Application implements Processbase {
         }
     }
 
-    public void authenticate(String login, String password) {
-//        System.out.println("username " + login + " pasword " + password);
-        setUserName(login);
-        setBpmModule(new BPMModule(getUserName()));
-        mainWindow.initUI();
+    public void authenticate(String login, String password) throws Exception {
+        BPMModule bpmm = new BPMModule(login);
+        if (bpmm.checkUserCredentials(login, password)) {
+            setUserName(login);
+            setBpmModule(bpmm);
+            mainWindow.initUI();
+        } else {
+            throw new Exception(getMessages().getString("loginWindowException2"));
+        }
     }
 
     public void setSessionAttribute(String name, String value) {
@@ -115,37 +115,15 @@ public class PbApplication extends Application implements Processbase {
         this.type = type;
     }
 
-//    public User getPortalUser() {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
-//
-//    public void setPortalUser(User portalUser) {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
+    public int getApplicationType() {
+        return Processbase.STANDALONE;
+    }
 
-//    public PortletSession getPortletSession() {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
-//
-//    public void setPortletSession(PortletSession portletSession) {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
-
-    public DocumentLibraryUtil getDocumentLibraryUtil() {
+    public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public byte[] getFileBody(String processUUID, String name) throws Exception {
+        return bpmModule.getAttachmentValue(processUUID, name);
     }
-
-    public PortletApplicationContext2 getPortletApplicationContext2() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    
 }

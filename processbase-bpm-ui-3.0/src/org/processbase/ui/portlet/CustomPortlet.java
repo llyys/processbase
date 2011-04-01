@@ -42,7 +42,7 @@ import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
 import org.processbase.bpm.BPMModule;
 import org.processbase.ui.template.HumanTaskWindow;
-import org.processbase.ui.util.DocumentLibraryUtil;
+import org.processbase.ui.util.PortalDocumentLibrary;
 
 /**
  *
@@ -56,7 +56,7 @@ public abstract class CustomPortlet extends Application
     private PortletSession portletSession;
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
-    private DocumentLibraryUtil documentLibraryUtil = null;
+    private PortalDocumentLibrary documentLibrary = null;
     private String taskInstanceUUID = null;
     private String processDefinitionUUID = null;
     private int type = 1;
@@ -73,7 +73,7 @@ public abstract class CustomPortlet extends Application
         }
         messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
         bpmModule = new BPMModule(getPortalUser().getScreenName());
-        documentLibraryUtil = new DocumentLibraryUtil(getPortalUser());
+        documentLibrary = new PortalDocumentLibrary(getPortalUser());
 
         portletApplicationContext2 = (PortletApplicationContext2) getContext();
         portletSession = portletApplicationContext2.getPortletSession();
@@ -265,12 +265,12 @@ public abstract class CustomPortlet extends Application
         this.bpmModule = bpmModule;
     }
 
-    public DocumentLibraryUtil getDocumentLibraryUtil() {
-        return documentLibraryUtil;
+    public PortalDocumentLibrary getDocumentLibrary() {
+        return documentLibrary;
     }
 
-    public void setDocumentLibraryUtil(DocumentLibraryUtil documentLibraryUtil) {
-        this.documentLibraryUtil = documentLibraryUtil;
+    public void setDocumentLibrary(PortalDocumentLibrary documentLibrary) {
+        this.documentLibrary = documentLibrary;
     }
 
     public ResourceBundle getMessages() {

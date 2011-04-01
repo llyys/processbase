@@ -37,6 +37,7 @@ import org.processbase.ui.identity.RolesPanel;
 import org.processbase.ui.identity.SyncUsersWindow;
 import org.processbase.ui.identity.UserWindow;
 import org.processbase.ui.identity.UsersPanel;
+import org.processbase.ui.template.PbPanel;
 import org.processbase.ui.template.TreeTablePanel;
 import org.processbase.ui.template.WorkPanel;
 
@@ -44,7 +45,7 @@ import org.processbase.ui.template.WorkPanel;
  *
  * @author mgubaidullin
  */
-public class IdentityPanel extends VerticalLayout
+public class IdentityPanel extends PbPanel
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();

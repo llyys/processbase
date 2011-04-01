@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
  */
 package org.processbase.ui.template;
 
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
@@ -36,7 +35,6 @@ import com.vaadin.ui.themes.Reindeer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ResourceBundle;
-import org.processbase.bpm.forms.XMLWidgetsDefinition;
 import org.processbase.ui.Processbase;
 
 /**
@@ -59,25 +57,29 @@ public class ImmediateUpload extends VerticalLayout
     private Upload upload = new Upload(null, (Upload.Receiver) this);
     private Button deleteBtn = new Button();
     private Button downloadBtn = new Button();
-    private Button cancelBtn = new Button();;
+    private Button cancelBtn = new Button();
     private String fileName;
+    private String name;
     private String mtype;
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    private DLFileEntry dlFileEntry;
     private String processUUID;
     private ResourceBundle messages;
+    private boolean needToSave = false;
 
-    public ImmediateUpload(String processUUID, XMLWidgetsDefinition widgets, boolean readOnly, DLFileEntry dlFileEntry, ResourceBundle messages) {
+
+    public ImmediateUpload(String processUUID, String name, String fileName, boolean hasFile, boolean readOnly, ResourceBundle messages) {
+        System.out.println(processUUID + " " + name + " " + fileName + " " + hasFile);
         this.processUUID = processUUID;
-        this.dlFileEntry = dlFileEntry;
         this.messages = messages;
+        this.fileName = fileName;
+        this.name = name;
         setSpacing(true);
 
         addComponent(statusLayout);
-        if (dlFileEntry == null) {
+        if (!hasFile) {
             addComponent(upload);
         } else {
-            downloadBtn.setCaption(widgets.getDisplayLabel() != null ? widgets.getDisplayLabel() : widgets.getName());
+            downloadBtn.setCaption(fileName);
             downloadBtn.setStyleName(Reindeer.BUTTON_LINK);
             downloadBtn.addListener((Button.ClickListener) this);
             addComponent(downloadBtn);
@@ -87,7 +89,7 @@ public class ImmediateUpload extends VerticalLayout
 
         // Make uploading start immediately when file is selected
         upload.setImmediate(true);
-        upload.setButtonCaption(widgets.getDisplayLabel() != null ? widgets.getDisplayLabel() : widgets.getName());
+        upload.setButtonCaption(fileName);
         upload.setStyleName(Reindeer.BUTTON_LINK);
 
         progressLayout.setSpacing(true);
@@ -119,19 +121,23 @@ public class ImmediateUpload extends VerticalLayout
     }
 
     public void buttonClick(ClickEvent event) {
-        if (event.getButton().equals(cancelBtn)) {
-            upload.interruptUpload();
-        } else if (event.getButton().equals(deleteBtn)) {
-            baos = new ByteArrayOutputStream();
-            upload.setVisible(true);
-            status.setValue("");
-            deleteBtn.setVisible(false);
-        } else if (event.getButton().equals(downloadBtn)) {
-            ByteArraySource bas = new ByteArraySource(
-                    ((Processbase)getApplication()).getDocumentLibraryUtil().getFileBody(processUUID, dlFileEntry.getFileEntryId()));
-            StreamResource streamResource = new StreamResource(bas, dlFileEntry.getDescription(), getApplication());
-            streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-            getWindow().getWindow().open(streamResource, "_new");
+        try {
+            if (event.getButton().equals(cancelBtn)) {
+                upload.interruptUpload();
+            } else if (event.getButton().equals(deleteBtn)) {
+                baos = new ByteArrayOutputStream();
+                upload.setVisible(true);
+                status.setValue("");
+                deleteBtn.setVisible(false);
+            } else if (event.getButton().equals(downloadBtn)) {
+                ByteArraySource bas = new ByteArraySource(
+                        ((Processbase) getApplication()).getFileBody(processUUID, name));
+                StreamResource streamResource = new StreamResource(bas, fileName, getApplication());
+                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
+                getWindow().getWindow().open(streamResource, "_new");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -152,6 +158,7 @@ public class ImmediateUpload extends VerticalLayout
     public void uploadSucceeded(SucceededEvent event) {
         // This method gets called when the upload finished successfully
         status.setValue("\"" + event.getFilename() + "\" " + messages.getString("labelIsUploaded"));
+        setNeedToSave(true);
     }
 
     public void uploadFailed(FailedEvent event) {
@@ -186,4 +193,14 @@ public class ImmediateUpload extends VerticalLayout
     public byte[] getFileBody() {
         return baos.toByteArray();
     }
+
+    public boolean isNeedToSave() {
+        return needToSave;
+    }
+
+    public void setNeedToSave(boolean needToSave) {
+        this.needToSave = needToSave;
+    }
+
+
 }

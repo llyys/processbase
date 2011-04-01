@@ -40,12 +40,13 @@ import org.processbase.ui.template.TablePanel;
 import org.processbase.ui.admin.CategoriesPanel;
 import org.processbase.ui.admin.NewCategoryWindow;
 import org.processbase.ui.admin.NewProcessDefinitionWindow;
+import org.processbase.ui.template.PbPanel;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BPMConfigurationPanel extends VerticalLayout
+public class BPMConfigurationPanel extends PbPanel
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();

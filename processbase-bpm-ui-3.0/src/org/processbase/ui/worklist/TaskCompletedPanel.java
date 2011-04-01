@@ -54,7 +54,7 @@ public class TaskCompletedPanel extends TablePanel {
         table.setColumnExpandRatio("taskName", 1);
         table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
-        table.setColumnWidth("lastUpdate", 100);
+        table.setColumnWidth("lastUpdate", 110);
     }
 
     @Override

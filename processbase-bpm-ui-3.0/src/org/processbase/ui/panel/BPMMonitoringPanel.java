@@ -31,12 +31,13 @@ import org.processbase.ui.dashboard.DashboardPerformerTaskPanel;
 import org.processbase.ui.dashboard.DashboardProcessesPanel;
 import org.processbase.ui.dashboard.DashboardUserTaskPanel;
 import org.processbase.ui.template.DashboardPanel;
+import org.processbase.ui.template.PbPanel;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BPMMonitoringPanel extends VerticalLayout
+public class BPMMonitoringPanel extends PbPanel
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();

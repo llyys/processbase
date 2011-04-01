@@ -135,16 +135,6 @@ public class UserWindow extends PbWindow
             tabSheet.setImmediate(true);
             addComponent(tabSheet);
 
-            if (user != null) {
-                userFirstName.setValue(user.getFirstName());
-                userLastName.setValue(user.getLastName());
-                userName.setValue(user.getUsername());
-                userEmail.setValue(user.getProfessionalContactInfo().getEmail());
-                userJobTitle.setValue(user.getJobTitle());
-                password.setValue(user.getPassword());
-                refreshTableMembership();
-            }
-
             addBtn.setVisible(false);
             buttons.addButton(addBtn);
             buttons.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
@@ -157,6 +147,16 @@ public class UserWindow extends PbWindow
             buttons.setHeight("30px");
             buttons.setWidth("100%");
             addComponent(buttons);
+
+            if (user != null) {
+                userFirstName.setValue(user.getFirstName());
+                userLastName.setValue(user.getLastName());
+                userName.setValue(user.getUsername());
+                userEmail.setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
+                userJobTitle.setValue(user.getJobTitle());
+                password.setValue(user.getPassword());
+                refreshTableMembership();
+            }
             setWidth("600px");
             setResizable(false);
         } catch (Exception ex) {

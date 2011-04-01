@@ -34,13 +34,14 @@ import org.processbase.ui.bam.FactsPanel;
 import org.processbase.ui.bam.KPIWindow;
 import org.processbase.ui.bam.KPIsPanel;
 import org.processbase.ui.bam.SchemesPanel;
+import org.processbase.ui.template.PbPanel;
 import org.processbase.ui.template.TablePanel;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BAMConfigurationPanel extends VerticalLayout
+public class BAMConfigurationPanel extends PbPanel
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
