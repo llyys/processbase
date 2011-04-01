@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,8 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.ow2.bonita.util.GroovyException;
+import org.ow2.bonita.facade.runtime.AttachmentInstance;
+import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.bpm.diagram.Diagram;
 import org.processbase.bpm.forms.BonitaFormParcer;
@@ -98,14 +101,16 @@ public class BPMModule {
     private String currentUserUID;
 
     public BPMModule(String currentUserUID) {
-        Constants.loadConstants();
+        if (!Constants.LOADED) {
+            Constants.loadConstants();
+        }
         this.currentUserUID = currentUserUID;
     }
 
     private void initContext() throws Exception {
         if (Constants.APP_SERVER.equalsIgnoreCase("GLASSFISH2")) {
             ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
-            programmaticLogin.login(currentUserUID, "", "processBaseRealm", false);
+            programmaticLogin.login(currentUserUID, "".toCharArray(), "processBaseRealm", false);
         }
         DomainOwner.setDomain(Constants.BONITA_DOMAIN);
         UserOwner.setUser(currentUserUID);
@@ -154,6 +159,11 @@ public class BPMModule {
     public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid, Map<String, Object> vars) throws ProcessNotFoundException, VariableNotFoundException, Exception {
         initContext();
         return runtimeAPI.instantiateProcess(uuid, vars);
+    }
+
+    public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid, Map<String, Object> vars,  Collection<InitialAttachment> initialAttachments) throws ProcessNotFoundException, VariableNotFoundException, Exception {
+        initContext();
+        return runtimeAPI.instantiateProcess(uuid, vars, initialAttachments);
     }
 
     public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid) throws ProcessNotFoundException, VariableNotFoundException, Exception {
@@ -238,6 +248,39 @@ public class BPMModule {
         runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
         runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         runtimeAPI.finishTask(task.getUUID(), b);
+    }
+
+    public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars, Map<AttachmentInstance, byte[]> attachments) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
+        initContext();
+        runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
+        runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
+        for (AttachmentInstance a : attachments.keySet()) {
+            System.out.println(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+        }
+        runtimeAPI.addAttachments(attachments);
+        runtimeAPI.finishTask(task.getUUID(), b);
+    }
+
+    public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, byte[] value) throws Exception {
+        initContext();
+        runtimeAPI.addAttachment(instanceUUID, name, fileName, value);
+    }
+
+    public byte[] getAttachmentValue(String processUUID, String name) throws Exception {
+        initContext();
+        System.out.println("-------------------------------------------- name = " + name);
+        AttachmentInstance attachmentInstance = queryRuntimeAPI.getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
+        return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
+    }
+
+    public List<AttachmentInstance> getLastAttachments(ProcessInstanceUUID instanceUUID, String regex) throws Exception {
+        initContext();
+        return new ArrayList<AttachmentInstance>(queryRuntimeAPI.getLastAttachments(instanceUUID, regex));
+    }
+
+    public List<AttachmentInstance> getLastAttachments(ProcessInstanceUUID instanceUUID, Set<String> attachmentNames) throws Exception {
+        initContext();
+        return new ArrayList<AttachmentInstance>(queryRuntimeAPI.getLastAttachments(instanceUUID, attachmentNames));
     }
 
     public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
@@ -824,5 +867,10 @@ public class BPMModule {
     public Membership getMembershipForRoleAndGroup(String roleUUID, String groupUUID) throws Exception {
         initContext();
         return identityAPI.getMembershipForRoleAndGroup(roleUUID, groupUUID);
+    }
+
+    public boolean checkUserCredentials(String username, String password) throws Exception {
+        initContext();
+        return managementAPI.checkUserCredentials(username, password);
     }
 }

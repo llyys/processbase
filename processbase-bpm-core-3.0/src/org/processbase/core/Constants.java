@@ -93,7 +93,7 @@ public class Constants {
                 AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
             } else {
                 properties.setProperty("APP_SERVER", "GLASSFISH2");
-                properties.setProperty("TASKLIST_PAGE_URL", "/group/processbase/tasks");
+                properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
                 properties.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");
                 properties.setProperty("java.naming.factory.url.pkgs", "com.sun.enterprise.naming");
                 properties.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");

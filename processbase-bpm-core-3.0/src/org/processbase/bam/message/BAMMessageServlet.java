@@ -1,13 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.processbase.bam.message;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Hashtable;
-import java.util.Vector;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,10 +12,8 @@ import org.processbase.core.Constants;
  *
  * @author marat
  */
-public class BAMMessageServlet extends HttpServlet {
 
-    private Vector paramOrder;
-    private Hashtable parameters;
+public class BAMMessageServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
