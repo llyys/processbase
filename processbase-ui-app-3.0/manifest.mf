@@ -1,0 +1,12 @@
+Import-Package: com.vaadin.ui, org.ow2.bonita, javax.portlet, com.invient, com.liferay, org.processbase.core, org.processbase.bpm, org.processbase.bam
+Bundle-RequiredExecutionEnvironment: J2SE-1.6
+Export-Package: org.processbase.ui
+Bundle-Version: 3.0.0
+Implementation-URL: http://processbase.biz
+Bundle-Name: PROCESSBASE BPMS UI
+Ant-Version: Apache Ant 1.7.1
+Bundle-Vendor: PROCESSBASE Ltd
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.processbase.ui
+Implementation-Version: 3.0.0
+Implementation-Vendor: PROCESSBASE Ltd
