@@ -1,0 +1,12 @@
+Import-Package: com.vaadin.ui, org.ow2.bonita, javax.servlet, org.hibernate, javax.xml, com.google, javax.jms, javax.naming, com.sun.appserv.security, javax.imageio, org.w3c
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.processbase.core, org.processbase.bpm, org.processbase.bam
+Bundle-Version: 3.0.0
+Implementation-URL: http://processbase.biz
+Bundle-Name: PROCESSBASE BPMS CORE
+Ant-Version: Apache Ant 1.7.1
+Bundle-Vendor: PROCESSBASE Ltd
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.processbase.core
+Implementation-Version: 3.0.0
+Implementation-Vendor: PROCESSBASE Ltd
