@@ -491,18 +491,36 @@ exists or setup the property manually. For example like this:
                 COMPILATION SECTION
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-module-jar" unless="no.deps">
-        <ant antfile="${project.processbase-bpm-core-3_0}/build.xml" inheritall="false" target="jar">
+        <ant antfile="${project.processbase-ui-app-3_0}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
-        <ant antfile="${project.processbase-bpm-ui-3_0}/build.xml" inheritall="false" target="jar">
+        <ant antfile="${project.processbase-ui-bam-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-ui-bpm-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-ui-core-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-util-bam-3_0}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
-        <ant antfile="${project.processbase-bpm-core-3_0}/build.xml" inheritall="false" target="jar">
+        <ant antfile="${project.processbase-ui-app-3_0}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
-        <ant antfile="${project.processbase-bpm-ui-3_0}/build.xml" inheritall="false" target="jar">
+        <ant antfile="${project.processbase-ui-bam-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-ui-bpm-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-ui-core-3_0}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+        <ant antfile="${project.processbase-util-bam-3_0}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
     </target>
@@ -641,9 +659,11 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,-do-dist-with-manifest,-do-dist-without-manifest" name="do-dist"/>
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
-        <copyfiles files="${reference.processbase-bpm-ui-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
-        <copyfiles files="${reference.processbase-bpm-core-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.antlr-2.7.6.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.processbase-ui-bam-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.processbase-ui-bpm-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.processbase-ui-core-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.processbase-util-bam-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.commons-collections-3.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.dom4j-1.6.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.hibernate-annotations-3.5.6-Final.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
@@ -664,13 +684,17 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.jaxrs-api-1.2.1.GA.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.invientcharts-0.8.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.resteasy-jaxrs-1.2.1.GA.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.processbase-ui-app-3_0.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.xstream-1.2.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
-        <copyfiles files="${reference.processbase-bpm-ui-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${reference.processbase-bpm-core-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.antlr-2.7.6.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.processbase-ui-bam-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.processbase-ui-bpm-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.processbase-ui-core-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.processbase-util-bam-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-collections-3.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.dom4j-1.6.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.hibernate-annotations-3.5.6-Final.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
@@ -691,6 +715,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.jaxrs-api-1.2.1.GA.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.invientcharts-0.8.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.resteasy-jaxrs-1.2.1.GA.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.processbase-ui-app-3_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.xstream-1.2.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="-clean-webinf-lib">
         <delete dir="${build.web.dir}/WEB-INF/lib"/>
@@ -992,8 +1018,11 @@ exists or setup the property manually. For example like this:
                 CLEANUP SECTION
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-clean" unless="no.deps">
-        <ant antfile="${project.processbase-bpm-core-3_0}/build.xml" inheritall="false" target="clean"/>
-        <ant antfile="${project.processbase-bpm-ui-3_0}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.processbase-ui-app-3_0}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.processbase-ui-bam-3_0}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.processbase-ui-bpm-3_0}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.processbase-ui-core-3_0}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.processbase-util-bam-3_0}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">
         <condition property="build.dir.to.clean" value="${build.web.dir}">
