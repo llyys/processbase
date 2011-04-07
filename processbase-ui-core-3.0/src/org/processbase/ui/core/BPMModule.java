@@ -63,6 +63,8 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.facade.runtime.Comment;
 import org.ow2.bonita.facade.runtime.InstanceState;
@@ -133,6 +135,32 @@ public class BPMModule {
     public Set<LightProcessDefinition> getLightProcessDefinitions() throws Exception {
         initContext();
         return queryDefinitionAPI.getLightProcesses();
+    }
+
+    public Set<LightProcessDefinition> getAllowedLightProcessDefinitions() throws Exception {
+        initContext();
+        User user = identityAPI.findUserByUserName(currentUserUID);
+        Set<String> membershipUUIDs = new HashSet<String>();
+        for (Membership membership : user.getMemberships()){
+            membershipUUIDs.add(membership.getUUID());
+        }
+        List<Rule> userRules = managementAPI.getApplicableRules(RuleType.PROCESS_START, null, null, null, membershipUUIDs, null);
+
+        Set<String> processException;
+        Set<ProcessDefinitionUUID> processUUIDException = new HashSet<ProcessDefinitionUUID>();
+        for (Rule r : userRules) {
+            processException = r.getItems();
+            for (String processID : processException) {
+                processUUIDException.add(new ProcessDefinitionUUID(processID));
+            }
+        }
+        Set<LightProcessDefinition> result = new HashSet<LightProcessDefinition>();
+        for (LightProcessDefinition lpd : queryDefinitionAPI.getLightProcesses(processUUIDException)){
+            if (lpd.getState().equals(ProcessState.ENABLED)){
+                result.add(lpd);
+            }
+        }
+        return result;
     }
 
     public Set<LightProcessDefinition> getLightProcessDefinitions(ProcessState state) throws Exception {
@@ -376,6 +404,7 @@ public class BPMModule {
     public ProcessDefinition deploy(BusinessArchive bar, String emptyCategoryName) throws DeploymentException, ProcessNotFoundException, VariableNotFoundException, Exception {
         initContext();
         ProcessDefinition result = managementAPI.deploy(bar);
+        // add to empty category
         if (result.getCategoryNames().isEmpty()) {
             Set<String> emptyCategory = new HashSet<String>(1);
             emptyCategory.add(emptyCategoryName);
@@ -384,6 +413,11 @@ public class BPMModule {
             }
             webAPI.setProcessCategories(result.getUUID(), emptyCategory);
         }
+        // create PROCESS_START rule for process
+        Set<ProcessDefinitionUUID> processes = new HashSet<ProcessDefinitionUUID>(1);
+        processes.add(result.getUUID());
+        Rule rule = managementAPI.createRule(result.getUUID().toString(), result.getName(), "PROCESS_START Rule for ProcessDefinitionUUID" + result.getUUID().toString(), RuleType.PROCESS_START);
+        managementAPI.addExceptionsToRuleByUUID(rule.getUUID(), processes);
         return result;
     }
 
