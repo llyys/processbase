@@ -29,7 +29,6 @@ import java.util.Set;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
-import org.processbase.ui.core.Constants;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
@@ -867,6 +866,11 @@ public class BPMModule {
     public Membership getMembershipForRoleAndGroup(String roleUUID, String groupUUID) throws Exception {
         initContext();
         return identityAPI.getMembershipForRoleAndGroup(roleUUID, groupUUID);
+    }
+
+    public User findUserByUserName(String userName) throws Exception {
+        initContext();
+        return identityAPI.findUserByUserName(userName);
     }
 
     public boolean checkUserCredentials(String username, String password) throws Exception {

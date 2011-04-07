@@ -17,9 +17,11 @@
 package org.processbase.ui.core.template;
 
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.MenuBar;
@@ -50,8 +52,8 @@ import org.processbase.ui.core.Processbase;
  */
 public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button.ClickListener {
 
-    protected VerticalLayout mainLayout = new VerticalLayout();
-    protected VerticalLayout layout = new VerticalLayout();
+    protected AbstractOrderedLayout mainLayout;
+    protected HorizontalLayout layout = new HorizontalLayout();
     protected VerticalLayout commentsLayout = new VerticalLayout();
     protected TaskInstance taskInstance = null;
     protected LightProcessDefinition processDefinition;
@@ -111,33 +113,33 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         currentUserName = ((Processbase) getApplication()).getUserName();
         bpmModule = ((Processbase) getApplication()).getBpmModule();
         messages = ((Processbase) getApplication()).getMessages();
-        if (custom) {
-            prepareCustom();
-        }
-        prepareVariables();
-
         commentEditor = new RichTextArea(messages.getString("addComment"));
         addCommentBtn = new Button(messages.getString("btnSave"), (Button.ClickListener) this);
 
-        mainLayout.setMargin(false);
-        mainLayout.setSpacing(false);
+        if (taskInstance != null) {
+            mainLayout = new VerticalLayout();
+            prepareTopBar();
+            //addDescription();
+            layout.setSizeFull();
+            layout.setMargin(true, true, true, true);
+            layout.setSpacing(false);
+            mainLayout.addComponent(layout);
+            mainLayout.setExpandRatio(layout, 1.0f);
+            mainLayout.setMargin(false);
+            mainLayout.setSpacing(false);
+        } else {
+            mainLayout = new HorizontalLayout();
+            mainLayout.setMargin(true);
+            mainLayout.setSpacing(true);
+        }
         mainLayout.setStyleName("white");
 
-        if (!custom) { // set only for generated window
+        if (custom) {
+            prepareCustom();
+        } else if (!custom) { // set only for generated window
             mainLayout.setSizeFull();
         }
-
-        layout.setSizeFull();
-        layout.setMargin(true, true, true, true);
-        layout.setSpacing(false);
-
-        if (taskInstance != null) {
-            prepareTopBar();
-//            addDescription();
-        }
-        mainLayout.addComponent(layout);
-        mainLayout.setExpandRatio(layout, 1);
-
+        prepareVariables();
         preparePanel();
         if (taskInstance != null) {
             prepareComments();
@@ -207,21 +209,23 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         vl.setSpacing(false);
         vl.addComponent(taskPanel);
         taskPanel.setSizeUndefined();
-
         vl.setComponentAlignment(taskPanel, Alignment.MIDDLE_CENTER);
         String tabCaption = taskInstance != null
                 ? messages.getString("taskDetails")
                 : (processDefinition.getLabel() != null ? processDefinition.getLabel() : processDefinition.getName());
         if (taskInstance != null) {
+
+
             tabSheet.setSizeFull();
             tabSheet.setStyleName("minimal");
-//            tabSheet.setStyleName(Runo.TABSHEET_SMALL);
             layout.addComponent(tabSheet);
-            layout.setExpandRatio(tabSheet, 1);
+            layout.setExpandRatio(tabSheet, 1.0f);
             tabSheet.addTab(vl, tabCaption, new ThemeResource("icons/document-txt.png"));
         } else {
-            layout.addComponent(vl);
-//            layout.setExpandRatio(vl, 1);
+            vl.setSizeFull();
+            taskPanel.setSizeFull();
+            mainLayout.addComponent(vl);
+            mainLayout.setExpandRatio(vl, 1.0f);
         }
         enabletabPanel();
     }
