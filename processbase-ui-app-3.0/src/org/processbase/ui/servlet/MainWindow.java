@@ -16,9 +16,19 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.User;
+import org.processbase.ui.bam.panel.BAMConfigurationPanel;
+import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.bpm.panel.ConsolePanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
@@ -34,8 +44,10 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private ConsolePanel consolePanel;
     private BPMConfigurationPanel bpmConfigurationPanel;
     private IdentityPanel identityPanel;
-//    private BAMConfigurationPanel bamConfigurationPanel;
-//    private BPMMonitoringPanel bpmMonitoringPanel;
+    private BAMConfigurationPanel bamConfigurationPanel;
+    private BPMMonitoringPanel bpmMonitoringPanel;
+    private User user;
+    private HashSet<String> accessSet;
 
     public MainWindow() {
         super("PROCESSBASE BPMS");
@@ -50,36 +62,53 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     public void initUI() {
-        mainLayout = (VerticalLayout) getContent();
-        mainLayout.removeAllComponents();
-        mainLayout.setMargin(true);
+        try {
+            mainLayout = (VerticalLayout) getContent();
+            mainLayout.removeAllComponents();
+            mainLayout.setMargin(true);
+            mainLayout.setSizeFull();
+            mainLayout.addComponent(getHeader());
+            tabs = new TabSheet();
+            tabs.setSizeFull();
+            mainLayout.addComponent(tabs);
+            mainLayout.addComponent(tabs);
+            mainLayout.setExpandRatio(tabs, 1);
 
-        consolePanel = new ConsolePanel();
-        bpmConfigurationPanel = new BPMConfigurationPanel();
-        identityPanel = new IdentityPanel();
-//        bamConfigurationPanel = new BAMConfigurationPanel();
-//        bpmMonitoringPanel = new BPMMonitoringPanel();
+            // prepare tabs
+            defineAccess();
+            if (accessSet.contains("console")) {
+                consolePanel = new ConsolePanel();
+                tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmConsole"), null);
+            }
+            if (accessSet.contains("bpm")) {
+                bpmConfigurationPanel = new BPMConfigurationPanel();
+                tabs.addTab(bpmConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bpmAdmin"), null);
+            }
+            if (accessSet.contains("identity")) {
+                identityPanel = new IdentityPanel();
+                tabs.addTab(identityPanel, ((Processbase) getApplication()).getMessages().getString("bpmIdentity"), null);
+            }
+            if (accessSet.contains("bam")) {
+                bamConfigurationPanel = new BAMConfigurationPanel();
+                tabs.addTab(bamConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bamAdmin"), null);
+            }
+            if (accessSet.contains("monitoring")) {
+                bpmMonitoringPanel = new BPMMonitoringPanel();
+                tabs.addTab(bpmMonitoringPanel, ((Processbase) getApplication()).getMessages().getString("bpmMonitoring"), null);
+            }
 
-        mainLayout.setSizeFull();
-        mainLayout.addComponent(getHeader());
-        tabs = new TabSheet();
-        tabs.setSizeFull();
-        mainLayout.addComponent(tabs);
-        mainLayout.addComponent(tabs);
-        mainLayout.setExpandRatio(tabs, 1);
-        tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmConsole"), null);
+            if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
+                PbPanel first = (PbPanel) tabs.getSelectedTab();
+                first.initUI();
+                first.setInitialized(true);
+                first.setSizeFull();
+            }
 
-        tabs.addTab(bpmConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bpmAdmin"), null);
-        tabs.addTab(identityPanel, ((Processbase) getApplication()).getMessages().getString("bpmIdentity"), null);
-//        tabs.addTab(bamConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bamAdmin"), null);
-//        tabs.addTab(bpmMonitoringPanel, ((Processbase) getApplication()).getMessages().getString("bpmMonitoring"), null);
-
-        consolePanel.initUI();
-        consolePanel.setInitialized(true);
-        consolePanel.setSizeFull();
-
-        tabs.addListener((SelectedTabChangeListener) this);
-        tabs.setImmediate(true);
+            tabs.addListener((SelectedTabChangeListener) this);
+            tabs.setImmediate(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     Layout getHeader() {
@@ -159,5 +188,31 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             ((PbPanel) event.getTabSheet().getSelectedTab()).setSizeFull();
         }
 
+    }
+
+    private void defineAccess() throws Exception {
+        accessSet = new HashSet<String>();
+        String userName = ((Processbase) getApplication()).getUserName();
+        BPMModule bpmModule = ((Processbase) getApplication()).getBpmModule();
+        user = bpmModule.findUserByUserName(userName);
+        for (Membership membership : user.getMemberships()) {
+            if (membership.getGroup().getParentGroup() != null && membership.getGroup().getParentGroup().getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
+                if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
+                    if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
+                        accessSet.add("bpm");
+                    } else if (membership.getGroup().getName().equalsIgnoreCase("bam")) {
+                        accessSet.add("bam");
+                    } else if (membership.getGroup().getName().equalsIgnoreCase("identity")) {
+                        accessSet.add("identity");
+                    } else if (membership.getGroup().getName().equalsIgnoreCase("monitoring")) {
+                        accessSet.add("monitoring");
+                    }
+                } else if (membership.getRole().getName().equals(IdentityAPI.USER_ROLE_NAME)) {
+                    if (membership.getGroup().getName().equalsIgnoreCase("console")) {
+                        accessSet.add("console");
+                    }
+                }
+            }
+        }
     }
 }
