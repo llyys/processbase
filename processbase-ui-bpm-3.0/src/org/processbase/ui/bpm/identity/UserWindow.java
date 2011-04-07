@@ -23,6 +23,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
@@ -188,11 +190,13 @@ public class UserWindow extends PbWindow
                             "",
                             userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, new HashMap<String, String>());
-                    ((Processbase) getApplication()).getBpmModule().updateUserPassword(
-                            user.getUUID(), password.getValue().toString());
                     ((Processbase) getApplication()).getBpmModule().updateUserProfessionalContactInfo(
                             user.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
+                    if (!user.getPassword().equals(password.getValue().toString())) {
+                        ((Processbase) getApplication()).getBpmModule().updateUserPassword(user.getUUID(), password.getValue().toString());
+                    }
+
                 }
                 saveUserMembership();
                 close();
@@ -222,17 +226,21 @@ public class UserWindow extends PbWindow
         }
         for (Object itemId : tableMembership.getItemIds()) {
             Item woItem = tableMembership.getItem(itemId);
-            ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
-            ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
-            Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
-            ((Processbase) getApplication()).getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
+            if (woItem.getItemProperty("group").getValue() instanceof ComboBox
+                    && woItem.getItemProperty("role").getValue() instanceof ComboBox) {
+                ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
+                ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
+                Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
+                ((Processbase) getApplication()).getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
+            }
         }
     }
 
     private void prepareTableMembership() {
-        tableMembership.addContainerProperty("group", ComboBox.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionGroup"), null, null);
-        tableMembership.addContainerProperty("role", ComboBox.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionRole"), null, null);
+        tableMembership.addContainerProperty("group", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionGroup"), null, null);
+        tableMembership.addContainerProperty("role", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionRole"), null, null);
         tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        tableMembership.setColumnWidth("actions", 30);
         tableMembership.setImmediate(true);
         tableMembership.setWidth("100%");
         tableMembership.setPageLength(10);
@@ -252,21 +260,28 @@ public class UserWindow extends PbWindow
         String uuid = membership != null ? membership.getUUID() : "NEW_MEMBERSHIP_UUID_" + UUID.randomUUID().toString();
         Item woItem = tableMembership.addItem(uuid);
 
-        ComboBox groups = new ComboBox();
-        groups.setContainerDataSource(getGroups());
-        groups.setItemCaptionPropertyId("path");
-        groups.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
-        groups.setValue(membership != null ? membership.getGroup().getUUID() : null);
-        woItem.getItemProperty("group").setValue(groups);
+        if (membership != null) {
+            Label groups = new Label(getGroups().getItem(membership != null ? membership.getGroup().getUUID() : null).getItemProperty("path"));
+            woItem.getItemProperty("group").setValue(groups);
 
-        ComboBox roles = new ComboBox();
-        roles.setContainerDataSource(getRoles());
-        roles.setItemCaptionPropertyId("name");
-        roles.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
-        roles.setValue(membership != null ? membership.getRole().getUUID() : null);
+            Label roles = new Label(getRoles().getItem(membership != null ? membership.getRole().getUUID() : null).getItemProperty("name"));
+            woItem.getItemProperty("role").setValue(roles);
 
-        woItem.getItemProperty("group").setValue(groups);
-        woItem.getItemProperty("role").setValue(roles);
+        } else {
+            ComboBox groups = new ComboBox();
+            groups.setContainerDataSource(getGroups());
+            groups.setItemCaptionPropertyId("path");
+            groups.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
+            groups.setValue(membership != null ? membership.getGroup().getUUID() : null);
+            woItem.getItemProperty("group").setValue(groups);
+
+            ComboBox roles = new ComboBox();
+            roles.setContainerDataSource(getRoles());
+            roles.setItemCaptionPropertyId("name");
+            roles.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
+            roles.setValue(membership != null ? membership.getRole().getUUID() : null);
+            woItem.getItemProperty("role").setValue(roles);
+        }
         TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
     }

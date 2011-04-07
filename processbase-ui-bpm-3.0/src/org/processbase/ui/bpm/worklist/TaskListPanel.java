@@ -55,7 +55,7 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
         table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
         table.addContainerProperty("accepted", ThemeResource.class, null);
         table.setItemIconPropertyId("accepted");
-        table.setColumnWidth("accepted", 25);
+        table.setColumnWidth("accepted", 30);
         table.addContainerProperty("processName", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcess"), null, null);
         table.addContainerProperty("taskName", Label.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 1);

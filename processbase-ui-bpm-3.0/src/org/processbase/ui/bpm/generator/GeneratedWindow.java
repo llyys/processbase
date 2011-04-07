@@ -395,12 +395,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 hasFile = true;
                 label = ai.getFileName();
             }
-            System.out.println("--------------------------------------------");
             ai = findAttachmentInstance(widgets.getInputScript());
-            System.out.println("widgets.getInputScript() = " + widgets.getInputScript() + " ");
-            System.out.println("ai = " + ai);
-            System.out.println("--------------------------------------------");
-        }
+            }
         component = new ImmediateUpload(processUUID, widgets.getInputScript(), label, hasFile, readonly, ((Processbase) getApplication()).getMessages());
         return component;
     }
@@ -600,11 +596,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     names.add(ai.getName());
                 }
                 attachmentInstances = ((Processbase) getApplication()).getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
-                System.out.println("--------------------------------------------");
-                for (AttachmentInstance a : attachmentInstances) {
-                    System.out.println(a.getName() + " " + a.getFileName());
-                }
-                System.out.println("--------------------------------------------");
+                
             } catch (Exception ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
