@@ -214,16 +214,15 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
                 ? messages.getString("taskDetails")
                 : (processDefinition.getLabel() != null ? processDefinition.getLabel() : processDefinition.getName());
         if (taskInstance != null) {
-
-
             tabSheet.setSizeFull();
             tabSheet.setStyleName("minimal");
             layout.addComponent(tabSheet);
             layout.setExpandRatio(tabSheet, 1.0f);
             tabSheet.addTab(vl, tabCaption, new ThemeResource("icons/document-txt.png"));
         } else {
-            vl.setSizeFull();
-            taskPanel.setSizeFull();
+//            vl.setSizeUndefined();
+            mainLayout.setSizeUndefined();
+            mainLayout.setWidth("100%");
             mainLayout.addComponent(vl);
             mainLayout.setExpandRatio(vl, 1.0f);
         }
