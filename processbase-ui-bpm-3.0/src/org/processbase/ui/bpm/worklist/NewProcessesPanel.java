@@ -62,7 +62,7 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
         treeTable.removeAllItems();
         try {
             Set<Category> categories = ((Processbase) getApplication()).getBpmModule().getAllCategories();
-            Collection<LightProcessDefinition> processes = ((Processbase) getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
+            Collection<LightProcessDefinition> processes = ((Processbase) getApplication()).getBpmModule().getAllowedLightProcessDefinitions();
 
             for (Category category : categories) {
                 CategoryAndProcessDefinition capParent = new CategoryAndProcessDefinition(category, null);
