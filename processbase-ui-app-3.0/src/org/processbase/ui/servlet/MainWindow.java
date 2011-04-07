@@ -76,9 +76,9 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
             // prepare tabs
             defineAccess();
-            if (accessSet.contains("console")) {
+            if (accessSet.contains("tasklist")) {
                 consolePanel = new ConsolePanel();
-                tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmConsole"), null);
+                tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmTasklist"), null);
             }
             if (accessSet.contains("bpm")) {
                 bpmConfigurationPanel = new BPMConfigurationPanel();
@@ -208,8 +208,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                         accessSet.add("monitoring");
                     }
                 } else if (membership.getRole().getName().equals(IdentityAPI.USER_ROLE_NAME)) {
-                    if (membership.getGroup().getName().equalsIgnoreCase("console")) {
-                        accessSet.add("console");
+                    if (membership.getGroup().getName().equalsIgnoreCase("tasklist")) {
+                        accessSet.add("tasklist");
                     }
                 }
             }
