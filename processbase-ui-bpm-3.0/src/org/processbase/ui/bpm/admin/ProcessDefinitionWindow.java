@@ -17,11 +17,14 @@
 package org.processbase.ui.bpm.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
@@ -31,19 +34,29 @@ import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.Role;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbTableFieldFactory;
 import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.core.template.TableLinkButton;
 
 /**
  *
@@ -57,9 +70,11 @@ public class ProcessDefinitionWindow extends PbWindow implements
         TabSheet.SelectedTabChangeListener {
 
     private ProcessDefinition processDefinition = null;
+    private Button addBtn;
     private ButtonBar buttons = new ButtonBar();
     private Button closeBtn;
     private Button applyBtn;
+    private Button saveAccessBtn;
     private Upload upload = new Upload("", (Upload.Receiver) this);
     private Button deleteAllBtn;
     private Button deleteInstancesBtn;
@@ -71,9 +86,12 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private String filename;
     private String originalFilename;
     private String fileExt;
+    private Table tableMembership = new Table();
     private TabSheet tabSheet = new TabSheet();
     private VerticalLayout v1 = new VerticalLayout();
     private VerticalLayout v2 = new VerticalLayout();
+    private VerticalLayout v3 = new VerticalLayout();
+    private ArrayList<String> deletedMembership = new ArrayList<String>();
 
     public ProcessDefinitionWindow(ProcessDefinition processDefinition) {
         super(processDefinition.getLabel());
@@ -109,10 +127,23 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
             activitiesTable.setSizeFull();
 
-            v2.setMargin(true, false, false, false);
+            v2.setMargin(false, false, false, false);
             v2.addComponent(activitiesTable);
             v2.setSizeFull();
             tabSheet.addTab(v2, ((Processbase) getApplication()).getMessages().getString("tabCustomUI"), null);
+
+            // prepare membership
+            prepareTableMembership();
+            addBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnAdd"), this);
+            addBtn.setStyleName(Runo.BUTTON_SMALL);
+            v3.setMargin(false, false, false, false);
+            v3.setSpacing(true);
+            v3.addComponent(addBtn);
+            v3.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
+            v3.addComponent(tableMembership);
+            v3.setSizeFull();
+            tabSheet.addTab(v3, ((Processbase) getApplication()).getMessages().getString("processAccess"), null);
+            refreshTableMembership();
 
             tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
             tabSheet.setSizeFull();
@@ -122,6 +153,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
             closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
             applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSaveCustomUI"), this);
+            saveAccessBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSaveProcessAccess"), this);
             deleteAllBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDeleteAll"), this);
             deleteInstancesBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDeleteInstances"), this);
             downloadBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDownload"), this);
@@ -149,6 +181,9 @@ public class ProcessDefinitionWindow extends PbWindow implements
             applyBtn.setVisible(false);
             buttons.addButton(applyBtn);
             buttons.setComponentAlignment(applyBtn, Alignment.MIDDLE_RIGHT);
+            buttons.addButton(saveAccessBtn);
+            saveAccessBtn.setVisible(false);
+            buttons.setComponentAlignment(saveAccessBtn, Alignment.MIDDLE_RIGHT);
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -219,6 +254,17 @@ public class ProcessDefinitionWindow extends PbWindow implements
                 enableProcess();
             } else if (event.getButton().equals(archiveBtn)) {
                 archiveProcess();
+            } else if (event.getButton().equals(saveAccessBtn)) {
+                saveProcessAccess();
+            } else if (event.getButton().equals(addBtn)) {
+                addTableMembershipRow(null);
+            } else if (event.getButton() instanceof TableLinkButton) {
+                TableLinkButton tlb = (TableLinkButton) event.getButton();
+                String uuid = (String) tlb.getTableValue();
+                tableMembership.removeItem(uuid);
+                if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
+                    deletedMembership.add(uuid);
+                }
             } else {
                 close();
             }
@@ -414,10 +460,137 @@ public class ProcessDefinitionWindow extends PbWindow implements
     }
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
-        if (event.getTabSheet().getSelectedTab().equals(v2)) {
-            applyBtn.setVisible(true);
-        } else {
+        if (event.getTabSheet().getSelectedTab().equals(v1)) {
+            saveAccessBtn.setVisible(false);
             applyBtn.setVisible(false);
+            deleteAllBtn.setVisible(true);
+            deleteInstancesBtn.setVisible(true);
+            downloadBtn.setVisible(true);
+            enableBtn.setVisible(true);
+            archiveBtn.setVisible(true);
+        } else if (event.getTabSheet().getSelectedTab().equals(v2)) {
+            applyBtn.setVisible(true);
+            saveAccessBtn.setVisible(false);
+            deleteAllBtn.setVisible(false);
+            deleteInstancesBtn.setVisible(false);
+            downloadBtn.setVisible(false);
+            enableBtn.setVisible(false);
+            archiveBtn.setVisible(false);
+        } else if (event.getTabSheet().getSelectedTab().equals(v3)) {
+            saveAccessBtn.setVisible(true);
+            applyBtn.setVisible(false);
+            deleteAllBtn.setVisible(false);
+            deleteInstancesBtn.setVisible(false);
+            downloadBtn.setVisible(false);
+            enableBtn.setVisible(false);
+            archiveBtn.setVisible(false);
         }
+    }
+
+    private void prepareTableMembership() {
+        tableMembership.addContainerProperty("group", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionGroup"), null, null);
+        tableMembership.addContainerProperty("role", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionRole"), null, null);
+        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        tableMembership.setColumnWidth("actions", 30);
+        tableMembership.setImmediate(true);
+        tableMembership.setWidth("100%");
+        tableMembership.setPageLength(10);
+    }
+
+    private void refreshTableMembership() {
+        try {
+            Rule rule = ((Processbase) getApplication()).getBpmModule().findRule(processDefinition.getUUID().toString());
+            tableMembership.removeAllItems();
+            for (String membershipUUID : rule.getMemberships()) {
+                Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipByUUID(membershipUUID);
+                addTableMembershipRow(membership);
+            }
+        } catch (Exception ex) {
+        }
+    }
+
+    private void addTableMembershipRow(Membership membership) throws Exception {
+        String uuid = membership != null ? membership.getUUID() : "NEW_MEMBERSHIP_UUID_" + UUID.randomUUID().toString();
+        Item woItem = tableMembership.addItem(uuid);
+
+        if (membership != null) {
+            Label groups = new Label(getGroups().getItem(membership != null ? membership.getGroup().getUUID() : null).getItemProperty("path"));
+            woItem.getItemProperty("group").setValue(groups);
+
+            Label roles = new Label(getRoles().getItem(membership != null ? membership.getRole().getUUID() : null).getItemProperty("name"));
+            woItem.getItemProperty("role").setValue(roles);
+
+        } else {
+            ComboBox groups = new ComboBox();
+            groups.setWidth("100%");
+            groups.setContainerDataSource(getGroups());
+            groups.setItemCaptionPropertyId("path");
+            groups.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
+            groups.setValue(membership != null ? membership.getGroup().getUUID() : null);
+            woItem.getItemProperty("group").setValue(groups);
+
+            ComboBox roles = new ComboBox();
+            roles.setWidth("100%");
+            roles.setContainerDataSource(getRoles());
+            roles.setItemCaptionPropertyId("name");
+            roles.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
+            roles.setValue(membership != null ? membership.getRole().getUUID() : null);
+            woItem.getItemProperty("role").setValue(roles);
+        }
+        TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
+        woItem.getItemProperty("actions").setValue(tlb);
+    }
+
+    public IndexedContainer getGroups() throws Exception {
+        IndexedContainer container = new IndexedContainer();
+        container.addContainerProperty("name", String.class, null);
+        container.addContainerProperty("label", String.class, null);
+        container.addContainerProperty("uuid", String.class, null);
+        container.addContainerProperty("path", String.class, null);
+        List<Group> groups = ((Processbase) getApplication()).getBpmModule().getAllGroups();
+        for (Group groupX : groups) {
+            String path = getGroupPath(groupX);
+            if (!path.startsWith("/"+ IdentityAPI.DEFAULT_GROUP_NAME)) {
+                Item item = container.addItem(groupX.getUUID());
+                item.getItemProperty("name").setValue(groupX.getName());
+                item.getItemProperty("label").setValue(groupX.getLabel());
+                item.getItemProperty("uuid").setValue(groupX.getUUID());
+                item.getItemProperty("path").setValue(path);
+            }
+        }
+        container.sort(new Object[]{"name"}, new boolean[]{true});
+        return container;
+    }
+
+    private String getGroupPath(Group group) {
+        StringBuilder result = new StringBuilder(IdentityAPI.GROUP_PATH_SEPARATOR + group.getName() + IdentityAPI.GROUP_PATH_SEPARATOR);
+        Group parent = group.getParentGroup();
+        while (parent != null) {
+            result.insert(0, IdentityAPI.GROUP_PATH_SEPARATOR + parent.getName());
+            parent = parent.getParentGroup();
+        }
+        return result.toString();
+    }
+
+    public IndexedContainer getRoles() throws Exception {
+        IndexedContainer container = new IndexedContainer();
+        container.addContainerProperty("name", String.class, null);
+        container.addContainerProperty("label", String.class, null);
+        container.addContainerProperty("uuid", String.class, null);
+        List<Role> roles = ((Processbase) getApplication()).getBpmModule().getAllRoles();
+        for (Role roleX : roles) {
+            if (!roleX.getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
+            Item item = container.addItem(roleX.getUUID());
+            item.getItemProperty("name").setValue(roleX.getName());
+            item.getItemProperty("label").setValue(roleX.getLabel());
+            item.getItemProperty("uuid").setValue(roleX.getUUID());
+            }
+        }
+        container.sort(new Object[]{"name"}, new boolean[]{true});
+        return container;
+    }
+
+    private void saveProcessAccess() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }
