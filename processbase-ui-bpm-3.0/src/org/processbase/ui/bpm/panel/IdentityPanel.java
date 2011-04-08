@@ -145,6 +145,8 @@ public class IdentityPanel extends PbPanel
         buttonBar.addComponent(syncBtn, 7);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
         if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+            syncBtn.setVisible(true);
+        } else {
             syncBtn.setVisible(false);
         }
 
@@ -187,7 +189,11 @@ public class IdentityPanel extends PbPanel
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         metadataBtn.setEnabled(true);
         btnAdd.setVisible(true);
-        syncBtn.setVisible(true);
+        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+            syncBtn.setVisible(true);
+        } else {
+            syncBtn.setVisible(false);
+        }
     }
 
     public void windowClose(CloseEvent e) {
