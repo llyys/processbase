@@ -18,6 +18,7 @@ package org.processbase.ui.servlet;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
@@ -65,6 +66,11 @@ public class PbApplication extends Application implements Processbase {
         BPMModule bpmm = new BPMModule(login);
         if (bpmm.checkUserCredentials(login, password)) {
             setUserName(login);
+            String locale = bpmm.getUserMetadata("locale");
+            if (locale!=null){
+                setLocale(new Locale(locale));
+                setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
+            }
             setBpmModule(bpmm);
             mainWindow.initUI();
         } else {

@@ -19,7 +19,6 @@ package org.processbase.ui.servlet;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,7 +29,7 @@ import com.vaadin.ui.Window;
 public class PbServlet extends AbstractApplicationServlet {
 
 //    @Inject
-    private PbApplication application;
+//    private PbApplication application;
 
     @Override
     protected void writeAjaxPageHtmlVaadinScripts(Window window,
@@ -54,9 +53,9 @@ public class PbServlet extends AbstractApplicationServlet {
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
-        if (application == null){
-            application = new PbApplication();
-        }
-        return application;
+//        if (application == null){
+//            application = new PbApplication();
+//        }
+        return new PbApplication();
     }
 }

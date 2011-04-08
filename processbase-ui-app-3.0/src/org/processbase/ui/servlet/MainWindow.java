@@ -16,15 +16,13 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
+import org.processbase.ui.bpm.identity.UserWindow;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.bpm.panel.ConsolePanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
@@ -115,7 +113,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
         header.setMargin(false);
-        header.setSpacing(false);
+        header.setSpacing(true);
 
         ThemeResource themeResource = new ThemeResource("icons/processbase.png");
         Embedded logo = new Embedded();
@@ -123,8 +121,19 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         logo.setType(Embedded.TYPE_IMAGE);
 
         header.addComponent(logo);
+        header.setExpandRatio(logo, 1.0f);
 
-        Button logout = new Button("Logout", new Button.ClickListener() {
+        Button profile = new Button(((PbApplication) getApplication()).getMessages().getString("btnProfile"), new Button.ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                openProfileWindow();
+            }
+        });
+        profile.setStyleName(Reindeer.BUTTON_LINK);
+        header.addComponent(profile);
+        header.setComponentAlignment(profile, Alignment.MIDDLE_RIGHT);
+
+        Button logout = new Button(((PbApplication) getApplication()).getMessages().getString("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 openLogoutWindow();
@@ -138,7 +147,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     void openLogoutWindow() {
-        Window logout = new Window("Logout");
+        Window logout = new Window(((PbApplication) getApplication()).getMessages().getString("btnLogout"));
         logout.setModal(true);
 //        logout.setStyleName(Reindeer.WINDOW_BLACK);
         logout.setWidth("260px");
@@ -154,7 +163,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
-        Button yes = new Button("Logout", new Button.ClickListener() {
+        Button yes = new Button(((PbApplication) getApplication()).getMessages().getString("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 WebApplicationContext applicationContext = (WebApplicationContext) getApplication().getContext();
@@ -165,7 +174,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         yes.setStyleName(Reindeer.BUTTON_DEFAULT);
         yes.focus();
         buttons.addComponent(yes);
-        Button no = new Button("Cancel", new Button.ClickListener() {
+        Button no = new Button(((PbApplication) getApplication()).getMessages().getString("btnCancel"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 removeWindow(event.getButton().getWindow());
@@ -188,6 +197,13 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             ((PbPanel) event.getTabSheet().getSelectedTab()).setSizeFull();
         }
 
+    }
+
+    private void openProfileWindow() {
+        UserWindow nuw = new UserWindow(user);
+        getWindow().addWindow(nuw);
+        nuw.initUI();
+        nuw.setProfileView();
     }
 
     private void defineAccess() throws Exception {
