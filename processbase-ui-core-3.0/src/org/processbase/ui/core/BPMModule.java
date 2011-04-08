@@ -921,4 +921,25 @@ public class BPMModule {
         }
         return null;
     }
+
+    public void applyRuleToEntities(final String ruleUUID, final Collection<String> userUUIDs, final Collection<String> roleUUIDs, final Collection<String> groupUUIDs, final Collection<String> membershipUUIDs, final Collection<String> entityIDs) throws Exception {
+        initContext();
+        managementAPI.applyRuleToEntities(ruleUUID, userUUIDs, roleUUIDs, groupUUIDs, membershipUUIDs, entityIDs);
+    }
+
+    public void removeRuleFromEntities(final String ruleUUID, final Collection<String> userUUIDs, final Collection<String> roleUUIDs, final Collection<String> groupUUIDs, final Collection<String> membershipUUIDs, final Collection<String> entityIDs) throws Exception {
+        initContext();
+        managementAPI.removeRuleFromEntities(ruleUUID, userUUIDs, roleUUIDs, groupUUIDs, membershipUUIDs, entityIDs);
+    }
+
+    public String getUserMetadata(String metadataName) throws Exception {
+        initContext();
+        User user = identityAPI.findUserByUserName(currentUserUID);
+        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
+            if (profileMetadata.getName().equals(metadataName)){
+                return user.getMetadata().get(profileMetadata);
+            }
+        }
+        return null;
+    }
 }
