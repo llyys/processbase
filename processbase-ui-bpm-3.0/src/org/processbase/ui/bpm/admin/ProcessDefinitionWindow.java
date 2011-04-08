@@ -38,9 +38,10 @@ import com.vaadin.ui.themes.Runo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
@@ -91,7 +92,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private VerticalLayout v1 = new VerticalLayout();
     private VerticalLayout v2 = new VerticalLayout();
     private VerticalLayout v3 = new VerticalLayout();
-    private ArrayList<String> deletedMembership = new ArrayList<String>();
+    private Set<String> deletedMembership = new HashSet<String>();
+    private Rule rule;
 
     public ProcessDefinitionWindow(ProcessDefinition processDefinition) {
         super(processDefinition.getLabel());
@@ -256,6 +258,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
                 archiveProcess();
             } else if (event.getButton().equals(saveAccessBtn)) {
                 saveProcessAccess();
+                close();
             } else if (event.getButton().equals(addBtn)) {
                 addTableMembershipRow(null);
             } else if (event.getButton() instanceof TableLinkButton) {
@@ -499,13 +502,14 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
     private void refreshTableMembership() {
         try {
-            Rule rule = ((Processbase) getApplication()).getBpmModule().findRule(processDefinition.getUUID().toString());
+            rule = ((Processbase) getApplication()).getBpmModule().findRule(processDefinition.getUUID().toString());
             tableMembership.removeAllItems();
             for (String membershipUUID : rule.getMemberships()) {
                 Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipByUUID(membershipUUID);
                 addTableMembershipRow(membership);
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -550,7 +554,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
         List<Group> groups = ((Processbase) getApplication()).getBpmModule().getAllGroups();
         for (Group groupX : groups) {
             String path = getGroupPath(groupX);
-            if (!path.startsWith("/"+ IdentityAPI.DEFAULT_GROUP_NAME)) {
+            if (!path.startsWith("/" + IdentityAPI.DEFAULT_GROUP_NAME)) {
                 Item item = container.addItem(groupX.getUUID());
                 item.getItemProperty("name").setValue(groupX.getName());
                 item.getItemProperty("label").setValue(groupX.getLabel());
@@ -580,10 +584,10 @@ public class ProcessDefinitionWindow extends PbWindow implements
         List<Role> roles = ((Processbase) getApplication()).getBpmModule().getAllRoles();
         for (Role roleX : roles) {
             if (!roleX.getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
-            Item item = container.addItem(roleX.getUUID());
-            item.getItemProperty("name").setValue(roleX.getName());
-            item.getItemProperty("label").setValue(roleX.getLabel());
-            item.getItemProperty("uuid").setValue(roleX.getUUID());
+                Item item = container.addItem(roleX.getUUID());
+                item.getItemProperty("name").setValue(roleX.getName());
+                item.getItemProperty("label").setValue(roleX.getLabel());
+                item.getItemProperty("uuid").setValue(roleX.getUUID());
             }
         }
         container.sort(new Object[]{"name"}, new boolean[]{true});
@@ -591,6 +595,24 @@ public class ProcessDefinitionWindow extends PbWindow implements
     }
 
     private void saveProcessAccess() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        try {
+            // remode deleted
+            ((Processbase) getApplication()).getBpmModule().removeRuleFromEntities(rule.getUUID(), null, null, null, deletedMembership, null);
+            // apply added
+            Set<String> membershipUUIDs = new HashSet<String>();
+            for (Object itemId : tableMembership.getItemIds()) {
+                Item woItem = tableMembership.getItem(itemId);
+                if (woItem.getItemProperty("group").getValue() instanceof ComboBox && woItem.getItemProperty("role").getValue() instanceof ComboBox) {
+                    ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
+                    ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
+                    Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
+                    membershipUUIDs.add(membership.getUUID());
+                }
+            }
+            ((Processbase) getApplication()).getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null, membershipUUIDs, null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+        }
     }
 }
