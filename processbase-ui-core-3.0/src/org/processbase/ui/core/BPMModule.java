@@ -141,7 +141,7 @@ public class BPMModule {
         initContext();
         User user = identityAPI.findUserByUserName(currentUserUID);
         Set<String> membershipUUIDs = new HashSet<String>();
-        for (Membership membership : user.getMemberships()){
+        for (Membership membership : user.getMemberships()) {
             membershipUUIDs.add(membership.getUUID());
         }
         List<Rule> userRules = managementAPI.getApplicableRules(RuleType.PROCESS_START, null, null, null, membershipUUIDs, null);
@@ -155,8 +155,8 @@ public class BPMModule {
             }
         }
         Set<LightProcessDefinition> result = new HashSet<LightProcessDefinition>();
-        for (LightProcessDefinition lpd : queryDefinitionAPI.getLightProcesses(processUUIDException)){
-            if (lpd.getState().equals(ProcessState.ENABLED)){
+        for (LightProcessDefinition lpd : queryDefinitionAPI.getLightProcesses(processUUIDException)) {
+            if (lpd.getState().equals(ProcessState.ENABLED)) {
                 result.add(lpd);
             }
         }
@@ -188,7 +188,7 @@ public class BPMModule {
         return runtimeAPI.instantiateProcess(uuid, vars);
     }
 
-    public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid, Map<String, Object> vars,  Collection<InitialAttachment> initialAttachments) throws ProcessNotFoundException, VariableNotFoundException, Exception {
+    public ProcessInstanceUUID startNewProcess(ProcessDefinitionUUID uuid, Map<String, Object> vars, Collection<InitialAttachment> initialAttachments) throws ProcessNotFoundException, VariableNotFoundException, Exception {
         initContext();
         return runtimeAPI.instantiateProcess(uuid, vars, initialAttachments);
     }
@@ -910,5 +910,15 @@ public class BPMModule {
     public boolean checkUserCredentials(String username, String password) throws Exception {
         initContext();
         return managementAPI.checkUserCredentials(username, password);
+    }
+
+    public Rule findRule(String ruleName) throws Exception {
+        initContext();
+        for (Rule rule : managementAPI.getAllRules()) {
+            if (rule.getName().equals(ruleName)) {
+                return rule;
+            }
+        }
+        return null;
     }
 }
