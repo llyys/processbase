@@ -140,6 +140,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if ((widgets.getInputScript() == null || widgets.getInputScript().isEmpty())
                         && widgets.getEnum1() != null) {
                     if (taskInstance != null) {
+                        System.out.println("widgets.getEnum1() = " + widgets.getEnum1());
+                        for (String key : xmlProcess.getDatas().keySet()){
+                            System.out.println(key + " = " + xmlProcess.getDatas().get(key).toString());
+                        }
+                        System.out.println("xmlProcess.getDatas() = " + widgets.getEnum1());
                         String varName = xmlProcess.getDatas().get(widgets.getEnum1()).getName();
                         if (processDataFieldDefinitions.containsKey(varName)) {
                             dfd = processDataFieldDefinitions.get(varName);
@@ -396,7 +401,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 label = ai.getFileName();
             }
             ai = findAttachmentInstance(widgets.getInputScript());
-            }
+        }
         component = new ImmediateUpload(processUUID, widgets.getInputScript(), label, hasFile, readonly, ((Processbase) getApplication()).getMessages());
         return component;
     }
@@ -596,7 +601,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     names.add(ai.getName());
                 }
                 attachmentInstances = ((Processbase) getApplication()).getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
-                
+
             } catch (Exception ex) {
                 Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
             }
@@ -629,15 +634,26 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
     private void prepareGroovyScripts() throws Exception {
         HashMap<String, String> scripts = new HashMap<String, String>();
-
+        HashMap<String, String> strings = new HashMap<String, String>();
+        String expression = null;
         for (XMLFormDefinition form : forms) {
             ArrayList<XMLWidgetsDefinition> widgetsList = form.getWidgets();
             for (XMLWidgetsDefinition widgets : widgetsList) {
-                if (widgets.getInputScript() != null) {
-                    scripts.put(widgets.getInputScript(), widgets.getInputScript());
+                if (widgets.getInputScript() != null && !widgets.getInputScript().isEmpty()) {
+                    expression = widgets.getInputScript();
+
                 }
-                if (widgets.getDefaultValue() != null) {
-                    scripts.put(widgets.getDefaultValue(), widgets.getDefaultValue());
+                if (widgets.getDefaultValue() != null && !widgets.getDefaultValue().isEmpty()) {
+                    expression = widgets.getDefaultValue();
+                }
+                if (expression != null && !expression.isEmpty()) {
+                    int begin = expression.indexOf(GroovyExpression.START_DELIMITER);
+                    int end = expression.indexOf(GroovyExpression.END_DELIMITER);
+                    if (begin >= end) {
+                        strings.put(expression, expression);
+                    } else {
+                        scripts.put(expression, expression);
+                    }
                 }
             }
         }
@@ -645,6 +661,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
         } else if (taskInstance == null) {
             groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
+        }
+        for (String string : strings.keySet()) {
+            groovyScripts.put(string, strings.get(string));
         }
     }
 

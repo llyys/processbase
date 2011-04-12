@@ -38,6 +38,8 @@ import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.generator.GeneratedWindow2;
+import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
 /**
  *
@@ -162,12 +164,12 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
                 this.getWindow().open(new ExternalResource(url));
             } else {
                 XMLProcessDefinition xmlProcess = ((Processbase) getApplication()).getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
+                FormsDefinition formsDefinition = ((Processbase) getApplication()).getBpmModule().getFormsDefinition(task.getProcessDefinitionUUID());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (taskDef != null && !taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
-
-                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
+                    GeneratedWindow2 genWindow = new GeneratedWindow2(task.getActivityLabel());
                     genWindow.setTask(((Processbase) getApplication()).getBpmModule().getTaskInstance(task.getUUID()));
-                    genWindow.setXMLProcess(xmlProcess);
+                    genWindow.setFormsDefinition(formsDefinition);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
@@ -182,5 +184,35 @@ public class TaskListPanel extends TablePanel implements Button.ClickListener {
             ex.printStackTrace();
             showError(ex.getMessage());
         }
+//        try {
+//            String url = ((Processbase) getApplication()).getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+//            if (url != null && !url.isEmpty() && url.length() > 0) {
+//                ((Processbase) getApplication()).removeSessionAttribute("PROCESSINSTANCE");
+//                ((Processbase) getApplication()).removeSessionAttribute("TASKINSTANCE");
+//
+//                ((Processbase) getApplication()).setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
+//                this.getWindow().open(new ExternalResource(url));
+//            } else {
+//                XMLProcessDefinition xmlProcess = ((Processbase) getApplication()).getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
+//                XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
+//                if (taskDef != null && !taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
+//
+//                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
+//                    genWindow.setTask(((Processbase) getApplication()).getBpmModule().getTaskInstance(task.getUUID()));
+//                    genWindow.setXMLProcess(xmlProcess);
+//                    this.getApplication().getMainWindow().addWindow(genWindow);
+//                    genWindow.initUI();
+//                } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
+//                    ((Processbase) getApplication()).getBpmModule().startTask(task.getUUID(), true);
+//                    ((Processbase) getApplication()).getBpmModule().finishTask(task.getUUID(), true);
+//                    showImportantInformation(((Processbase) getApplication()).getMessages().getString("taskExecuted"));
+//                } else {
+//                    showError(((Processbase) getApplication()).getMessages().getString("ERROR_UI_NOT_DEFINED"));
+//                }
+//            }
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            showError(ex.getMessage());
+//        }
     }
 }
