@@ -75,7 +75,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     protected RichTextArea commentEditor = null;
     protected Button addCommentBtn = null;
     private boolean custom = false;
-    private BPMModule bpmModule = null;
+    protected BPMModule bpmModule = null;
     private ResourceBundle messages = null;
     private String currentUserName = null;
 //    protected CustomPortlet customPortlet = null;

@@ -2,6 +2,9 @@ package org.processbase.ui.core.bonita.forms;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -39,6 +42,7 @@ public class BonitaFormParcer {
                             if (nodeTask.getChildNodes().getLength() > 0) {
                                 XMLTaskDefinition task = new XMLTaskDefinition(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), nodeTask.getAttributes().getNamedItem("label").getNodeValue());
                                 task.addForms(getFormsFromNodeList(nodeTask.getChildNodes()));
+                                getActivityVariables(nodeTask.getChildNodes());
                                 task.setByPassFormsGeneration(nodeTask.getAttributes().getNamedItem("byPassFormsGeneration") != null && nodeTask.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                                 process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
                             }
@@ -53,6 +57,7 @@ public class BonitaFormParcer {
                                     if (nodeTask.getChildNodes().getLength() > 0) {
                                         XMLTaskDefinition task = new XMLTaskDefinition(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), nodeTask.getAttributes().getNamedItem("label").getNodeValue());
                                         task.addForms(getFormsFromNodeList(nodeTask.getChildNodes()));
+                                        getActivityVariables(nodeTask.getChildNodes());
                                         task.setByPassFormsGeneration(nodeTask.getAttributes().getNamedItem("byPassFormsGeneration") != null && nodeTask.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                                         process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
                                     }
@@ -62,7 +67,8 @@ public class BonitaFormParcer {
                         }  else if (processChilds.item(y).getNodeName().equals("data")) {
                             XMLDataDefinition xml = new XMLDataDefinition(processChilds.item(y).getAttributes().getNamedItem("xmi:id").getNodeValue(),
                                     processChilds.item(y).getAttributes().getNamedItem("name").getNodeValue(),
-                                    processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue());
+                                    processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue(),
+                                    XMLDataDefinition.PROCESS_VARIABLE);
                             process.addData(xml);
                         }
                     }
@@ -108,6 +114,29 @@ public class BonitaFormParcer {
                 form.setWidgets(getWidgetsFromNodeList(nodeForm.getChildNodes()));
                 getFormSize(form, nodeForm.getChildNodes());
                 result.add(form);
+            }
+        }
+        return result;
+    }
+
+    private ArrayList<XMLDataDefinition> getActivityVariables(NodeList nodeList) {
+        ArrayList<XMLDataDefinition> result = new ArrayList<XMLDataDefinition>();
+        for (int y = 0; y < nodeList.getLength(); y++) {
+            if (nodeList.item(y).getNodeName().equals("data")) {
+                Node nodeData = nodeList.item(y);
+//                System.out.println("nodeData.getAttributes() = " +nodeData.getAttributes());
+//                System.out.println("xmi:id = " +nodeData.getAttributes().getNamedItem("xmi:id").getNodeValue());
+//                System.out.println("name = " +nodeData.getAttributes().getNamedItem("name").getNodeValue());
+                            XMLFormDefinition form = new XMLFormDefinition();
+                XMLDataDefinition xml = new XMLDataDefinition(nodeData.getAttributes().getNamedItem("xmi:id").getNodeValue(),
+                                    nodeData.getAttributes().getNamedItem("name").getNodeValue(),
+                                    nodeData.getAttributes().getNamedItem("xmi:type").getNodeValue(),
+                                    XMLDataDefinition.PROCESS_VARIABLE);
+//
+//
+//                form.setWidgets(getWidgetsFromNodeList(nodeForm.getChildNodes()));
+//                getFormSize(form, nodeForm.getChildNodes());
+//                result.add(form);
             }
         }
         return result;
@@ -323,5 +352,11 @@ public class BonitaFormParcer {
             }
         }
         return result;
+    }
+
+    public static FormsDefinition createFormsDefinition(String xmlString) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(FormsDefinition.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (FormsDefinition) unmarshaller.unmarshal(new ByteArrayInputStream(xmlString.getBytes()));
     }
 }

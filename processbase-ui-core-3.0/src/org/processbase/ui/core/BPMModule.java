@@ -81,6 +81,7 @@ import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
+import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.XMLFormDefinition;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
@@ -120,6 +121,11 @@ public class BPMModule {
     public Set<ProcessDefinition> getProcessDefinitions() throws Exception {
         initContext();
         return queryDefinitionAPI.getProcesses();
+    }
+
+    public boolean isUserAdmin() throws Exception {
+        initContext();
+        return managementAPI.isUserAdmin(currentUserUID);
     }
 
     public Set<ProcessDefinition> getProcessDefinitions(ProcessState state) throws Exception {
@@ -644,6 +650,20 @@ public class BPMModule {
         BonitaFormParcer bfb = new BonitaFormParcer(proc);
         return bfb.getProcess();
     }
+
+    public FormsDefinition getFormsDefinition(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+        initContext();
+        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+        byte[] proc = null;
+        for (String key : resource.keySet()) {
+            if (key.equals("forms/forms.xml")) {
+                proc = resource.get(key);
+            }
+        }
+        FormsDefinition form = BonitaFormParcer.createFormsDefinition(new String(proc, "UTF-8"));
+        return form;
+    }
+
 
     public byte[] getProcessDiagramm(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
         initContext();

@@ -25,11 +25,16 @@ public class XMLDataDefinition {
     private String id;
     private String name;
     private String type;
+    private String defaultValue;
+    private String scope;
+    public static final String PROCESS_VARIABLE = "PROCESS_VARIABLE";
+    public static final String ACTIVITY_VARIABLE = "ACTIVITY_VARIABLE";
 
-    public XMLDataDefinition(String id, String name, String type) {
+    public XMLDataDefinition(String id, String name, String type, String scope) {
         this.id = id;
         this.name = name;
         this.type = type;
+        this.scope = scope;
     }
 
     public String getId() {
@@ -56,8 +61,26 @@ public class XMLDataDefinition {
         this.type = type;
     }
 
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    
+
     @Override
     public String toString() {
-        return "XMLDataDefinition id=" + id + ", name=" + name + ", type=" + type;
+        return "XMLDataDefinition id=" + id + ", name=" + name + ", type=" + type + ", scope =" + scope;
     }
 }

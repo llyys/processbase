@@ -47,6 +47,7 @@ public class Constants {
     public static final String ACTION_DELETE_PROCESS_INSTANCE = "ACTION_DELETE_PROCESS_INSTANCE";
     public static boolean LOADED = false;
     public static String TASKLIST_PAGE_URL;
+    public static String CUSTOM_UI_JAR_PATH;
     public static Properties properties = new Properties();
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
     public static String DL_GROUP = null;
@@ -91,6 +92,7 @@ public class Constants {
                 AUTH_HOST = properties.containsKey("AUTH_HOST") ? properties.getProperty("AUTH_HOST") : "localhost";
                 AUTH_PORT = properties.containsKey("AUTH_PORT") ? properties.getProperty("AUTH_PORT") : "8080";
                 AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
+                CUSTOM_UI_JAR_PATH = properties.containsKey("CUSTOM_UI_JAR_PATH") ? properties.getProperty("CUSTOM_UI_JAR_PATH") : "";
             } else {
                 properties.setProperty("APP_SERVER", "GLASSFISH2");
                 properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
@@ -108,6 +110,7 @@ public class Constants {
 
                 properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
                 properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
+                properties.setProperty("CUSTOM_UI_JAR_PATH", "/processbasecustomuijar");
 
                 FileOutputStream fos = new FileOutputStream(file);
                 properties.storeToXML(fos, null);
