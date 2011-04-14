@@ -33,10 +33,10 @@ import org.processbase.ui.core.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class ProcessesPanel extends TablePanel implements Button.ClickListener {
+public class Processes extends TablePanel implements Button.ClickListener {
     
 
-    public ProcessesPanel() {
+    public Processes() {
         super();
     }
 

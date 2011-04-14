@@ -21,28 +21,30 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.template.WorkPanel;
-import org.processbase.ui.bpm.worklist.NewProcessesPanel;
-import org.processbase.ui.bpm.worklist.ProcessesPanel;
-import org.processbase.ui.bpm.worklist.TaskCompletedPanel;
-import org.processbase.ui.bpm.worklist.TaskListPanel;
+import org.processbase.ui.bpm.worklist.NewProcesses;
+import org.processbase.ui.bpm.worklist.Processes;
+import org.processbase.ui.bpm.worklist.TaskCompleted;
+import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.osgi.PbPanelModule;
 
 /**
  *
  * @author mgubaidullin
  */
-public class ConsolePanel extends PbPanel implements Button.ClickListener {
+public class TaskListPanel extends PbPanelModule implements Button.ClickListener {
 
     private ButtonBar buttonBar = new ButtonBar();
-    private TaskListPanel taskListPanel;
-    private TaskCompletedPanel taskCompletedPanel;
-    private ProcessesPanel processesPanel;
-    private NewProcessesPanel newProcessesPanel;
+    private TaskList taskListPanel;
+    private TaskCompleted taskCompletedPanel;
+    private Processes processesPanel;
+    private NewProcesses newProcessesPanel;
     private Button refreshBtn = null;
     private Button myTaskListBtn = null;
     private Button myTaskCompletedBtn = null;
@@ -56,7 +58,7 @@ public class ConsolePanel extends PbPanel implements Button.ClickListener {
         prepareButtonBar();
         addComponent(buttonBar, 0);
 
-        taskListPanel = new TaskListPanel();
+        taskListPanel = new TaskList();
         panels.put(myTaskListBtn, taskListPanel);
         addComponent(taskListPanel, 1);
         setExpandRatio(taskListPanel, 1);
@@ -64,13 +66,13 @@ public class ConsolePanel extends PbPanel implements Button.ClickListener {
         taskListPanel.refreshTable();
         myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
 
-        taskCompletedPanel = new TaskCompletedPanel();
+        taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
 
-        processesPanel = new ProcessesPanel();
+        processesPanel = new Processes();
         panels.put(myProcessesBtn, processesPanel);
 
-        newProcessesPanel = new NewProcessesPanel();
+        newProcessesPanel = new NewProcesses();
         panels.put(myNewProcessesBtn, newProcessesPanel);
     }
 
@@ -162,5 +164,11 @@ public class ConsolePanel extends PbPanel implements Button.ClickListener {
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myNewProcessesBtn.setEnabled(true);
         myNewProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"));
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        return rb.getString("title");
     }
 }

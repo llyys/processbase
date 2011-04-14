@@ -40,9 +40,9 @@ import org.processbase.ui.bpm.generator.GeneratedWindow;
  *
  * @author mgubaidullin
  */
-public class TaskCompletedPanel extends TablePanel {
+public class TaskCompleted extends TablePanel {
 
-    public TaskCompletedPanel() {
+    public TaskCompleted() {
         super();
     }
 

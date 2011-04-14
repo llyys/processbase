@@ -33,15 +33,16 @@ import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
-import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.generator.GeneratedWindow2;
+import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
 /**
  *
  * @author mgubaidullin
  */
-public class NewProcessesPanel extends TreeTablePanel implements Button.ClickListener {
+public class NewProcesses extends TreeTablePanel implements Button.ClickListener {
 
-    public NewProcessesPanel() {
+    public NewProcesses() {
         super();
     }
 
@@ -136,12 +137,13 @@ public class NewProcessesPanel extends TreeTablePanel implements Button.ClickLis
                 this.getWindow().open(new ExternalResource(url));
             } else {
                 XMLProcessDefinition xmlProcess = ((Processbase) getApplication()).getBpmModule().getXMLProcessDefinition(process.getUUID());
+                FormsDefinition formsDefinition = ((Processbase) getApplication()).getBpmModule().getFormsDefinition(process.getUUID());
                 if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms() == null) {
                     showError(((Processbase) getApplication()).getMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms().size() > 0) {
-                    GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
+                    GeneratedWindow2 genWindow = new GeneratedWindow2(process.getLabel());
                     genWindow.setProcessDef(process);
-                    genWindow.setXMLProcess(xmlProcess);
+                    genWindow.setFormsDefinition(formsDefinition);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 } else if (xmlProcess.isByPassFormsGeneration()) {

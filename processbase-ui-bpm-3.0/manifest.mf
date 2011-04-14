@@ -1,6 +1,25 @@
-Import-Package: org.processbase.ui.core, org.processbase.ui.core.bonita.diagram,
- org.processbase.ui.core.forms, org.processbase.ui.core.template, org.processbase.ui.core.util,
+Implementation-URL: http://processbase.biz
+Implementation-Version: 3.0.0
+Implementation-Vendor: PROCESSBASE Ltd
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Version: 3.0.0
+Bundle-Name: PROCESSBASE UI BPM
+Bundle-Vendor: PROCESSBASE Ltd
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.processbase.ui.bpm
+Service-Component: OSGI-INF/modules.xml
+Export-Package: org.processbase.ui.bpm, org.processbase.ui.bpm.admin,
+ org.processbase.ui.bpm.generator, org.processbase.ui.bpm.identity, org.processbase.ui.bpm.panel,
+ org.processbase.ui.bpm.worklist
+Import-Package: org.processbase.ui.core,
+ org.processbase.ui.core.bonita.diagram,
+ org.processbase.ui.core.bonita.forms,
+ org.processbase.ui.core.template,
+ org.processbase.ui.core.util,
+ org.processbase.ui.osgi,
+ org.processbase.ui.osgi.impl,
  com.vaadin.terminal, com.vaadin.data, com.vaadin.ui, com.vaadin.data.util, com.vaadin,
+ com.vaadin.addon.treetable,
  com.sun.appserv.security, javax.security.auth.login,
  org.ow2.bonita.ant.tasks,
  org.ow2.bonita.building,
@@ -52,17 +71,3 @@ Import-Package: org.processbase.ui.core, org.processbase.ui.core.bonita.diagram,
  org.ow2.bonita.util,
  org.ow2.bonita.util.stream,
  org.ow2.bonita.util.xml
-Bundle-ClassPath: ., asm-3.1.jar, bonita-client-5.4.1.jar, jaxrs-api-1.2.1.GA.jar
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.processbase.ui.bpm, org.processbase.ui.bpm.admin,
- org.processbase.ui.bpm.generator, org.processbase.ui.bpm.identity, org.processbase.ui.bpm.panel,
- org.processbase.ui.bpm.worklist
-Bundle-Version: 3.0.0
-Implementation-URL: http://processbase.biz
-Bundle-Name: PROCESSBASE UI BPM
-Ant-Version: Apache Ant 1.7.1
-Bundle-Vendor: PROCESSBASE Ltd
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.processbase.ui.bpm
-Implementation-Version: 3.0.0
-Implementation-Vendor: PROCESSBASE Ltd

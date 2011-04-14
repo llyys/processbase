@@ -37,7 +37,6 @@ import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.bpm.generator.GeneratedWindow2;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -45,9 +44,9 @@ import org.processbase.ui.core.bonita.forms.FormsDefinition;
  *
  * @author mgubaidullin
  */
-public class TaskListPanel extends TablePanel implements Button.ClickListener {
+public class TaskList extends TablePanel implements Button.ClickListener {
 
-    public TaskListPanel() {
+    public TaskList() {
         super();
     }
 

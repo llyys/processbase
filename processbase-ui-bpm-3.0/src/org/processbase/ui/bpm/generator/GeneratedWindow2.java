@@ -104,7 +104,6 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            Logger.getLogger(GeneratedWindow2.class.getName()).log(Level.SEVERE, ex.getMessage());
             showError(ex.getMessage());
         }
     }
@@ -113,7 +112,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
         prepareAttachments();
         prepareGroovyScripts();
         for (Page page : pageFlow.getPages().getPages()) {
-            GridLayout gridLayout = new GridLayout(10, 10);
+            GridLayout gridLayout = new GridLayout(5, 5);
             gridLayout.setMargin(false, true, true, true);
             gridLayout.setSpacing(true);
             for (Object wg : page.getWidgets().getWidgetsAndGroups()) {
@@ -397,8 +396,10 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 }
             }
         } catch (InvalidValueException ex) {
+            ex.printStackTrace();
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         } catch (Exception ex) {
+            ex.printStackTrace();
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
@@ -431,28 +432,30 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
         Map<String, Object> piVariablesTemp = new HashMap<String, Object>();
         Map<String, Object> aiVariablesTemp = new HashMap<String, Object>();
         for (Page page : pageFlow.getPages().getPages()) {
-            for (Action action : page.getActions().getActions()) {
-                if (action.getType().equals(ActionType.SET_VARIABLE)) {
-                    Component comp = null;
-                    Object value = null;
-                    if (action.getExpression().startsWith("field")) {
-                        comp = fields.get(action.getExpression());
-                        if (comp instanceof AbstractField) {
-                            value = ((AbstractField) comp).getValue();
+            if (page.getActions() != null) {
+                for (Action action : page.getActions().getActions()) {
+                    if (action.getType().equals(ActionType.SET_VARIABLE)) {
+                        Component comp = null;
+                        Object value = null;
+                        if (action.getExpression().startsWith("field")) {
+                            comp = fields.get(action.getExpression());
+                            if (comp instanceof AbstractField) {
+                                value = ((AbstractField) comp).getValue();
+                            }
+                            if (comp instanceof GeneratedTable) {
+                                value = ((GeneratedTable) comp).getTableValue();
+                            }
+                            if (comp instanceof CheckBox) {
+                                value = ((CheckBox) comp).booleanValue();
+                            }
+                        } else {
+                            value = action.getExpression();
                         }
-                        if (comp instanceof GeneratedTable) {
-                            value = ((GeneratedTable) comp).getTableValue();
+                        if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
+                            piVariablesTemp.put(action.getVariable(), value);
+                        } else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
+                            aiVariablesTemp.put(action.getVariable(), value);
                         }
-                        if (comp instanceof CheckBox) {
-                            value = ((CheckBox) comp).booleanValue();
-                        }
-                    } else {
-                        value = action.getExpression();
-                    }
-                    if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
-                        piVariablesTemp.put(action.getVariable(), value);
-                    } else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
-                        aiVariablesTemp.put(action.getVariable(), value);
                     }
                 }
             }
@@ -544,7 +547,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 attachmentInstances = ((Processbase) getApplication()).getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
 
             } catch (Exception ex) {
-                Logger.getLogger(GeneratedWindow2.class.getName()).log(Level.SEVERE, ex.getMessage());
+                ex.printStackTrace();
             }
         } else {
 //            processDefinition.
@@ -592,6 +595,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
             }
         }
         for (String expression : expressions) {
+//            System.out.println("expression = " + expression);
             if (expression != null && !expression.isEmpty()) {
                 int begin = expression.indexOf(GroovyExpression.START_DELIMITER);
                 int end = expression.indexOf(GroovyExpression.END_DELIMITER);
@@ -602,14 +606,18 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 }
             }
         }
-        if (taskInstance != null) {
+        if (taskInstance != null && !scripts.isEmpty()) {
             groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
-        } else if (taskInstance == null) {
+        } else if (taskInstance == null && !scripts.isEmpty()) {
             groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
         }
         for (String string : strings.keySet()) {
             groovyScripts.put(string, strings.get(string));
         }
+//
+//        for (String key : groovyScripts.keySet()){
+//            System.out.println(key + " = " + groovyScripts.get(key) + " " + groovyScripts.get(key).getClass().getCanonicalName());
+//        }
     }
 
     private String getPureScript(String script) {
