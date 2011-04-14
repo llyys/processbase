@@ -19,17 +19,21 @@ package org.processbase.ui.servlet;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.ui.Window;
+import org.processbase.ui.osgi.PbPanelModuleService;
 
 public class PbServlet extends AbstractApplicationServlet {
 
 //    @Inject
 //    private PbApplication application;
+    @Resource(mappedName = "org.processbase.ui.osgi.PbPanelModuleService")
+    PbPanelModuleService panelModuleService;
 
     @Override
     protected void writeAjaxPageHtmlVaadinScripts(Window window,
@@ -53,9 +57,6 @@ public class PbServlet extends AbstractApplicationServlet {
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
-//        if (application == null){
-//            application = new PbApplication();
-//        }
-        return new PbApplication();
+        return new PbApplication(panelModuleService);
     }
 }

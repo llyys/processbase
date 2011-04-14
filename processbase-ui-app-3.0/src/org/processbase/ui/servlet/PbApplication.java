@@ -25,6 +25,9 @@ import javax.enterprise.context.SessionScoped;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.Processbase;
+import org.processbase.ui.osgi.PbPanelModule;
+import org.processbase.ui.osgi.PbPanelModuleService;
+import org.processbase.ui.osgi.PbPanelModuleServiceListener;
 
 /**
  *
@@ -32,14 +35,19 @@ import org.processbase.ui.core.Processbase;
  */
 @SessionScoped
 @SuppressWarnings("serial")
-public class PbApplication extends Application implements Processbase {
+public class PbApplication extends Application implements Processbase, PbPanelModuleServiceListener {
 
+    private PbPanelModuleService panelModuleService;
     private MainWindow mainWindow;
     private HttpSession httpSession = null;
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
     private String userName = null;
     int type = STANDALONE;
+
+    public PbApplication(PbPanelModuleService panelModuleService) {
+        this.panelModuleService = panelModuleService;
+    }
 
     @Override
     public void init() {
@@ -57,9 +65,16 @@ public class PbApplication extends Application implements Processbase {
             mainWindow = new MainWindow();
             setMainWindow(mainWindow);
             mainWindow.initLogin();
+            panelModuleService.addListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void close() {
+        panelModuleService.removeListener(this);
+        super.close();
     }
 
     public void authenticate(String login, String password) throws Exception {
@@ -67,7 +82,7 @@ public class PbApplication extends Application implements Processbase {
         if (bpmm.checkUserCredentials(login, password)) {
             setUserName(login);
             String locale = bpmm.getUserMetadata("locale");
-            if (locale!=null){
+            if (locale != null) {
                 setLocale(new Locale(locale));
                 setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
             }
@@ -133,4 +148,18 @@ public class PbApplication extends Application implements Processbase {
     public byte[] getFileBody(String processUUID, String name) throws Exception {
         return bpmModule.getAttachmentValue(processUUID, name);
     }
+
+    public void moduleRegistered(PbPanelModuleService source, PbPanelModule module) {
+        System.out.println("module registered PbApplication - " + module.getName());
+    }
+
+    public void moduleUnregistered(PbPanelModuleService source, PbPanelModule module) {
+        System.out.println("module unregistered PbApplication - " + module.getName());
+    }
+
+    public PbPanelModuleService getPanelModuleService() {
+        return panelModuleService;
+    }
+
+    
 }

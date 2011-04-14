@@ -33,7 +33,7 @@ import javax.portlet.PortletSession;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
-import org.processbase.ui.bpm.panel.ConsolePanel;
+import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
@@ -69,7 +69,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
         mainWindow.setSizeFull();
         setMainWindow(mainWindow);
         if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")) {
-            ConsolePanel ui = new ConsolePanel();
+            TaskListPanel ui = new TaskListPanel();
             mainWindow.setContent(ui);
             ui.initUI();
         } else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")) {
