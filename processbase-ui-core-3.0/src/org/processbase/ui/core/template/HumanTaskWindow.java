@@ -238,7 +238,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         try {
             comments = bpmModule.getCommentFeed(taskInstance.getProcessInstanceUUID());
         } catch (Exception ex) {
-            Logger.getLogger(HumanTaskWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
         }
 
         for (Comment comment : comments) {

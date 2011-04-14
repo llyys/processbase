@@ -78,6 +78,8 @@ public class Constants {
                 BONITA_EJB_ENV.put("java.naming.factory.state", properties.containsKey("java.naming.factory.state") ? properties.getProperty("java.naming.factory.state") : "");
                 BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
                 BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
+                BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialHost", properties.containsKey("org.omg.CORBA.ORBInitialHost") ? properties.getProperty("org.omg.CORBA.ORBInitialHost") : "localhost");
+                BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialPort", properties.containsKey("org.omg.CORBA.ORBInitialPort") ? properties.getProperty("org.omg.CORBA.ORBInitialPort") : "23700");
 
                 BAM_MQ_CONNECTION_FACTORY = properties.containsKey("BAM_MQ_CONNECTION_FACTORY") ? properties.getProperty("BAM_MQ_CONNECTION_FACTORY") : "jms/pbbamConnectionFactory";
                 BAM_MQ_DESTINATION_RESOURCE = properties.containsKey("BAM_MQ_DESTINATION_RESOURCE") ? properties.getProperty("BAM_MQ_DESTINATION_RESOURCE") : "jms/pbbamDestinationResource";
@@ -111,6 +113,9 @@ public class Constants {
                 properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
                 properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
                 properties.setProperty("CUSTOM_UI_JAR_PATH", "/processbasecustomuijar");
+
+                properties.setProperty("org.omg.CORBA.ORBInitialHost", "localhost");
+                properties.setProperty("org.omg.CORBA.ORBInitialPort", "23700");
 
                 FileOutputStream fos = new FileOutputStream(file);
                 properties.storeToXML(fos, null);

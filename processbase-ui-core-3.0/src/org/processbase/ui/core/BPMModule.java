@@ -17,6 +17,7 @@
 package org.processbase.ui.core;
 
 import com.sun.appserv.security.ProgrammaticLogin;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -26,7 +27,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import org.ow2.bonita.facade.BAMAPI;
+import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
 import org.ow2.bonita.facade.ManagementAPI;
@@ -92,14 +99,15 @@ import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
  */
 public class BPMModule {
 
-    final RuntimeAPI runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
-    final QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
-    final ManagementAPI managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
-    final QueryDefinitionAPI queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
-    final RepairAPI repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
-    final WebAPI webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
-    final IdentityAPI identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
-    final BAMAPI bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
+    final RuntimeAPI runtimeAPI;
+    final QueryRuntimeAPI queryRuntimeAPI;
+    final ManagementAPI managementAPI;
+    final QueryDefinitionAPI queryDefinitionAPI;
+    final RepairAPI repairAPI;
+    final WebAPI webAPI;
+    final IdentityAPI identityAPI;
+    final BAMAPI bamAPI;
+    final CommandAPI commandAPI;
     private String currentUserUID;
 
     public BPMModule(String currentUserUID) {
@@ -107,6 +115,20 @@ public class BPMModule {
             Constants.loadConstants();
         }
         this.currentUserUID = currentUserUID;
+        try {
+            initContext();
+        } catch (Exception ex) {
+            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+        runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
+        queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
+        managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
+        queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
+        repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
+        webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
+        identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
+        bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
+        commandAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getCommandAPI();
     }
 
     private void initContext() throws Exception {
@@ -438,6 +460,8 @@ public class BPMModule {
     public void deleteProcess(ProcessDefinition pd) throws UndeletableInstanceException, UndeletableProcessException, ProcessNotFoundException, Exception {
         initContext();
         managementAPI.deleteProcess(pd.getUUID());
+        Rule rule = findRule(pd.getUUID().toString());
+        managementAPI.deleteRuleByUUID(rule.getUUID());
     }
 
     public void deleteAllProcessInstances(ProcessDefinition pd) throws Exception {
@@ -663,7 +687,6 @@ public class BPMModule {
         FormsDefinition form = BonitaFormParcer.createFormsDefinition(new String(proc, "UTF-8"));
         return form;
     }
-
 
     public byte[] getProcessDiagramm(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
         initContext();
@@ -956,7 +979,7 @@ public class BPMModule {
         initContext();
         User user = identityAPI.findUserByUserName(currentUserUID);
         for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-            if (profileMetadata.getName().equals(metadataName)){
+            if (profileMetadata.getName().equals(metadataName)) {
                 return user.getMetadata().get(profileMetadata);
             }
         }

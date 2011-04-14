@@ -1,6 +1,10 @@
 package org.processbase.ui.core.bonita.forms;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -14,6 +18,21 @@ import org.w3c.dom.NodeList;
 public class BonitaFormParcer {
 
     private XMLProcessDefinition process;
+
+//    public static void main(String[] args) throws JAXBException, FileNotFoundException, IOException {
+//        File file = new File("/home/marat/development/temp/Test/src/org/processbase/test/forms.xml");
+//        FileInputStream fis = new FileInputStream(file);
+//        byte[] b = new byte[Integer.parseInt(Long.toString(file.length()))];
+//        fis.read(b);
+//        fis.close();
+//        String x = new String(b, "UTF-8");
+//        org.processbase.ui.core.bonita.forms.FormsDefinition form = createFormsDefinition(x);
+//        System.out.println(form.getProcesses().get(0).getName());
+//        System.out.println(form.getProcesses().get(0).getVersion());
+//        String firstPageName =  form.getProcesses().get(0).getPageflow().getFirstPage();
+//        Widget w = (Widget) form.getProcesses().get(0).getPageflow().getPages().getPages().get(0).getWidgets().getWidgetsAndGroups().get(0);
+//        System.out.println(w.isReadonly());
+//    }
 
     public BonitaFormParcer(byte[] procBytes) {
         try {
