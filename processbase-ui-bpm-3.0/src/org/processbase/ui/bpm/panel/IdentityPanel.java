@@ -24,9 +24,10 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.template.WorkPanel;
@@ -39,12 +40,13 @@ import org.processbase.ui.bpm.identity.RolesPanel;
 import org.processbase.ui.bpm.identity.SyncUsersWindow;
 import org.processbase.ui.bpm.identity.UserWindow;
 import org.processbase.ui.bpm.identity.UsersPanel;
+import org.processbase.ui.osgi.PbPanelModule;
 
 /**
  *
  * @author mgubaidullin
  */
-public class IdentityPanel extends PbPanel
+public class IdentityPanel extends PbPanelModule
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -62,6 +64,8 @@ public class IdentityPanel extends PbPanel
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
     public void initUI() {
+        panels.clear();
+        removeAllComponents();
         setMargin(false);
 
         prepareButtonBar();
@@ -98,6 +102,7 @@ public class IdentityPanel extends PbPanel
     }
 
     private void prepareButtonBar() {
+        buttonBar.removeAllComponents();
         // prepare usersBtn button
         usersBtn = new Button(((Processbase) getApplication()).getMessages().getString("usersBtn"), this);
         usersBtn.setStyleName("special");
@@ -235,5 +240,11 @@ public class IdentityPanel extends PbPanel
             getApplication().getMainWindow().addWindow(nmw);
             nmw.initUI();
         }
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        return rb.getString("bpmIdentity");
     }
 }

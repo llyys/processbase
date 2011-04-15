@@ -221,7 +221,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 if (value != null) {
                     ((AbstractField) component).setValue(value);
                 }
-                System.out.println(widget.getLabel() + " value = " + widget.isMandatory());
+//                System.out.println(widget.getLabel() + " value = " + widget.isMandatory());
                 if (widget.isMandatory() != null) {
                     ((AbstractField) component).setRequired(widget.isMandatory());
                 }

@@ -20,6 +20,7 @@ import com.vaadin.data.Item;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
+import java.util.Locale;
 import org.processbase.ui.bpm.admin.ActivityInstancesPanel;
 import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
@@ -30,6 +31,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import java.util.Collection;
+import java.util.ResourceBundle;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.admin.CategoriesPanel;
@@ -37,15 +39,15 @@ import org.processbase.ui.bpm.admin.NewCategoryWindow;
 import org.processbase.ui.bpm.admin.NewProcessDefinitionWindow;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TablePanel;
+import org.processbase.ui.osgi.PbPanelModule;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BPMConfigurationPanel extends PbPanel
+public class BPMConfigurationPanel extends PbPanelModule
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -64,6 +66,8 @@ public class BPMConfigurationPanel extends PbPanel
 
    
     public void initUI() {
+        panels.clear();
+        removeAllComponents();
         setMargin(false);
 
         prepareButtonBar();
@@ -101,6 +105,7 @@ public class BPMConfigurationPanel extends PbPanel
     }
 
     private void prepareButtonBar() {
+        buttonBar.removeAllComponents();
         // prepare categoriesBtn button
         categoriesBtn = new Button(((Processbase)getApplication()).getMessages().getString("categoriesBtn"), this);
         categoriesBtn.setDescription(((Processbase)getApplication()).getMessages().getString("categoriesBtnTooltip"));
@@ -218,5 +223,11 @@ public class BPMConfigurationPanel extends PbPanel
 
     public void windowClose(CloseEvent e) {
         ((TablePanel) getComponent(1)).refreshTable();
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        return rb.getString("bpmAdmin");
     }
 }

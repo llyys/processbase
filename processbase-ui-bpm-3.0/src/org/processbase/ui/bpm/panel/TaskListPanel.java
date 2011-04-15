@@ -53,6 +53,8 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
     public void initUI(){
+        panels.clear();
+        removeAllComponents();
         setMargin(false);    
   
         prepareButtonBar();
@@ -91,7 +93,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     }
 
     private void prepareButtonBar() {
-
+        buttonBar.removeAllComponents();
         // prepare myNewProcessesBtn button
         myNewProcessesBtn = new Button(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"), this);
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
@@ -169,6 +171,6 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     @Override
     public String getTitle(Locale locale) {
         ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
-        return rb.getString("title");
+        return rb.getString("bpmTasklist");
     }
 }
