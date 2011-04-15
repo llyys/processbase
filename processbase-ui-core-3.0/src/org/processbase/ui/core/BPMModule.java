@@ -975,6 +975,11 @@ public class BPMModule {
         managementAPI.removeRuleFromEntities(ruleUUID, userUUIDs, roleUUIDs, groupUUIDs, membershipUUIDs, entityIDs);
     }
 
+    public void addMetaData(String key, String value) throws Exception {
+        initContext();
+        managementAPI.addMetaData(key, value);
+    }
+
     public String getUserMetadata(String metadataName) throws Exception {
         initContext();
         User user = identityAPI.findUserByUserName(currentUserUID);

@@ -16,7 +16,7 @@ Export-Package: org.processbase.ui.core,
  org.processbase.ui.osgi,
  org.processbase.ui.osgi.impl,
  resources
-Import-Package: com.vaadin.terminal, com.vaadin.data, com.vaadin.ui, com.vaadin.data.util, com.vaadin,
+Import-Package: com.vaadin.terminal, com.vaadin.data, com.vaadin.ui, com.vaadin.data.util, com.vaadin, com.vaadin.terminal.gwt.server,
  com.vaadin.addon.treetable,
  com.sun.appserv.security, com.sun.ejb.containers,
  org.w3c.dom,
