@@ -35,8 +35,10 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.admin.CategoriesPanel;
 import org.processbase.ui.bpm.admin.NewCategoryWindow;
-import org.processbase.ui.bpm.development.CustomUIPanel;
+import org.processbase.ui.bpm.development.ModulesJarPanel;
+import org.processbase.ui.bpm.development.ModulesTabPanel;
 import org.processbase.ui.bpm.development.NewJarWindow;
+import org.processbase.ui.core.PbResourceBundle;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
@@ -51,16 +53,16 @@ public class DevelopmentPanel extends PbPanelModule
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
-    private CustomUIPanel customUIPanel;
-    private CategoriesPanel categoriesPanel;
+    private ModulesJarPanel modulesJarPanel;
+    private ModulesTabPanel modulesTabPanel;
     private ProcessInstancesPanel processInstancesPanel;
     private ActivityInstancesPanel activityInstancesPanel;
     private Button refreshBtn = null;
     private Button btnAdd = null;
-    private Button customUIBtn = null;
+    private Button modulesJarBtn = null;
     private Button processInstancesBtn = null;
     private Button activityInstancesBtn = null;
-    private Button categoriesBtn = null;
+    private Button modulesTabBtn = null;
     private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
     private ComboBox processesComboBox = null;
 
@@ -73,13 +75,12 @@ public class DevelopmentPanel extends PbPanelModule
         prepareButtonBar();
         addComponent(buttonBar, 0);
 
-        customUIPanel = new CustomUIPanel();
-        panels.put(customUIBtn, customUIPanel);
-        addComponent(customUIPanel, 1);
-        setExpandRatio(customUIPanel, 1);
-        customUIPanel.initUI();
-        customUIPanel.refreshTable();
-
+        modulesJarPanel = new ModulesJarPanel();
+        panels.put(modulesJarBtn, modulesJarPanel);
+        addComponent(modulesJarPanel, 1);
+        setExpandRatio(modulesJarPanel, 1);
+        modulesJarPanel.initUI();
+        modulesJarPanel.refreshTable();
 
         processInstancesPanel = new ProcessInstancesPanel();
         panels.put(processInstancesBtn, processInstancesPanel);
@@ -87,8 +88,8 @@ public class DevelopmentPanel extends PbPanelModule
         activityInstancesPanel = new ActivityInstancesPanel();
         panels.put(activityInstancesBtn, activityInstancesPanel);
 
-        categoriesPanel = new CategoriesPanel();
-        panels.put(categoriesBtn, categoriesPanel);
+        modulesTabPanel = new ModulesTabPanel();
+        panels.put(modulesTabBtn, modulesTabPanel);
 
         refreshProcessDefinitionCombo();
     }
@@ -99,26 +100,26 @@ public class DevelopmentPanel extends PbPanelModule
         if (!tablePanel.isInitialized()){
             tablePanel.initUI();
         }
-        if (tablePanel.equals(customUIPanel) || tablePanel.equals(categoriesPanel)) {
+        if (tablePanel.equals(modulesJarPanel) || tablePanel.equals(modulesTabPanel)) {
             tablePanel.refreshTable();
         }
     }
 
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
-        // prepare categoriesBtn button
-        categoriesBtn = new Button(((Processbase)getApplication()).getMessages().getString("categoriesBtn"), this);
-        categoriesBtn.setDescription(((Processbase)getApplication()).getMessages().getString("categoriesBtnTooltip"));
-        categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(categoriesBtn, 0);
-        buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
+        // prepare JarFilesBtn button
+        modulesJarBtn = new Button(((Processbase)getApplication()).getMessages().getString("modulesJarBtn"), this);
+        modulesJarBtn.setStyleName("special");
+        modulesJarBtn.setEnabled(false);
+        buttonBar.addComponent(modulesJarBtn, 0);
+        buttonBar.setComponentAlignment(modulesJarBtn, Alignment.MIDDLE_LEFT);
 
-        // prepare customUIBtn button
-        customUIBtn = new Button(((Processbase)getApplication()).getMessages().getString("customUIBtn"), this);
-        customUIBtn.setStyleName("special");
-        customUIBtn.setEnabled(false);
-        buttonBar.addComponent(customUIBtn, 1);
-        buttonBar.setComponentAlignment(customUIBtn, Alignment.MIDDLE_LEFT);
+        // prepare modulesTabBtn button
+        modulesTabBtn = new Button(((Processbase)getApplication()).getMessages().getString("modulesTabBtn"), this);
+        modulesTabBtn.setDescription(((Processbase)getApplication()).getMessages().getString("modulesTabBtn"));
+        modulesTabBtn.setStyleName(Reindeer.BUTTON_LINK);
+        buttonBar.addComponent(modulesTabBtn, 1);
+        buttonBar.setComponentAlignment(modulesTabBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
         processInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("processInstancesBtn"), this);
@@ -173,7 +174,7 @@ public class DevelopmentPanel extends PbPanelModule
                 ncw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(ncw);
                 ncw.initUI();
-            } else if (getComponent(1) instanceof CustomUIPanel) {
+            } else if (getComponent(1) instanceof ModulesJarPanel) {
                 NewJarWindow njw = new NewJarWindow();
                 njw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(njw);
@@ -194,14 +195,14 @@ public class DevelopmentPanel extends PbPanelModule
     }
 
     private void activateButtons() {
-        customUIBtn.setStyleName(Reindeer.BUTTON_LINK);
-        customUIBtn.setEnabled(true);
+        modulesJarBtn.setStyleName(Reindeer.BUTTON_LINK);
+        modulesJarBtn.setEnabled(true);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         processInstancesBtn.setEnabled(true);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         activityInstancesBtn.setEnabled(true);
-        categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        categoriesBtn.setEnabled(true);
+        modulesTabBtn.setStyleName(Reindeer.BUTTON_LINK);
+        modulesTabBtn.setEnabled(true);
         btnAdd.setVisible(true);
         processesComboBox.setVisible(true);
     }
@@ -227,7 +228,7 @@ public class DevelopmentPanel extends PbPanelModule
 
     @Override
     public String getTitle(Locale locale) {
-        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        ResourceBundle rb = PbResourceBundle.getBundle("resources/MessagesBundle", locale);
         return rb.getString("bpmDevelopment");
     }
 }

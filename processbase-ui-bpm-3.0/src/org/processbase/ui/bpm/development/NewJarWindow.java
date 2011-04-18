@@ -16,6 +16,9 @@
  */
 package org.processbase.ui.bpm.development;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -26,8 +29,18 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.PbWindow;
 
@@ -54,7 +67,7 @@ public class NewJarWindow extends PbWindow
 
     public void initUI() {
         try {
-            setCaption(((Processbase) getApplication()).getMessages().getString("newProcessDefinition"));
+            setCaption("Add new Tabsheet module jar");
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -84,6 +97,7 @@ public class NewJarWindow extends PbWindow
             fis.close();
             if (this.fileType.equals(FILE_JAR)) {
                 saveJar(originalFilename, readData);
+                saveJarInfo(originalFilename);
                 showWarning(((Processbase) getApplication()).getMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
@@ -119,16 +133,44 @@ public class NewJarWindow extends PbWindow
     }
 
     private void saveJar(String name, byte[] data) throws IOException {
-        File f = new File( name);
-        System.out.println(File.listRoots()[0].getAbsolutePath());
-        System.out.println(File.listRoots()[0].getPath());
-        System.out.println(File.listRoots()[0].getCanonicalPath());
-        System.out.println(File.listRoots()[0].getParent());
-        FileOutputStream fos = null;
         try {
+            Properties p = System.getProperties();
+            String instanceRoot = p.getProperty("com.sun.aas.instanceRootURI");
+            String fileSeparator = p.getProperty("file.separator");
+
+            File f = new File(new URI(instanceRoot + Constants.CUSTOM_UI_JAR_PATH + fileSeparator + name));
+            FileOutputStream fos = null;
             fos = new FileOutputStream(f);
             fos.write(data);
             fos.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void saveJarInfo(String name) {
+        try {
+            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            // save metadata
+            GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+            Gson gson = gb.create();
+            Type collectionType = new TypeToken<LinkedList<String>>() {}.getType();
+            LinkedList<String> jarList = new LinkedList<String>();
+            String metaDataString = bpm.getMetaData("PROCESSBASE_UI_JAR_LIST");
+            if (metaDataString != null) {
+                LinkedList<String> savedJarList = gson.fromJson(metaDataString, collectionType);
+                if (!savedJarList.isEmpty()){
+                    jarList.addAll(savedJarList);
+                }
+            }
+            jarList.add(name);
+            metaDataString = gson.toJson(jarList, collectionType);
+            bpm.addMetaData("PROCESSBASE_UI_JAR_LIST", metaDataString);
+            // create rule
+//            Rule rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
+//            Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
+//            uis.add(new CustomUUID(name));
+//            bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
