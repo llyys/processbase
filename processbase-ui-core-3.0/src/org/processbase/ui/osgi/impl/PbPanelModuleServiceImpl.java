@@ -18,7 +18,13 @@ package org.processbase.ui.osgi.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
@@ -62,5 +68,17 @@ public class PbPanelModuleServiceImpl implements PbPanelModuleService {
     public synchronized void removeListener(PbPanelModuleServiceListener listener) {
         System.out.println("removeListener SERVIRE_IMPL - " + listener);
         listeners.remove(listener);
+    }
+
+    private void addModuleRule(String name) {
+        try {
+            BPMModule bpm = new BPMModule("osgi");
+            Rule rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
+            Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
+            uis.add(new CustomUUID(name));
+            bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

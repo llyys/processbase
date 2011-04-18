@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,9 @@ package org.processbase.ui.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -53,77 +55,71 @@ public class Constants {
     public static String DL_GROUP = null;
     public static String BAM_DB_POOLNAME;
     public static String BAM_DB_DIALECT;
-    public static String BAM_MQ_CONNECTION_FACTORY;
-    public static String BAM_MQ_DESTINATION_RESOURCE;
-    public static String ESB_MQ_AConnectionFactory;
-    public static String ESB_MQ_DestinationResource;
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
-    public static String AUTH_HOST = "localhost";
-    public static String AUTH_PORT = "8080";
-    public static String AUTH_CLASS = "org.processbase.touchprocess.impl.LiferayAuthorization";
 
     public static void loadConstants() {
         try {
             File file = new File("processbase2.properties");
             if (file.exists()) {
-                FileInputStream fis = new FileInputStream(file);
-                properties.loadFromXML(fis);
-                fis.close();
-                TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
-                System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
-                BONITA_EJB_ENV.put("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
-                BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
-                BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
-                BONITA_EJB_ENV.put("java.naming.factory.state", properties.containsKey("java.naming.factory.state") ? properties.getProperty("java.naming.factory.state") : "");
-                BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
-                BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
-                BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialHost", properties.containsKey("org.omg.CORBA.ORBInitialHost") ? properties.getProperty("org.omg.CORBA.ORBInitialHost") : "localhost");
-                BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialPort", properties.containsKey("org.omg.CORBA.ORBInitialPort") ? properties.getProperty("org.omg.CORBA.ORBInitialPort") : "23700");
-
-                BAM_MQ_CONNECTION_FACTORY = properties.containsKey("BAM_MQ_CONNECTION_FACTORY") ? properties.getProperty("BAM_MQ_CONNECTION_FACTORY") : "jms/pbbamConnectionFactory";
-                BAM_MQ_DESTINATION_RESOURCE = properties.containsKey("BAM_MQ_DESTINATION_RESOURCE") ? properties.getProperty("BAM_MQ_DESTINATION_RESOURCE") : "jms/pbbamDestinationResource";
-
-                DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "DOCUMENTS";
-                BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
-                APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
-
-                BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
-                BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
-
-                AUTH_HOST = properties.containsKey("AUTH_HOST") ? properties.getProperty("AUTH_HOST") : "localhost";
-                AUTH_PORT = properties.containsKey("AUTH_PORT") ? properties.getProperty("AUTH_PORT") : "8080";
-                AUTH_CLASS = properties.containsKey("AUTH_CLASS") ? properties.getProperty("AUTH_CLASS") : "org.processbase.touchprocess.impl.LiferayAuthorization";
-                CUSTOM_UI_JAR_PATH = properties.containsKey("CUSTOM_UI_JAR_PATH") ? properties.getProperty("CUSTOM_UI_JAR_PATH") : "";
+                load();
             } else {
-                properties.setProperty("APP_SERVER", "GLASSFISH2");
-                properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
-                properties.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");
-                properties.setProperty("java.naming.factory.url.pkgs", "com.sun.enterprise.naming");
-                properties.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");
-                properties.setProperty("java.naming.provider.bonitaurl", "iiop://localhost:3700");
-                properties.setProperty("java.security.auth.login.config", "appclientlogin.conf");
-                properties.setProperty("DL_GROUP", "DOCUMENTS");
-                properties.setProperty("BONITA_DOMAIN", "default");
-
-                properties.setProperty("PORTAL_HOST", "localhost");
-                properties.setProperty("PORTAL_PORT", "8080");
-                properties.setProperty("AUTH_CLASS", "org.processbase.touchprocess.impl.LiferayAuthorization");
-
-                properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
-                properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
-                properties.setProperty("CUSTOM_UI_JAR_PATH", "/processbasecustomuijar");
-
-                properties.setProperty("org.omg.CORBA.ORBInitialHost", "localhost");
-                properties.setProperty("org.omg.CORBA.ORBInitialPort", "23700");
-
-                FileOutputStream fos = new FileOutputStream(file);
-                properties.storeToXML(fos, null);
-                fos.close();
+                save();
+                load();
             }
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private static void load() throws FileNotFoundException, IOException {
+        File file = new File("processbase2.properties");
+        FileInputStream fis = new FileInputStream(file);
+        properties.loadFromXML(fis);
+        fis.close();
+        TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
+        System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
+        BONITA_EJB_ENV.put("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
+        BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
+        BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
+        BONITA_EJB_ENV.put("java.naming.factory.state", properties.containsKey("java.naming.factory.state") ? properties.getProperty("java.naming.factory.state") : "");
+        BONITA_EJB_ENV.put("java.naming.provider.url", properties.getProperty("java.naming.provider.bonitaurl"));
+        BONITA_EJB_ENV.put("java.security.auth.login.config", properties.getProperty("java.security.auth.login.config"));
+        BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialHost", properties.containsKey("org.omg.CORBA.ORBInitialHost") ? properties.getProperty("org.omg.CORBA.ORBInitialHost") : "localhost");
+        BONITA_EJB_ENV.put("org.omg.CORBA.ORBInitialPort", properties.containsKey("org.omg.CORBA.ORBInitialPort") ? properties.getProperty("org.omg.CORBA.ORBInitialPort") : "23700");
+
+        DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "DOCUMENTS";
+        BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
+        APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
+
+        BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
+        BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
+
+        CUSTOM_UI_JAR_PATH = properties.containsKey("CUSTOM_UI_JAR_PATH") ? properties.getProperty("CUSTOM_UI_JAR_PATH") : "";
+    }
+
+    private static void save() throws FileNotFoundException, IOException {
+        File file = new File("processbase2.properties");
+        properties.setProperty("APP_SERVER", "GLASSFISH2");
+        properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
+        properties.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");
+        properties.setProperty("java.naming.factory.url.pkgs", "com.sun.enterprise.naming");
+        properties.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");
+        properties.setProperty("java.naming.provider.bonitaurl", "iiop://localhost:23700");
+        properties.setProperty("java.security.auth.login.config", "appclientlogin.conf");
+        properties.setProperty("DL_GROUP", "DOCUMENTS");
+        properties.setProperty("BONITA_DOMAIN", "default");
+
+        properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
+        properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
+        properties.setProperty("CUSTOM_UI_JAR_PATH", "/processbasecustomuijar");
+
+        properties.setProperty("org.omg.CORBA.ORBInitialHost", "localhost");
+        properties.setProperty("org.omg.CORBA.ORBInitialPort", "23700");
+
+        FileOutputStream fos = new FileOutputStream(file);
+        properties.storeToXML(fos, null);
+        fos.close();
     }
 }

@@ -8,13 +8,13 @@ Implementation-Version: 3.0.0
 Implementation-Vendor: PROCESSBASE Ltd
 Implementation-URL: http://processbase.biz
 Service-Component: OSGI-INF/moduleservice.xml
-Export-Package: org.processbase.ui.core,
- org.processbase.ui.core.bonita.diagram,
- org.processbase.ui.core.bonita.forms,
- org.processbase.ui.core.template,
- org.processbase.ui.core.util,
- org.processbase.ui.osgi,
- org.processbase.ui.osgi.impl,
+Export-Package: org.processbase.ui.core;version=3.0.0,
+ org.processbase.ui.core.bonita.diagram;version=3.0.0,
+ org.processbase.ui.core.bonita.forms;version=3.0.0,
+ org.processbase.ui.core.template;version=3.0.0,
+ org.processbase.ui.core.util;version=3.0.0,
+ org.processbase.ui.osgi;version=3.0.0,
+ org.processbase.ui.osgi.impl;version=3.0.0,
  resources
 Import-Package: com.vaadin.terminal, com.vaadin.data, com.vaadin.ui, com.vaadin.data.util, com.vaadin, com.vaadin.terminal.gwt.server,
  com.vaadin.addon.treetable,

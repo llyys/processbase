@@ -85,6 +85,7 @@ import org.ow2.bonita.light.LightTaskInstance;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
+import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
@@ -447,6 +448,16 @@ public class BPMModule {
         Rule rule = managementAPI.createRule(result.getUUID().toString(), result.getName(), "PROCESS_START Rule for ProcessDefinitionUUID" + result.getUUID().toString(), RuleType.PROCESS_START);
         managementAPI.addExceptionsToRuleByUUID(rule.getUUID(), processes);
         return result;
+    }
+
+    public Rule createRule(String name, String label, String description, RuleType type) throws Exception{
+        initContext();
+        return managementAPI.createRule(name, label, description, type);
+    }
+
+    public <E extends AbstractUUID> void addExceptionsToRuleByUUID(final String ruleUUID, final Set<E> exceptions) throws Exception{
+        initContext();
+        managementAPI.addExceptionsToRuleByUUID(ruleUUID, exceptions);
     }
 
     public void deployJar(String jarName, byte[] body) throws Exception {
@@ -978,6 +989,11 @@ public class BPMModule {
     public void addMetaData(String key, String value) throws Exception {
         initContext();
         managementAPI.addMetaData(key, value);
+    }
+
+    public String  getMetaData(String key) throws Exception {
+        initContext();
+        return managementAPI.getMetaData(key);
     }
 
     public String getUserMetadata(String metadataName) throws Exception {

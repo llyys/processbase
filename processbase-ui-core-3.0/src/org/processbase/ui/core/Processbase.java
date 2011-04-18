@@ -17,6 +17,7 @@
 package org.processbase.ui.core;
 
 import java.util.ResourceBundle;
+import org.processbase.ui.osgi.PbPanelModuleService;
 
 /**
  *
@@ -55,4 +56,6 @@ public interface Processbase {
     public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception;
 
     public byte[] getFileBody(String processUUID, String name) throws Exception;
+
+    public PbPanelModuleService getPanelModuleService();
 }
