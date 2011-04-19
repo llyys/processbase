@@ -57,9 +57,9 @@ public class GroupWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (group == null) {
-                setCaption(((Processbase) getApplication()).getMessages().getString("newGroup"));
+                setCaption(((Processbase) getApplication()).getPbMessages().getString("newGroup"));
             } else {
-                setCaption(((Processbase) getApplication()).getMessages().getString("group"));
+                setCaption(((Processbase) getApplication()).getPbMessages().getString("group"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -67,12 +67,12 @@ public class GroupWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
-            groupName = new TextField(((Processbase) getApplication()).getMessages().getString("groupName"));
-            groupLabel = new TextField(((Processbase) getApplication()).getMessages().getString("groupLabel"));
-            groupDescription = new TextArea(((Processbase) getApplication()).getMessages().getString("groupDescription"));
-            parentGroup = new ComboBox(((Processbase) getApplication()).getMessages().getString("groupParent"));
+            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
+            groupName = new TextField(((Processbase) getApplication()).getPbMessages().getString("groupName"));
+            groupLabel = new TextField(((Processbase) getApplication()).getPbMessages().getString("groupLabel"));
+            groupDescription = new TextArea(((Processbase) getApplication()).getPbMessages().getString("groupDescription"));
+            parentGroup = new ComboBox(((Processbase) getApplication()).getPbMessages().getString("groupParent"));
 
             parentGroup.setWidth("270px");
             parentGroup.setContainerDataSource(getGroups());

@@ -44,13 +44,13 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("deployedBy", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDeployedBy"), null, null);
-        table.addContainerProperty("state", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionState"), null, null);
-        table.addContainerProperty("deployedDate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDeployedDate"), null, null);
+        table.addContainerProperty("deployedBy", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionDeployedBy"), null, null);
+        table.addContainerProperty("state", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("deployedDate", Date.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
     }

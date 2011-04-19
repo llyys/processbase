@@ -70,10 +70,10 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             imageLayout.setMargin(false);
             imageLayout.setSpacing(false);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
-            refreshBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnRefresh"), this);
-            deleteBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDelete"), this);
-            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
+            closeBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnClose"), this);
+            refreshBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnRefresh"), this);
+            deleteBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), this);
+            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
 
             buttons.addButton(deleteBtn);
             buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_LEFT);
@@ -105,7 +105,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             }
 
             String pdUUID = process.getProcessDefinitionUUID().toString();
-            setCaption(((Processbase) getApplication()).getMessages().getString("ProcessActivities")
+            setCaption(((Processbase) getApplication()).getPbMessages().getString("ProcessActivities")
                     + " \"" + pdUUID.split("--")[0] + " " + pdUUID.split("--")[1] + " \"");
             setWidth("90%");
             setHeight("95%");
@@ -136,17 +136,17 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
 
     private void delete() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("questionDeleteProcessInstance"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("questionDeleteProcessInstance"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 ((Processbase) getApplication()).getBpmModule().deleteProcessInstance(process.getProcessInstanceUUID());
-                                showInformation(((Processbase) getApplication()).getMessages().getString("executedSuccessfully"));
+                                showInformation(((Processbase) getApplication()).getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
@@ -158,17 +158,17 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
 
     private void cancel() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("questionCancelProcessInstance"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("questionCancelProcessInstance"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 ((Processbase) getApplication()).getBpmModule().cancelProcessInstance(process.getProcessInstanceUUID());
-                                showInformation(((Processbase) getApplication()).getMessages().getString("executedSuccessfully"));
+                                showInformation(((Processbase) getApplication()).getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();

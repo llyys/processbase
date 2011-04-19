@@ -125,18 +125,18 @@ public class ProcessDefinitionWindow extends PbWindow implements
                 v1.setExpandRatio(pdDescription, 1);
             }
 
-            tabSheet.addTab(v1, ((Processbase) getApplication()).getMessages().getString("tabDescription"), null);
+            tabSheet.addTab(v1, ((Processbase) getApplication()).getPbMessages().getString("tabDescription"), null);
 
             activitiesTable.setSizeFull();
 
             v2.setMargin(false, false, false, false);
             v2.addComponent(activitiesTable);
             v2.setSizeFull();
-            tabSheet.addTab(v2, ((Processbase) getApplication()).getMessages().getString("tabCustomUI"), null);
+            tabSheet.addTab(v2, ((Processbase) getApplication()).getPbMessages().getString("tabCustomUI"), null);
 
             // prepare membership
             prepareTableMembership();
-            addBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnAdd"), this);
+            addBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnAdd"), this);
             addBtn.setStyleName(Runo.BUTTON_SMALL);
             v3.setMargin(false, false, false, false);
             v3.setSpacing(true);
@@ -144,7 +144,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
             v3.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
             v3.addComponent(tableMembership);
             v3.setSizeFull();
-            tabSheet.addTab(v3, ((Processbase) getApplication()).getMessages().getString("processAccess"), null);
+            tabSheet.addTab(v3, ((Processbase) getApplication()).getPbMessages().getString("processAccess"), null);
             refreshTableMembership();
 
             tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
@@ -153,19 +153,19 @@ public class ProcessDefinitionWindow extends PbWindow implements
             layout.addComponent(tabSheet);
             layout.setExpandRatio(tabSheet, 1);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSaveCustomUI"), this);
-            saveAccessBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSaveProcessAccess"), this);
-            deleteAllBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDeleteAll"), this);
-            deleteInstancesBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDeleteInstances"), this);
-            downloadBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnDownload"), this);
-            enableBtn = new CheckBox(((Processbase) getApplication()).getMessages().getString("btnEnable"), this);
-            archiveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnArchive"), this);
+            closeBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnClose"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSaveCustomUI"), this);
+            saveAccessBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSaveProcessAccess"), this);
+            deleteAllBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnDeleteAll"), this);
+            deleteInstancesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnDeleteInstances"), this);
+            downloadBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnDownload"), this);
+            enableBtn = new CheckBox(((Processbase) getApplication()).getPbMessages().getString("btnEnable"), this);
+            archiveBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnArchive"), this);
 
-            deleteAllBtn.setDescription(((Processbase) getApplication()).getMessages().getString("deleteProcessDefinition"));
+            deleteAllBtn.setDescription(((Processbase) getApplication()).getPbMessages().getString("deleteProcessDefinition"));
             buttons.addButton(deleteAllBtn);
             buttons.setComponentAlignment(deleteAllBtn, Alignment.MIDDLE_RIGHT);
-            deleteInstancesBtn.setDescription(((Processbase) getApplication()).getMessages().getString("deleteProcessInstances"));
+            deleteInstancesBtn.setDescription(((Processbase) getApplication()).getPbMessages().getString("deleteProcessInstances"));
             buttons.addButton(deleteInstancesBtn);
             buttons.setComponentAlignment(deleteInstancesBtn, Alignment.MIDDLE_RIGHT);
 
@@ -199,8 +199,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
 //        activitiesTable.addContainerProperty("activityUUID", String.class, null, "UUID", null, null);
 //        activitiesTable.setColumnWidth("activityUUID", 0);
-            activitiesTable.addContainerProperty("activityLabel", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActivityName"), null, null);
-            activitiesTable.addContainerProperty("url", String.class, null, ((Processbase) getApplication()).getMessages().getString("tabCaptionTaskURL"), null, null);
+            activitiesTable.addContainerProperty("activityLabel", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActivityName"), null, null);
+            activitiesTable.addContainerProperty("url", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tabCaptionTaskURL"), null, null);
             activitiesTable.setColumnWidth("url", 300);
             activitiesTable.setTableFieldFactory(new PbTableFieldFactory());
             activitiesTable.setEditable(true);
@@ -281,12 +281,12 @@ public class ProcessDefinitionWindow extends PbWindow implements
         final Processbase processbase = ((Processbase) getApplication());
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
                 enableBtn.booleanValue()
-                ? ((Processbase) getApplication()).getMessages().getString("questionEnableProcessDefinition")
-                : ((Processbase) getApplication()).getMessages().getString("questionDisableProcessDefinition"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ? ((Processbase) getApplication()).getPbMessages().getString("questionEnableProcessDefinition")
+                : ((Processbase) getApplication()).getPbMessages().getString("questionDisableProcessDefinition"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -297,7 +297,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
                                 } else {
                                     processbase.getBpmModule().disableProcessDefinitions(processDefinition.getUUID());
                                 }
-                                mainWindow.showInformation(processbase.getMessages().getString("executedSuccessfully"));
+                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
@@ -311,17 +311,17 @@ public class ProcessDefinitionWindow extends PbWindow implements
         final Processbase processbase = ((Processbase) getApplication());
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("questionArchiveProcessDefinition"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("questionArchiveProcessDefinition"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 processbase.getBpmModule().archiveProcessDefinitions(processDefinition.getUUID());
-                                mainWindow.showInformation(processbase.getMessages().getString("executedSuccessfully"));
+                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
@@ -335,17 +335,17 @@ public class ProcessDefinitionWindow extends PbWindow implements
         final Processbase processbase = ((Processbase) getApplication());
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(mainWindow,
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("questionDeleteProcessAndInstances"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("questionDeleteProcessAndInstances"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 processbase.getBpmModule().deleteProcess(processDefinition);
-                                mainWindow.showInformation(processbase.getMessages().getString("executedSuccessfully"));
+                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
@@ -359,17 +359,17 @@ public class ProcessDefinitionWindow extends PbWindow implements
         final Processbase processbase = ((Processbase) getApplication());
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(mainWindow,
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("questionDeleteInstances"),
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("questionDeleteInstances"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
                                 processbase.getBpmModule().deleteAllProcessInstances(processDefinition);
-                                mainWindow.showInformation(processbase.getMessages().getString("executedSuccessfully"));
+                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
@@ -491,9 +491,9 @@ public class ProcessDefinitionWindow extends PbWindow implements
     }
 
     private void prepareTableMembership() {
-        tableMembership.addContainerProperty("group", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionGroup"), null, null);
-        tableMembership.addContainerProperty("role", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionRole"), null, null);
-        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        tableMembership.addContainerProperty("group", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionGroup"), null, null);
+        tableMembership.addContainerProperty("role", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionRole"), null, null);
+        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
         tableMembership.setColumnWidth("actions", 30);
         tableMembership.setImmediate(true);
         tableMembership.setWidth("100%");
@@ -541,7 +541,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
             roles.setValue(membership != null ? membership.getRole().getUUID() : null);
             woItem.getItemProperty("role").setValue(roles);
         }
-        TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
+        TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
     }
 

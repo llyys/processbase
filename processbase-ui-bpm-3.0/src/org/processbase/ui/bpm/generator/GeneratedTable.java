@@ -80,11 +80,11 @@ public class GeneratedTable extends Table
             if (widgets.getType().equals("form:DynamicTable") && !widgets.getReadOnly()) {
                 setEditable(true);
                 if (widgets.getAllowAddRemoveRow()) {
-                    setColumnFooter(columnHeaders.get(0), ((Processbase)getApplication()).getMessages().getString("addRow"));
+                    setColumnFooter(columnHeaders.get(0), ((Processbase)getApplication()).getPbMessages().getString("addRow"));
                     setFooterVisible(true);
                     addListener((Table.FooterClickListener) this);
-                    columnHeaders.add(((Processbase)getApplication()).getMessages().getString("tableCaptionActions"));
-                    addContainerProperty(((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+                    columnHeaders.add(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"));
+                    addContainerProperty(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
                 }
             }
             setVisibleColumns(columnHeaders.toArray());
@@ -101,9 +101,9 @@ public class GeneratedTable extends Table
                     if (widgets.getType().equals("form:Table")) {
                         woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
                     } else if (widgets.getType().equals("form:DynamicTable")) {
-                        if (columnHeaders.get(i).equals(((Processbase)getApplication()).getMessages().getString("tableCaptionActions"))) {
-                            TableLinkButton execBtn = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                            woItem.getItemProperty(((Processbase)getApplication()).getMessages().getString("tableCaptionActions")).setValue(execBtn);
+                        if (columnHeaders.get(i).equals(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"))) {
+                            TableLinkButton execBtn = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                            woItem.getItemProperty(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
                         } else {
                             woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
                         }
@@ -195,9 +195,9 @@ public class GeneratedTable extends Table
         Object id = Math.random();
         Item woItem = addItem(id);
         for (int i = 0; i < columnHeaders.size(); i++) {
-            if (columnHeaders.get(i).equals(((Processbase)getApplication()).getMessages().getString("tableCaptionActions"))) {
-                TableLinkButton execBtn = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                woItem.getItemProperty(((Processbase)getApplication()).getMessages().getString("tableCaptionActions")).setValue(execBtn);
+            if (columnHeaders.get(i).equals(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"))) {
+                TableLinkButton execBtn = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                woItem.getItemProperty(((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
             } else {
                 woItem.getItemProperty(columnHeaders.get(i)).setValue("");
             }

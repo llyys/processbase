@@ -23,15 +23,19 @@ import com.vaadin.data.Item;
 import java.io.IOException;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.TreeMap;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.Processbase;
@@ -56,11 +60,11 @@ public class ModulesTabPanel extends TablePanel implements
     public void initUI() {
         super.initUI();
         table.addContainerProperty("order", String.class, null, "Order", null, null);
-        table.addContainerProperty("moduleName", TableLinkButton.class, null, "Class Name", null, null);
+        table.addContainerProperty("moduleName", Component.class, null, "Class Name", null, null);
         table.addContainerProperty("title", String.class, null, "Title", null, null);
         table.addContainerProperty("inMetadata", String.class, null, "PB Metadata", null, null);
         table.addContainerProperty("inOSGI", String.class, null, "OSGI", null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 80);
         table.setImmediate(true);
     }
@@ -70,32 +74,43 @@ public class ModulesTabPanel extends TablePanel implements
         try {
             table.removeAllItems();
             LinkedHashSet<String> moduleNames = new LinkedHashSet<String>();
-            GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+            GsonBuilder gb = new GsonBuilder();
             Gson gson = gb.create();
-            LinkedList<String> metadataList = new LinkedList<String>();
+            Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>() {
+            }.getType();
+            TreeMap<Integer, String> tabList = new TreeMap<Integer, String>();
             String metaDataString = ((Processbase) getApplication()).getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
             if (metaDataString != null) {
-                String[] savedTabList = gson.fromJson(metaDataString, String[].class);
-                if (savedTabList != null && savedTabList.length > 0) {
-                    metadataList.addAll(Arrays.asList(savedTabList));
+                LinkedHashMap<Integer, String> tabs2 = gson.fromJson(metaDataString, collectionType);
+                if (!tabs2.isEmpty()) {
+                    tabList.putAll(tabs2);
                 }
             }
-            moduleNames.addAll(metadataList);
+            moduleNames.addAll(tabList.values());
             PbPanelModuleService pms = ((Processbase) getApplication()).getPanelModuleService();
             moduleNames.addAll(pms.getModules().keySet());
             int i = 1;
             for (String moduleName : moduleNames) {
                 Item woItem = table.addItem(moduleName);
-                TableLinkButton teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
                 Locale locale = getApplication().getLocale();
                 String title = pms.getModules().containsKey(moduleName) ? pms.getModules().get(moduleName).getTitle(locale) : "";
+                Component teb = null;
+                if (pms.getModules().containsKey(moduleName) && tabList.containsValue(moduleName)) {
+                    teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
+                } else if (!pms.getModules().containsKey(moduleName) && tabList.containsValue(moduleName)) {
+                    teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
+                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDeleteFromMetadta"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
+                    woItem.getItemProperty("actions").setValue(tlb);
+                } else if (pms.getModules().containsKey(moduleName) && !tabList.containsValue(moduleName)) {
+                    teb = new Label(moduleName);
+                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata"), "icons/accept.png", moduleName, this, Constants.ACTION_ADD);
+                    woItem.getItemProperty("actions").setValue(tlb);
+                }
                 woItem.getItemProperty("order").setValue(String.valueOf(i));
                 woItem.getItemProperty("moduleName").setValue(teb);
                 woItem.getItemProperty("title").setValue(title);
                 woItem.getItemProperty("inOSGI").setValue(pms.getModules().containsKey(moduleName));
-                woItem.getItemProperty("inMetadata").setValue(metadataList.contains(moduleName));
-                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
-                woItem.getItemProperty("actions").setValue(tlb);
+                woItem.getItemProperty("inMetadata").setValue(tabList.containsValue(moduleName));
                 i++;
             }
             table.setSortContainerPropertyId("order");
@@ -112,53 +127,21 @@ public class ModulesTabPanel extends TablePanel implements
         super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
+            String moduleName = (String) execBtn.getTableValue();
             if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
                 try {
-                    String fileName = (String) execBtn.getTableValue();
-                    removeJar(fileName);
+//                    String fileName = (String) execBtn.getTableValue();
+//                    removeJar(fileName);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
                 }
+            } else if (execBtn.getAction().equals(Constants.ACTION_ADD)) {
             }
         }
     }
 
-    private void removeJar(final String fileName) {
-        ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("removeUser") + "?",
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
-                new ConfirmDialog.Listener() {
-
-                    public void onClose(ConfirmDialog dialog) {
-                        if (dialog.isConfirmed()) {
-                            try {
-                                Properties p = System.getProperties();
-                                String instanceRoot = p.getProperty("com.sun.aas.instanceRootURI");
-                                String fileSeparator = p.getProperty("file.separator");
-                                File f = new File(new URI(instanceRoot + Constants.CUSTOM_UI_JAR_PATH + fileSeparator + fileName));
-                                f.delete();
-                                saveJarInfo(fileName);
-                                table.removeItem(fileName);
-                            } catch (Exception ex) {
-                                showError(ex.getMessage());
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                });
-    }
-
-    private void removeJarFile(String name) throws IOException {
-        try {
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void saveJarInfo(String name) {
+    private void saveTabsheetMetadata(String name) {
         try {
             BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
             // save metadata

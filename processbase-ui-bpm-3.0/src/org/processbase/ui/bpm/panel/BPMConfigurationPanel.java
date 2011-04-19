@@ -107,27 +107,27 @@ public class BPMConfigurationPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare categoriesBtn button
-        categoriesBtn = new Button(((Processbase)getApplication()).getMessages().getString("categoriesBtn"), this);
-        categoriesBtn.setDescription(((Processbase)getApplication()).getMessages().getString("categoriesBtnTooltip"));
+        categoriesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("categoriesBtn"), this);
+        categoriesBtn.setDescription(((Processbase)getApplication()).getPbMessages().getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(categoriesBtn, 0);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        processDefinitionBtn = new Button(((Processbase)getApplication()).getMessages().getString("processDefinitionBtn"), this);
+        processDefinitionBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
         buttonBar.addComponent(processDefinitionBtn, 1);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        processInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("processInstancesBtn"), this);
+        processInstancesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(processInstancesBtn, 2);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("activityInstancesBtn"), this);
+        activityInstancesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(activityInstancesBtn, 3);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -140,19 +140,19 @@ public class BPMConfigurationPanel extends PbPanelModule
         // prepare processesComboBox
         processesComboBox = new ComboBox();
         processesComboBox.setWidth("250px");
-        processesComboBox.setInputPrompt(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
-        processesComboBox.setDescription(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
+        processesComboBox.setInputPrompt(((Processbase)getApplication()).getPbMessages().getString("selectProcessDefinition"));
+        processesComboBox.setDescription(((Processbase)getApplication()).getPbMessages().getString("selectProcessDefinition"));
         buttonBar.addComponent(processesComboBox, 5);
         buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
         processesComboBox.setVisible(false);
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
+        btnAdd = new Button(((Processbase)getApplication()).getPbMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 7);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");

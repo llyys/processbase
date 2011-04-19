@@ -44,17 +44,17 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("version", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
-        table.addContainerProperty("startedDate", Date.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("startedDate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startedDate", new PbColumnGenerator());
         table.setColumnWidth("startedDate", 100);
-        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLastUpdate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 100);
-        table.addContainerProperty("state", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("state", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setVisibleColumns(new Object[]{"name", "version", "startedDate", "lastUpdate", "state"});
 

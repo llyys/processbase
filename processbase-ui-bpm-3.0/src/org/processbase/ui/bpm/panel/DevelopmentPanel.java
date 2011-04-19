@@ -16,6 +16,9 @@
  */
 package org.processbase.ui.bpm.panel;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
@@ -26,21 +29,25 @@ import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.bpm.admin.CategoriesPanel;
-import org.processbase.ui.bpm.admin.NewCategoryWindow;
+import java.util.Set;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.processbase.ui.bpm.development.ModulesJarPanel;
 import org.processbase.ui.bpm.development.ModulesTabPanel;
 import org.processbase.ui.bpm.development.NewJarWindow;
-import org.processbase.ui.core.PbResourceBundle;
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.osgi.PbPanelModule;
@@ -64,9 +71,7 @@ public class DevelopmentPanel extends PbPanelModule
     private Button activityInstancesBtn = null;
     private Button modulesTabBtn = null;
     private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
-    private ComboBox processesComboBox = null;
 
-   
     public void initUI() {
         panels.clear();
         removeAllComponents();
@@ -91,13 +96,12 @@ public class DevelopmentPanel extends PbPanelModule
         modulesTabPanel = new ModulesTabPanel();
         panels.put(modulesTabBtn, modulesTabPanel);
 
-        refreshProcessDefinitionCombo();
     }
 
     private void setCurrentPanel(TablePanel tablePanel) {
         replaceComponent(getComponent(1), tablePanel);
         setExpandRatio(tablePanel, 1);
-        if (!tablePanel.isInitialized()){
+        if (!tablePanel.isInitialized()) {
             tablePanel.initUI();
         }
         if (tablePanel.equals(modulesJarPanel) || tablePanel.equals(modulesTabPanel)) {
@@ -108,27 +112,27 @@ public class DevelopmentPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare JarFilesBtn button
-        modulesJarBtn = new Button(((Processbase)getApplication()).getMessages().getString("modulesJarBtn"), this);
+        modulesJarBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("modulesJarBtn"), this);
         modulesJarBtn.setStyleName("special");
         modulesJarBtn.setEnabled(false);
         buttonBar.addComponent(modulesJarBtn, 0);
         buttonBar.setComponentAlignment(modulesJarBtn, Alignment.MIDDLE_LEFT);
 
         // prepare modulesTabBtn button
-        modulesTabBtn = new Button(((Processbase)getApplication()).getMessages().getString("modulesTabBtn"), this);
-        modulesTabBtn.setDescription(((Processbase)getApplication()).getMessages().getString("modulesTabBtn"));
+        modulesTabBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("modulesTabBtn"), this);
+        modulesTabBtn.setDescription(((Processbase) getApplication()).getPbMessages().getString("modulesTabBtn"));
         modulesTabBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(modulesTabBtn, 1);
         buttonBar.setComponentAlignment(modulesTabBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        processInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("processInstancesBtn"), this);
+        processInstancesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(processInstancesBtn, 2);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(((Processbase)getApplication()).getMessages().getString("activityInstancesBtn"), this);
+        activityInstancesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(activityInstancesBtn, 3);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -138,23 +142,14 @@ public class DevelopmentPanel extends PbPanelModule
         buttonBar.addComponent(expandLabel, 4);
         buttonBar.setExpandRatio(expandLabel, 1);
 
-        // prepare processesComboBox
-        processesComboBox = new ComboBox();
-        processesComboBox.setWidth("250px");
-        processesComboBox.setInputPrompt(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
-        processesComboBox.setDescription(((Processbase)getApplication()).getMessages().getString("selectProcessDefinition"));
-        buttonBar.addComponent(processesComboBox, 5);
-        buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
-        processesComboBox.setVisible(false);
-
         // prepare refresh button
-        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
-        buttonBar.addComponent(refreshBtn, 6);
+        refreshBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnRefresh"), this);
+        buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
-        buttonBar.addComponent(btnAdd, 7);
+        btnAdd = new Button(((Processbase) getApplication()).getPbMessages().getString("btnAdd"), this);
+        buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
     }
@@ -162,19 +157,12 @@ public class DevelopmentPanel extends PbPanelModule
     public void buttonClick(ClickEvent event) {
         TablePanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
-            if (getComponent(1).equals(processInstancesPanel)) {
-                processInstancesPanel.setFilter(processesComboBox.getValue() != null ? ((LightProcessDefinition) processesComboBox.getValue()).getUUID() : null);
-            } else if (getComponent(1).equals(activityInstancesPanel)) {
-                activityInstancesPanel.setFilter(processesComboBox.getValue() != null ? ((LightProcessDefinition) processesComboBox.getValue()).getUUID() : null);
-            }
             ((TablePanel) getComponent(1)).refreshTable();
         } else if (event.getButton().equals(btnAdd)) {
-            if (getComponent(1) instanceof CategoriesPanel) {
-                NewCategoryWindow ncw = new NewCategoryWindow();
-                ncw.addListener((Window.CloseListener) this);
-                getApplication().getMainWindow().addWindow(ncw);
-                ncw.initUI();
-            } else if (getComponent(1) instanceof ModulesJarPanel) {
+            if (getComponent(1).equals(modulesTabPanel)) {
+                saveMetadata();
+                modulesTabPanel.refreshTable();
+            } else if (getComponent(1).equals(modulesJarPanel)) {
                 NewJarWindow njw = new NewJarWindow();
                 njw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(njw);
@@ -185,10 +173,10 @@ public class DevelopmentPanel extends PbPanelModule
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
-            if (event.getButton().equals(processInstancesBtn) || event.getButton().equals(activityInstancesBtn)) {
-                btnAdd.setVisible(false);
-            } else {
-                processesComboBox.setVisible(false);
+            if (getComponent(1).equals(modulesTabPanel)) {
+                btnAdd.setCaption(((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata"));
+            } else if (getComponent(1).equals(modulesJarPanel)) {
+                btnAdd.setCaption(((Processbase) getApplication()).getPbMessages().getString("btnAdd"));
             }
         }
 
@@ -204,21 +192,65 @@ public class DevelopmentPanel extends PbPanelModule
         modulesTabBtn.setStyleName(Reindeer.BUTTON_LINK);
         modulesTabBtn.setEnabled(true);
         btnAdd.setVisible(true);
-        processesComboBox.setVisible(true);
     }
 
-    public void refreshProcessDefinitionCombo() {
+    private void saveMetadata() {
+        ConfirmDialog.show(getApplication().getMainWindow(),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata") + "?",
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
+                new ConfirmDialog.Listener() {
+
+                    public void onClose(ConfirmDialog dialog) {
+                        if (dialog.isConfirmed()) {
+                            try {
+                                saveTabsheetMetadata();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                ((PbWindow) getApplication().getMainWindow()).showError(ex.getMessage());
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void saveTabsheetMetadata() {
         try {
-            processesComboBox.removeAllItems();
-            Collection<LightProcessDefinition> processes = ((Processbase)getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
-            for (LightProcessDefinition pd : processes) {
-                Item woItem = processesComboBox.addItem(pd);
-                String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();
-                processesComboBox.setItemCaption(pd, caption + " (version " + pd.getVersion() + ")");
+            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            // save metadata
+            GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+            Gson gson = gb.create();
+            Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>(){}.getType();
+            Collection tableIds = modulesTabPanel.getTable().getItemIds();
+            LinkedHashMap<Integer, String> tabs = new LinkedHashMap<Integer, String>();
+            int i = 0;
+            for (Object o : tableIds) {
+                String name = o.toString();
+                Item item = modulesTabPanel.getTable().getItem(o);
+                if (item.getItemProperty("inOSGI").getValue().equals(Boolean.TRUE)) {
+                    Integer order = new Integer(item.getItemProperty("order").getValue().toString());
+                    tabs.put(order, name);
+                }
+            }
+            String metaDataString = gson.toJson(tabs, collectionType);
+            bpm.addMetaData("PROCESSBASE_TABSHEETS_LIST", metaDataString);
+            // create rule
+            for (String name : tabs.values()) {
+                try {
+                    Rule rule = bpm.findRule(name);
+                    if (rule == null) {
+                        rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
+                    }
+                    Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
+                    uis.add(new CustomUUID(name));
+                    bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            ((PbWindow)getApplication().getMainWindow()).showError(ex.getMessage());
         }
     }
 
@@ -228,7 +260,7 @@ public class DevelopmentPanel extends PbPanelModule
 
     @Override
     public String getTitle(Locale locale) {
-        ResourceBundle rb = PbResourceBundle.getBundle("resources/MessagesBundle", locale);
+        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
         return rb.getString("bpmDevelopment");
     }
 }

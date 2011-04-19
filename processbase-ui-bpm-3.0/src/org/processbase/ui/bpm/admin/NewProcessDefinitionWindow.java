@@ -56,7 +56,7 @@ public class NewProcessDefinitionWindow extends PbWindow
 
     public void initUI() {
         try {
-            setCaption(((Processbase)getApplication()).getMessages().getString("newProcessDefinition"));
+            setCaption(((Processbase)getApplication()).getPbMessages().getString("newProcessDefinition"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -64,7 +64,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(((Processbase)getApplication()).getMessages().getString("btnUpload"));
+            upload.setButtonCaption(((Processbase)getApplication()).getPbMessages().getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -89,11 +89,11 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = ((Processbase)getApplication()).getBpmModule().deploy(businessArchive, ((Processbase)getApplication()).getMessages().getString("emptyCategory"));
-                showInformation(((Processbase)getApplication()).getMessages().getString("processUploaded") + ": " + deployResult.getLabel());
+                ProcessDefinition deployResult = ((Processbase)getApplication()).getBpmModule().deploy(businessArchive, ((Processbase)getApplication()).getPbMessages().getString("emptyCategory"));
+                showInformation(((Processbase)getApplication()).getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {
                 ((Processbase)getApplication()).getBpmModule().deployJar(originalFilename, readData);
-                showWarning(((Processbase)getApplication()).getMessages().getString("jarUploaded") + ": " + originalFilename);
+                showWarning(((Processbase)getApplication()).getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();

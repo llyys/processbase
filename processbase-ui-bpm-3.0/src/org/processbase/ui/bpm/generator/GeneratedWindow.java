@@ -268,7 +268,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             component.setReadOnly(widgets.getReadOnly() != null ? widgets.getReadOnly() : false);
             if (component instanceof AbstractField) {
                 ((AbstractField) component).setRequired(widgets.getMandatory() != null ? widgets.getMandatory() : false);
-                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + ((Processbase) getApplication()).getMessages().getString("fieldRequired"));
+                ((AbstractField) component).setRequiredError(widgets.getDisplayLabel() + ((Processbase) getApplication()).getPbMessages().getString("fieldRequired"));
                 ((AbstractField) component).setDescription(widgets.getTooltip() != null ? widgets.getTooltip() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
@@ -289,11 +289,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase) getApplication()).getMessages().getString("validatorDoubleError")));
+                    + ((Processbase) getApplication()).getPbMessages().getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase) getApplication()).getMessages().getString("validatorIntegerError")));
+                    + ((Processbase) getApplication()).getPbMessages().getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -320,11 +320,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
             component.addValidator(
                     new DoubleValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase) getApplication()).getMessages().getString("validatorDoubleError")));
+                    + ((Processbase) getApplication()).getPbMessages().getString("validatorDoubleError")));
         } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
             component.addValidator(
                     new LongValidator((widgets.getLabel() != null ? widgets.getLabel() : widgets.getName()) + " "
-                    + ((Processbase) getApplication()).getMessages().getString("validatorIntegerError")));
+                    + ((Processbase) getApplication()).getPbMessages().getString("validatorIntegerError")));
         }
         component.setValue(value);
 //        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
@@ -402,7 +402,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             }
             ai = findAttachmentInstance(widgets.getInputScript());
         }
-        component = new ImmediateUpload(processUUID, widgets.getInputScript(), label, hasFile, readonly, ((Processbase) getApplication()).getMessages());
+        component = new ImmediateUpload(processUUID, widgets.getInputScript(), label, hasFile, readonly, ((Processbase) getApplication()).getPbMessages());
         return component;
     }
 

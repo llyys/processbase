@@ -49,12 +49,12 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("category", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionCategory"), null, null);
-        treeTable.addContainerProperty("processName", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcess"), null, null);
+        treeTable.addContainerProperty("category", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionCategory"), null, null);
+        treeTable.addContainerProperty("processName", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionProcess"), null, null);
         treeTable.setColumnExpandRatio("processName", 1);
-        treeTable.addContainerProperty("processDescription", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionDescription"), null, null);
+        treeTable.addContainerProperty("processDescription", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionDescription"), null, null);
         treeTable.setColumnExpandRatio("processDescription", 1);
-        treeTable.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionVersion"), null, null);
+        treeTable.addContainerProperty("version", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionVersion"), null, null);
         treeTable.setVisibleColumns(new Object[]{"category", "processName", "processDescription", "version"});
     }
 
@@ -139,7 +139,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 XMLProcessDefinition xmlProcess = ((Processbase) getApplication()).getBpmModule().getXMLProcessDefinition(process.getUUID());
                 FormsDefinition formsDefinition = ((Processbase) getApplication()).getBpmModule().getFormsDefinition(process.getUUID());
                 if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms() == null) {
-                    showError(((Processbase) getApplication()).getMessages().getString("ERROR_UI_NOT_DEFINED"));
+                    showError(((Processbase) getApplication()).getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms().size() > 0) {
                     GeneratedWindow2 genWindow = new GeneratedWindow2(process.getLabel());
                     genWindow.setProcessDef(process);
@@ -148,7 +148,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                     genWindow.initUI();
                 } else if (xmlProcess.isByPassFormsGeneration()) {
                     ((Processbase) getApplication()).getBpmModule().startNewProcess(process.getUUID());
-                    showImportantInformation(((Processbase) getApplication()).getMessages().getString("processStarted"));
+                    showImportantInformation(((Processbase) getApplication()).getPbMessages().getString("processStarted"));
                 }
             }
         } catch (Exception ex) {

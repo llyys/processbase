@@ -57,13 +57,13 @@ public class TaskList extends TablePanel implements Button.ClickListener {
         table.addContainerProperty("accepted", ThemeResource.class, null);
         table.setItemIconPropertyId("accepted");
         table.setColumnWidth("accepted", 30);
-        table.addContainerProperty("processName", Component.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionProcess"), null, null);
-        table.addContainerProperty("taskName", Label.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("processName", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("taskName", Label.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 1);
-        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 110);
-        table.addContainerProperty("expectedEndDate", Date.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionExpectedEndDate"), null, null);
+        table.addContainerProperty("expectedEndDate", Date.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionExpectedEndDate"), null, null);
         table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
         table.setColumnWidth("expectedEndDate", 110);
         table.setVisibleColumns(new Object[]{"processName", "taskName", "lastUpdate", "expectedEndDate"});
@@ -174,9 +174,9 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                 } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
                     ((Processbase) getApplication()).getBpmModule().startTask(task.getUUID(), true);
                     ((Processbase) getApplication()).getBpmModule().finishTask(task.getUUID(), true);
-                    showImportantInformation(((Processbase) getApplication()).getMessages().getString("taskExecuted"));
+                    showImportantInformation(((Processbase) getApplication()).getPbMessages().getString("taskExecuted"));
                 } else {
-                    showError(((Processbase) getApplication()).getMessages().getString("ERROR_UI_NOT_DEFINED"));
+                    showError(((Processbase) getApplication()).getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
                 }
             }
         } catch (Exception ex) {

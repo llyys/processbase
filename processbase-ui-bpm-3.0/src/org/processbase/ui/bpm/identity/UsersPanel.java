@@ -43,12 +43,12 @@ public class UsersPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("username", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionUsername"), null, null);
+        table.addContainerProperty("username", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionUsername"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLastname"), null, null);
-        table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionFirstname"), null, null);
-        table.addContainerProperty("email", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionEmail"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLastname"), null, null);
+        table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionFirstname"), null, null);
+        table.addContainerProperty("email", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionEmail"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -65,7 +65,7 @@ public class UsersPanel extends TablePanel implements
                 woItem.getItemProperty("lastname").setValue(user.getLastName());
                 woItem.getItemProperty("firstname").setValue(user.getFirstName());
                 woItem.getItemProperty("email").setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
-                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", user, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", user, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
@@ -101,10 +101,10 @@ public class UsersPanel extends TablePanel implements
 
     private void removeUser(final User user) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("removeUser") + "?",
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("removeUser") + "?",
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

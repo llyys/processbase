@@ -225,7 +225,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 if (widget.isMandatory() != null) {
                     ((AbstractField) component).setRequired(widget.isMandatory());
                 }
-                ((AbstractField) component).setRequiredError(widget.getLabel() + ((Processbase) getApplication()).getMessages().getString("fieldRequired"));
+                ((AbstractField) component).setRequiredError(widget.getLabel() + ((Processbase) getApplication()).getPbMessages().getString("fieldRequired"));
                 ((AbstractField) component).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
@@ -342,7 +342,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
             }
 //            ai = findAttachmentInstance(widget.getInputScript());
         }
-        component = new ImmediateUpload(processUUID, widget.getLabel(), label, hasFile, widget.isReadonly(), ((Processbase) getApplication()).getMessages());
+        component = new ImmediateUpload(processUUID, widget.getLabel(), label, hasFile, widget.isReadonly(), ((Processbase) getApplication()).getPbMessages());
         return component;
     }
 

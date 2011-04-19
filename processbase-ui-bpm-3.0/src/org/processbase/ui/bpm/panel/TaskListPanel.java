@@ -66,7 +66,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
-        myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+        myTaskListBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
 
         taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
@@ -95,32 +95,32 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare myNewProcessesBtn button
-        myNewProcessesBtn = new Button(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"), this);
+        myNewProcessesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("myNewProcessesBtn"), this);
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myNewProcessesBtn, 0);
         buttonBar.setComponentAlignment(myNewProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        myTaskListBtn = new Button(((Processbase)getApplication()).getMessages().getString("myTaskListBtn"), this);
+        myTaskListBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("myTaskListBtn"), this);
         myTaskListBtn.setStyleName("special");
         myTaskListBtn.setEnabled(false);
         buttonBar.addComponent(myTaskListBtn, 1);
         buttonBar.setComponentAlignment(myTaskListBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        myProcessesBtn = new Button(((Processbase)getApplication()).getMessages().getString("myProcessesBtn"), this);
+        myProcessesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("myProcessesBtn"), this);
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myProcessesBtn, 2);
         buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskCompletedBtn button
-        myTaskCompletedBtn = new Button(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn"), this);
+        myTaskCompletedBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("myTaskCompletedBtn"), this);
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myTaskCompletedBtn, 3);
         buttonBar.setComponentAlignment(myTaskCompletedBtn, Alignment.MIDDLE_LEFT);
 
         // prepare help button
-        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
@@ -140,32 +140,32 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
             setCurrentPanel(panel);
         }
         if (!myTaskListBtn.isEnabled()) {
-            myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+            myTaskListBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
-            myProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
+            myProcessesBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
         } else if (!myTaskCompletedBtn.isEnabled()) {
-            myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
+            myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
         } else if (!myNewProcessesBtn.isEnabled()) {
-            myNewProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"));
+            myNewProcessesBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myNewProcessesBtn"));
         }
     }
 
     private void activateButtons() {
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myProcessesBtn.setEnabled(true);
-        myProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myProcessesBtn"));
+        myProcessesBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myProcessesBtn"));
 
         myTaskListBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskListBtn.setEnabled(true);
-        myTaskListBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskListBtn"));
+        myTaskListBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myTaskListBtn"));
 
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskCompletedBtn.setEnabled(true);
-        myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myTaskCompletedBtn"));
+        myTaskCompletedBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myTaskCompletedBtn"));
 
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myNewProcessesBtn.setEnabled(true);
-        myNewProcessesBtn.setCaption(((Processbase)getApplication()).getMessages().getString("myNewProcessesBtn"));
+        myNewProcessesBtn.setCaption(((Processbase)getApplication()).getPbMessages().getString("myNewProcessesBtn"));
     }
 
     @Override

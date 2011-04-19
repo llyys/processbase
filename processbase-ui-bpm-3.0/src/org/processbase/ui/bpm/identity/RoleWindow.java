@@ -51,9 +51,9 @@ public class RoleWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (role == null) {
-                setCaption(((Processbase) getApplication()).getMessages().getString("newRole"));
+                setCaption(((Processbase) getApplication()).getPbMessages().getString("newRole"));
             } else {
-                setCaption(((Processbase) getApplication()).getMessages().getString("role"));
+                setCaption(((Processbase) getApplication()).getPbMessages().getString("role"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -61,11 +61,11 @@ public class RoleWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnCancel"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
-            roleName = new TextField(((Processbase) getApplication()).getMessages().getString("roleName"));
-            roleLabel = new TextField(((Processbase) getApplication()).getMessages().getString("roleLabel"));
-            roleDescription = new TextArea(((Processbase) getApplication()).getMessages().getString("roleDescription"));
+            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
+            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
+            roleName = new TextField(((Processbase) getApplication()).getPbMessages().getString("roleName"));
+            roleLabel = new TextField(((Processbase) getApplication()).getPbMessages().getString("roleLabel"));
+            roleDescription = new TextArea(((Processbase) getApplication()).getPbMessages().getString("roleDescription"));
 
             roleName.setWidth("270px");
             addComponent(roleName);

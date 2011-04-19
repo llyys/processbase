@@ -44,11 +44,11 @@ public class RolesPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLabel"), null, null);
-        table.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionDescription"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -65,7 +65,7 @@ public class RolesPanel extends TablePanel implements
                 woItem.getItemProperty("label").setValue(role.getLabel());
                 woItem.getItemProperty("description").setValue(role.getDescription());
                 if (!role.getName().equals(IdentityAPI.ADMIN_ROLE_NAME) && !role.getName().equals(IdentityAPI.USER_ROLE_NAME)) {
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             }
@@ -102,10 +102,10 @@ public class RolesPanel extends TablePanel implements
 
     private void removeRole(final Role role) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("removeRole") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ((Processbase)getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getPbMessages().getString("removeRole") + "?",
+                ((Processbase)getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

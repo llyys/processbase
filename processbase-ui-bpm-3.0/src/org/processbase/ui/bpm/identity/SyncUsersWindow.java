@@ -54,7 +54,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
 
     public void initUI() {
         try {
-            setCaption(((Processbase) getApplication()).getMessages().getString("syncUsers"));
+            setCaption(((Processbase) getApplication()).getPbMessages().getString("syncUsers"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -62,7 +62,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
             layout.addComponent(table);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
+            closeBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnClose"), this);
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -73,13 +73,13 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
 //            setHeight("70%");
             setResizable(false);
 
-            table.addContainerProperty("username", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionUsername"), null, null);
-            table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLastname"), null, null);
-            table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionFirstname"), null, null);
-            table.addContainerProperty("liferayStatus", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionLiferayStatus"), null, null);
-            table.addContainerProperty("bonitaStatus", String.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionBonitaStatus"), null, null);
+            table.addContainerProperty("username", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionUsername"), null, null);
+            table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLastname"), null, null);
+            table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionFirstname"), null, null);
+            table.addContainerProperty("liferayStatus", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLiferayStatus"), null, null);
+            table.addContainerProperty("bonitaStatus", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionBonitaStatus"), null, null);
 //        table.addContainerProperty("state", String.class, null, PbPortlet.getCurrent().messages.getString("tableCaptionState"), null, null);
-            table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+            table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
             table.setColumnWidth("actions", 50);
             table.setSelectable(false);
             table.setImmediate(true);
@@ -127,21 +127,21 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
             woItem.getItemProperty("firstname").setValue(getBonitaUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
             woItem.getItemProperty("liferayStatus").setValue("ABSENT");
-            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
             woItem.getItemProperty("actions").setValue(tlb);
         } else if (usersMap.get(userName).equals("LIFERAY")) {
             woItem.getItemProperty("lastname").setValue(getLiferayUser(userName).getLastName());
             woItem.getItemProperty("firstname").setValue(getLiferayUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ABSENT");
             woItem.getItemProperty("liferayStatus").setValue(getLiferayUser(userName).isActive() ? "ACTIVE" : "DISABLED");
-            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("addToBonita"), "icons/accept.png", userName, this, Constants.ACTION_ADD);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("addToBonita"), "icons/accept.png", userName, this, Constants.ACTION_ADD);
             woItem.getItemProperty("actions").setValue(tlb);
         } else if (usersMap.get(userName).equals("BOTH")) {
             woItem.getItemProperty("lastname").setValue(getLiferayUser(userName).getLastName());
             woItem.getItemProperty("firstname").setValue(getLiferayUser(userName).getFirstName());
             woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
             woItem.getItemProperty("liferayStatus").setValue(getLiferayUser(userName).isActive() ? "ACTIVE" : "DISABLED");
-            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
+            TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, this, Constants.ACTION_DELETE);
             woItem.getItemProperty("actions").setValue(tlb);
         }
     }
@@ -200,10 +200,10 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     private void addToBonita(final String userName) {
         final SyncUsersWindow suw = this;
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("addToBonita") + "?",
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("addToBonita") + "?",
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -218,7 +218,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                                         "", "", "", "", "", "", "", "", "", "");
                                 Item woItem = table.getItem(userName);
                                 woItem.getItemProperty("bonitaStatus").setValue("ACTIVE");
-                                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, suw, Constants.ACTION_DELETE);
+                                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("deleteFromBonita"), "icons/cancel.png", userName, suw, Constants.ACTION_DELETE);
                                 woItem.getItemProperty("actions").setValue(tlb);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -231,10 +231,10 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
     private void deleteFromBonita(final String userName) {
         final SyncUsersWindow suw = this;
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getMessages().getString("deleteFromBonita") + "?",
-                ((Processbase) getApplication()).getMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getMessages().getString("btnNo"),
+                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase) getApplication()).getPbMessages().getString("deleteFromBonita") + "?",
+                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -244,7 +244,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                                 Item woItem = table.getItem(userName);
                                 if (woItem.getItemProperty("liferayStatus").getValue().equals("ACTIVE")) {
                                     woItem.getItemProperty("bonitaStatus").setValue("ABSENT");
-                                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getMessages().getString("addToBonita"), "icons/accept.png", userName, suw, Constants.ACTION_ADD);
+                                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("addToBonita"), "icons/accept.png", userName, suw, Constants.ACTION_ADD);
                                     woItem.getItemProperty("actions").setValue(tlb);
                                 } else {
                                     table.removeItem(userName);

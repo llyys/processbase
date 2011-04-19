@@ -44,11 +44,11 @@ public class GroupsPanel extends TreeTablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionName"), null, null);
+        treeTable.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
         treeTable.setColumnExpandRatio("name", 1);
-        treeTable.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionLabel"), null, null);
-        treeTable.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionDescription"), null, null);
-        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        treeTable.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLabel"), null, null);
+        treeTable.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionDescription"), null, null);
+        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
         treeTable.setImmediate(true);
     }
 
@@ -65,7 +65,7 @@ public class GroupsPanel extends TreeTablePanel implements
                 woItem.getItemProperty("label").setValue(group.getLabel());
                 woItem.getItemProperty("description").setValue(group.getDescription());
                 if (!group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
-                    TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
+                    TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
                     woItem.getItemProperty("actions").setValue(tlb);
                 }
             }
@@ -111,10 +111,10 @@ public class GroupsPanel extends TreeTablePanel implements
 
     private void removeGroup(final Group group) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("removeGroup") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ((Processbase)getApplication()).getPbMessages().getString("windowCaptionConfirm"),
+                ((Processbase)getApplication()).getPbMessages().getString("removeGroup") + "?",
+                ((Processbase)getApplication()).getPbMessages().getString("btnYes"),
+                ((Processbase)getApplication()).getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
