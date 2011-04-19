@@ -44,12 +44,15 @@ public interface Processbase {
 //    public User getPortalUser();
 //
 //    public void setPortalUser(User portalUser);
-
     public BPMModule getBpmModule();
 
     public void setBpmModule(BPMModule bpmModule);
 
-    public ResourceBundle getMessages();
+    public ResourceBundle getPbMessages();
+
+    public ResourceBundle getCustomMessages();
+
+    public void setCustomMessages(ResourceBundle customMessages);
 
     public void setMessages(ResourceBundle messages);
 

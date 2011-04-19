@@ -62,7 +62,7 @@ public class PbWindow extends Window {
         } else {
             desc.append("<br/> null");
         }
-        showNotification(((Processbase)getApplication()).getMessages().getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
+        showNotification(((Processbase)getApplication()).getPbMessages().getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
 
     }
 
@@ -79,13 +79,13 @@ public class PbWindow extends Window {
         }
         switch (type) {
             case Notification.TYPE_WARNING_MESSAGE:
-                showNotification(((Processbase)getApplication()).getMessages().getString("warningCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getPbMessages().getString("warningCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_HUMANIZED_MESSAGE:
-                showNotification(((Processbase)getApplication()).getMessages().getString("informationCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getPbMessages().getString("informationCaption"), desc.substring(0), type);
                 break;
             case Notification.TYPE_ERROR_MESSAGE:
-                showNotification(((Processbase)getApplication()).getMessages().getString("exceptionCaption"), desc.substring(0), type);
+                showNotification(((Processbase)getApplication()).getPbMessages().getString("exceptionCaption"), desc.substring(0), type);
                 break;
         }
     }

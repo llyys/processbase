@@ -69,4 +69,10 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
     public Object getTableValue(){
         return table.getValue();
     }
+
+    public Table getTable() {
+        return table;
+    }
+
+
 }

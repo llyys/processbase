@@ -112,7 +112,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public void initUI() {
         currentUserName = ((Processbase) getApplication()).getUserName();
         bpmModule = ((Processbase) getApplication()).getBpmModule();
-        messages = ((Processbase) getApplication()).getMessages();
+        messages = ((Processbase) getApplication()).getPbMessages();
         commentEditor = new RichTextArea(messages.getString("addComment"));
         addCommentBtn = new Button(messages.getString("btnSave"), (Button.ClickListener) this);
 
