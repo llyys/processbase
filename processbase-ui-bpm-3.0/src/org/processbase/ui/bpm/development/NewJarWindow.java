@@ -31,16 +31,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
-import org.ow2.bonita.facade.privilege.Rule;
-import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.PbWindow;
 

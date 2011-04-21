@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,8 @@
  */
 package org.processbase.ui.bpm.development;
 
-import org.processbase.ui.bpm.admin.*;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -30,15 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.themes.Runo;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,8 +36,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.Role;

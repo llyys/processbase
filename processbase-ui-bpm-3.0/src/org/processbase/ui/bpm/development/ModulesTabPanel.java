@@ -20,26 +20,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.vaadin.data.Item;
-import java.io.IOException;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
-import java.io.File;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.Processbase;
-import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.osgi.PbPanelModuleService;
@@ -136,7 +132,17 @@ public class ModulesTabPanel extends TablePanel implements
                     ex.printStackTrace();
                     showError(ex.getMessage());
                 }
-            } else if (execBtn.getAction().equals(Constants.ACTION_ADD)) {
+            } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+                try {
+                    System.out.println("----------------------------------------------");
+                    System.out.println(Class.forName(moduleName));
+                    System.out.println(Class.forName(moduleName).getClassLoader().getClass().getCanonicalName());
+                    System.out.println(Class.forName(moduleName).getAnnotations().length);
+                    System.out.println(Class.forName(moduleName).getDeclaredAnnotations());
+                    System.out.println("----------------------------------------------");
+                } catch (ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }

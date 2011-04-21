@@ -32,7 +32,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -40,11 +39,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.ow2.bonita.facade.uuid.RuleExceptionUUID;
 import org.processbase.ui.bpm.development.ModulesJarPanel;
 import org.processbase.ui.bpm.development.ModulesTabPanel;
 import org.processbase.ui.bpm.development.NewJarWindow;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ConfirmDialog;
@@ -227,8 +226,9 @@ public class DevelopmentPanel extends PbPanelModule
             int i = 0;
             for (Object o : tableIds) {
                 String name = o.toString();
-                Item item = modulesTabPanel.getTable().getItem(o);
-                if (item.getItemProperty("inOSGI").getValue().equals(Boolean.TRUE)) {
+                Item item = modulesTabPanel.getTable().getItem(name);
+                Boolean inOSGI = new Boolean(item.getItemProperty("inOSGI").getValue().toString());
+                if (inOSGI) {
                     Integer order = new Integer(item.getItemProperty("order").getValue().toString());
                     tabs.put(order, name);
                 }
@@ -242,8 +242,8 @@ public class DevelopmentPanel extends PbPanelModule
                     if (rule == null) {
                         rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
                     }
-                    Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
-                    uis.add(new CustomUUID(name));
+                    Set<RuleExceptionUUID> uis = new HashSet<RuleExceptionUUID>(1);
+                    uis.add(new RuleExceptionUUID(name));
                     bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
                 } catch (Exception ex) {
                     ex.printStackTrace();
