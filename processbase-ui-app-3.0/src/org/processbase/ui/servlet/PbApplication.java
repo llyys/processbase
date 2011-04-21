@@ -42,6 +42,7 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
     private HttpSession httpSession = null;
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
+    private ResourceBundle customMessages = null;
     private String userName = null;
     int type = STANDALONE;
 
@@ -89,7 +90,7 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
             setBpmModule(bpmm);
             mainWindow.initUI();
         } else {
-            throw new Exception(getMessages().getString("loginWindowException2"));
+            throw new Exception(getPbMessages().getString("loginWindowException2"));
         }
     }
 
@@ -121,7 +122,7 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
         this.bpmModule = bpmModule;
     }
 
-    public ResourceBundle getMessages() {
+    public ResourceBundle getPbMessages() {
         return messages;
     }
 
@@ -161,5 +162,11 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
         return panelModuleService;
     }
 
-    
+    public ResourceBundle getCustomMessages() {
+        return customMessages;
+    }
+
+    public void setCustomMessages(ResourceBundle customMessages) {
+        this.customMessages = customMessages;
+    }
 }

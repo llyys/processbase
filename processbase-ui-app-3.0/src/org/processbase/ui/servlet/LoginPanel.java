@@ -49,17 +49,17 @@ public class LoginPanel extends GridLayout implements Handler {
 
         panel.setWidth("285px");
 
-        username.setCaption(((PbApplication)getApplication()).getMessages().getString("userName"));
+        username.setCaption(((PbApplication)getApplication()).getPbMessages().getString("userName"));
         form.addComponent(username);
         username.setWidth("100%");
         username.focus();
 
-        password.setCaption(((PbApplication)getApplication()).getMessages().getString("password"));
+        password.setCaption(((PbApplication)getApplication()).getPbMessages().getString("password"));
         password.setSecret(true);
         password.setWidth("100%");
         form.addComponent(password);
 
-        btnLogin = new Button(((PbApplication)getApplication()).getMessages().getString("login"), this, "okHandler");
+        btnLogin = new Button(((PbApplication)getApplication()).getPbMessages().getString("login"), this, "okHandler");
         btnLogin.setStyleName(Runo.BUTTON_DEFAULT);
         action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
         form.addComponent(btnLogin);

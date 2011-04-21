@@ -39,6 +39,7 @@ import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.osgi.PbPanelModuleService;
 
 /**
  *
@@ -168,7 +169,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
         this.bpmModule = bpmModule;
     }
 
-    public ResourceBundle getMessages() {
+    public ResourceBundle getPbMessages() {
         return messages;
     }
 
@@ -226,5 +227,17 @@ public class PbPortlet extends Application implements Processbase, PortletReques
 
     public byte[] getFileBody(String processUUID, String name) throws Exception {
         return getDocumentLibrary().getFileBody(processUUID, name);
+    }
+
+    public PbPanelModuleService getPanelModuleService() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public ResourceBundle getCustomMessages() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setCustomMessages(ResourceBundle customMessages) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

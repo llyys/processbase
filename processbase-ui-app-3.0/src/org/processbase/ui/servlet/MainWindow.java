@@ -1,5 +1,8 @@
 package org.processbase.ui.servlet;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
@@ -17,8 +20,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
+import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.TreeMap;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
@@ -136,7 +143,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         header.setComponentAlignment(helloUser, Alignment.MIDDLE_RIGHT);
         header.setExpandRatio(helloUser, 1.0f);
 
-        Button profile = new Button(((PbApplication) getApplication()).getMessages().getString("btnProfile"), new Button.ClickListener() {
+        Button profile = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnProfile"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 openProfileWindow();
@@ -146,7 +153,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         header.addComponent(profile);
         header.setComponentAlignment(profile, Alignment.MIDDLE_RIGHT);
 
-        Button logout = new Button(((PbApplication) getApplication()).getMessages().getString("btnLogout"), new Button.ClickListener() {
+        Button logout = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 openLogoutWindow();
@@ -160,7 +167,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     void openLogoutWindow() {
-        Window logout = new Window(((PbApplication) getApplication()).getMessages().getString("btnLogout"));
+        Window logout = new Window(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"));
         logout.setModal(true);
 //        logout.setStyleName(Reindeer.WINDOW_BLACK);
         logout.setWidth("260px");
@@ -176,7 +183,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
-        Button yes = new Button(((PbApplication) getApplication()).getMessages().getString("btnLogout"), new Button.ClickListener() {
+        Button yes = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 WebApplicationContext applicationContext = (WebApplicationContext) getApplication().getContext();
@@ -187,7 +194,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         yes.setStyleName(Reindeer.BUTTON_DEFAULT);
         yes.focus();
         buttons.addComponent(yes);
-        Button no = new Button(((PbApplication) getApplication()).getMessages().getString("btnCancel"), new Button.ClickListener() {
+        Button no = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnCancel"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 removeWindow(event.getButton().getWindow());
@@ -213,11 +220,10 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     private void openProfileWindow() {
-        prepareTabs();
-//        UserWindow nuw = new UserWindow(user);
-//        getWindow().addWindow(nuw);
-//        nuw.initUI();
-//        nuw.setProfileView();
+        ProfileWindow nuw = new ProfileWindow(user);
+        getWindow().addWindow(nuw);
+        nuw.initUI();
+        nuw.setProfileView();
     }
 
     private void defineAccess() throws Exception {
@@ -256,16 +262,29 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         }
     }
 
-    private void prepareTabs() {
+    private void prepareTabs() throws Exception {
         Locale locale = getApplication().getLocale();
+        GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        Gson gson = gb.create();
+        Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>(){}.getType();
+        TreeMap<Integer, String> tabList = new TreeMap<Integer, String>();
+        String metaDataString = ((Processbase) getApplication()).getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
+        if (metaDataString != null) {
+                LinkedHashMap<Integer, String> tabs2 = gson.fromJson(metaDataString, collectionType);
+            if (!tabs2.isEmpty()) {
+                tabList.putAll(tabs2);
+            }
+        }
         PbPanelModuleService pms = ((PbApplication) getApplication()).getPanelModuleService();
-        for (String moduleName : pms.getModules().keySet()) {
-            System.out.println("moduleName = " + moduleName);
-            PbPanelModule pm = pms.getModules().get(moduleName);
-            tabs.addTab(pm, pm.getTitle(locale), null);
+        for (String name : tabList.values()) {
+            System.out.println("moduleName = " + name);
+            PbPanelModule pm = pms.getModules().get(name);
+            if (pm != null) {
+                tabs.addTab(pm, pm.getTitle(locale), null);
+            }
         }
         if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
-             PbPanel first = (PbPanel) tabs.getSelectedTab();
+            PbPanel first = (PbPanel) tabs.getSelectedTab();
             first.initUI();
             first.setInitialized(true);
             first.setSizeFull();
