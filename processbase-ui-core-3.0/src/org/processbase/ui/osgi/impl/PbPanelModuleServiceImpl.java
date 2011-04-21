@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.ow2.bonita.facade.uuid.RuleExceptionUUID;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.CustomUUID;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
@@ -74,8 +74,8 @@ public class PbPanelModuleServiceImpl implements PbPanelModuleService {
         try {
             BPMModule bpm = new BPMModule("osgi");
             Rule rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
-            Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
-            uis.add(new CustomUUID(name));
+            Set<RuleExceptionUUID> uis = new HashSet<RuleExceptionUUID>(1);
+            uis.add(new RuleExceptionUUID(name));
             bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
         } catch (Exception ex) {
             ex.printStackTrace();

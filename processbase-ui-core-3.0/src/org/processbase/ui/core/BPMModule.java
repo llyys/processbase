@@ -460,12 +460,25 @@ public class BPMModule {
         managementAPI.addExceptionsToRuleByUUID(ruleUUID, exceptions);
     }
 
+    public <E extends AbstractUUID> void removeExceptionsFromRuleByUUID(final String ruleUUID, final Set<E> exceptions) throws Exception{
+        initContext();
+        managementAPI.removeExceptionsFromRuleByUUID(ruleUUID, exceptions);
+    }
+
     public void deployJar(String jarName, byte[] body) throws Exception {
         initContext();
         if (managementAPI.getAvailableJars().contains(jarName)) {
             managementAPI.removeJar(jarName);
         }
         managementAPI.deployJar(jarName, body);
+    }
+
+    public void removeJar(String jarName) throws Exception {
+        initContext();
+        if (managementAPI.getAvailableJars().contains(jarName)) {
+            managementAPI.removeJar(jarName);
+        }
+        managementAPI.removeJar(jarName);
     }
 
     public void deleteProcess(ProcessDefinition pd) throws UndeletableInstanceException, UndeletableProcessException, ProcessNotFoundException, Exception {
