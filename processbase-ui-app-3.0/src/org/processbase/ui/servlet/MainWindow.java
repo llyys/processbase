@@ -280,7 +280,12 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             System.out.println("moduleName = " + name);
             PbPanelModule pm = pms.getModules().get(name);
             if (pm != null) {
+                try {
                 tabs.addTab(pm, pm.getTitle(locale), null);
+                } catch (Exception ex){
+                    System.out.println("Exception with pm = " + pm.getName());
+                    ex.printStackTrace();
+                }
             }
         }
         if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
