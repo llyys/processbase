@@ -149,16 +149,19 @@ public class NewJarWindow extends PbWindow
             // save metadata
             GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
             Gson gson = gb.create();
-            Type collectionType = new TypeToken<LinkedList<String>>() {}.getType();
+            Type collectionType = new TypeToken<LinkedList<String>>() {
+            }.getType();
             LinkedList<String> jarList = new LinkedList<String>();
             String metaDataString = bpm.getMetaData("PROCESSBASE_UI_JAR_LIST");
             if (metaDataString != null) {
                 LinkedList<String> savedJarList = gson.fromJson(metaDataString, collectionType);
-                if (!savedJarList.isEmpty()){
+                if (!savedJarList.isEmpty()) {
                     jarList.addAll(savedJarList);
                 }
             }
-            jarList.add(name);
+            if (!jarList.contains(name)) {
+                jarList.add(name);
+            }
             metaDataString = gson.toJson(jarList, collectionType);
             bpm.addMetaData("PROCESSBASE_UI_JAR_LIST", metaDataString);
             // create rule

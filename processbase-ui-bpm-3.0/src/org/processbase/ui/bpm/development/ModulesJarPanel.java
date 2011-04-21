@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,7 +59,7 @@ public class ModulesJarPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("fileName", TableLinkButton.class, null, "File Name", null, null);
+        table.addContainerProperty("fileName", Component.class, null, "File Name", null, null);
 //        table.setColumnExpandRatio("fileName", 1);
         table.addContainerProperty("bungleName", String.class, null, "Bundle-Name", null, null);
         table.addContainerProperty("bungleVersion", String.class, null, "Bundle-Version", null, null);
@@ -85,7 +87,7 @@ public class ModulesJarPanel extends TablePanel implements
             }
             for (String name : jarList) {
                 Item woItem = table.addItem(name);
-                TableLinkButton teb = new TableLinkButton(name, name, null, name, this, Constants.ACTION_OPEN);
+                Label teb = new Label(name);
 
 
                 Attributes mainAttributes = getManifestAttributes(name);
@@ -198,11 +200,6 @@ public class ModulesJarPanel extends TablePanel implements
             jarList.remove(name);
             metaDataString = gson.toJson(jarList, collectionType);
             bpm.addMetaData("PROCESSBASE_UI_JAR_LIST", metaDataString);
-            // create rule
-//            Rule rule = bpm.createRule(name, name, name, RuleType.CUSTOM);
-//            Set<CustomUUID> uis = new HashSet<CustomUUID>(1);
-//            uis.add(new CustomUUID(name));
-//            bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
