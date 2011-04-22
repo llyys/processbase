@@ -22,8 +22,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-
-import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.PortletRequestListener;
 import java.util.Locale;
@@ -37,7 +35,7 @@ import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
@@ -45,7 +43,7 @@ import org.processbase.ui.osgi.PbPanelModuleService;
  *
  * @author mgubaidullin
  */
-public class PbPortlet extends Application implements Processbase, PortletRequestListener {
+public class PbPortlet extends ProcessbaseApplication implements PortletRequestListener {
 
     PbWindow mainWindow;
     PortletApplicationContext2 portletApplicationContext2 = null;
@@ -59,8 +57,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
     int type = LIFERAY_PORTAL;
     private boolean inited = false;
 
-    @Override
-    public void init() {
+    public void initUI() {
 //        System.out.println("PbPortlet init ");
         setTheme("processbase");
         setLogoutURL(Constants.TASKLIST_PAGE_URL);
@@ -218,7 +215,7 @@ public class PbPortlet extends Application implements Processbase, PortletReques
     }
 
     public int getApplicationType() {
-        return Processbase.LIFERAY_PORTAL;
+        return ProcessbaseApplication.LIFERAY_PORTAL;
     }
 
     public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception{

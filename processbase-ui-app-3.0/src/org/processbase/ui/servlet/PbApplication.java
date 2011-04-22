@@ -16,15 +16,13 @@
  */
 package org.processbase.ui.servlet;
 
-import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
@@ -35,7 +33,7 @@ import org.processbase.ui.osgi.PbPanelModuleServiceListener;
  */
 @SessionScoped
 @SuppressWarnings("serial")
-public class PbApplication extends Application implements Processbase, PbPanelModuleServiceListener {
+public class PbApplication extends ProcessbaseApplication implements PbPanelModuleServiceListener {
 
     private PbPanelModuleService panelModuleService;
     private MainWindow mainWindow;
@@ -44,20 +42,18 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
     private ResourceBundle messages = null;
     private ResourceBundle customMessages = null;
     private String userName = null;
-    int type = STANDALONE;
+//    int type = STANDALONE;
 
     public PbApplication(PbPanelModuleService panelModuleService) {
         this.panelModuleService = panelModuleService;
     }
 
-    @Override
-    public void init() {
-//        System.out.println("PbApplication init ");
-        if (!Constants.LOADED) {
-            Constants.loadConstants();
-        }
+    public void initUI() {
+        System.out.println("PbApplication init ");
+//        if (!Constants.LOADED) {
+//            Constants.loadConstants();
+//        }
         setTheme("processbaseruno");
-//        setLogoutURL(Constants.TASKLIST_PAGE_URL);
         try {
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
             httpSession = applicationContext.getHttpSession();
@@ -130,16 +126,8 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
         this.messages = messages;
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public int getApplicationType() {
-        return Processbase.STANDALONE;
+        return ProcessbaseApplication.STANDALONE;
     }
 
     public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception {
@@ -169,4 +157,5 @@ public class PbApplication extends Application implements Processbase, PbPanelMo
     public void setCustomMessages(ResourceBundle customMessages) {
         this.customMessages = customMessages;
     }
+
 }

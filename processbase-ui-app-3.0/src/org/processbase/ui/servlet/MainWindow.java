@@ -23,14 +23,13 @@ import com.vaadin.ui.themes.Runo;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Locale;
 import java.util.TreeMap;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.osgi.PbPanelModule;
@@ -86,27 +85,27 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
 //            if (accessSet.contains("tasklist")) {
 //                consolePanel = new TaskListPanel();
-//                tabs.addTab(consolePanel, ((Processbase) getApplication()).getMessages().getString("bpmTasklist"), null);
+//                tabs.addTab(consolePanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmTasklist"), null);
 //            }
 //            if (accessSet.contains("bpm")) {
 //                bpmConfigurationPanel = new BPMConfigurationPanel();
-//                tabs.addTab(bpmConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bpmAdmin"), null);
+//                tabs.addTab(bpmConfigurationPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmAdmin"), null);
 //            }
 //            if (accessSet.contains("identity")) {
 //                identityPanel = new IdentityPanel();
-//                tabs.addTab(identityPanel, ((Processbase) getApplication()).getMessages().getString("bpmIdentity"), null);
+//                tabs.addTab(identityPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmIdentity"), null);
 //            }
 //            if (accessSet.contains("bam")) {
 //                bamConfigurationPanel = new BAMConfigurationPanel();
-//                tabs.addTab(bamConfigurationPanel, ((Processbase) getApplication()).getMessages().getString("bamAdmin"), null);
+//                tabs.addTab(bamConfigurationPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bamAdmin"), null);
 //            }
 //            if (accessSet.contains("monitoring")) {
 //                bpmMonitoringPanel = new BPMMonitoringPanel();
-//                tabs.addTab(bpmMonitoringPanel, ((Processbase) getApplication()).getMessages().getString("bpmMonitoring"), null);
+//                tabs.addTab(bpmMonitoringPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmMonitoring"), null);
 //            }
 //            if (accessSet.contains("development")) {
 //                developmentPanel = new DevelopmentPanel();
-//                tabs.addTab(developmentPanel, ((Processbase) getApplication()).getMessages().getString("bpmDevelopment"), null);
+//                tabs.addTab(developmentPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmDevelopment"), null);
 //            }
 //
 //            if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
@@ -228,8 +227,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
     private void defineAccess() throws Exception {
         accessSet = new HashSet<String>();
-        String userName = ((Processbase) getApplication()).getUserName();
-        BPMModule bpmModule = ((Processbase) getApplication()).getBpmModule();
+        String userName = ProcessbaseApplication.getCurrent().getUserName();
+        BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         user = bpmModule.findUserByUserName(userName);
         for (Membership membership : user.getMemberships()) {
             if (membership.getGroup().getParentGroup() != null && membership.getGroup().getParentGroup().getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
@@ -268,7 +267,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         Gson gson = gb.create();
         Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>(){}.getType();
         TreeMap<Integer, String> tabList = new TreeMap<Integer, String>();
-        String metaDataString = ((Processbase) getApplication()).getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
+        String metaDataString = ProcessbaseApplication.getCurrent().getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
         if (metaDataString != null) {
                 LinkedHashMap<Integer, String> tabs2 = gson.fromJson(metaDataString, collectionType);
             if (!tabs2.isEmpty()) {

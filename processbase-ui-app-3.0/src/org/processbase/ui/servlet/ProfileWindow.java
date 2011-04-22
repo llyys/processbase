@@ -43,7 +43,7 @@ import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -82,9 +82,9 @@ public class ProfileWindow extends PbWindow
     public void initUI() {
         try {
             if (user == null) {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("newUser"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newUser"));
             } else {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("user"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("user"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -93,15 +93,15 @@ public class ProfileWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
             layout.setSizeFull();
 
-            addBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnAdd"), this);
-            closeBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnClose"), this);
-            saveBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
-            userFirstName = new TextField(((Processbase) getApplication()).getPbMessages().getString("userFirstName"));
-            userLastName = new TextField(((Processbase) getApplication()).getPbMessages().getString("userLastName"));
-            userName = new TextField(((Processbase) getApplication()).getPbMessages().getString("userName"));
-            userEmail = new TextField(((Processbase) getApplication()).getPbMessages().getString("userEmail"));
-            userJobTitle = new TextField(((Processbase) getApplication()).getPbMessages().getString("userJobTitle"));
-            password = new PasswordField(((Processbase) getApplication()).getPbMessages().getString("password"));
+            addBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
+            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            userFirstName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userFirstName"));
+            userLastName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userLastName"));
+            userName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userName"));
+            userEmail = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userEmail"));
+            userJobTitle = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userJobTitle"));
+            password = new PasswordField(ProcessbaseApplication.getCurrent().getPbMessages().getString("password"));
 
             // prepare user information
             userInfofmation.setMargin(true);
@@ -136,9 +136,9 @@ public class ProfileWindow extends PbWindow
 
 
             // prepare tabSheet
-            tabSheet.addTab(userInfofmation, ((Processbase) getApplication()).getPbMessages().getString("userInfofmation"), null);
-            tabSheet.addTab(userMembership, ((Processbase) getApplication()).getPbMessages().getString("userMembership"), null);
-            tabSheet.addTab(userMetadata, ((Processbase) getApplication()).getPbMessages().getString("userMetadata"), null);
+            tabSheet.addTab(userInfofmation, ProcessbaseApplication.getCurrent().getPbMessages().getString("userInfofmation"), null);
+            tabSheet.addTab(userMembership, ProcessbaseApplication.getCurrent().getPbMessages().getString("userMembership"), null);
+            tabSheet.addTab(userMetadata, ProcessbaseApplication.getCurrent().getPbMessages().getString("userMetadata"), null);
             tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
             tabSheet.setImmediate(true);
             tabSheet.setSizeFull();
@@ -183,18 +183,18 @@ public class ProfileWindow extends PbWindow
         try {
             if (event.getButton().equals(saveBtn)) {
                 if (user == null) {
-                    User userNew = ((Processbase) getApplication()).getBpmModule().addUser(
+                    User userNew = ProcessbaseApplication.getCurrent().getBpmModule().addUser(
                             userName.getValue().toString(),
                             password.getValue().toString(),
                             userFirstName.getValue().toString(),
                             userLastName.getValue().toString(),
                             "", userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, new HashMap<String, String>());
-                    ((Processbase) getApplication()).getBpmModule().updateUserProfessionalContactInfo(
+                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserProfessionalContactInfo(
                             userNew.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
                 } else {
-                    ((Processbase) getApplication()).getBpmModule().updateUserByUUID(
+                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserByUUID(
                             user.getUUID(),
                             userName.getValue().toString(),
                             userFirstName.getValue().toString(),
@@ -202,11 +202,11 @@ public class ProfileWindow extends PbWindow
                             "",
                             userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, getUserMetadata());
-                    ((Processbase) getApplication()).getBpmModule().updateUserProfessionalContactInfo(
+                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserProfessionalContactInfo(
                             user.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
                     if (!user.getPassword().equals(password.getValue().toString())) {
-                        ((Processbase) getApplication()).getBpmModule().updateUserPassword(user.getUUID(), password.getValue().toString());
+                        ProcessbaseApplication.getCurrent().getBpmModule().updateUserPassword(user.getUUID(), password.getValue().toString());
                     }
 
                 }
@@ -234,7 +234,7 @@ public class ProfileWindow extends PbWindow
 
     private void saveUserMembership() throws Exception {
         for (String muuid : deletedMembership) {
-            ((Processbase) getApplication()).getBpmModule().removeMembershipFromUser(user.getUUID(), muuid);
+            ProcessbaseApplication.getCurrent().getBpmModule().removeMembershipFromUser(user.getUUID(), muuid);
         }
         for (Object itemId : tableMembership.getItemIds()) {
             Item woItem = tableMembership.getItem(itemId);
@@ -242,8 +242,8 @@ public class ProfileWindow extends PbWindow
                     && woItem.getItemProperty("role").getValue() instanceof ComboBox) {
                 ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
                 ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
-                Membership membership = ((Processbase) getApplication()).getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
-                ((Processbase) getApplication()).getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
+                Membership membership = ProcessbaseApplication.getCurrent().getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
+                ProcessbaseApplication.getCurrent().getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
             }
         }
     }
@@ -262,9 +262,9 @@ public class ProfileWindow extends PbWindow
     }
 
     private void prepareTableMembership() {
-        tableMembership.addContainerProperty("group", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionGroup"), null, null);
-        tableMembership.addContainerProperty("role", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionRole"), null, null);
-        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        tableMembership.addContainerProperty("group", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionGroup"), null, null);
+        tableMembership.addContainerProperty("role", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionRole"), null, null);
+        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         tableMembership.setColumnWidth("actions", 30);
         tableMembership.setImmediate(true);
         tableMembership.setSizeFull();
@@ -272,8 +272,8 @@ public class ProfileWindow extends PbWindow
     }
 
     private void prepareTableMetadata() {
-        tableMetadata.addContainerProperty("name", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
-        tableMetadata.addContainerProperty("value", Component.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionValue"), null, null);
+        tableMetadata.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
+        tableMetadata.addContainerProperty("value", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionValue"), null, null);
         tableMetadata.setImmediate(true);
         tableMetadata.setSizeFull();
         tableMetadata.setPageLength(7);
@@ -292,7 +292,7 @@ public class ProfileWindow extends PbWindow
     private void refreshTableMetadata() {
         try {
             tableMetadata.removeAllItems();
-            List<ProfileMetadata> metadatas = ((Processbase) getApplication()).getBpmModule().getAllProfileMetadata();
+            List<ProfileMetadata> metadatas = ProcessbaseApplication.getCurrent().getBpmModule().getAllProfileMetadata();
             for (ProfileMetadata profileMetadata : metadatas) {
                 Item woItem = tableMetadata.addItem(profileMetadata);
                 woItem.getItemProperty("name").setValue(profileMetadata.getName());
@@ -343,7 +343,7 @@ public class ProfileWindow extends PbWindow
             roles.setValue(membership != null ? membership.getRole().getUUID() : null);
             woItem.getItemProperty("role").setValue(roles);
         }
-        TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
+        TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
     }
 
@@ -363,7 +363,7 @@ public class ProfileWindow extends PbWindow
         container.addContainerProperty("label", String.class, null);
         container.addContainerProperty("uuid", String.class, null);
         container.addContainerProperty("path", String.class, null);
-        List<Group> groups = ((Processbase) getApplication()).getBpmModule().getAllGroups();
+        List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
         for (Group groupX : groups) {
             Item item = container.addItem(groupX.getUUID());
             item.getItemProperty("name").setValue(groupX.getName());
@@ -390,7 +390,7 @@ public class ProfileWindow extends PbWindow
         container.addContainerProperty("name", String.class, null);
         container.addContainerProperty("label", String.class, null);
         container.addContainerProperty("uuid", String.class, null);
-        List<Role> roles = ((Processbase) getApplication()).getBpmModule().getAllRoles();
+        List<Role> roles = ProcessbaseApplication.getCurrent().getBpmModule().getAllRoles();
         for (Role roleX : roles) {
             Item item = container.addItem(roleX.getUUID());
             item.getItemProperty("name").setValue(roleX.getName());
