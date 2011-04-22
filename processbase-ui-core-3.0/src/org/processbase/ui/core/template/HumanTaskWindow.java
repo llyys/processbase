@@ -36,15 +36,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.Comment;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -110,9 +108,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void initUI() {
-        currentUserName = ((Processbase) getApplication()).getUserName();
-        bpmModule = ((Processbase) getApplication()).getBpmModule();
-        messages = ((Processbase) getApplication()).getPbMessages();
+        currentUserName = ProcessbaseApplication.getCurrent().getUserName();
+        bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+        messages = ProcessbaseApplication.getCurrent().getPbMessages();
         commentEditor = new RichTextArea(messages.getString("addComment"));
         addCommentBtn = new Button(messages.getString("btnSave"), (Button.ClickListener) this);
 

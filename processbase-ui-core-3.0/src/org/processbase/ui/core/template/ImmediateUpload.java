@@ -35,7 +35,7 @@ import com.vaadin.ui.themes.Reindeer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ResourceBundle;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -131,7 +131,7 @@ public class ImmediateUpload extends VerticalLayout
                 deleteBtn.setVisible(false);
             } else if (event.getButton().equals(downloadBtn)) {
                 ByteArraySource bas = new ByteArraySource(
-                        ((Processbase) getApplication()).getFileBody(processUUID, name));
+                        ProcessbaseApplication.getCurrent().getFileBody(processUUID, name));
                 StreamResource streamResource = new StreamResource(bas, fileName, getApplication());
                 streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
                 getWindow().getWindow().open(streamResource, "_new");
