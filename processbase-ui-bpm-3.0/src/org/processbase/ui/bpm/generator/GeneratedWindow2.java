@@ -44,8 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
@@ -53,7 +51,7 @@ import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.GroovyExpression;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
 import org.processbase.ui.core.bonita.forms.Activities;
@@ -225,7 +223,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                 if (widget.isMandatory() != null) {
                     ((AbstractField) component).setRequired(widget.isMandatory());
                 }
-                ((AbstractField) component).setRequiredError(widget.getLabel() + ((Processbase) getApplication()).getPbMessages().getString("fieldRequired"));
+                ((AbstractField) component).setRequiredError(widget.getLabel() + ProcessbaseApplication.getCurrent().getPbMessages().getString("fieldRequired"));
                 ((AbstractField) component).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
                 ((AbstractField) component).setInvalidCommitted(false);
                 ((AbstractField) component).setWriteThrough(false);
@@ -243,15 +241,15 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
     private TextField getTextField(Widget widget) {
         TextField component = new TextField(widget.getLabel());
 //        if (widget.getValidators() != null) {
-//            component.addValidator(new GeneratedValidator(widget, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase) getApplication()).getBpmModule()));
+//            component.addValidator(new GeneratedValidator(widget, taskInstance, processDefinition, getApplication().getLocale(), ProcessbaseApplication.getCurrent().getBpmModule()));
 //        } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Double")) {
 //            component.addValidator(
 //                    new DoubleValidator((widget.getLabel() != null ? widget.getLabel() : widget.getName()) + " "
-//                    + ((Processbase) getApplication()).getMessages().getString("validatorDoubleError")));
+//                    + ProcessbaseApplication.getCurrent().getMessages().getString("validatorDoubleError")));
 //        } else if (dfd != null && dfd.getDataTypeClassName().equals("java.lang.Long")) {
 //            component.addValidator(
 //                    new LongValidator((widget.getLabel() != null ? widget.getLabel() : widget.getName()) + " "
-//                    + ((Processbase) getApplication()).getMessages().getString("validatorIntegerError")));
+//                    + ProcessbaseApplication.getCurrent().getMessages().getString("validatorIntegerError")));
 //        }
         component.setNullRepresentation("");
         return component;
@@ -260,7 +258,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
     private TextArea getTextArea(Widget widget) {
         TextArea component = new TextArea(widget.getLabel());
 //        if (widget.getValidatorName() != null) {
-//            component.addValidator(new GeneratedValidator(widget, taskInstance, processDefinition, getApplication().getLocale(), ((Processbase) getApplication()).getBpmModule()));
+//            component.addValidator(new GeneratedValidator(widget, taskInstance, processDefinition, getApplication().getLocale(), ProcessbaseApplication.getCurrent().getBpmModule()));
 //        }
         component.setNullRepresentation("");
         return component;
@@ -342,7 +340,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
             }
 //            ai = findAttachmentInstance(widget.getInputScript());
         }
-        component = new ImmediateUpload(processUUID, widget.getLabel(), label, hasFile, widget.isReadonly(), ((Processbase) getApplication()).getPbMessages());
+        component = new ImmediateUpload(processUUID, widget.getLabel(), label, hasFile, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
         return component;
     }
 
@@ -368,18 +366,18 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                         if (hasAttachments) {
                             prepareInitialAttachmentsToSave();
                         }
-                        ProcessInstanceUUID piUUID = ((Processbase) getApplication()).getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
-                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                        ProcessInstanceUUID piUUID = ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
+                        if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
                             saveAttachmentsToPortal(piUUID.toString());
                         }
                     } else {
                         if (hasAttachments) {
                             prepareAttachmentsToSave();
                         }
-                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+                        if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
                             saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID().toString());
                         }
-                        ((Processbase) getApplication()).getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
+                        ProcessbaseApplication.getCurrent().getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
                     }
                     close();
 
@@ -475,10 +473,10 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
 //                        AttachmentInstanceImpl ai = new AttachmentInstanceImpl(
 //                                widgets.getInputScript(),
 //                                taskInstance.getProcessInstanceUUID(),
-//                                ((Processbase) getApplication()).getUserName(),
+//                                ProcessbaseApplication.getCurrent().getUserName(),
 //                                new Date());
 //                        ai.setFileName(ui.getFileName());
-//                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+//                        if (ProcessbaseApplication.getCurrent().getApplicationType() == Processbase.LIFERAY_PORTAL) {
 //                            attachments.put(ai, new byte[0]);
 //                        } else {
 //                            attachments.put(ai, ui.getFileBody());
@@ -503,10 +501,10 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
 //                        AttachmentInstanceImpl ai = new AttachmentInstanceImpl(
 //                                widgets.getInputScript(),
 //                                taskInstance.getProcessInstanceUUID(),
-//                                ((Processbase) getApplication()).getUserName(),
+//                                ProcessbaseApplication.getCurrent().getUserName(),
 //                                new Date());
 //                        ai.setFileName(ui.getFileName());
-//                        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+//                        if (ProcessbaseApplication.getCurrent().getApplicationType() == Processbase.LIFERAY_PORTAL) {
 //                            attachments.put(ai, new byte[0]);
 //                        } else {
 //                            attachments.put(ai, ui.getFileBody());
@@ -527,7 +525,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
 //                if (widgets.getSetVarScript() != null) {
 //                    if (widgets.getType().equals("form:FileWidget") && ((ImmediateUpload) comp).isNeedToSave()) {
 //                        ImmediateUpload ui = (ImmediateUpload) comp;
-//                        ((Processbase) getApplication()).saveFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileBody());
+//                        ProcessbaseApplication.getCurrent().saveFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileBody());
 //                    }
 //                }
 //            }
@@ -539,12 +537,12 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
     private void prepareAttachments() {
         if (taskInstance != null) {
             try {
-                ProcessInstance pi = ((Processbase) getApplication()).getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
+                ProcessInstance pi = ProcessbaseApplication.getCurrent().getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
                 Set<String> names = new HashSet<String>();
                 for (AttachmentInstance ai : pi.getAttachments()) {
                     names.add(ai.getName());
                 }
-                attachmentInstances = ((Processbase) getApplication()).getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
+                attachmentInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -607,9 +605,9 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
             }
         }
         if (taskInstance != null && !scripts.isEmpty()) {
-            groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
+            groovyScripts = ProcessbaseApplication.getCurrent().getBpmModule().evaluateGroovyExpressions(scripts, taskInstance.getUUID(), false, false);
         } else if (taskInstance == null && !scripts.isEmpty()) {
-            groovyScripts = ((Processbase) getApplication()).getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
+            groovyScripts = ProcessbaseApplication.getCurrent().getBpmModule().evaluateGroovyExpressions(scripts, processDefinition.getUUID(), null, true);
         }
         for (String string : strings.keySet()) {
             groovyScripts.put(string, strings.get(string));

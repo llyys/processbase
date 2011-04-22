@@ -23,7 +23,7 @@ import com.vaadin.ui.Window;
 import java.util.List;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -43,12 +43,12 @@ public class UsersPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("username", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionUsername"), null, null);
+        table.addContainerProperty("username", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionUsername"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("lastname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLastname"), null, null);
-        table.addContainerProperty("firstname", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionFirstname"), null, null);
-        table.addContainerProperty("email", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionEmail"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("lastname", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastname"), null, null);
+        table.addContainerProperty("firstname", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionFirstname"), null, null);
+        table.addContainerProperty("email", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionEmail"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -56,7 +56,7 @@ public class UsersPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<User> users = ((Processbase) getApplication()).getBpmModule().getAllUsers();
+            List<User> users = ProcessbaseApplication.getCurrent().getBpmModule().getAllUsers();
 
             for (User user : users) {
                 Item woItem = table.addItem(user);
@@ -65,7 +65,7 @@ public class UsersPanel extends TablePanel implements
                 woItem.getItemProperty("lastname").setValue(user.getLastName());
                 woItem.getItemProperty("firstname").setValue(user.getFirstName());
                 woItem.getItemProperty("email").setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
-                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", user, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", user, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
@@ -101,16 +101,16 @@ public class UsersPanel extends TablePanel implements
 
     private void removeUser(final User user) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getPbMessages().getString("removeUser") + "?",
-                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeUser") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                ((Processbase) getApplication()).getBpmModule().removeUserByUUID(user.getUUID());
+                                ProcessbaseApplication.getCurrent().getBpmModule().removeUserByUUID(user.getUUID());
                                 table.removeItem(user);
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

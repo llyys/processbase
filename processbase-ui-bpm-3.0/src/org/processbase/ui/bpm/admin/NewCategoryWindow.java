@@ -23,7 +23,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
 
@@ -44,19 +44,19 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
 
     public void initUI() {
         try {
-            setCaption(((Processbase) getApplication()).getPbMessages().getString("newCategory"));
+            setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newCategory"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            categoryName = new TextField(((Processbase) getApplication()).getPbMessages().getString("categoryName"));
+            categoryName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoryName"));
             categoryName.setWidth("270px");
             addComponent(categoryName);
 
-            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
+            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
             
             buttons.addButton(applyBtn);
             buttons.setComponentAlignment(applyBtn, Alignment.MIDDLE_RIGHT);
@@ -78,7 +78,7 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                ((Processbase) getApplication()).getBpmModule().addCategory(categoryName.getValue().toString(), "", "", "");
+                ProcessbaseApplication.getCurrent().getBpmModule().addCategory(categoryName.getValue().toString(), "", "", "");
                 close();
             } else {
                 close();

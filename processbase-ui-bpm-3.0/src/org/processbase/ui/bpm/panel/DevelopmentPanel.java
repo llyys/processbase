@@ -44,7 +44,7 @@ import org.processbase.ui.bpm.development.ModulesJarPanel;
 import org.processbase.ui.bpm.development.ModulesTabPanel;
 import org.processbase.ui.bpm.development.NewJarWindow;
 import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbWindow;
@@ -111,27 +111,27 @@ public class DevelopmentPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare JarFilesBtn button
-        modulesJarBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("modulesJarBtn"), this);
+        modulesJarBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("modulesJarBtn"), this);
         modulesJarBtn.setStyleName("special");
         modulesJarBtn.setEnabled(false);
         buttonBar.addComponent(modulesJarBtn, 0);
         buttonBar.setComponentAlignment(modulesJarBtn, Alignment.MIDDLE_LEFT);
 
         // prepare modulesTabBtn button
-        modulesTabBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("modulesTabBtn"), this);
-        modulesTabBtn.setDescription(((Processbase) getApplication()).getPbMessages().getString("modulesTabBtn"));
+        modulesTabBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("modulesTabBtn"), this);
+        modulesTabBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("modulesTabBtn"));
         modulesTabBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(modulesTabBtn, 1);
         buttonBar.setComponentAlignment(modulesTabBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        processInstancesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("processInstancesBtn"), this);
+        processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(processInstancesBtn, 2);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("activityInstancesBtn"), this);
+        activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(activityInstancesBtn, 3);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -142,12 +142,12 @@ public class DevelopmentPanel extends PbPanelModule
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(((Processbase) getApplication()).getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
@@ -173,9 +173,9 @@ public class DevelopmentPanel extends PbPanelModule
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
             if (getComponent(1).equals(modulesTabPanel)) {
-                btnAdd.setCaption(((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata"));
+                btnAdd.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAddToMetadata"));
             } else if (getComponent(1).equals(modulesJarPanel)) {
-                btnAdd.setCaption(((Processbase) getApplication()).getPbMessages().getString("btnAdd"));
+                btnAdd.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"));
             }
         }
 
@@ -195,10 +195,10 @@ public class DevelopmentPanel extends PbPanelModule
 
     private void saveMetadata() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata") + "?",
-                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAddToMetadata") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -216,7 +216,7 @@ public class DevelopmentPanel extends PbPanelModule
 
     private void saveTabsheetMetadata() {
         try {
-            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            BPMModule bpm = ProcessbaseApplication.getCurrent().getBpmModule();
             // save metadata
             GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
             Gson gson = gb.create();

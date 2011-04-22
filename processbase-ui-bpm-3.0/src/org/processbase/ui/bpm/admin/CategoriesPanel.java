@@ -23,7 +23,7 @@ import com.vaadin.ui.Window;
 import java.util.Set;
 import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 
@@ -43,9 +43,9 @@ public class CategoriesPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionCategory"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("uuid", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionUUID"), null, null);
+        table.addContainerProperty("uuid", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionUUID"), null, null);
 //        table.setColumnWidth("uuid", 50);
 //        table.addContainerProperty("deployedBy", String.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
 //        table.addContainerProperty("deployedDate", Date.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);
@@ -57,7 +57,7 @@ public class CategoriesPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<Category> categories = ((Processbase)getApplication()).getBpmModule().getAllCategories();
+            Set<Category> categories = ProcessbaseApplication.getCurrent().getBpmModule().getAllCategories();
 
             for (Category category : categories) {
                 Item woItem = table.addItem(category);

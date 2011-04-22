@@ -37,7 +37,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.admin.CategoriesPanel;
 import org.processbase.ui.bpm.admin.NewCategoryWindow;
 import org.processbase.ui.bpm.admin.NewProcessDefinitionWindow;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TablePanel;
@@ -107,27 +107,27 @@ public class BPMConfigurationPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare categoriesBtn button
-        categoriesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("categoriesBtn"), this);
-        categoriesBtn.setDescription(((Processbase)getApplication()).getPbMessages().getString("categoriesBtnTooltip"));
+        categoriesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtn"), this);
+        categoriesBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(categoriesBtn, 0);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        processDefinitionBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("processDefinitionBtn"), this);
+        processDefinitionBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
         buttonBar.addComponent(processDefinitionBtn, 1);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        processInstancesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("processInstancesBtn"), this);
+        processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(processInstancesBtn, 2);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("activityInstancesBtn"), this);
+        activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(activityInstancesBtn, 3);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -140,19 +140,19 @@ public class BPMConfigurationPanel extends PbPanelModule
         // prepare processesComboBox
         processesComboBox = new ComboBox();
         processesComboBox.setWidth("250px");
-        processesComboBox.setInputPrompt(((Processbase)getApplication()).getPbMessages().getString("selectProcessDefinition"));
-        processesComboBox.setDescription(((Processbase)getApplication()).getPbMessages().getString("selectProcessDefinition"));
+        processesComboBox.setInputPrompt(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
+        processesComboBox.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
         buttonBar.addComponent(processesComboBox, 5);
         buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
         processesComboBox.setVisible(false);
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase)getApplication()).getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(((Processbase)getApplication()).getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 7);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
@@ -209,7 +209,7 @@ public class BPMConfigurationPanel extends PbPanelModule
     public void refreshProcessDefinitionCombo() {
         try {
             processesComboBox.removeAllItems();
-            Collection<LightProcessDefinition> processes = ((Processbase)getApplication()).getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
+            Collection<LightProcessDefinition> processes = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
             for (LightProcessDefinition pd : processes) {
                 Item woItem = processesComboBox.addItem(pd);
                 String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();

@@ -24,7 +24,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
 
@@ -49,9 +49,9 @@ public class MetadataWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (metadata == null) {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("newMetadata"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newMetadata"));
             } else {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("metadata"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadata"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -59,10 +59,10 @@ public class MetadataWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
-            metadataName = new TextField(((Processbase) getApplication()).getPbMessages().getString("metadataName"));
-            metadataLabel = new TextField(((Processbase) getApplication()).getPbMessages().getString("metadataLabel"));
+            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            metadataName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataName"));
+            metadataLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataLabel"));
 
             metadataName.setWidth("270px");
             addComponent(metadataName);
@@ -96,9 +96,9 @@ public class MetadataWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (metadata == null) {
-                    ((Processbase) getApplication()).getBpmModule().addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
+                    ProcessbaseApplication.getCurrent().getBpmModule().addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
                 } else {
-                    ((Processbase) getApplication()).getBpmModule().updateProfileMetadataByUUID(metadata.getUUID(), metadataName.getValue().toString(), metadataLabel.getValue().toString());
+                    ProcessbaseApplication.getCurrent().getBpmModule().updateProfileMetadataByUUID(metadata.getUUID(), metadataName.getValue().toString(), metadataLabel.getValue().toString());
                 }
                 close();
             } else {

@@ -23,7 +23,7 @@ import com.vaadin.ui.Window;
 import java.util.List;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -43,10 +43,10 @@ public class MetadataPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
-        table.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
+        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
         table.setColumnExpandRatio("label", 1);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -54,14 +54,14 @@ public class MetadataPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<ProfileMetadata> metadatas = ((Processbase)getApplication()).getBpmModule().getAllProfileMetadata();
+            List<ProfileMetadata> metadatas = ProcessbaseApplication.getCurrent().getBpmModule().getAllProfileMetadata();
 
             for (ProfileMetadata metadata : metadatas) {
                 Item woItem = table.addItem(metadata);
                 TableLinkButton teb = new TableLinkButton(metadata.getName(), "", null, metadata, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(metadata.getLabel());
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("username");
@@ -98,16 +98,16 @@ public class MetadataPanel extends TablePanel implements
 
     private void removeMetadata(final ProfileMetadata metadata) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getPbMessages().getString("removeMetadata") + "?",
-                ((Processbase)getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeMetadata") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                ((Processbase)getApplication()).getBpmModule().removeProfileMetadataByUUID(metadata.getUUID());
+                                ProcessbaseApplication.getCurrent().getBpmModule().removeProfileMetadataByUUID(metadata.getUUID());
                                 table.removeItem(metadata);
                             } catch (Exception ex) {
                                 ex.printStackTrace();

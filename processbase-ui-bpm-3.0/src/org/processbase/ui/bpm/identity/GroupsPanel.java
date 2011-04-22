@@ -24,7 +24,7 @@ import java.util.List;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
@@ -44,11 +44,11 @@ public class GroupsPanel extends TreeTablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
+        treeTable.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
         treeTable.setColumnExpandRatio("name", 1);
-        treeTable.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLabel"), null, null);
-        treeTable.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionDescription"), null, null);
-        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        treeTable.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
+        treeTable.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
+        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         treeTable.setImmediate(true);
     }
 
@@ -56,7 +56,7 @@ public class GroupsPanel extends TreeTablePanel implements
     public void refreshTable() {
         try {
             treeTable.removeAllItems();
-            List<Group> groups = ((Processbase)getApplication()).getBpmModule().getAllGroups();
+            List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
             for (Group group : groups) {
                 System.out.println("group = " + group.getName() + " parent = " + group.getParentGroup());
                 Item woItem = treeTable.addItem(group.getUUID());
@@ -65,7 +65,7 @@ public class GroupsPanel extends TreeTablePanel implements
                 woItem.getItemProperty("label").setValue(group.getLabel());
                 woItem.getItemProperty("description").setValue(group.getDescription());
                 if (!group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
-                    TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
+                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
                     woItem.getItemProperty("actions").setValue(tlb);
                 }
             }
@@ -111,16 +111,16 @@ public class GroupsPanel extends TreeTablePanel implements
 
     private void removeGroup(final Group group) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getPbMessages().getString("removeGroup") + "?",
-                ((Processbase)getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeGroup") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                ((Processbase)getApplication()).getBpmModule().removeGroupByUUID(group.getUUID());
+                                ProcessbaseApplication.getCurrent().getBpmModule().removeGroupByUUID(group.getUUID());
                                 treeTable.removeItem(group.getUUID());
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

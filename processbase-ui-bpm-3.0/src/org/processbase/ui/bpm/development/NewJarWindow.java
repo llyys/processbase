@@ -36,7 +36,7 @@ import java.util.Properties;
 import java.util.UUID;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
 
 /**
@@ -70,7 +70,7 @@ public class NewJarWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(((Processbase) getApplication()).getPbMessages().getString("btnUpload"));
+            upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -93,7 +93,7 @@ public class NewJarWindow extends PbWindow
             if (this.fileType.equals(FILE_JAR)) {
                 saveJar(originalFilename, readData);
                 saveJarInfo(originalFilename);
-                showWarning(((Processbase) getApplication()).getPbMessages().getString("jarUploaded") + ": " + originalFilename);
+                showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();
@@ -145,7 +145,7 @@ public class NewJarWindow extends PbWindow
 
     private void saveJarInfo(String name) {
         try {
-            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            BPMModule bpm = ProcessbaseApplication.getCurrent().getBpmModule();
             // save metadata
             GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
             Gson gson = gb.create();

@@ -31,11 +31,9 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.osgi.PbPanelModuleService;
@@ -60,7 +58,7 @@ public class ModulesTabPanel extends TablePanel implements
         table.addContainerProperty("title", String.class, null, "Title", null, null);
         table.addContainerProperty("inMetadata", String.class, null, "PB Metadata", null, null);
         table.addContainerProperty("inOSGI", String.class, null, "OSGI", null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 80);
         table.setImmediate(true);
     }
@@ -75,7 +73,7 @@ public class ModulesTabPanel extends TablePanel implements
             Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>() {
             }.getType();
             TreeMap<Integer, String> tabList = new TreeMap<Integer, String>();
-            String metaDataString = ((Processbase) getApplication()).getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
+            String metaDataString = ProcessbaseApplication.getCurrent().getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
             if (metaDataString != null) {
                 LinkedHashMap<Integer, String> tabs2 = gson.fromJson(metaDataString, collectionType);
                 if (!tabs2.isEmpty()) {
@@ -83,7 +81,7 @@ public class ModulesTabPanel extends TablePanel implements
                 }
             }
             moduleNames.addAll(tabList.values());
-            PbPanelModuleService pms = ((Processbase) getApplication()).getPanelModuleService();
+            PbPanelModuleService pms = ProcessbaseApplication.getCurrent().getPanelModuleService();
             moduleNames.addAll(pms.getModules().keySet());
             int i = 1;
             for (String moduleName : moduleNames) {
@@ -95,11 +93,11 @@ public class ModulesTabPanel extends TablePanel implements
                     teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
                 } else if (!pms.getModules().containsKey(moduleName) && tabList.containsValue(moduleName)) {
                     teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
-                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDeleteFromMetadta"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
+                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDeleteFromMetadta"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
                     woItem.getItemProperty("actions").setValue(tlb);
                 } else if (pms.getModules().containsKey(moduleName) && !tabList.containsValue(moduleName)) {
                     teb = new Label(moduleName);
-                    TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnAddToMetadata"), "icons/accept.png", moduleName, this, Constants.ACTION_ADD);
+                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAddToMetadata"), "icons/accept.png", moduleName, this, Constants.ACTION_ADD);
                     woItem.getItemProperty("actions").setValue(tlb);
                 }
                 woItem.getItemProperty("order").setValue(String.valueOf(i));
@@ -149,7 +147,7 @@ public class ModulesTabPanel extends TablePanel implements
 
     private void saveTabsheetMetadata(String name) {
         try {
-            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            BPMModule bpm = ProcessbaseApplication.getCurrent().getBpmModule();
             // save metadata
             GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
             Gson gson = gb.create();

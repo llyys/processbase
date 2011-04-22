@@ -26,7 +26,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.TreeTablePanel;
@@ -40,6 +39,7 @@ import org.processbase.ui.bpm.identity.RolesPanel;
 import org.processbase.ui.bpm.identity.SyncUsersWindow;
 import org.processbase.ui.bpm.identity.UserWindow;
 import org.processbase.ui.bpm.identity.UsersPanel;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.osgi.PbPanelModule;
 
 /**
@@ -104,26 +104,26 @@ public class IdentityPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare usersBtn button
-        usersBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("usersBtn"), this);
+        usersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("usersBtn"), this);
         usersBtn.setStyleName("special");
         usersBtn.setEnabled(false);
         buttonBar.addComponent(usersBtn, 0);
         buttonBar.setComponentAlignment(usersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare rolesBtn button
-        rolesBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("rolesBtn"), this);
+        rolesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("rolesBtn"), this);
         rolesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(rolesBtn, 1);
         buttonBar.setComponentAlignment(rolesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare groupsBtn button
-        groupsBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("groupsBtn"), this);
+        groupsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupsBtn"), this);
         groupsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(groupsBtn, 2);
         buttonBar.setComponentAlignment(groupsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare metadataBtn button
-        metadataBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("metadataBtn"), this);
+        metadataBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataBtn"), this);
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(metadataBtn, 3);
         buttonBar.setComponentAlignment(metadataBtn, Alignment.MIDDLE_LEFT);
@@ -134,22 +134,22 @@ public class IdentityPanel extends PbPanelModule
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(((Processbase) getApplication()).getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare sync button
 
-        syncBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("syncBtn"), this);
-        syncBtn.setDescription(((Processbase) getApplication()).getPbMessages().getString("syncBtnDescription"));
+        syncBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtn"), this);
+        syncBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtnDescription"));
         buttonBar.addComponent(syncBtn, 7);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
-        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+        if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
             syncBtn.setVisible(true);
         } else {
             syncBtn.setVisible(false);
@@ -194,7 +194,7 @@ public class IdentityPanel extends PbPanelModule
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         metadataBtn.setEnabled(true);
         btnAdd.setVisible(true);
-        if (((Processbase) getApplication()).getApplicationType() == Processbase.LIFERAY_PORTAL) {
+        if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
             syncBtn.setVisible(true);
         } else {
             syncBtn.setVisible(false);

@@ -28,13 +28,13 @@ import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -49,10 +49,10 @@ public class TaskCompleted extends TablePanel {
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("processName", Component.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionProcess"), null, null);
-        table.addContainerProperty("taskName", Label.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("taskName", Label.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 1);
-        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 110);
     }
@@ -61,7 +61,7 @@ public class TaskCompleted extends TablePanel {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            Collection<LightTaskInstance> tasks = ((Processbase)getApplication()).getBpmModule().getLightTaskList(ActivityState.FINISHED);
+            Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.FINISHED);
             for (LightTaskInstance task : tasks) {
                 addTableRow(task);
             }
@@ -77,7 +77,7 @@ public class TaskCompleted extends TablePanel {
 
     private void addTableRow(LightTaskInstance task) throws InstanceNotFoundException, Exception {
         Item woItem = table.addItem(task);
-        LightProcessDefinition lpd = ((Processbase)getApplication()).getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
+        LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
         String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
         String processInstanceUUID = task.getProcessInstanceUUID().toString();
         TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
@@ -95,7 +95,7 @@ public class TaskCompleted extends TablePanel {
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightTaskInstance task = (LightTaskInstance) ((TableLinkButton) event.getButton()).getTableValue();
-                LightTaskInstance newTask = ((Processbase)getApplication()).getBpmModule().getTaskInstance(task.getUUID());
+                LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
                 openTaskPage(task);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -106,19 +106,19 @@ public class TaskCompleted extends TablePanel {
 
     public void openTaskPage(LightTaskInstance task) {
         try {
-            String url = ((Processbase)getApplication()).getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
-            ((Processbase)getApplication()).removeSessionAttribute("TASKINSTANCE");
-            ((Processbase)getApplication()).setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
+            String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+            ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
+            ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = ((Processbase)getApplication()).getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
+                XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() && taskDef.getForms() == null) {
-                    showError(((Processbase)getApplication()).getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
+                    showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
-                    genWindow.setTask(((Processbase) getApplication()).getBpmModule().getTaskInstance(task.getUUID()));
+                    genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
                     genWindow.setXMLProcess(xmlProcess);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();

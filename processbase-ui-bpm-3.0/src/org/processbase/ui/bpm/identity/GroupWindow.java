@@ -30,7 +30,7 @@ import com.vaadin.ui.themes.Reindeer;
 import java.util.List;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
 
@@ -57,9 +57,9 @@ public class GroupWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (group == null) {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("newGroup"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newGroup"));
             } else {
-                setCaption(((Processbase) getApplication()).getPbMessages().getString("group"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("group"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -67,12 +67,12 @@ public class GroupWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(((Processbase) getApplication()).getPbMessages().getString("btnSave"), this);
-            groupName = new TextField(((Processbase) getApplication()).getPbMessages().getString("groupName"));
-            groupLabel = new TextField(((Processbase) getApplication()).getPbMessages().getString("groupLabel"));
-            groupDescription = new TextArea(((Processbase) getApplication()).getPbMessages().getString("groupDescription"));
-            parentGroup = new ComboBox(((Processbase) getApplication()).getPbMessages().getString("groupParent"));
+            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            groupName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupName"));
+            groupLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupLabel"));
+            groupDescription = new TextArea(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupDescription"));
+            parentGroup = new ComboBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupParent"));
 
             parentGroup.setWidth("270px");
             parentGroup.setContainerDataSource(getGroups());
@@ -117,13 +117,13 @@ public class GroupWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (group == null) {
-                    ((Processbase) getApplication()).getBpmModule().addGroup(
+                    ProcessbaseApplication.getCurrent().getBpmModule().addGroup(
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
                             groupDescription.getValue().toString(),
                             parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
                 } else {
-                    ((Processbase) getApplication()).getBpmModule().updateGroupByUUID(
+                    ProcessbaseApplication.getCurrent().getBpmModule().updateGroupByUUID(
                             group.getUUID(),
                             groupName.getValue().toString(),
                             groupLabel.getValue().toString(),
@@ -146,7 +146,7 @@ public class GroupWindow extends PbWindow implements ClickListener {
         container.addContainerProperty("label", String.class, null);
         container.addContainerProperty("uuid", String.class, null);
         container.addContainerProperty("path", String.class, null);
-        List<Group> groups = ((Processbase) getApplication()).getBpmModule().getAllGroups();
+        List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
         for (Group groupX : groups) {
             Item item = container.addItem(groupX.getUUID());
             item.getItemProperty("name").setValue(groupX.getName());

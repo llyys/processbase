@@ -24,7 +24,7 @@ import java.util.List;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Role;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -44,11 +44,11 @@ public class RolesPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("label", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionLabel"), null, null);
-        table.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionDescription"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
     }
 
@@ -56,7 +56,7 @@ public class RolesPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            List<Role> roles = ((Processbase)getApplication()).getBpmModule().getAllRoles();
+            List<Role> roles = ProcessbaseApplication.getCurrent().getBpmModule().getAllRoles();
 
             for (Role role : roles) {
                 Item woItem = table.addItem(role);
@@ -65,7 +65,7 @@ public class RolesPanel extends TablePanel implements
                 woItem.getItemProperty("label").setValue(role.getLabel());
                 woItem.getItemProperty("description").setValue(role.getDescription());
                 if (!role.getName().equals(IdentityAPI.ADMIN_ROLE_NAME) && !role.getName().equals(IdentityAPI.USER_ROLE_NAME)) {
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", role, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             }
@@ -102,16 +102,16 @@ public class RolesPanel extends TablePanel implements
 
     private void removeRole(final Role role) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getPbMessages().getString("removeRole") + "?",
-                ((Processbase)getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeRole") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                ((Processbase)getApplication()).getBpmModule().removeRoleByUUID(role.getUUID());
+                                ProcessbaseApplication.getCurrent().getBpmModule().removeRoleByUUID(role.getUUID());
                                 table.removeItem(role);
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

@@ -28,7 +28,7 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableExecButtonBar;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -49,13 +49,13 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("processName", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionProcess"), null, null);
-        table.addContainerProperty("label", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActivityName"), null, null);
-        table.addContainerProperty("type", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionType"), null, null);
-        table.addContainerProperty("lastUpdate", Date.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addContainerProperty("processName", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("label", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActivityName"), null, null);
+        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionType"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 100);
-        table.addContainerProperty("state", String.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
     }
 
     @Override
@@ -64,14 +64,14 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
         try {
             Set<LightActivityInstance> ais = null;
             if (filter != null) {
-                ais = ((Processbase) getApplication()).getBpmModule().getActivityInstances(filter);
+                ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances(filter);
             } else {
-                ais = ((Processbase) getApplication()).getBpmModule().getActivityInstances();
+                ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances();
             }
 
             for (LightActivityInstance ai : ais) {
                 Item woItem = table.addItem(ai);
-                LightProcessDefinition lpd = ((Processbase) getApplication()).getBpmModule().getLightProcessDefinition(ai.getProcessDefinitionUUID());
+                LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(ai.getProcessDefinitionUUID());
                 String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
                 String processInstanceUUID = ai.getProcessInstanceUUID().toString();
                 woItem.getItemProperty("processName").setValue(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2));
@@ -90,13 +90,13 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                 woItem.getItemProperty("lastUpdate").setValue(ai.getLastUpdateDate());
                 woItem.getItemProperty("state").setValue(ai.getState());
                 if (ai.isTask()) {
-                    woItem.getItemProperty("type").setValue(((Processbase) getApplication()).getPbMessages().getString("task"));
+                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("task"));
                 } else if (ai.isAutomatic()) {
-                    woItem.getItemProperty("type").setValue(((Processbase) getApplication()).getPbMessages().getString("automatic"));
+                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("automatic"));
                 } else if (ai.isTimer()) {
-                    woItem.getItemProperty("type").setValue(((Processbase) getApplication()).getPbMessages().getString("timer"));
+                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("timer"));
                 } else if (ai.isSubflow()) {
-                    woItem.getItemProperty("type").setValue(((Processbase) getApplication()).getPbMessages().getString("subflow"));
+                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("subflow"));
                 }
             }
             table.setSortContainerPropertyId("processName");
@@ -120,11 +120,11 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
                     getApplication().getMainWindow().addWindow(activityWindow);
                     activityWindow.initUI();
                 } else if (execBtn.getAction().equals(Constants.ACTION_STOP)) {
-                    ((Processbase) getApplication()).getBpmModule().stopExecution(activity.getProcessInstanceUUID(), activity.getActivityName());
+                    ProcessbaseApplication.getCurrent().getBpmModule().stopExecution(activity.getProcessInstanceUUID(), activity.getActivityName());
                     Item woItem = table.getItem(activity);
                     woItem.getItemProperty("state").setValue(ActivityState.CANCELLED);
                     TableExecButtonBar tebb = new TableExecButtonBar();
-                    tebb.addButton(new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnOpen"), "icons/document.png", activity, this, Constants.ACTION_OPEN));
+                    tebb.addButton(new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnOpen"), "icons/document.png", activity, this, Constants.ACTION_OPEN));
                     woItem.getItemProperty("actions").setValue(tebb);
                 }
             } catch (Exception ex) {

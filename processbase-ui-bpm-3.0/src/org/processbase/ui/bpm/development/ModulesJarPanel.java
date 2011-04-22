@@ -39,7 +39,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -64,7 +64,7 @@ public class ModulesJarPanel extends TablePanel implements
         table.addContainerProperty("bungleName", String.class, null, "Bundle-Name", null, null);
         table.addContainerProperty("bungleVersion", String.class, null, "Bundle-Version", null, null);
         table.setColumnWidth("bungleVersion", 100);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase) getApplication()).getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 80);
         table.setImmediate(true);
     }
@@ -78,7 +78,7 @@ public class ModulesJarPanel extends TablePanel implements
             Type collectionType = new TypeToken<LinkedList<String>>() {
             }.getType();
             LinkedList<String> jarList = new LinkedList<String>();
-            String metaDataString = ((Processbase) getApplication()).getBpmModule().getMetaData("PROCESSBASE_UI_JAR_LIST");
+            String metaDataString = ProcessbaseApplication.getCurrent().getBpmModule().getMetaData("PROCESSBASE_UI_JAR_LIST");
             if (metaDataString != null) {
                 LinkedList<String> savedJarList = gson.fromJson(metaDataString, collectionType);
                 if (!savedJarList.isEmpty()) {
@@ -102,7 +102,7 @@ public class ModulesJarPanel extends TablePanel implements
                 woItem.getItemProperty("fileName").setValue(teb);
                 woItem.getItemProperty("bungleName").setValue(bungleName);
                 woItem.getItemProperty("bungleVersion").setValue(bungleVersion);
-                TableLinkButton tlb = new TableLinkButton(((Processbase) getApplication()).getPbMessages().getString("btnDelete"), "icons/cancel.png", name, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", name, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("fileName");
@@ -149,10 +149,10 @@ public class ModulesJarPanel extends TablePanel implements
 
     private void removeJar(final String fileName) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase) getApplication()).getPbMessages().getString("windowCaptionConfirm"),
-                ((Processbase) getApplication()).getPbMessages().getString("deleteJar") + "?",
-                ((Processbase) getApplication()).getPbMessages().getString("btnYes"),
-                ((Processbase) getApplication()).getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteJar") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -183,7 +183,7 @@ public class ModulesJarPanel extends TablePanel implements
 
     private void saveJarInfo(String name) {
         try {
-            BPMModule bpm = ((Processbase) getApplication()).getBpmModule();
+            BPMModule bpm = ProcessbaseApplication.getCurrent().getBpmModule();
             // save metadata
             GsonBuilder gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
             Gson gson = gb.create();

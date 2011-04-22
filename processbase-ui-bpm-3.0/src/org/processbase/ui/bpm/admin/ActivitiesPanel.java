@@ -23,7 +23,7 @@ import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightActivityInstance;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TablePanel;
 
@@ -49,20 +49,20 @@ public class ActivitiesPanel extends TablePanel {
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionTask"), null, null);
-        table.addContainerProperty("type", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionTask"), null, null);
-        table.addContainerProperty("createdDate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionCreatedDate"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("createdDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
         table.setColumnWidth("createdDate", 100);
-        table.addContainerProperty("startdeDate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("startdeDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startdeDate", new PbColumnGenerator());
         table.setColumnWidth("startdeDate", 100);
-        table.addContainerProperty("endDate", Date.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionFinishedDate"), null, null);
+        table.addContainerProperty("endDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
         table.setColumnWidth("endDate", 100);
-        table.addContainerProperty("candidates", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionCandidates"), null, null);
-        table.addContainerProperty("taskuser", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionTaskUser"), null, null);
-        table.addContainerProperty("state", String.class, null, ((Processbase)getApplication()).getPbMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("candidates", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCandidates"), null, null);
+        table.addContainerProperty("taskuser", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTaskUser"), null, null);
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setPageLength(5);
     }
@@ -71,16 +71,16 @@ public class ActivitiesPanel extends TablePanel {
     public void refreshTable() {
         table.removeAllItems();
         try {
-            activities = ((Processbase)getApplication()).getBpmModule().getActivityInstances(processInstanceUUID);
+            activities = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances(processInstanceUUID);
             for (ActivityInstance lai : activities) {
                 if (lai.isAutomatic() || lai.isTask()) {
                     Item woItem = table.addItem(lai);
                     woItem.getItemProperty("name").setValue(lai.getActivityLabel());
-                    woItem.getItemProperty("type").setValue(lai.isTask() ? ((Processbase)getApplication()).getPbMessages().getString("task") : ((Processbase)getApplication()).getPbMessages().getString("automatic"));
+                    woItem.getItemProperty("type").setValue(lai.isTask() ? ProcessbaseApplication.getCurrent().getPbMessages().getString("task") : ProcessbaseApplication.getCurrent().getPbMessages().getString("automatic"));
                     woItem.getItemProperty("createdDate").setValue(lai.getReadyDate());
                     woItem.getItemProperty("startdeDate").setValue(lai.getStartedDate());
                     woItem.getItemProperty("endDate").setValue(lai.getEndedDate());
-                    woItem.getItemProperty("state").setValue(((Processbase)getApplication()).getPbMessages().getString(lai.getState().toString()));
+                    woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(lai.getState().toString()));
                     if (lai.isTask()) {
                         woItem.getItemProperty("candidates").setValue(lai.getTask().getTaskCandidates());
                         woItem.getItemProperty("taskuser").setValue(lai.getTask().getTaskUser());

@@ -29,7 +29,7 @@ import java.util.UUID;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
 
 /**
@@ -56,7 +56,7 @@ public class NewProcessDefinitionWindow extends PbWindow
 
     public void initUI() {
         try {
-            setCaption(((Processbase)getApplication()).getPbMessages().getString("newProcessDefinition"));
+            setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newProcessDefinition"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -64,7 +64,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(((Processbase)getApplication()).getPbMessages().getString("btnUpload"));
+            upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -89,11 +89,11 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = ((Processbase)getApplication()).getBpmModule().deploy(businessArchive, ((Processbase)getApplication()).getPbMessages().getString("emptyCategory"));
-                showInformation(((Processbase)getApplication()).getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
+                ProcessDefinition deployResult = ProcessbaseApplication.getCurrent().getBpmModule().deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
+                showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {
-                ((Processbase)getApplication()).getBpmModule().deployJar(originalFilename, readData);
-                showWarning(((Processbase)getApplication()).getPbMessages().getString("jarUploaded") + ": " + originalFilename);
+                ProcessbaseApplication.getCurrent().getBpmModule().deployJar(originalFilename, readData);
+                showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();
