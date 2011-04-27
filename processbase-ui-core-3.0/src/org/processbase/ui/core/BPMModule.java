@@ -17,7 +17,6 @@
 package org.processbase.ui.core;
 
 import com.sun.appserv.security.ProgrammaticLogin;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
@@ -86,6 +82,7 @@ import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.uuid.AbstractUUID;
+import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
@@ -1019,4 +1016,9 @@ public class BPMModule {
         }
         return null;
     }
+    
+    public <T extends Object> T execute(Command<T> cmnd) throws Exception{
+        initContext();
+        return commandAPI.execute(cmnd);
+    } 
 }
