@@ -16,25 +16,26 @@
  */
 package org.processbase.engine.bam.command;
 
-import java.util.ArrayList;
+import java.sql.DatabaseMetaData;
+import java.util.HashMap;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.util.Command;
 import org.processbase.engine.bam.db.HibernateUtil;
-import org.processbase.engine.bam.metadata.MetaDim;
 
 /**
  *
  * @author marat
  */
-public class GetMetaDimByCode implements Command<ArrayList<MetaDim>> {
-    private String code;
+public class GetDatabaseMetadata implements Command<HashMap<String, String>> {
 
-    public GetMetaDimByCode(String code) {
-        this.code = code;
-    }
-    
-    public ArrayList<MetaDim> execute(Environment e) throws Exception {
+    public HashMap<String, String> execute(Environment e) throws Exception {
+        HashMap<String, String> result = new HashMap<String, String>();
         HibernateUtil hutil = new HibernateUtil();
-        return hutil.getMetaDimByCode(code);
+        DatabaseMetaData dbmd = hutil.getDatabaseMetadata();
+        result.put("DatabaseProductName", dbmd.getDatabaseProductName());
+        result.put("DatabaseProductVersion", dbmd.getDatabaseProductVersion());
+        result.put("DriverName", dbmd.getDriverName());
+        result.put("DriverVersion", dbmd.getDriverVersion());        
+        return result;  
     }
 }

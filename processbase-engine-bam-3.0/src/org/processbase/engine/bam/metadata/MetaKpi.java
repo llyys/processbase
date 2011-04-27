@@ -19,23 +19,11 @@ package org.processbase.engine.bam.metadata;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * MetaKpi 
  */
-@Entity
-@Table(name = "META_KPI", uniqueConstraints =
-@UniqueConstraint(columnNames = "CODE"))
+
 public class MetaKpi implements java.io.Serializable {
 
     private long id;
@@ -70,8 +58,6 @@ public class MetaKpi implements java.io.Serializable {
         this.metaFacts = metaFacts;
     }
 
-    @Id
-    @Column(name = "ID", unique = true, nullable = false, precision = 16, scale = 0)
     public long getId() {
         return this.id;
     }
@@ -80,7 +66,6 @@ public class MetaKpi implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "CODE", unique = true, nullable = false, length = 16)
     public String getCode() {
         return this.code;
     }
@@ -89,7 +74,6 @@ public class MetaKpi implements java.io.Serializable {
         this.code = code;
     }
 
-    @Column(name = "NAME", nullable = false, length = 200)
     public String getName() {
         return this.name;
     }
@@ -98,7 +82,6 @@ public class MetaKpi implements java.io.Serializable {
         this.name = name;
     }
 
-    @Column(name = "DESCRIPTION", length = 4000)
     public String getDescription() {
         return this.description;
     }
@@ -107,7 +90,6 @@ public class MetaKpi implements java.io.Serializable {
         this.description = description;
     }
 
-    @Column(name = "OWNER", nullable = false, length = 200)
     public String getOwner() {
         return this.owner;
     }
@@ -116,7 +98,6 @@ public class MetaKpi implements java.io.Serializable {
         this.owner = owner;
     }
 
-    @Column(name = "STATUS", length = 20)
     public String getStatus() {
         return this.status;
     }
@@ -125,11 +106,6 @@ public class MetaKpi implements java.io.Serializable {
         this.status = status;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.REFRESH)
-    @JoinTable(name = "META_KPI_DIM", joinColumns = {
-        @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
-        @JoinColumn(name = "DIM_ID", nullable = false, updatable = false)})
     public Set<MetaDim> getMetaDims() {
         return this.metaDims;
     }
@@ -138,10 +114,6 @@ public class MetaKpi implements java.io.Serializable {
         this.metaDims = metaDims;
     }
 
-    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    @JoinTable(name = "META_KPI_FACT", joinColumns = {
-        @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
-        @JoinColumn(name = "FACT_ID", nullable = false, updatable = false)})
     public Set<MetaFact> getMetaFacts() {
         return this.metaFacts;
     }

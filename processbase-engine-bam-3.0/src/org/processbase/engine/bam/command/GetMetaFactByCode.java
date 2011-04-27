@@ -19,7 +19,7 @@ package org.processbase.engine.bam.command;
 import java.util.ArrayList;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.util.Command;
-import org.processbase.engine.bam.metadata.HibernateUtil;
+import org.processbase.engine.bam.db.HibernateUtil;
 import org.processbase.engine.bam.metadata.MetaFact;
 
 /**

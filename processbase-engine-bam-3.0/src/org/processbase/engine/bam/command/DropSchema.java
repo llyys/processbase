@@ -14,27 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.processbase.engine.bam.command;
 
-import java.util.ArrayList;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.util.Command;
 import org.processbase.engine.bam.db.HibernateUtil;
-import org.processbase.engine.bam.metadata.MetaDim;
 
 /**
  *
  * @author marat
  */
-public class GetMetaDimByCode implements Command<ArrayList<MetaDim>> {
-    private String code;
+public class DropSchema implements Command<Void> {
 
-    public GetMetaDimByCode(String code) {
-        this.code = code;
+    public Void execute(Environment e) throws Exception {
+
+         HibernateUtil hutil = new HibernateUtil();
+        hutil.dropSchema();
+//        hutil.generateSchema();
+//        MetaDim m1 = new MetaDim(1, "DIM01", "DIM01", "java.lang.String", Short.parseShort("10"));
+//        MetaDim m2 = new MetaDim(2, "DIM02", "DIM02", "int", Short.parseShort("5"));
+//        hutil.addMetaDim(m1);
+//        hutil.addMetaDim(m2);
+//
+//        MetaKpi k = new MetaKpi();
+//        k.setCode("KPI_0001");
+//        k.setName("KPI_0001");
+//        k.setOwner("test");
+//        k.setStatus("EDITABLE");
+//        k.getMetaDims().add(m1);
+//        k.getMetaDims().add(m2);
+//        hutil.addMetaKpi(k);
+        
+        return null;
     }
-    
-    public ArrayList<MetaDim> execute(Environment e) throws Exception {
-        HibernateUtil hutil = new HibernateUtil();
-        return hutil.getMetaDimByCode(code);
-    }
+
 }

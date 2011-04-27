@@ -18,17 +18,17 @@ package org.processbase.engine.bam.command;
 
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.util.Command;
-import org.processbase.engine.bam.metadata.HibernateUtil;
+import org.processbase.engine.bam.db.HibernateUtil;
 
 /**
  *
  * @author marat
  */
-public class CreateMetadataDatabase implements Command<Void> {
+public class ValidateSchema implements Command<Void> {
 
     public Void execute(Environment e) throws Exception {
         HibernateUtil hutil = new HibernateUtil();
-        hutil.generateSchema();
-        return null;
+        hutil.validateSchema();
+        return   null;
     }
 }

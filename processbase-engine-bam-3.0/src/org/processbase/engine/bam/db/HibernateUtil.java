@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.engine.bam.metadata;
+package org.processbase.engine.bam.db;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -32,6 +32,9 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.processbase.engine.bam.BAMConstants;
+import org.processbase.engine.bam.metadata.MetaDim;
+import org.processbase.engine.bam.metadata.MetaFact;
+import org.processbase.engine.bam.metadata.MetaKpi;
 
 /**
  * Hibernate Utility class 

@@ -19,7 +19,6 @@ package org.processbase.engine.bam;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Hashtable;
 import java.util.Properties;
 
 /**

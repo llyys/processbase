@@ -16,25 +16,19 @@
  */
 package org.processbase.engine.bam.command;
 
-import java.util.ArrayList;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.util.Command;
 import org.processbase.engine.bam.db.HibernateUtil;
-import org.processbase.engine.bam.metadata.MetaDim;
 
 /**
  *
  * @author marat
  */
-public class GetMetaDimByCode implements Command<ArrayList<MetaDim>> {
-    private String code;
+public class GenerateSchema implements Command<Void> {
 
-    public GetMetaDimByCode(String code) {
-        this.code = code;
-    }
-    
-    public ArrayList<MetaDim> execute(Environment e) throws Exception {
+    public Void execute(Environment e) throws Exception {
         HibernateUtil hutil = new HibernateUtil();
-        return hutil.getMetaDimByCode(code);
+        hutil.generateSchema();
+        return null;
     }
 }

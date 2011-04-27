@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.engine.bam.metadata;
+package org.processbase.engine.bam.db;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +28,9 @@ import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.Table;
 import org.hibernate.type.TypeFactory;
 import org.processbase.engine.bam.BAMConstants;
+import org.processbase.engine.bam.metadata.MetaDim;
+import org.processbase.engine.bam.metadata.MetaFact;
+import org.processbase.engine.bam.metadata.MetaKpi;
 
 /**
  *

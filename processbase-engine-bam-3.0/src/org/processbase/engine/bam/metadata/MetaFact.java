@@ -19,23 +19,11 @@ package org.processbase.engine.bam.metadata;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * MetaFact
  */
-@Entity
-@Table(name = "META_FACT", uniqueConstraints =
-@UniqueConstraint(columnNames = "CODE"))
+
 public class MetaFact implements java.io.Serializable {
 
     private long id;
@@ -59,8 +47,6 @@ public class MetaFact implements java.io.Serializable {
         this.metaKpis = metaKpis;
     }
 
-    @Id
-    @Column(name = "ID", unique = true, nullable = false, precision = 16, scale = 0)
     public long getId() {
         return this.id;
     }
@@ -69,7 +55,6 @@ public class MetaFact implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "CODE", nullable = false, length = 16)
     public String getCode() {
         return this.code;
     }
@@ -78,7 +63,6 @@ public class MetaFact implements java.io.Serializable {
         this.code = code;
     }
 
-    @Column(name = "NAME", nullable = false, length = 200)
     public String getName() {
         return this.name;
     }
@@ -87,10 +71,6 @@ public class MetaFact implements java.io.Serializable {
         this.name = name;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "META_KPI_FACT", schema = "PBBAM2", joinColumns = {
-        @JoinColumn(name = "FACT_ID", nullable = false, updatable = false)}, inverseJoinColumns = {
-        @JoinColumn(name = "KPI_ID", nullable = false, updatable = false)})
     public Set<MetaKpi> getMetaKpis() {
         return this.metaKpis;
     }
