@@ -22,16 +22,21 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
-import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
+import java.util.HashMap;
+import org.processbase.engine.bam.command.ExecuteScripts;
+import org.processbase.engine.bam.command.GenerateSchema;
+import org.processbase.engine.bam.command.GetCreateTableScript;
+import org.processbase.engine.bam.command.GetDatabaseMetadata;
+import org.processbase.engine.bam.command.GetMetaKpiByStatus;
+import org.processbase.engine.bam.command.UpdateMetaKpi;
+import org.processbase.engine.bam.command.ValidateSchema;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaKpi;
-import org.processbase.util.bam.metadata.ScriptGenerator;
+import org.processbase.engine.bam.metadata.MetaKpi;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -53,19 +58,18 @@ public class SchemesPanel extends TablePanel implements
         databaseInfo.setSpacing(true);
         databaseInfo.setWidth("100%");
         databaseInfo.removeAllComponents();
-        generateMetaDataBtn = new Button(((Processbase)getApplication()).getMessages().getString("generateMetaData"), this);
+        generateMetaDataBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("generateMetaData"), this);
         databaseInfo.addComponent(generateMetaDataBtn, 1, 0);
         generateMetaDataBtn.setVisible(false);
         try {
-            HibernateUtil hutil = new HibernateUtil();
-            DatabaseMetaData dbmd = hutil.getDatabaseMetadata();
+            HashMap<String, String> dbmd = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetDatabaseMetadata());
             StringBuilder info = new StringBuilder();
-            info.append("<b>").append(dbmd.getDatabaseProductName()).append(" ").append(dbmd.getDatabaseProductVersion()).append("</b>");
+            info.append("<b>").append(dbmd.get("DatabaseProductName")).append(" ").append(dbmd.get("DatabaseProductVersion")).append("</b>");
             databaseInfo.addComponent(new Label(info.toString(), Label.CONTENT_XHTML), 0, 0);
             info = new StringBuilder();
-            info.append("<b>").append(dbmd.getDriverName()).append(" ").append(dbmd.getDriverVersion()).append("</b>");
+            info.append("<b>").append(dbmd.get("DriverName")).append(" ").append(dbmd.get("DriverVersion")).append("</b>");
             databaseInfo.addComponent(new Label(info.toString(), Label.CONTENT_XHTML), 0, 1);
-            hutil.validateSchema();
+            ProcessbaseApplication.getCurrent().getBpmModule().execute(new ValidateSchema());
         } catch (Exception ex) {
             ex.printStackTrace();
             generateMetaDataBtn.setVisible(true);
@@ -76,13 +80,13 @@ public class SchemesPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
-        table.addContainerProperty("owner", String.class, null, ((Processbase)getApplication()).getMessages().getString("owner"), null, null);
-        table.addContainerProperty("status", String.class, null, ((Processbase)getApplication()).getMessages().getString("State"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
+        table.addContainerProperty("owner", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("owner"), null, null);
+        table.addContainerProperty("status", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("State"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
 
@@ -93,9 +97,7 @@ public class SchemesPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            HibernateUtil hutil = new HibernateUtil();
-
-            ArrayList<MetaKpi> metaKpis = hutil.getAllMetaKpiByStatus(MetaKpi.EDITABLE);
+            ArrayList<MetaKpi> metaKpis = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetMetaKpiByStatus(MetaKpi.EDITABLE));
 
             for (MetaKpi metaKpi : metaKpis) {
                 Item woItem = table.addItem(metaKpi);
@@ -104,7 +106,7 @@ public class SchemesPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaKpi.getName());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                 woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnGenerate"), "icons/start.png", metaKpi, this, Constants.ACTION_START);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnGenerate"), "icons/start.png", metaKpi, this, Constants.ACTION_START);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -142,17 +144,16 @@ public class SchemesPanel extends TablePanel implements
 
     private void generateMetaDataSchema() {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("generateSchema") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("generateSchema") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                HibernateUtil hutil = new HibernateUtil();
-                                hutil.generateSchema();
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new GenerateSchema());
                                 generateMetaDataBtn.setVisible(false);
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
@@ -163,23 +164,21 @@ public class SchemesPanel extends TablePanel implements
                 });
     }
 
-    private void generateTable(final MetaKpi metaKpi) {
-        ScriptGenerator srciptor = new ScriptGenerator();
-        final ArrayList<String> scripts = srciptor.getCreateTableScript(metaKpi, ScriptGenerator.CREATE_SCRIPT);
+    private void generateTable(final MetaKpi metaKpi) throws Exception {
+        final ArrayList<String> scripts = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetCreateTableScript(metaKpi));
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
                 scripts.get(0),
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                HibernateUtil hutil = new HibernateUtil();
-                                hutil.executeScripts(scripts);
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new ExecuteScripts(scripts));
                                 metaKpi.setStatus(MetaKpi.NOT_EDITABLE);
-                                hutil.updateMetaKpi(metaKpi);
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new UpdateMetaKpi(metaKpi));
                                 refreshTable();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

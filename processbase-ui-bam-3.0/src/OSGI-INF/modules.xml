@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component name="org.processbase.ui.bam.panel.BAMConfigurationPanel">
+    <implementation class="org.processbase.ui.bam.panel.BAMConfigurationPanel"/>
+    <reference name="org.processbase.ui.osgi.PbPanelModuleService"
+		interface="org.processbase.ui.osgi.PbPanelModuleService"
+		bind="setModuleService"
+		unbind="unsetModuleService"
+                cardinality="1..1"
+		policy="dynamic"/>
+</component>

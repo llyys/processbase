@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,15 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import java.util.ArrayList;
 import java.util.Iterator;
-import org.processbase.ui.core.Processbase;
+import org.processbase.engine.bam.command.AddMetaFact;
+import org.processbase.engine.bam.command.GetAllMetaFact;
+import org.processbase.engine.bam.command.GetMetaFactByCode;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaFact;
+import org.processbase.engine.bam.metadata.MetaFact;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -55,9 +58,9 @@ public class FactWindow extends PbWindow
     public void initUI() {
         try {
             if (metaFact == null) {
-                setCaption(((Processbase) getApplication()).getMessages().getString("newFact"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newFact"));
             } else {
-                setCaption(((Processbase) getApplication()).getMessages().getString("fact") + metaFact.getCode());
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("fact") + metaFact.getCode());
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -65,15 +68,15 @@ public class FactWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
-            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
-            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
-            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
+            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            code = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("code"));
+            name = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("name"));
 
             code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getCurrent().getPbMessages().getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("265px");
             name.setMaxLength(500);
@@ -84,8 +87,8 @@ public class FactWindow extends PbWindow
                 code.setValue(metaFact.getCode());
                 name.setValue(metaFact.getName());
             } else {
-                HibernateUtil hutil = new HibernateUtil();
-                code.setValue("F" + String.format("%05d", new Integer(hutil.getAllMetaFact().size() + 1)));
+                ArrayList<MetaFact> metaFacts = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaFact());
+                code.setValue("F" + String.format("%05d", new Integer(metaFacts.size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -112,11 +115,11 @@ public class FactWindow extends PbWindow
                 metaFact = new MetaFact();
                 metaFact.setCode(code.getValue().toString());
                 metaFact.setName(name.getValue().toString());
-                HibernateUtil hutil = new HibernateUtil();
-                if (hutil.getMetaFactByCode(metaFact.getCode()).isEmpty()) {
-                    hutil.addMetaFact(metaFact);
+                ArrayList<MetaFact> metaFacts = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetMetaFactByCode(metaFact.getCode()));
+                if (metaFacts.isEmpty()) {
+                     ProcessbaseApplication.getCurrent().getBpmModule().execute(new AddMetaFact(metaFact));
                 } else {
-                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueFactCode"));
+                    throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueFactCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

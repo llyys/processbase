@@ -43,7 +43,7 @@ import java.util.LinkedHashSet;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightActivityInstance;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.DashboardPanel;
 
 /**
@@ -70,9 +70,9 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
 
             HashSet<String> performersNames = new HashSet<String>();
 
-            Collection<LightActivityInstance> ais = ((Processbase)getApplication()).getBpmModule().getActivityInstances();
+            Collection<LightActivityInstance> ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances();
             for (LightActivityInstance ai : ais) {
-                ActivityDefinition ad = ((Processbase)getApplication()).getBpmModule().getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
+                ActivityDefinition ad = ProcessbaseApplication.getCurrent().getBpmModule().getProcessActivity(ai.getProcessDefinitionUUID(), ai.getActivityName());
                 if (!ad.getPerformers().isEmpty()) {
                     performersNames.add(ad.getPerformers().toString());
                 }
@@ -147,7 +147,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
         InvientChartsConfig chartConfig = new InvientChartsConfig();
         chartConfig.getGeneralChartConfig().setType(SeriesType.BAR);
 
-        chartConfig.getTitle().setText(((Processbase)getApplication()).getMessages().getString("taskByPerformers"));
+        chartConfig.getTitle().setText(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByPerformers"));
         chartConfig.getSubtitle().setText("Source: PROCESSBASE BPMS");
 
         CategoryAxis xAxisMain = new CategoryAxis();
@@ -158,7 +158,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
 
         NumberYAxis yAxis = new NumberYAxis();
         yAxis.setAllowDecimals(false);
-        yAxis.setTitle(new AxisTitle(((Processbase)getApplication()).getMessages().getString("processCount")));
+        yAxis.setTitle(new AxisTitle(ProcessbaseApplication.getCurrent().getPbMessages().getString("processCount")));
         yAxis.getTitle().setAlign(AxisTitleAlign.HIGH);
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);

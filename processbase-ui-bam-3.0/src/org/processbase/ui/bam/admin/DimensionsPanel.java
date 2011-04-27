@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.ArrayList;
+import org.processbase.engine.bam.command.DeleteMetaDim;
+import org.processbase.engine.bam.command.GetAllMetaDim;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaDim;
+import org.processbase.engine.bam.metadata.MetaDim;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -44,13 +45,13 @@ public class DimensionsPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
-        table.addContainerProperty("valueType", String.class, null, ((Processbase)getApplication()).getMessages().getString("valueType"), null, null);
-        table.addContainerProperty("length", String.class, null, ((Processbase)getApplication()).getMessages().getString("length"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
+        table.addContainerProperty("valueType", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("valueType"), null, null);
+        table.addContainerProperty("length", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("length"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -59,9 +60,7 @@ public class DimensionsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            HibernateUtil hutil = new HibernateUtil();
-
-            ArrayList<MetaDim> metaDims = hutil.getAllMetaDim();
+            ArrayList<MetaDim> metaDims = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaDim());
 
             for (MetaDim metaDim : metaDims) {
                 Item woItem = table.addItem(metaDim);
@@ -70,7 +69,7 @@ public class DimensionsPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaDim.getName());
                 woItem.getItemProperty("valueType").setValue(metaDim.getValueType());
                 woItem.getItemProperty("length").setValue(metaDim.getValueLength());
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -106,17 +105,16 @@ public class DimensionsPanel extends TablePanel implements
 
     private void removeMetaDim(final MetaDim metaDim) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("removeDimension") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeDimension") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                HibernateUtil hutil = new HibernateUtil();
-                                hutil.deleteMetaDim(metaDim);
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new DeleteMetaDim(metaDim));
                                 refreshTable();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

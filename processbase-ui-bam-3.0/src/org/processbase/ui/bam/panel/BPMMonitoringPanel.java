@@ -27,7 +27,7 @@ import com.vaadin.ui.Window;
 import org.processbase.ui.bam.dashboard.DashboardPerformerTaskPanel;
 import org.processbase.ui.bam.dashboard.DashboardProcessesPanel;
 import org.processbase.ui.bam.dashboard.DashboardUserTaskPanel;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.DashboardPanel;
 import org.processbase.ui.core.template.PbPanel;
@@ -81,20 +81,20 @@ public class BPMMonitoringPanel extends PbPanel
 
     private void prepareButtonBar() {
         // prepare dashboardProcessBtn button
-        dashboardProcessBtn = new Button(((Processbase)getApplication()).getMessages().getString("startedProcesses"), this);
+        dashboardProcessBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("startedProcesses"), this);
         dashboardProcessBtn.setStyleName("special");
         dashboardProcessBtn.setEnabled(false);
         buttonBar.addComponent(dashboardProcessBtn, 0);
         buttonBar.setComponentAlignment(dashboardProcessBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardPerformersBtn button
-        dashboardPerformersBtn = new Button(((Processbase)getApplication()).getMessages().getString("taskByPerformers"), this);
+        dashboardPerformersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByPerformers"), this);
         dashboardPerformersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardPerformersBtn, 1);
         buttonBar.setComponentAlignment(dashboardPerformersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardUsersBtn button
-        dashboardUsersBtn = new Button(((Processbase)getApplication()).getMessages().getString("taskByUser"), this);
+        dashboardUsersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByUser"), this);
         dashboardUsersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardUsersBtn, 2);
         buttonBar.setComponentAlignment(dashboardUsersBtn, Alignment.MIDDLE_LEFT);
@@ -106,7 +106,7 @@ public class BPMMonitoringPanel extends PbPanel
 
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 

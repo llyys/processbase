@@ -35,7 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Random;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightActivityInstance;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.DashboardPanel;
 
 /**
@@ -68,7 +68,7 @@ public class DashboardUserTaskPanel extends DashboardPanel {
             HashMap<String, Double> todayDoneTasks = new HashMap<String, Double>();
             HashMap<String, Double> expiredTasks = new HashMap<String, Double>();
 
-            Collection<LightActivityInstance> ais = ((Processbase)getApplication()).getBpmModule().getActivityInstances();
+            Collection<LightActivityInstance> ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances();
             for (LightActivityInstance ai : ais) {
                 if (ai.isTask() && ai.getTask().isTaskAssigned() && ai.getState().equals(ActivityState.EXECUTING)) {
                     if (startedTasks.containsKey(ai.getTask().getTaskUser())) {
@@ -165,7 +165,7 @@ public class DashboardUserTaskPanel extends DashboardPanel {
         chartConfig.getGeneralChartConfig().getMargin().setRight(0);
         chartConfig.getGeneralChartConfig().getMargin().setBottom(0);
         chartConfig.getGeneralChartConfig().getMargin().setLeft(0);
-        chartConfig.getTitle().setText(((Processbase)getApplication()).getMessages().getString("taskByUser"));
+        chartConfig.getTitle().setText(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByUser"));
 
         chartConfig.getTooltip().setFormatterJsFunc(
                 "function() {"

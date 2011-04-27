@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.ArrayList;
+import org.processbase.engine.bam.command.DeleteMetaKpi;
+import org.processbase.engine.bam.command.GetAllMetaKpi;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaKpi;
+import org.processbase.engine.bam.metadata.MetaKpi;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -44,14 +45,14 @@ public class KPIsPanel extends TablePanel implements
     @Override
         public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
-        table.addContainerProperty("name", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
-        table.addContainerProperty("description", String.class, null, ((Processbase)getApplication()).getMessages().getString("description"), null, null);
-        table.addContainerProperty("owner", String.class, null, ((Processbase)getApplication()).getMessages().getString("owner"), null, null);
-        table.addContainerProperty("status", String.class, null, ((Processbase)getApplication()).getMessages().getString("State"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("description"), null, null);
+        table.addContainerProperty("owner", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("owner"), null, null);
+        table.addContainerProperty("status", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("State"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -60,9 +61,7 @@ public class KPIsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            HibernateUtil hutil = new HibernateUtil();
-
-            ArrayList<MetaKpi> metaKpis = hutil.getAllMetaKpi();
+            ArrayList<MetaKpi> metaKpis = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaKpi());
 
             for (MetaKpi metaKpi : metaKpis) {
                 Item woItem = table.addItem(metaKpi);
@@ -73,7 +72,7 @@ public class KPIsPanel extends TablePanel implements
                 woItem.getItemProperty("description").setValue(metaKpi.getDescription());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                  woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
                 tlb.setEnabled(metaKpi.getStatus().equals("EDITABLE"));
                 woItem.getItemProperty("actions").setValue(tlb);
             }
@@ -110,17 +109,16 @@ public class KPIsPanel extends TablePanel implements
 
     private void removeMetaKpi(final MetaKpi metaKpi) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("removeKPI") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeKPI") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                HibernateUtil hutil = new HibernateUtil();
-                                hutil.deleteMetaKpi(metaKpi);
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new DeleteMetaKpi(metaKpi));
                                 refreshTable();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());

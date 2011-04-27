@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 PROCESSBASE Ltd.
+ * Copyright (C) 2011 PROCESSBASE Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +29,15 @@ import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import java.util.ArrayList;
 import java.util.Iterator;
-import org.processbase.ui.core.Processbase;
+import org.processbase.engine.bam.command.AddMetaDim;
+import org.processbase.engine.bam.command.GetAllMetaDim;
+import org.processbase.engine.bam.command.GetMetaDimByCode;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaDim;
+import org.processbase.engine.bam.metadata.MetaDim;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -60,9 +63,9 @@ public class DimentionWindow extends PbWindow
     public void initUI() {
         try {
             if (metaDim == null) {
-                setCaption(((Processbase) getApplication()).getMessages().getString("newDimension"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newDimension"));
             } else {
-                setCaption(((Processbase) getApplication()).getMessages().getString("dimension") + metaDim.getCode());
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimension") + metaDim.getCode());
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -70,17 +73,17 @@ public class DimentionWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
-            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
-            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
-            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
-            valueType = new NativeSelect(((Processbase) getApplication()).getMessages().getString("valueType"));
-            length = new TextField(((Processbase) getApplication()).getMessages().getString("length"));
+            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            code = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("code"));
+            name = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("name"));
+            valueType = new NativeSelect(ProcessbaseApplication.getCurrent().getPbMessages().getString("valueType"));
+            length = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("length"));
 
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getCurrent().getPbMessages().getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("270px");
             name.setMaxLength(500);
@@ -107,8 +110,8 @@ public class DimentionWindow extends PbWindow
                 valueType.setValue(metaDim.getValueType());
                 length.setValue(metaDim.getValueLength());
             } else {
-                HibernateUtil hutil = new HibernateUtil();
-                code.setValue("D" + String.format("%05d", new Integer(hutil.getAllMetaDim().size() + 1)));
+                ArrayList<MetaDim> metaDims = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaDim());
+                code.setValue("D" + String.format("%05d", new Integer(metaDims.size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -139,11 +142,11 @@ public class DimentionWindow extends PbWindow
                 if (length.getValue() != null && !length.getValue().toString().isEmpty()) {
                     metaDim.setValueLength(Short.parseShort(length.getValue().toString()));
                 }
-                HibernateUtil hutil = new HibernateUtil();
-                if (hutil.getMetaDimByCode(metaDim.getCode()).isEmpty()) {
-                    hutil.addMetaDim(metaDim);
+                ArrayList<MetaDim> metadims = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetMetaDimByCode(metaDim.getCode()));
+                if (metadims.isEmpty()) {
+                    ProcessbaseApplication.getCurrent().getBpmModule().execute(new AddMetaDim(metaDim));
                 } else {
-                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueDimCode"));
+                    throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueDimCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

@@ -24,6 +24,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import org.processbase.ui.bam.admin.DimensionsPanel;
 import org.processbase.ui.bam.admin.DimentionWindow;
 import org.processbase.ui.bam.admin.FactWindow;
@@ -31,16 +33,16 @@ import org.processbase.ui.bam.admin.FactsPanel;
 import org.processbase.ui.bam.admin.KPIWindow;
 import org.processbase.ui.bam.admin.KPIsPanel;
 import org.processbase.ui.bam.admin.SchemesPanel;
-import org.processbase.ui.core.Processbase;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.TablePanel;
+import org.processbase.ui.osgi.PbPanelModule;
 
 /**
  *
  * @author mgubaidullin
  */
-public class BAMConfigurationPanel extends PbPanel
+public class BAMConfigurationPanel extends PbPanelModule
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -90,26 +92,26 @@ public class BAMConfigurationPanel extends PbPanel
 
     private void prepareButtonBar() {
         // prepare dimensionsBtn button
-        dimensionsBtn = new Button(((Processbase)getApplication()).getMessages().getString("dimensions"), this);
+        dimensionsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensions"), this);
         dimensionsBtn.setStyleName("special");
         dimensionsBtn.setEnabled(false);
         buttonBar.addComponent(dimensionsBtn, 0);
         buttonBar.setComponentAlignment(dimensionsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare factsBtn button
-        factsBtn = new Button(((Processbase)getApplication()).getMessages().getString("facts"), this);
+        factsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("facts"), this);
         factsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(factsBtn, 1);
         buttonBar.setComponentAlignment(factsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare kpisBtn button
-        kpisBtn = new Button(((Processbase)getApplication()).getMessages().getString("kpis"), this);
+        kpisBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("kpis"), this);
         kpisBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(kpisBtn, 2);
         buttonBar.setComponentAlignment(kpisBtn, Alignment.MIDDLE_LEFT);
 
         // prepare schemesBtn button
-        schemesBtn = new Button(((Processbase)getApplication()).getMessages().getString("schemes"), this);
+        schemesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("schemes"), this);
         schemesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(schemesBtn, 3);
         buttonBar.setComponentAlignment(schemesBtn, Alignment.MIDDLE_LEFT);
@@ -120,12 +122,12 @@ public class BAMConfigurationPanel extends PbPanel
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare add button
-        btnAdd = new Button(((Processbase)getApplication()).getMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 5);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare refresh button
-        refreshBtn = new Button(((Processbase)getApplication()).getMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
@@ -186,5 +188,11 @@ public class BAMConfigurationPanel extends PbPanel
             getApplication().getMainWindow().addWindow(nkw);
             nkw.initUI();
         }
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        ResourceBundle rb = ResourceBundle.getBundle("resources/MessagesBundle", locale);
+        return rb.getString("bamAdmin");
     }
 }

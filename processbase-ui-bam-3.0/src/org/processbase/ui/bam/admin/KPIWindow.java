@@ -33,13 +33,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.processbase.ui.core.Processbase;
+import org.processbase.engine.bam.command.GetAllMetaDim;
+import org.processbase.engine.bam.command.GetAllMetaFact;
+import org.processbase.engine.bam.command.GetAllMetaKpi;
+import org.processbase.engine.bam.command.GetMetaKpiByCode;
+import org.processbase.engine.bam.command.UpdateMetaKpi;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaDim;
-import org.processbase.util.bam.metadata.MetaFact;
-import org.processbase.util.bam.metadata.MetaKpi;
+import org.processbase.engine.bam.metadata.MetaDim;
+import org.processbase.engine.bam.metadata.MetaFact;
+import org.processbase.engine.bam.metadata.MetaKpi;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -67,9 +71,9 @@ public class KPIWindow extends PbWindow
     public void initUI() {
         try {
             if (metaKpi == null) {
-                setCaption(((Processbase) getApplication()).getMessages().getString("newKPI"));
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newKPI"));
             } else {
-                setCaption(((Processbase) getApplication()).getMessages().getString("kpi") + " " + metaKpi.getCode());
+                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("kpi") + " " + metaKpi.getCode());
             }
             setModal(true);
             setContent(layout);
@@ -77,16 +81,16 @@ public class KPIWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            closeBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnClose"), this);
-            saveBtn = new Button(((Processbase) getApplication()).getMessages().getString("btnSave"), this);
-            code = new TextField(((Processbase) getApplication()).getMessages().getString("code"));
-            name = new TextField(((Processbase) getApplication()).getMessages().getString("name"));
-            description = new TextField(((Processbase) getApplication()).getMessages().getString("description"));
+            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            code = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("code"));
+            name = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("name"));
+            description = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("description"));
 
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ((Processbase) getApplication()).getMessages().getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getCurrent().getPbMessages().getString("codeValidatorError")));
             layout.addComponent(code, 0, 0);
             name.setWidth("275px");
             name.setMaxLength(500);
@@ -96,10 +100,8 @@ public class KPIWindow extends PbWindow
             description.setRequired(true);
             layout.addComponent(description, 0, 1, 1, 1);
 
-            HibernateUtil hutil = new HibernateUtil();
-
             // preparing dimensions
-            ArrayList<MetaDim> metaDims = hutil.getAllMetaDim();
+            ArrayList<MetaDim> metaDims = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaDim());
             for (MetaDim metaDim : metaDims) {
                 Item woItem = dimensions.addItem(metaDim);
                 dimensions.setItemCaption(metaDim, metaDim.getCode() + " (" + metaDim.getName() + ")");
@@ -107,12 +109,12 @@ public class KPIWindow extends PbWindow
 
             dimensions.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             dimensions.setWidth("570px");
-            dimensions.setLeftColumnCaption(((Processbase) getApplication()).getMessages().getString("dimensionsAvailable"));
-            dimensions.setRightColumnCaption(((Processbase) getApplication()).getMessages().getString("dimensionsSelected"));
+            dimensions.setLeftColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensionsAvailable"));
+            dimensions.setRightColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensionsSelected"));
             layout.addComponent(dimensions, 0, 2, 1, 2);
 
             // preparing facts
-            ArrayList<MetaFact> metaFacts = hutil.getAllMetaFact();
+            ArrayList<MetaFact> metaFacts = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaFact());
             for (MetaFact metaFact : metaFacts) {
                 Item woItem = facts.addItem(metaFact);
                 facts.setItemCaption(metaFact, metaFact.getCode() + " (" + metaFact.getName() + ")");
@@ -120,8 +122,8 @@ public class KPIWindow extends PbWindow
 
             facts.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             facts.setWidth("570px");
-            facts.setLeftColumnCaption(((Processbase) getApplication()).getMessages().getString("factsAvailable"));
-            facts.setRightColumnCaption(((Processbase) getApplication()).getMessages().getString("factsSelected"));
+            facts.setLeftColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("factsAvailable"));
+            facts.setRightColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("factsSelected"));
             layout.addComponent(facts, 0, 3, 1, 3);
 
             if (metaKpi != null) {
@@ -150,7 +152,8 @@ public class KPIWindow extends PbWindow
                     facts.setReadOnly(true);
                 }
             } else {
-                code.setValue("K" + String.format("%05d", new Integer(hutil.getAllMetaKpi().size() + 1)));
+                ArrayList<MetaKpi> kpis = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaKpi());
+                code.setValue("K" + String.format("%05d", new Integer(kpis.size() + 1)));
             }
 
             buttons.addButton(saveBtn);
@@ -199,7 +202,7 @@ public class KPIWindow extends PbWindow
                 metaKpi.setCode(code.getValue().toString());
                 metaKpi.setName(name.getValue().toString());
                 metaKpi.setDescription(description.getValue().toString());
-                metaKpi.setOwner(((Processbase) getApplication()).getUserName());
+                metaKpi.setOwner(ProcessbaseApplication.getCurrent().getUserName());
                 metaKpi.getMetaDims().clear();
                 if (dimensions.getValue() instanceof Set && !((Set) dimensions.getValue()).isEmpty()) {
                     metaKpi.getMetaDims().addAll((Set) dimensions.getValue());
@@ -208,12 +211,11 @@ public class KPIWindow extends PbWindow
                 if (facts.getValue() instanceof Set && !((Set) facts.getValue()).isEmpty()) {
                     metaKpi.getMetaFacts().addAll((Set) facts.getValue());
                 }
-                HibernateUtil hutil = new HibernateUtil();
-                ArrayList<MetaKpi> x = hutil.getMetaKpiByCode(metaKpi.getCode());
+                ArrayList<MetaKpi> x = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetMetaKpiByCode(metaKpi.getCode()));
                 if (x.isEmpty() || x.get(0).getId() > 0) {
-                    hutil.updateMetaKpi(metaKpi);
+                    ProcessbaseApplication.getCurrent().getBpmModule().execute(new UpdateMetaKpi(metaKpi));
                 } else {
-                    throw new Exception(((Processbase) getApplication()).getMessages().getString("uniqueKpiCode"));
+                    throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueKpiCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

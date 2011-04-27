@@ -11,7 +11,7 @@
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
-                <foreign-project>processbase-ui-core-3_0</foreign-project>
+                <foreign-project>processbase-engine-bam-3_0</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
                 <target>jar</target>
@@ -19,7 +19,7 @@
                 <id>jar</id>
             </reference>
             <reference>
-                <foreign-project>processbase-util-bam-3_0</foreign-project>
+                <foreign-project>processbase-ui-core-3_0</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
                 <target>jar</target>

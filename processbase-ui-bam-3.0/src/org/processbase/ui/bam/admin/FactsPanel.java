@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2010 PROCESSBASE Ltd.
  *
@@ -21,13 +22,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.ArrayList;
+import org.processbase.engine.bam.command.DeleteMetaFact;
+import org.processbase.engine.bam.command.GetAllMetaFact;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.Processbase;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.util.bam.metadata.HibernateUtil;
-import org.processbase.util.bam.metadata.MetaFact;
+import org.processbase.engine.bam.metadata.MetaFact;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -44,11 +46,11 @@ public class FactsPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ((Processbase)getApplication()).getMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ((Processbase)getApplication()).getMessages().getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, ((Processbase)getApplication()).getMessages().getString("name"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ((Processbase)getApplication()).getMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -57,16 +59,13 @@ public class FactsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            HibernateUtil hutil = new HibernateUtil();
-
-            ArrayList<MetaFact> metaFacts = hutil.getAllMetaFact();
-
+            ArrayList<MetaFact> metaFacts = ProcessbaseApplication.getCurrent().getBpmModule().execute(new GetAllMetaFact());
             for (MetaFact metaFact : metaFacts) {
                 Item woItem = table.addItem(metaFact);
                 woItem.getItemProperty("id").setValue(metaFact.getId());
                 woItem.getItemProperty("code").setValue(metaFact.getCode());
                 woItem.getItemProperty("name").setValue(metaFact.getName());
-                TableLinkButton tlb = new TableLinkButton(((Processbase)getApplication()).getMessages().getString("btnDelete"), "icons/cancel.png", metaFact, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaFact, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -102,17 +101,16 @@ public class FactsPanel extends TablePanel implements
 
     private void removeMetaFact(final MetaFact metaFact) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ((Processbase)getApplication()).getMessages().getString("windowCaptionConfirm"),
-                ((Processbase)getApplication()).getMessages().getString("removeFact") + "?",
-                ((Processbase)getApplication()).getMessages().getString("btnYes"),
-                ((Processbase)getApplication()).getMessages().getString("btnNo"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeFact") + "?",
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
+                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                                HibernateUtil hutil = new HibernateUtil();
-                                hutil.deleteMetaFact(metaFact);
+                                ProcessbaseApplication.getCurrent().getBpmModule().execute(new DeleteMetaFact(metaFact));
                                 refreshTable();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
