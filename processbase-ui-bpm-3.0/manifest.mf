@@ -21,6 +21,7 @@ Import-Package: org.processbase.ui.core;version=3.0.0,
  com.google.gson;version=1.6, com.google.gson.annotatio
  ns;version=1.6, com.google.gson.reflect;version=1.6,
  com.vaadin.terminal, com.vaadin.data, com.vaadin.ui, com.vaadin.data.util, com.vaadin,
+ com.vaadin.data.validator,
  com.vaadin.addon.treetable,
  com.sun.appserv.security, javax.security.auth.login,
  org.ow2.bonita.ant.tasks,
