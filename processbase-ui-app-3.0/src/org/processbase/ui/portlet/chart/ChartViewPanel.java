@@ -42,7 +42,7 @@ import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import org.processbase.ui.portlet.ChartPortlet;
-import org.processbase.util.bam.message.MessageController;
+import org.processbase.engine.bam.message.MessageController;
 
 /**
  *

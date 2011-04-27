@@ -42,7 +42,7 @@ import java.util.Iterator;
 import javax.portlet.PortletMode;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.portlet.ChartPortlet;
-import org.processbase.util.bam.message.MessageController;
+import org.processbase.engine.bam.message.MessageController;
 
 /**
  *
