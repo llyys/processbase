@@ -138,9 +138,9 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
             } else {
                 XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(process.getUUID());
                 FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(process.getUUID());
-                if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms() == null) {
+                if (!xmlProcess.isByPassFormsGeneration() /*check that forms is not defined*/) {
                     showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
-                } else if (!xmlProcess.isByPassFormsGeneration() && xmlProcess.getForms().size() > 0) {
+                } else if (!xmlProcess.isByPassFormsGeneration() /*check that forms is defined*/) {
                     GeneratedWindow2 genWindow = new GeneratedWindow2(process.getLabel());
                     genWindow.setProcessDef(process);
                     genWindow.setFormsDefinition(formsDefinition);

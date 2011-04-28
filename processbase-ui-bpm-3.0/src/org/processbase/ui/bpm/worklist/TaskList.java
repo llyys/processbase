@@ -165,7 +165,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                 XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
                 FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(task.getProcessDefinitionUUID());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
-                if (taskDef != null && !taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
+                if (taskDef != null && !taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
                     GeneratedWindow2 genWindow = new GeneratedWindow2(task.getActivityLabel());
                     genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
                     genWindow.setFormsDefinition(formsDefinition);

@@ -33,8 +33,9 @@ import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.generator.GeneratedWindow2;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
 /**
  *
@@ -113,13 +114,14 @@ public class TaskCompleted extends TablePanel {
                 this.getWindow().open(new ExternalResource(url));
             } else {
                 XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
+                FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(task.getProcessDefinitionUUID());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
-                if (!taskDef.isByPassFormsGeneration() && taskDef.getForms() == null) {
+                if (!taskDef.isByPassFormsGeneration() /*check that forms is not defined*/) {
                     showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
-                } else if (!taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
-                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
+                } else if (!taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
+                    GeneratedWindow2 genWindow = new GeneratedWindow2(task.getActivityLabel());
                     genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
-                    genWindow.setXMLProcess(xmlProcess);
+                    genWindow.setFormsDefinition(formsDefinition);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 }

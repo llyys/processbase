@@ -441,7 +441,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
                                 value = ((AbstractField) comp).getValue();
                             }
                             if (comp instanceof GeneratedTable) {
-                                value = ((GeneratedTable) comp).getTableValue();
+//                                value = ((GeneratedTable) comp).getTableValue();
                             }
                             if (comp instanceof CheckBox) {
                                 value = ((CheckBox) comp).booleanValue();
