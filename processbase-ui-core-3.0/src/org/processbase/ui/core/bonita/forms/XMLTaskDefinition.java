@@ -27,21 +27,12 @@ public class XMLTaskDefinition {
 
     private String name;
     private String label;
-    private ArrayList<XMLFormDefinition> forms = new ArrayList<XMLFormDefinition>();
     private boolean byPassFormsGeneration = false;
 
     public XMLTaskDefinition(String name, String label) {
         this.name = name;
         this.label = label;
     }
-
-    public ArrayList<XMLFormDefinition> getForms() {
-        return forms;
-    }
-
-    public void addForms (ArrayList<XMLFormDefinition> forms) {
-        this.forms.addAll(forms);
-    }   
 
     public String getLabel() {
         return label;

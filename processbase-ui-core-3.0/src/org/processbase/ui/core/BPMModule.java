@@ -87,7 +87,6 @@ import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
-import org.processbase.ui.core.bonita.forms.XMLFormDefinition;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 
@@ -667,11 +666,6 @@ public class BPMModule {
 
         Diagram d = new Diagram(img, proc, queryRuntimeAPI.getLightActivityInstances(pi.getRootInstanceUUID()));
         return d.getImage();
-    }
-
-    public ArrayList<XMLFormDefinition> getXMLFormDefinition(ProcessDefinitionUUID pdUUID) throws Exception {
-        XMLProcessDefinition process = getXMLProcessDefinition(pdUUID);
-        return process.getForms();
     }
 
     public XMLTaskDefinition getXMLTaskDefinition(ProcessDefinitionUUID pdUUID, String stepName) throws Exception {

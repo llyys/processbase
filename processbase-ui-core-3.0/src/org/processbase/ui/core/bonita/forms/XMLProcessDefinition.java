@@ -27,10 +27,7 @@ public class XMLProcessDefinition {
 
     private String name;
     private String label;
-    private XMLFormDefinition processStartForm;
-    private ArrayList<XMLFormDefinition> forms = new ArrayList<XMLFormDefinition>();
     private HashMap<String, XMLTaskDefinition> tasks = new HashMap<String, XMLTaskDefinition>();
-    private HashMap<String, XMLDataDefinition> datas = new HashMap<String, XMLDataDefinition>();
     private boolean byPassFormsGeneration = false;
 
     public XMLProcessDefinition(String name, String label) {
@@ -38,13 +35,6 @@ public class XMLProcessDefinition {
         this.label = label;
     }
 
-    public XMLFormDefinition getProcessStartForm() {
-        return processStartForm;
-    }
-
-    public ArrayList<XMLFormDefinition> getForms() {
-        return forms;
-    }
 
     public HashMap<String, XMLTaskDefinition> getTasks() {
         return tasks;
@@ -54,16 +44,8 @@ public class XMLProcessDefinition {
         this.tasks = tasks;
     }
 
-    public void addForms(ArrayList<XMLFormDefinition> forms) {
-        this.forms.addAll(forms);
-    }
-
     public void addTask(String stepName, XMLTaskDefinition task) {
         this.tasks.put(stepName, task);
-    }
-
-    public void addData(XMLDataDefinition data) {
-        this.datas.put(data.getId(), data);
     }
 
     public String getLabel() {
@@ -80,10 +62,6 @@ public class XMLProcessDefinition {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public HashMap<String, XMLDataDefinition> getDatas() {
-        return datas;
     }
 
     public boolean isByPassFormsGeneration() {
