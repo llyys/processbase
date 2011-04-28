@@ -81,7 +81,6 @@ public class MessageController {
     public static String kpiToXml(Kpi kpi) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(kpi.getClass());
         Marshaller marshaller = context.createMarshaller();
-//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         marshaller.marshal(kpi, baos);
         return new String(baos.toByteArray());
