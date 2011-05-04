@@ -233,6 +233,8 @@ public class ChartConfigurationPanel extends GridLayout implements Button.ClickL
         Connection conn = null;
         try {
             conn = MessageController.newConnection();
+            System.out.println("conn + " + conn.getMetaData());
+            System.out.println("sql " + sqlText.getValue());
             PreparedStatement ps = conn.prepareStatement(sqlText.getValue().toString());
             ps.execute();
             ResultSetMetaData rsm = ps.getMetaData();

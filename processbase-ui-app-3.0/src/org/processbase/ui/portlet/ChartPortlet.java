@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
-import org.processbase.ui.core.Constants;
+import org.processbase.engine.bam.BAMConstants;
 import org.processbase.ui.portlet.chart.ChartConfigurationPanel;
 import org.processbase.ui.portlet.chart.ChartViewPanel;
 
@@ -65,8 +65,8 @@ public class ChartPortlet extends Application
     @Override
     public void init() {
         setCurrent(this);
-        if (!Constants.LOADED) {
-            Constants.loadConstants();
+        if (!BAMConstants.LOADED) {
+            BAMConstants.loadConstants();
         }
         messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
         portletApplicationContext2 = (PortletApplicationContext2) getContext();

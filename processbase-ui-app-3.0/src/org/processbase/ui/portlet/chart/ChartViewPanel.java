@@ -199,6 +199,8 @@ public class ChartViewPanel extends VerticalLayout implements Refresher.RefreshL
         Connection conn = null;
         try {
             conn = MessageController.newConnection();
+            System.out.println("conn + " + conn.getMetaData());
+            System.out.println("sql " + sql);
             PreparedStatement ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.execute();
             ResultSet rs = ps.getResultSet();
