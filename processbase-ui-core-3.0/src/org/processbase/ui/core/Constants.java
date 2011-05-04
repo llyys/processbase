@@ -60,7 +60,7 @@ public class Constants {
 
     public static void loadConstants() {
         try {
-            File file = new File("processbase2.properties");
+            File file = new File("processbase3.properties");
             if (file.exists()) {
                 load();
             } else {
@@ -74,7 +74,7 @@ public class Constants {
     }
 
     private static void load() throws FileNotFoundException, IOException {
-        File file = new File("processbase2.properties");
+        File file = new File("processbase3.properties");
         FileInputStream fis = new FileInputStream(file);
         properties.loadFromXML(fis);
         fis.close();
@@ -91,7 +91,7 @@ public class Constants {
 
         DL_GROUP = properties.containsKey("DL_GROUP") ? properties.getProperty("DL_GROUP") : "DOCUMENTS";
         BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
-        APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH2";
+        APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH3";
 
         BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
         BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
@@ -100,8 +100,8 @@ public class Constants {
     }
 
     private static void save() throws FileNotFoundException, IOException {
-        File file = new File("processbase2.properties");
-        properties.setProperty("APP_SERVER", "GLASSFISH2");
+        File file = new File("processbase3.properties");
+        properties.setProperty("APP_SERVER", "GLASSFISH3");
         properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
         properties.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");
         properties.setProperty("java.naming.factory.url.pkgs", "com.sun.enterprise.naming");
