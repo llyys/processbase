@@ -251,8 +251,10 @@ public class MessageController {
             //Allocate and use a connection from the pool
             con = ds.getConnection();
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         } catch (Exception e) {
+             e.printStackTrace();
         }
         return con;
     }

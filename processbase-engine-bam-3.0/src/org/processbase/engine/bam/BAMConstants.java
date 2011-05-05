@@ -36,7 +36,7 @@ public class BAMConstants {
 
     public static void loadConstants() {
         try {
-            File file = new File("processbase2.properties");
+            File file = new File("processbase3.properties");
             if (file.exists()) {
                 FileInputStream fis = new FileInputStream(file);
                 properties.loadFromXML(fis);
