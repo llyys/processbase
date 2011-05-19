@@ -22,17 +22,20 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
-import org.processbase.ui.bpm.generator.GeneratedWindow2;
+import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -136,17 +139,15 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 ProcessbaseApplication.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(process.getUUID());
-                FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(process.getUUID());
-                if (!xmlProcess.isByPassFormsGeneration() /*check that forms is not defined*/) {
-                    showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
-                } else if (!xmlProcess.isByPassFormsGeneration() /*check that forms is defined*/) {
-                    GeneratedWindow2 genWindow = new GeneratedWindow2(process.getLabel());
+                BarResource barResource = new BarResource(process.getUUID());
+                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition();
+                if (!xmlProcess.isByPassFormsGeneration()) {
+                    GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
                     genWindow.setProcessDef(process);
-                    genWindow.setFormsDefinition(formsDefinition);
+                    genWindow.setBarResource(barResource);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
-                } else if (xmlProcess.isByPassFormsGeneration()) {
+                } else {
                     ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(process.getUUID());
                     showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
                 }

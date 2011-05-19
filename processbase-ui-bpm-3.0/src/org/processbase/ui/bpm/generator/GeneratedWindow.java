@@ -71,8 +71,9 @@ import org.processbase.ui.core.template.ImmediateUpload;
  *
  * @author marat
  */
-public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickListener {
+public class GeneratedWindow extends HumanTaskWindow implements Button.ClickListener {
 
+    private BarResource barResource;
     private FormsDefinition formsDefinition;
     private PageFlow pageFlow;
     private HashMap<Component, Widget> components = new HashMap<Component, Widget>();
@@ -85,7 +86,7 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
     private Map<AttachmentInstance, byte[]> attachments = new HashMap<AttachmentInstance, byte[]>();
     private Map<String, Object> groovyScripts = new HashMap<String, Object>();
 
-    public GeneratedWindow2(String caption) {
+    public GeneratedWindow(String caption) {
         super(caption);
     }
 
@@ -95,10 +96,14 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
         try {
             if (taskInstance != null && !taskInstance.getState().equals(ActivityState.FINISHED) && !taskInstance.getState().equals(ActivityState.ABORTED) && !taskInstance.getState().equals(ActivityState.CANCELLED)) {
                 pageFlow = getPageFlow(taskInstance.getActivityName());
-                generateWindow();
             } else if (taskInstance == null) {
                 pageFlow = getPageFlow();
+            }
+            if (pageFlow != null) {
                 generateWindow();
+            } else {
+                showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
+                close();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -110,17 +115,34 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
         prepareAttachments();
         prepareGroovyScripts();
         for (Page page : pageFlow.getPages().getPages()) {
-            GridLayout gridLayout = new GridLayout(5, 5);
+            TableStyle ts = barResource.getTableStyle(page);
+            GridLayout gridLayout = new GridLayout(ts.getColumns(), ts.getRows());
             gridLayout.setMargin(false, true, true, true);
             gridLayout.setSpacing(true);
             for (Object wg : page.getWidgets().getWidgetsAndGroups()) {
                 Component component = null;
                 if (wg instanceof Widget) {
-                    component = getComponent((Widget) wg);
-                    components.put(component, (Widget) wg);
-                    fields.put("field_" + ((Widget) wg).getId(), component);
-                    gridLayout.addComponent(component);
-
+                    Widget widget = (Widget) wg;
+                    component = getComponent(widget);
+                    components.put(component, widget);
+                    fields.put("field_" + widget.getId(), component);
+                    ComponentStyle componentStyle = ts.getElements().get(widget.getId());
+                    int fColumn = componentStyle.getPosition().getFColumn();
+                    int fRow = componentStyle.getPosition().getFRow();
+                    int tColumn = componentStyle.getPosition().getTColumn();
+                    int tRow = componentStyle.getPosition().getTRow();
+                     System.out.println(widget.getId() + " " + fColumn + " " + tColumn + " " + fRow + " " + tRow);
+                    CSSProperty cssProperty = componentStyle.getCss();
+                    if (cssProperty != null) {
+                        System.out.print(widget.getId() + " H:" + cssProperty.getHeigth());
+                        System.out.print(" W:" + cssProperty.getWidth());
+                        System.out.println(" A:" + cssProperty.getAlign());
+                    } else {
+                        if (!(component instanceof Button) && (fColumn==tColumn)) {
+                            component.setWidth("200px");
+                        }
+                    }
+                    gridLayout.addComponent(component, fColumn, fRow, tColumn, tRow);
                 } else if (wg instanceof WidgetGroup) {
                 }
             }
@@ -624,12 +646,9 @@ public class GeneratedWindow2 extends HumanTaskWindow implements Button.ClickLis
         return script.substring(0, end > 0 ? end : script.length());
     }
 
-    public FormsDefinition getFormsDefinition() {
-        return formsDefinition;
-    }
-
-    public void setFormsDefinition(FormsDefinition formsDefinition) {
-        this.formsDefinition = formsDefinition;
+    public void setBarResource(BarResource barResource) {
+        this.barResource = barResource;
+        formsDefinition = this.barResource.getFormsDefinition();
     }
 
     private PageFlow getPageFlow() {

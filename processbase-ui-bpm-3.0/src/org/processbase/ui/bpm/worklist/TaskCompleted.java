@@ -27,13 +27,14 @@ import javax.management.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
+import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.bpm.generator.GeneratedWindow2;
+import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -113,15 +114,15 @@ public class TaskCompleted extends TablePanel {
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
-                FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(task.getProcessDefinitionUUID());
+                BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
+                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition();
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() /*check that forms is not defined*/) {
                     showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
-                    GeneratedWindow2 genWindow = new GeneratedWindow2(task.getActivityLabel());
+                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
                     genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
-                    genWindow.setFormsDefinition(formsDefinition);
+                    genWindow.setBarResource(barResource);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 }
