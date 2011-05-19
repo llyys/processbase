@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
+import java.util.Map;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.EventRequest;
@@ -320,5 +321,10 @@ public class CustomPortlet extends ProcessbaseApplication
     }
 
     public void onRequestEnd(PortletRequest request, PortletResponse response) {
+    }
+
+    @Override
+    public Map<String, String> getFileList(String processUUID) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

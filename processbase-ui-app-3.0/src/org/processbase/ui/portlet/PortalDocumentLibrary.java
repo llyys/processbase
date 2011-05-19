@@ -32,7 +32,9 @@ import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.processbase.ui.core.Constants;
 
 /**
@@ -193,6 +195,16 @@ public class PortalDocumentLibrary {
 
     public void saveFile(String processUUID, String fileId, String fileName, byte[] fileBody) throws Exception{
         addFile(processUUID, fileId, fileName, fileName, fileBody, new String[0]);
+    }
+
+    public Map<String, String> getFileList(String processUUID) throws Exception{
+        HashMap<String, String> result = new HashMap<String, String>();
+        List<DLFileEntry> entries = getProcessFiles(processUUID);
+        for (DLFileEntry fileEntry : entries){
+            result.put(fileEntry.getTitle(), fileEntry.getDescription());
+            System.out.println(fileEntry.getName()+" - "+fileEntry.getTitle()+" - "+fileEntry.getDescription());
+        }
+        return result;
     }
 
 }

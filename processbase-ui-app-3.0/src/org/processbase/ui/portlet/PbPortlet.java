@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
+import java.util.Map;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
@@ -219,7 +220,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     }
 
     public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception{
-        this.getDocumentLibrary().saveFile(processUUID, fileName, fileName, fileBody);
+        this.getDocumentLibrary().saveFile(processUUID, name, fileName, fileBody);
     }
 
     public byte[] getFileBody(String processUUID, String name) throws Exception {
@@ -236,5 +237,10 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 
     public void setCustomMessages(ResourceBundle customMessages) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Map<String, String> getFileList(String processUUID) throws Exception {
+        return getDocumentLibrary().getFileList(processUUID);
     }
 }

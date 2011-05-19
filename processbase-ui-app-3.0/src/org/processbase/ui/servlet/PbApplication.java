@@ -18,6 +18,7 @@ package org.processbase.ui.servlet;
 
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
@@ -156,6 +157,11 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 
     public void setCustomMessages(ResourceBundle customMessages) {
         this.customMessages = customMessages;
+    }
+
+    @Override
+    public Map<String, String> getFileList(String processUUID) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
