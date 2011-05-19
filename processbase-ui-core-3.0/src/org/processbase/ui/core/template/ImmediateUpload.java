@@ -54,12 +54,12 @@ public class ImmediateUpload extends VerticalLayout
     private ProgressIndicator pi = new ProgressIndicator();
     private HorizontalLayout progressLayout = new HorizontalLayout();
     private HorizontalLayout statusLayout = new HorizontalLayout();
-    private Upload upload = new Upload(null, (Upload.Receiver) this);
+    private Upload upload = new Upload("", (Upload.Receiver) this);
     private Button deleteBtn = new Button();
     private Button downloadBtn = new Button();
     private Button cancelBtn = new Button();
     private String fileName;
-    private String name;
+    private String attachmentName;
     private String mtype;
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private String processUUID;
@@ -67,19 +67,19 @@ public class ImmediateUpload extends VerticalLayout
     private boolean needToSave = false;
 
 
-    public ImmediateUpload(String processUUID, String name, String fileName, boolean hasFile, boolean readOnly, ResourceBundle messages) {
-        System.out.println(processUUID + " " + name + " " + fileName + " " + hasFile);
+    public ImmediateUpload(String processUUID, String label, String attachmentName, String fileName, boolean hasFile, boolean readOnly, ResourceBundle messages) {
+        System.out.println(processUUID + " " + attachmentName + " " + fileName + " " + hasFile);
         this.processUUID = processUUID;
         this.messages = messages;
         this.fileName = fileName;
-        this.name = name;
+        this.attachmentName = attachmentName;
         setSpacing(true);
 
         addComponent(statusLayout);
         if (!hasFile) {
             addComponent(upload);
         } else {
-            downloadBtn.setCaption(fileName);
+            downloadBtn.setCaption(label);
             downloadBtn.setStyleName(Reindeer.BUTTON_LINK);
             downloadBtn.addListener((Button.ClickListener) this);
             addComponent(downloadBtn);
@@ -89,7 +89,7 @@ public class ImmediateUpload extends VerticalLayout
 
         // Make uploading start immediately when file is selected
         upload.setImmediate(true);
-        upload.setButtonCaption(fileName);
+        upload.setButtonCaption(label);
         upload.setStyleName(Reindeer.BUTTON_LINK);
 
         progressLayout.setSpacing(true);
@@ -131,7 +131,7 @@ public class ImmediateUpload extends VerticalLayout
                 deleteBtn.setVisible(false);
             } else if (event.getButton().equals(downloadBtn)) {
                 ByteArraySource bas = new ByteArraySource(
-                        ProcessbaseApplication.getCurrent().getFileBody(processUUID, name));
+                        ProcessbaseApplication.getCurrent().getFileBody(processUUID, attachmentName));
                 StreamResource streamResource = new StreamResource(bas, fileName, getApplication());
                 streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
                 getWindow().getWindow().open(streamResource, "_new");

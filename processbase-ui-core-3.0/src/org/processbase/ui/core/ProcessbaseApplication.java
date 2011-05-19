@@ -18,6 +18,7 @@ package org.processbase.ui.core;
 
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
+import java.util.Map;
 import java.util.ResourceBundle;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
@@ -56,6 +57,8 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public abstract void setMessages(ResourceBundle messages);
 
     public abstract void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception;
+    
+    public abstract Map<String, String> getFileList(String processUUID) throws Exception;
 
     public abstract byte[] getFileBody(String processUUID, String name) throws Exception;
 

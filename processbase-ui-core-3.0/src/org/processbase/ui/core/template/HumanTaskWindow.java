@@ -109,8 +109,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void initUI() {
-        System.out.println("ProcessbaseApplication.getCurrent() = " + ProcessbaseApplication.getCurrent());
-        System.out.println("currentUserName = " + ProcessbaseApplication.getCurrent().getUserName());
+//        System.out.println("ProcessbaseApplication.getCurrent() = " + ProcessbaseApplication.getCurrent());
+//        System.out.println("currentUserName = " + ProcessbaseApplication.getCurrent().getUserName());
         currentUserName = ProcessbaseApplication.getCurrent().getUserName();
         bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         messages = ProcessbaseApplication.getCurrent().getPbMessages();
