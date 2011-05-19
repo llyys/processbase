@@ -98,8 +98,8 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         httpSession.removeAttribute("PROCESSBASE_SHARED_" + name);
     }
 
-    public void getSessionAttribute(String name) {
-        httpSession.getAttribute("PROCESSBASE_SHARED_" + name);
+    public Object getSessionAttribute(String name) {
+        return httpSession.getAttribute("PROCESSBASE_SHARED_" + name);
     }
 
     public String getUserName() {

@@ -145,8 +145,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         getPortletSession().removeAttribute("PROCESSBASE_SHARED_" + name, PortletSession.APPLICATION_SCOPE);
     }
 
-    public void getSessionAttribute(String name) {
-        getPortletSession().getAttribute("PROCESSBASE_SHARED_" + name, PortletSession.APPLICATION_SCOPE);
+    public Object getSessionAttribute(String name) {
+        return getPortletSession().getAttribute("PROCESSBASE_SHARED_" + name, PortletSession.APPLICATION_SCOPE);
 
     }
 

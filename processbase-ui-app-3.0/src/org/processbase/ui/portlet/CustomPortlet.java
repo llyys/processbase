@@ -28,8 +28,6 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
@@ -39,41 +37,47 @@ import com.vaadin.ui.Window;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletSession;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.HumanTaskWindow;
+import org.processbase.ui.osgi.PbPanelModuleService;
 
 /**
  *
  * @author mgubaidullin
  */
-public abstract class CustomPortlet extends Application
+public class CustomPortlet extends ProcessbaseApplication
         implements PortletListener, PortletRequestListener, TransactionListener {
 
-    private static ThreadLocal<CustomPortlet> currentPortlet = new ThreadLocal<CustomPortlet>();
-    private PortletApplicationContext2 portletApplicationContext2;
-    private PortletSession portletSession;
-    private BPMModule bpmModule = null;
-    private ResourceBundle messages = null;
-    private PortalDocumentLibrary documentLibrary = null;
     private String taskInstanceUUID = null;
     private String processDefinitionUUID = null;
-    private int type = 1;
+    private int customtype = 1;
     public static final int TYPE_START_PROCESS = 0;
     public static final int TYPE_TASK = 1;
     private boolean initialized = false;
     private HumanTaskWindow taskWindow;
+    private ResourceBundle messages;
+    private BPMModule bpmModule;
+    private PortalDocumentLibrary documentLibrary;
+    private PortletApplicationContext2 portletApplicationContext2;
+    private PortletSession portletSession;
+    private int type;
+    private String userName;
 
+    @Override
     public void init() {
-//        System.out.println("CustomPortlet init ");
+        System.out.println("CustomPortlet init ");
         setCurrent(this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
-        messages = ResourceBundle.getBundle("resources/MessagesBundle", getLocale());
-        bpmModule = new BPMModule(getPortalUser().getScreenName());
-        documentLibrary = new PortalDocumentLibrary(getPortalUser());
-
         portletApplicationContext2 = (PortletApplicationContext2) getContext();
         portletSession = portletApplicationContext2.getPortletSession();
         portletApplicationContext2.addPortletListener((Application) this, (PortletListener) this);
@@ -85,35 +89,52 @@ public abstract class CustomPortlet extends Application
             getContext().addTransactionListener(this);
         }
         if (!initialized
-                && CustomPortlet.getCurrent().portletSession.getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
-            CustomPortlet.getCurrent().taskInstanceUUID = ((CustomPortlet) CustomPortlet.getCurrent()).portletSession.getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
-            CustomPortlet.getCurrent().type = TYPE_TASK;
+                && ProcessbaseApplication.getCurrent().getSessionAttribute("TASKINSTANCE") != null) {
+            this.taskInstanceUUID = ProcessbaseApplication.getCurrent().getSessionAttribute("TASKINSTANCE").toString();
+            this.customtype = TYPE_TASK;
             initUI();
         } else if (!initialized
-                && CustomPortlet.getCurrent().portletSession.getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE) != null) {
-            CustomPortlet.getCurrent().processDefinitionUUID = ((CustomPortlet) CustomPortlet.getCurrent()).portletSession.getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
-            CustomPortlet.getCurrent().type = TYPE_START_PROCESS;
+                && ProcessbaseApplication.getCurrent().getSessionAttribute("PROCESSINSTANCE") != null) {
+            this.processDefinitionUUID = ProcessbaseApplication.getCurrent().getSessionAttribute("PROCESSINSTANCE").toString();
+            this.customtype = TYPE_START_PROCESS;
             initUI();
         }
     }
 
     public void initUI() {
         // create main window
-//        System.out.println("DEBUG CustomPortlet.initUI---------");
-        taskWindow = new HumanTaskWindow("", true);
-        setMainWindow(taskWindow);
-        taskWindow.initUI();
+        System.out.println("DEBUG CustomPortlet.initUI---------");
+        try {
+            taskWindow = new HumanTaskWindow("", true);
+            setMainWindow(taskWindow);
+            if (customtype == CustomPortlet.TYPE_START_PROCESS) {
+                ProcessDefinition pd = bpmModule.getProcessDefinition(new ProcessDefinitionUUID(processDefinitionUUID));
+                taskWindow.setProcessDef(pd);
+            } else if (customtype == CustomPortlet.TYPE_TASK) {
+                TaskInstance taskInstance = bpmModule.getTaskInstance(new ActivityInstanceUUID(taskInstanceUUID));
+                taskWindow.setTaskInstance(taskInstance);
+            }
+            ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
+            ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
+            setInitialized(true);
+            taskWindow.initUI();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void onRequestStart(PortletRequest request, PortletResponse response) {
-//        System.out.println("DEBUG CustomPortlet.onRequestStart---------");
-        if (getUser() == null) {
+        System.out.println("DEBUG CustomPortlet.onRequestStart---------");
+        if (!initialized) {
             try {
                 User user = PortalUtil.getUser(request);
-                setUser(user);
-                Locale locale = request.getLocale();
-                setLocale(locale);
+                setUserName(user.getScreenName());
+                setLocale(request.getLocale());
+                setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
+                setBpmModule(new BPMModule(user.getScreenName()));
+                setDocumentLibrary(new PortalDocumentLibrary(user));
+                setPortletSession(request.getPortletSession());
             } catch (PortalException e) {
                 e.printStackTrace();
             } catch (SystemException e) {
@@ -123,23 +144,19 @@ public abstract class CustomPortlet extends Application
 //        System.out.println("CustomPortlet initialized = " + initialized);
 //        System.out.println("PROCESSBASE_SHARED_TASKINSTANCE = " + request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE));
 
-        if (initialized
-                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE) != null
-                && taskInstanceUUID.equals(request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString())) {
-            taskInstanceUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
-            type = TYPE_TASK;
-            initUI();
-        } else if (initialized
-                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE) != null
-                && !processDefinitionUUID.equals(request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString())) {
-            processDefinitionUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
-            type = TYPE_START_PROCESS;
-            initUI();
-        }
-    }
-
-    public void onRequestEnd(PortletRequest request, PortletResponse response) {
-//        System.out.println("PORTLET onRequestEnd ");
+//        if (initialized
+//                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE) != null
+//                && taskInstanceUUID.equals(request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString())) {
+//            taskInstanceUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+//            customtype = TYPE_TASK;
+//            initUI();
+//        } else if (initialized
+//                && request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE) != null
+//                && !processDefinitionUUID.equals(request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString())) {
+//            processDefinitionUUID = request.getPortletSession().getAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE).toString();
+//            customtype = TYPE_START_PROCESS;
+//            initUI();
+//        }
     }
 
     public void handleRenderRequest(RenderRequest request, RenderResponse response, Window window) {
@@ -149,91 +166,12 @@ public abstract class CustomPortlet extends Application
         }
     }
 
-    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
-//        System.out.println("PORTLET handleActionRequest ");
-    }
-
-    public void handleEventRequest(EventRequest request, EventResponse response, Window window) {
-//        System.out.println("PORTLET handleEventRequest ");
-    }
-
-    public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
-//        System.out.println("PORTLET handleResourceRequest ");
-    }
-
-    public PortletApplicationContext2 getPortletApplicationContext2() {
-        return this.portletApplicationContext2;
-    }
-
-    public static SystemMessages getSystemMessages() {
-        CustomizedSystemMessages m = new CustomizedSystemMessages();
-        m.setSessionExpiredURL(null);
-        m.setSessionExpiredNotificationEnabled(true);
-        m.setSessionExpiredCaption(null);
-        m.setSessionExpiredMessage("Session expired!");
-        m.setCommunicationErrorCaption(null);
-//        m.setCommunicationErrorMessage("Ошибка соединения!");
-        m.setOutOfSyncCaption(null);
-        m.setInternalErrorCaption(null);
-        m.setInternalErrorMessage("Internal error!");
-        return m;
-    }
-
     @Override
     public void close() {
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_PROCESSINSTANCE", PortletSession.APPLICATION_SCOPE);
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_SHARED_TASKINSTANCE", PortletSession.APPLICATION_SCOPE);
-        this.portletApplicationContext2.getPortletSession().removeAttribute("PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
+        ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
+        ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
+        ProcessbaseApplication.getCurrent().removeSessionAttribute("PORTLET_CREATED");
         super.close();
-    }
-
-    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
-        this.portletApplicationContext2 = portletApplicationContext2;
-    }
-
-    public void setPortletSession(PortletSession portletSession) {
-        this.portletSession = portletSession;
-    }
-
-    /**
-     * @return the current application instance
-     */
-    public static CustomPortlet getCurrent() {
-        return currentPortlet.get();
-    }
-
-    /**
-     * Set the current application instance
-     */
-    public static void setCurrent(CustomPortlet application) {
-        if (getCurrent() == null) {
-            currentPortlet.set(application);
-        }
-    }
-
-    /**
-     * Remove the current application instance
-     */
-    public static void removeCurrent() {
-        currentPortlet.remove();
-    }
-
-    /**
-     * TransactionListener
-     */
-    public void transactionStart(Application application, Object transactionData) {
-        if (application == this) {
-            CustomPortlet.setCurrent(this);
-            // Store current users locale
-            setLocale(getLocale());
-        }
-    }
-
-    public void transactionEnd(Application application, Object transactionData) {
-        if (application == this) {
-            // Remove locale from the executing thread
-            removeCurrent();
-        }
     }
 
     public User getPortalUser() {
@@ -306,5 +244,81 @@ public abstract class CustomPortlet extends Application
 
     public PortletSession getPortletSession() {
         return this.portletSession;
+    }
+
+    public void setSessionAttribute(String name, String value) {
+        getPortletSession().setAttribute("PROCESSBASE_SHARED_" + name, value, PortletSession.APPLICATION_SCOPE);
+    }
+
+    public void removeSessionAttribute(String name) {
+        getPortletSession().removeAttribute("PROCESSBASE_SHARED_" + name, PortletSession.APPLICATION_SCOPE);
+    }
+
+    public Object getSessionAttribute(String name) {
+        return getPortletSession().getAttribute("PROCESSBASE_SHARED_" + name, PortletSession.APPLICATION_SCOPE);
+
+    }
+
+    public ResourceBundle getPbMessages() {
+        return messages;
+    }
+
+    public void setPortletSession(PortletSession portletSession) {
+        this.portletSession = portletSession;
+    }
+
+    public PortletApplicationContext2 getPortletApplicationContext2() {
+        return portletApplicationContext2;
+    }
+
+    public void setPortletApplicationContext2(PortletApplicationContext2 portletApplicationContext2) {
+        this.portletApplicationContext2 = portletApplicationContext2;
+    }
+
+    public int getApplicationType() {
+        return ProcessbaseApplication.LIFERAY_PORTAL;
+    }
+
+    public void saveFile(String processUUID, String name, String fileName, byte[] fileBody) throws Exception {
+        this.getDocumentLibrary().saveFile(processUUID, fileName, fileName, fileBody);
+    }
+
+    public byte[] getFileBody(String processUUID, String name) throws Exception {
+        return getDocumentLibrary().getFileBody(processUUID, name);
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    @Override
+    public ResourceBundle getCustomMessages() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setCustomMessages(ResourceBundle customMessages) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public PbPanelModuleService getPanelModuleService() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void handleActionRequest(ActionRequest request, ActionResponse response, Window window) {
+    }
+
+    public void handleEventRequest(EventRequest request, EventResponse response, Window window) {
+    }
+
+    public void handleResourceRequest(ResourceRequest request, ResourceResponse response, Window window) {
+    }
+
+    public void onRequestEnd(PortletRequest request, PortletResponse response) {
     }
 }
