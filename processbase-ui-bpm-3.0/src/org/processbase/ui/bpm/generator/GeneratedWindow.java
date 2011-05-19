@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
@@ -85,6 +87,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private ArrayList<InitialAttachment> initialAttachments = new ArrayList<InitialAttachment>();
     private Map<AttachmentInstance, byte[]> attachments = new HashMap<AttachmentInstance, byte[]>();
     private Map<String, Object> groovyScripts = new HashMap<String, Object>();
+    private Map<String, String> attachmentFileNames = new HashMap<String, String>();
 
     public GeneratedWindow(String caption) {
         super(caption);
@@ -131,14 +134,14 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     int fRow = componentStyle.getPosition().getFRow();
                     int tColumn = componentStyle.getPosition().getTColumn();
                     int tRow = componentStyle.getPosition().getTRow();
-                     System.out.println(widget.getId() + " " + fColumn + " " + tColumn + " " + fRow + " " + tRow);
+//                    System.out.println(widget.getId() + " " + fColumn + " " + tColumn + " " + fRow + " " + tRow);
                     CSSProperty cssProperty = componentStyle.getCss();
                     if (cssProperty != null) {
-                        System.out.print(widget.getId() + " H:" + cssProperty.getHeigth());
-                        System.out.print(" W:" + cssProperty.getWidth());
-                        System.out.println(" A:" + cssProperty.getAlign());
+//                        System.out.print(widget.getId() + " H:" + cssProperty.getHeigth());
+//                        System.out.print(" W:" + cssProperty.getWidth());
+//                        System.out.println(" A:" + cssProperty.getAlign());
                     } else {
-                        if (!(component instanceof Button) && (fColumn==tColumn)) {
+                        if (!(component instanceof Button) && (fColumn == tColumn)) {
                             component.setWidth("200px");
                         }
                     }
@@ -350,19 +353,21 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private ImmediateUpload getUpload(Widget widget) {
         ImmediateUpload component = null;
         String processUUID = null;
-        AttachmentInstance ai = null;
-        String label = widget.getLabel();
+        String fileName = null;
         boolean hasFile = false;
         if (taskInstance != null) {
             processUUID = taskInstance.getProcessInstanceUUID().toString();
-//            ai = findAttachmentInstance(widget.getInputScript());
-            if (ai.getFileName() != null) {
+            fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
+            System.out.println("widget.getInitialValue().getExpression() = " + widget.getInitialValue().getExpression());
+            System.out.println("fileName = " + fileName);
+            if (fileName != null) {
                 hasFile = true;
-                label = ai.getFileName();
+            } else {
+                
             }
-//            ai = findAttachmentInstance(widget.getInputScript());
+//            ai = findAttachmentInstance(widget.getInitialValue().getExpression());
         }
-        component = new ImmediateUpload(processUUID, widget.getLabel(), label, hasFile, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
+        component = new ImmediateUpload(processUUID, widget.getLabel(), widget.getInitialValue().getExpression(), fileName, hasFile, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
         return component;
     }
 
@@ -541,30 +546,38 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private void saveAttachmentsToPortal(String processUUID) {
-//        try {
-//            for (Component comp : components.keySet()) {
-//                XMLWidgetsDefinition widgets = components.get(comp);
-//                if (widgets.getSetVarScript() != null) {
-//                    if (widgets.getType().equals("form:FileWidget") && ((ImmediateUpload) comp).isNeedToSave()) {
-//                        ImmediateUpload ui = (ImmediateUpload) comp;
-//                        ProcessbaseApplication.getCurrent().saveFile(processUUID, widgets.getSetVarScript(), ui.getFileName(), ui.getFileBody());
-//                    }
-//                }
-//            }
-//        } catch (Exception ex) {
-//            Logger.getLogger(GeneratedWindow2.class.getName()).log(Level.SEVERE, ex.getMessage());
-//        }
+        try {
+            for (Component comp : components.keySet()) {
+                Widget widget = components.get(comp);
+                if (widget.getVariableBound() != null) {
+                    if (widget.getType().equals(WidgetType.FILEUPLOAD) && ((ImmediateUpload) comp).isNeedToSave()) {
+                        ImmediateUpload ui = (ImmediateUpload) comp;
+                        ProcessbaseApplication.getCurrent().saveFile(processUUID, widget.getVariableBound(), ui.getFileName(), ui.getFileBody());
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(GeneratedWindow.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
     }
 
     private void prepareAttachments() {
         if (taskInstance != null) {
             try {
-                ProcessInstance pi = ProcessbaseApplication.getCurrent().getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
-                Set<String> names = new HashSet<String>();
-                for (AttachmentInstance ai : pi.getAttachments()) {
-                    names.add(ai.getName());
+                if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.STANDALONE) {
+                    ProcessInstance pi = ProcessbaseApplication.getCurrent().getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
+                    Set<String> names = new HashSet<String>();
+                    for (AttachmentInstance ai : pi.getAttachments()) {
+                        names.add(ai.getName());
+                    }
+                    attachmentInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
+
+                    for (AttachmentInstance ai : attachmentInstances) {
+                        attachmentFileNames.put(ai.getName(), ai.getFileName());
+                    }
+                } else if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+                    attachmentFileNames = ProcessbaseApplication.getCurrent().getFileList(taskInstance.getProcessInstanceUUID().toString());
                 }
-                attachmentInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(), names);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -572,15 +585,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } else {
 //            processDefinition.
         }
-    }
-
-    private AttachmentInstance findAttachmentInstance(String name) {
-        for (AttachmentInstance ai : attachmentInstances) {
-            if (ai.getName().equals(name)) {
-                return ai;
-            }
-        }
-        return null;
     }
 
     private Widget getWidgets(Component c) {

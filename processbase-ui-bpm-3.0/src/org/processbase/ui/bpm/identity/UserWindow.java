@@ -257,7 +257,7 @@ public class UserWindow extends PbWindow
                 result.put(woItem.getItemProperty("name").getValue().toString(), value.getValue().toString());
             }
         }
-        System.out.println(result);
+//        System.out.println(result);
         return result;
     }
 

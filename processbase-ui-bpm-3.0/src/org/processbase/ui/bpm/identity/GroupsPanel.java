@@ -58,7 +58,7 @@ public class GroupsPanel extends TreeTablePanel implements
             treeTable.removeAllItems();
             List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
             for (Group group : groups) {
-                System.out.println("group = " + group.getName() + " parent = " + group.getParentGroup());
+//                System.out.println("group = " + group.getName() + " parent = " + group.getParentGroup());
                 Item woItem = treeTable.addItem(group.getUUID());
                 TableLinkButton teb = new TableLinkButton(group.getName(), "", null, group, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
