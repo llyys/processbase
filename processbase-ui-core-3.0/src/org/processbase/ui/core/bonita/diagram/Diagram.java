@@ -70,8 +70,8 @@ public class Diagram {
         parceProcesses();
         for (String pkey : processes.keySet()) {
             Process process = processes.get(pkey);
-            int coefficientX = processImage.getWidth() * 100 / (process.getWidth() +20);
-            int coefficientY = processImage.getHeight() * 100 / (process.getHeight() +20);
+            int coefficientX = processImage.getWidth() * 100 / (process.getWidth() + 20);
+            int coefficientY = processImage.getHeight() * 100 / (process.getHeight() + 20);
 
 
             for (String skey : process.getSteps().keySet()) {
@@ -79,15 +79,15 @@ public class Diagram {
                 if (getStepState(step.getName()) != null) {
                     BufferedImage ind = Diagram.getImage(getStepState(step.getName()));
                     if (step.getType().equals("process:Task") || step.getType().equals("process:Activity")) {
-
                         processImage.createGraphics().drawImage(ind,
-                                step.getX()*coefficientX/100 + (step.getWidth()*coefficientX/100)/2  + 20 ,
-                                step.getY()*coefficientY/100 + (step.getHeight()*coefficientY/100)/2 + 4,
+                                step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2 + 20,
+                                step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2 + 4,
                                 null);
                     } else {
+                        System.out.println(" DEBUG: " + step.getName() + (step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2) + " " + (step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2));
                         processImage.createGraphics().drawImage(ind,
-                                step.getX()*coefficientX/100 + (step.getWidth()*coefficientX/100)/2 ,
-                                step.getY()*coefficientY/100 + (step.getHeight()*coefficientY/100)/2,
+                                step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2,
+                                step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2,
                                 null);
                     }
                 }
@@ -128,10 +128,12 @@ public class Diagram {
                             Node processSize = diagramm2.item(x);
                             Process process = processes.get(diagramm.getAttributes().getNamedItem("element").getNodeValue());
                             process.setY(diagrammY);
-                            process.setWidth(Integer.parseInt(processSize.getAttributes().getNamedItem("width").getNodeValue()));
-                            process.setHeight(Integer.parseInt(processSize.getAttributes().getNamedItem("height").getNodeValue()));
+                            String w = processSize.getAttributes().getNamedItem("width") == null ? "100" : processSize.getAttributes().getNamedItem("width").getNodeValue();
+                            process.setWidth(Integer.parseInt(w));
+                            String h = processSize.getAttributes().getNamedItem("height") == null ? "50" : processSize.getAttributes().getNamedItem("height").getNodeValue();
+                            process.setHeight(Integer.parseInt(h));
                             processes.put(diagramm.getAttributes().getNamedItem("element").getNodeValue(), process);
-                            diagrammY = diagrammY + 20 + Integer.parseInt(processSize.getAttributes().getNamedItem("height").getNodeValue());
+                            diagrammY = diagrammY + 20 + Integer.parseInt(h);
                         } else if (diagramm2.item(x).getNodeName().equals("children") && diagramm2.item(x).getAttributes().getNamedItem("type").getNodeValue().equals("7001")) {
                             Process process = processes.get(diagramm.getAttributes().getNamedItem("element").getNodeValue());
                             parceSteps2(process, diagramm2.item(x).getChildNodes());
@@ -195,7 +197,7 @@ public class Diagram {
         return null;
     }
 
-    private Set<LightActivityInstance> getLastActivities(Set<LightActivityInstance> activities){
+    private Set<LightActivityInstance> getLastActivities(Set<LightActivityInstance> activities) {
         HashMap<String, LightActivityInstance> m0 = new HashMap<String, LightActivityInstance>();
         for (LightActivityInstance lai : activities) {
             LightActivityInstance newLai = m0.get(lai.getActivityName());
@@ -207,6 +209,6 @@ public class Diagram {
                 m0.put(lai.getActivityName(), lai);
             }
         }
-        return  new HashSet<LightActivityInstance>(m0.values());
+        return new HashSet<LightActivityInstance>(m0.values());
     }
 }

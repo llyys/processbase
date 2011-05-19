@@ -30,6 +30,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -108,6 +109,8 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     }
 
     public void initUI() {
+        System.out.println("ProcessbaseApplication.getCurrent() = " + ProcessbaseApplication.getCurrent());
+        System.out.println("currentUserName = " + ProcessbaseApplication.getCurrent().getUserName());
         currentUserName = ProcessbaseApplication.getCurrent().getUserName();
         bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         messages = ProcessbaseApplication.getCurrent().getPbMessages();
@@ -143,6 +146,9 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
             prepareComments();
         }
 
+//        mainLayout.setStyleName(Reindeer.LAYOUT_BLACK);
+//        setStyleName(Reindeer.LAYOUT_WHITE);
+//        layout.setStyleName(Reindeer.LAYOUT_BLUE);
         setContent(mainLayout);
         setWidth("90%");
         setHeight("90%");
@@ -465,4 +471,14 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
     public VerticalLayout getCommentsLayout() {
         return commentsLayout;
     }
+
+    public void setProcessDefinition(LightProcessDefinition processDefinition) {
+        this.processDefinition = processDefinition;
+    }
+
+    public void setTaskInstance(TaskInstance taskInstance) {
+        this.taskInstance = taskInstance;
+    }
+    
+    
 }

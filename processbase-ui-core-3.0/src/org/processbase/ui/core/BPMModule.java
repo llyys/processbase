@@ -85,10 +85,6 @@ import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
-import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
-import org.processbase.ui.core.bonita.forms.FormsDefinition;
-import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
-import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
 
 /**
  *
@@ -129,7 +125,7 @@ public class BPMModule {
     }
 
     private void initContext() throws Exception {
-        if (Constants.APP_SERVER.equalsIgnoreCase("GLASSFISH2")) {
+        if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
             ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
             programmaticLogin.login(currentUserUID, "".toCharArray(), "processBaseRealm", false);
         }
@@ -668,40 +664,27 @@ public class BPMModule {
         return d.getImage();
     }
 
-    public XMLTaskDefinition getXMLTaskDefinition(ProcessDefinitionUUID pdUUID, String stepName) throws Exception {
-        XMLProcessDefinition process = getXMLProcessDefinition(pdUUID);
-        return process.getTasks().get(stepName);
-    }
-
-    public XMLProcessDefinition getXMLProcessDefinition(ProcessInstanceUUID processInstanceUUID) throws Exception {
-        return getXMLProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
-    }
-
-    public XMLProcessDefinition getXMLProcessDefinition(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
-        initContext();
-        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
-        byte[] proc = null;
-        for (String key : resource.keySet()) {
-            if (key.substring(key.length() - 4, key.length()).equals("proc")) {
-                proc = resource.get(key);
-            }
-        }
-        BonitaFormParcer bfb = new BonitaFormParcer(proc);
-        return bfb.getProcess();
-    }
-
-    public FormsDefinition getFormsDefinition(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
-        initContext();
-        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
-        byte[] proc = null;
-        for (String key : resource.keySet()) {
-            if (key.equals("forms/forms.xml")) {
-                proc = resource.get(key);
-            }
-        }
-        FormsDefinition form = BonitaFormParcer.createFormsDefinition(new String(proc, "UTF-8"));
-        return form;
-    }
+//    public XMLTaskDefinition getXMLTaskDefinition(ProcessDefinitionUUID pdUUID, String stepName) throws Exception {
+//        XMLProcessDefinition process = getXMLProcessDefinition(pdUUID);
+//        return process.getTasks().get(stepName);
+//    }
+//
+//    public XMLProcessDefinition getXMLProcessDefinition(ProcessInstanceUUID processInstanceUUID) throws Exception {
+//        return getXMLProcessDefinition(processInstanceUUID.getProcessDefinitionUUID());
+//    }
+//
+//    public XMLProcessDefinition getXMLProcessDefinition(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+//        initContext();
+//        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+//        byte[] proc = null;
+//        for (String key : resource.keySet()) {
+//            if (key.substring(key.length() - 4, key.length()).equals("proc")) {
+//                proc = resource.get(key);
+//            }
+//        }
+//        BonitaFormParcer bfb = new BonitaFormParcer(proc);
+//        return bfb.getProcess();
+//    }
 
     public byte[] getProcessDiagramm(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
         initContext();
@@ -713,6 +696,11 @@ public class BPMModule {
             }
         }
         return img;
+    }
+    
+    public Map<String, byte[]> getBusinessArchive(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+        initContext();
+        return queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
     }
 
     public void stopExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {

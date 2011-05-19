@@ -37,7 +37,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
     public abstract void removeSessionAttribute(String name);
 
-    public abstract void getSessionAttribute(String name);
+    public abstract Object getSessionAttribute(String name);
 
     public abstract String getUserName();
 
