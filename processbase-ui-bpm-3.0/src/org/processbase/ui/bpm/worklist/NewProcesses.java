@@ -72,7 +72,10 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 CategoryAndProcessDefinition capParent = new CategoryAndProcessDefinition(category, null);
                 addTableRow(capParent, null);
                 for (LightProcessDefinition process : processes) {
-                    if (process.getCategoryNames().contains(category.getName())) {
+                    if (process.getCategoryNames().contains(category.getName())
+                    		|| (process.getCategoryNames().size()==0 && category.getName().equalsIgnoreCase("No Category"))//if there are multiple items that does not have any category then they won't be shown in tasklist Start processs list		
+                    ) 
+                    {
                         CategoryAndProcessDefinition cap = new CategoryAndProcessDefinition(category, process);
                         addTableRow(cap, capParent);
                     }

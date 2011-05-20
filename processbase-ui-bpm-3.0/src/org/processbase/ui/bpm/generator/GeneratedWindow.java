@@ -35,6 +35,7 @@ import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +81,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private PageFlow pageFlow;
     private HashMap<Component, Widget> components = new HashMap<Component, Widget>();
     private HashMap<String, Component> fields = new HashMap<String, Component>();
-    private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
+    private ArrayList<VerticalLayout> pages = new ArrayList<VerticalLayout>();
     private int currentPage = 0;
     private boolean hasAttachments = false;
     private List<AttachmentInstance> attachmentInstances = null;
@@ -154,7 +155,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 } else if (wg instanceof WidgetGroup) {
                 }
             }
-            pages.add(gridLayout);
+            pages.add(verticalLayout);
         }
         taskPanel.setContent(pages.get(currentPage));
         taskPanel.setCaption(pageFlow.getPages().getPages().get(currentPage).getPageLabel());
@@ -434,12 +435,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private void commit() {
-        for (GridLayout grid : pages) {
+        for (VerticalLayout grid : pages) {
             commitPage(grid);
         }
     }
 
-    private void commitPage(GridLayout page) {
+    private void commitPage(VerticalLayout page) {
         for (Iterator<Component> iterator = page.getComponentIterator(); iterator.hasNext();) {
             Component comp = iterator.next();
             if (comp instanceof AbstractField) {
