@@ -27,6 +27,7 @@ import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
+import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
 /**
  *
@@ -46,7 +47,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 //    int type = STANDALONE;
 
     public PbApplication(PbPanelModuleService panelModuleService) {
-        this.panelModuleService = panelModuleService;
+    	this.panelModuleService = panelModuleService;
     }
 
     public void initUI() {
@@ -54,7 +55,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 //        if (!Constants.LOADED) {
 //            Constants.loadConstants();
 //        }
-        setTheme("processbaseruno");
+       // setTheme("processbaseruno");
         try {
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
             httpSession = applicationContext.getHttpSession();

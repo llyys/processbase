@@ -51,6 +51,8 @@ import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
@@ -493,8 +495,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private void prepareTableMembership() {
         tableMembership.addContainerProperty("group", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionGroup"), null, null);
         tableMembership.addContainerProperty("role", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionRole"), null, null);
-        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-        tableMembership.setColumnWidth("actions", 30);
+        tableMembership.addContainerProperty("actions", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        tableMembership.setColumnWidth("actions", 50);
         tableMembership.setImmediate(true);
         tableMembership.setWidth("100%");
         tableMembership.setPageLength(10);
@@ -540,6 +542,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
             roles.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
             roles.setValue(membership != null ? membership.getRole().getUUID() : null);
             woItem.getItemProperty("role").setValue(roles);
+            
         }
         TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
@@ -554,17 +557,20 @@ public class ProcessDefinitionWindow extends PbWindow implements
         List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
         for (Group groupX : groups) {
             String path = getGroupPath(groupX);
-            if (!path.startsWith("/" + IdentityAPI.DEFAULT_GROUP_NAME)) {
+            //if (!path.startsWith("/" + IdentityAPI.DEFAULT_GROUP_NAME)) {
                 Item item = container.addItem(groupX.getUUID());
                 item.getItemProperty("name").setValue(groupX.getName());
                 item.getItemProperty("label").setValue(groupX.getLabel());
                 item.getItemProperty("uuid").setValue(groupX.getUUID());
                 item.getItemProperty("path").setValue(path);
-            }
+            //}
         }
         container.sort(new Object[]{"name"}, new boolean[]{true});
         return container;
     }
+    
+   
+   
 
     private String getGroupPath(Group group) {
         StringBuilder result = new StringBuilder(IdentityAPI.GROUP_PATH_SEPARATOR + group.getName() + IdentityAPI.GROUP_PATH_SEPARATOR);
@@ -583,36 +589,55 @@ public class ProcessDefinitionWindow extends PbWindow implements
         container.addContainerProperty("uuid", String.class, null);
         List<Role> roles = ProcessbaseApplication.getCurrent().getBpmModule().getAllRoles();
         for (Role roleX : roles) {
-            if (!roleX.getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
+            //if (!roleX.getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
                 Item item = container.addItem(roleX.getUUID());
                 item.getItemProperty("name").setValue(roleX.getName());
                 item.getItemProperty("label").setValue(roleX.getLabel());
                 item.getItemProperty("uuid").setValue(roleX.getUUID());
-            }
+            //}
         }
         container.sort(new Object[]{"name"}, new boolean[]{true});
         return container;
     }
+    
+    /*private void removeProcessAccess(){
+    	ProcessbaseApplication.getCurrent().getBpmModule().removeRuleFromEntities(rule.getUUID(), null, null, null, deletedMembership, null);
+    }*/
 
     private void saveProcessAccess() {
         try {
-            // remode deleted
-            ProcessbaseApplication.getCurrent().getBpmModule().removeRuleFromEntities(rule.getUUID(), null, null, null, deletedMembership, null);
-            // apply added
+            
+        	
+            BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+            
             Set<String> membershipUUIDs = new HashSet<String>();
             for (Object itemId : tableMembership.getItemIds()) {
                 Item woItem = tableMembership.getItem(itemId);
                 if (woItem.getItemProperty("group").getValue() instanceof ComboBox && woItem.getItemProperty("role").getValue() instanceof ComboBox) {
                     ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
                     ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
-                    Membership membership = ProcessbaseApplication.getCurrent().getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
+                    Membership membership = bpmModule.getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
                     membershipUUIDs.add(membership.getUUID());
                 }
             }
-            ProcessbaseApplication.getCurrent().getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null, membershipUUIDs, null);
+            if(membershipUUIDs.size()>0) //If threre is no items selected in combo, then there is no point of saveing this
+            {
+            	if(rule==null)//crete rule for process starting
+                	rule=bpmModule.createRule(processDefinition.getUUID().toString(), "ENTITY_PROCESS_START", "Rule to start a process", RuleType.PROCESS_START);
+                
+            	Set<String> entityUUIDs = new HashSet<String>();
+            	entityUUIDs.add(processDefinition.getUUID().toString());            	
+                bpmModule.applyRuleToEntities(rule.getUUID(), null, null, null, membershipUUIDs, entityUUIDs);
+            }
+            
         } catch (Exception ex) {
-            ex.printStackTrace();
-            getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            showError(ex);
         }
+    }
+    
+    private void showError(Exception ex)
+    {
+    	ex.printStackTrace();
+        getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
     }
 }

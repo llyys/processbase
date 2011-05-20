@@ -27,12 +27,13 @@ import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.ui.Window;
 import org.processbase.ui.osgi.PbPanelModuleService;
+import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
 public class PbServlet extends AbstractApplicationServlet {
 
 //    @Inject
 //    private PbApplication application;
-    @Resource(mappedName = "org.processbase.ui.osgi.PbPanelModuleService")
+    //@Resource(mappedName = "org.processbase.ui.osgi.PbPanelModuleService")
     PbPanelModuleService panelModuleService;
 
     @Override
@@ -57,6 +58,8 @@ public class PbServlet extends AbstractApplicationServlet {
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
+    	if(panelModuleService==null)
+    		panelModuleService=new PbPanelModuleServiceImpl();
         return new PbApplication(panelModuleService);
     }
 }

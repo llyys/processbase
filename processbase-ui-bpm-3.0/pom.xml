@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.processbase</groupId>
+    <artifactId>processbase</artifactId>
+    <version>3.0</version>
+  </parent>
+
+  <artifactId>processbase-ui-bpm</artifactId>
+  <url>http://processbase.googlecode.com</url>
+  <name>ProcessBase Bpm</name>
+  <dependencies>
+ 
+    
+	<dependency>
+		<groupId>org.ow2.bonita</groupId>
+	          <artifactId>bonita-model</artifactId>
+	          <version>5.4.2</version>	          
+	</dependency>
+	<dependency>
+		<groupId>org.ow2.bonita</groupId>
+	          <artifactId>forms-server</artifactId>
+	          <version>5.4.2</version>	          
+	</dependency>
+    <dependency>
+    	<groupId>${project.groupId}</groupId>
+    	<artifactId>processbase-ui-core</artifactId>
+    	<version>${project.version}</version>    	
+    </dependency>
+     <dependency>
+      <groupId>com.liferay.portal</groupId>
+      <artifactId>portal-service</artifactId>
+      <version>6.0.5</version>
+      <scope>provided</scope>
+    </dependency>
+    
+      <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin</artifactId>
+      <version>6.5.3</version>
+    </dependency>
+  </dependencies>
+   
+</project>

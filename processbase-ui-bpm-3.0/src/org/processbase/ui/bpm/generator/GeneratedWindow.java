@@ -117,6 +117,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     protected void generateWindow() throws Exception {
         prepareAttachments();
         prepareGroovyScripts();
+        if(pageFlow==null)
+        {
+        	showMessage("Pages not found in process", Notification.TYPE_WARNING_MESSAGE);
+        	return;
+        }
         for (Page page : pageFlow.getPages().getPages()) {
             TableStyle ts = barResource.getTableStyle(page);
             GridLayout gridLayout = new GridLayout(ts.getColumns(), ts.getRows());
@@ -599,6 +604,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         HashSet<String> expressions = new HashSet<String>();
         HashMap<String, String> scripts = new HashMap<String, String>();
         HashMap<String, String> strings = new HashMap<String, String>();
+        if(pageFlow==null)
+        	return;
         for (Page page : pageFlow.getPages().getPages()) {
             for (Object wg : page.getWidgets().getWidgetsAndGroups()) {
                 if (wg instanceof Widget) {

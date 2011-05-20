@@ -28,6 +28,10 @@ import java.util.TreeMap;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
+
+import org.processbase.ui.bam.panel.BAMConfigurationPanel;
+import org.processbase.ui.bam.panel.BPMMonitoringPanel;
+import org.processbase.ui.bpm.panel.*;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbPanel;
@@ -43,12 +47,14 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
     private VerticalLayout mainLayout;
     private TabSheet tabs;
-//    private TaskListPanel consolePanel;
-//    private BPMConfigurationPanel bpmConfigurationPanel;
-//    private IdentityPanel identityPanel;
-//    private BAMConfigurationPanel bamConfigurationPanel;
-//    private BPMMonitoringPanel bpmMonitoringPanel;
-//    private DevelopmentPanel developmentPanel;
+    
+    private TaskListPanel consolePanel;
+    private BPMConfigurationPanel bpmConfigurationPanel;
+    private IdentityPanel identityPanel;
+    private BAMConfigurationPanel bamConfigurationPanel;
+    private BPMMonitoringPanel bpmMonitoringPanel;
+    private DevelopmentPanel developmentPanel;
+    
     private User user;
     private HashSet<String> accessSet;
 
@@ -83,37 +89,37 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             prepareTabs();
 
 
-//            if (accessSet.contains("tasklist")) {
-//                consolePanel = new TaskListPanel();
-//                tabs.addTab(consolePanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmTasklist"), null);
-//            }
-//            if (accessSet.contains("bpm")) {
-//                bpmConfigurationPanel = new BPMConfigurationPanel();
-//                tabs.addTab(bpmConfigurationPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmAdmin"), null);
-//            }
-//            if (accessSet.contains("identity")) {
-//                identityPanel = new IdentityPanel();
-//                tabs.addTab(identityPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmIdentity"), null);
-//            }
-//            if (accessSet.contains("bam")) {
-//                bamConfigurationPanel = new BAMConfigurationPanel();
-//                tabs.addTab(bamConfigurationPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bamAdmin"), null);
-//            }
-//            if (accessSet.contains("monitoring")) {
-//                bpmMonitoringPanel = new BPMMonitoringPanel();
-//                tabs.addTab(bpmMonitoringPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmMonitoring"), null);
-//            }
-//            if (accessSet.contains("development")) {
-//                developmentPanel = new DevelopmentPanel();
-//                tabs.addTab(developmentPanel, ProcessbaseApplication.getCurrent().getMessages().getString("bpmDevelopment"), null);
-//            }
-//
-//            if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
-//                PbPanel first = (PbPanel) tabs.getSelectedTab();
-//                first.initUI();
-//                first.setInitialized(true);
-//                first.setSizeFull();
-//            }
+            if (accessSet.contains("tasklist")) {
+                consolePanel = new TaskListPanel();
+                tabs.addTab(consolePanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmTasklist"), null);
+            }
+            if (accessSet.contains("bpm")) {
+                bpmConfigurationPanel = new BPMConfigurationPanel();
+                tabs.addTab(bpmConfigurationPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmAdmin"), null);
+            }
+            if (accessSet.contains("identity")) {
+                identityPanel = new IdentityPanel();
+                tabs.addTab(identityPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmIdentity"), null);
+            }
+            if (accessSet.contains("bam")) {
+                bamConfigurationPanel = new BAMConfigurationPanel();
+                tabs.addTab(bamConfigurationPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bamAdmin"), null);
+            }
+            if (accessSet.contains("monitoring")) {
+                bpmMonitoringPanel = new BPMMonitoringPanel();
+                tabs.addTab(bpmMonitoringPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmMonitoring"), null);
+            }
+            if (accessSet.contains("development")) {
+                developmentPanel = new DevelopmentPanel();
+                tabs.addTab(developmentPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmDevelopment"), null);
+            }
+
+            if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
+                PbPanel first = (PbPanel) tabs.getSelectedTab();
+                first.initUI();
+                first.setInitialized(true);
+                first.setSizeFull();
+            }
 
             tabs.addListener((SelectedTabChangeListener) this);
             tabs.setImmediate(true);

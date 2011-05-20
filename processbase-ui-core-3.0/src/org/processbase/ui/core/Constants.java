@@ -60,12 +60,16 @@ public class Constants {
 
     public static void loadConstants() {
         try {
-            File file = new File("processbase3.properties");
+            File file = null;
+            String userHomeDir=System.getProperty("user.home");
+            file=new File(userHomeDir+"/processbase3.properties");//global configuration can be accessed %USER_HOME%\processbase3.properties
+            if(!file.exists())//if there is no such folder, then read embeded resource
+            	file=new File("processbase3.properties");
             if (file.exists()) {
-                load();
+                load(file);
             } else {
                 save();
-                load();
+                load(file);
             }
             LOADED = true;
         } catch (Exception ex) {
@@ -73,13 +77,15 @@ public class Constants {
         }
     }
 
-    private static void load() throws FileNotFoundException, IOException {
-        File file = new File("processbase3.properties");
+    private static void load(File file) throws FileNotFoundException, IOException {
+        
         FileInputStream fis = new FileInputStream(file);
+        if(properties==null)
+        	properties=new Properties();
         properties.loadFromXML(fis);
         fis.close();
         TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
-        System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
+        //System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
         BONITA_EJB_ENV.put("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
         BONITA_EJB_ENV.put("java.naming.factory.initial", properties.getProperty("java.naming.factory.initial"));
         BONITA_EJB_ENV.put("java.naming.factory.url.pkgs", properties.getProperty("java.naming.factory.url.pkgs"));
@@ -100,7 +106,8 @@ public class Constants {
     }
 
     private static void save() throws FileNotFoundException, IOException {
-        File file = new File("processbase3.properties");
+    	String userHomeDir=System.getProperty("user.home");
+        File file = new File(userHomeDir+"/processbase3.properties");
         properties.setProperty("APP_SERVER", "GLASSFISH3");
         properties.setProperty("TASKLIST_PAGE_URL", "/web/guest/bpm-console");
         properties.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");

@@ -23,8 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,6 +88,7 @@ import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyExpression;
 import org.processbase.ui.core.bonita.diagram.Diagram;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -102,6 +106,7 @@ public class BPMModule {
     final BAMAPI bamAPI;
     final CommandAPI commandAPI;
     private String currentUserUID;
+	final static org.slf4j.Logger log = LoggerFactory.getLogger(BPMModule.class);
 
     public BPMModule(String currentUserUID) {
         if (!Constants.LOADED) {
@@ -111,7 +116,8 @@ public class BPMModule {
         try {
             initContext();
         } catch (Exception ex) {
-            Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+			log.error(ex.getMessage());
+            //Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
         queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
@@ -170,7 +176,7 @@ public class BPMModule {
         Set<String> processException;
         Set<ProcessDefinitionUUID> processUUIDException = new HashSet<ProcessDefinitionUUID>();
         for (Rule r : userRules) {
-            processException = r.getItems();
+            processException = r.getEntities();
             for (String processID : processException) {
                 processUUIDException.add(new ProcessDefinitionUUID(processID));
             }
@@ -291,17 +297,31 @@ public class BPMModule {
         runtimeAPI.finishTask(activityInstanceUUID, b);
     }
 
-    public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
+   public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
         initContext();
-        runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
-        runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
+        //runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
+        //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
+        setProcessAndActivityInstanceVariables(task, pVars, aVars);
         runtimeAPI.finishTask(task.getUUID(), b);
     }
 
+	private void setProcessAndActivityInstanceVariables(TaskInstance task,
+			Map<String, Object> pVars, Map<String, Object> aVars)
+			throws InstanceNotFoundException, VariableNotFoundException,
+			ActivityNotFoundException {
+		for (Map.Entry<String, Object> entry : pVars.entrySet()) {
+            runtimeAPI.setProcessInstanceVariable(task.getProcessInstanceUUID(), entry.getKey(), entry.getValue());
+		}
+        for (Map.Entry<String, Object> entry : aVars.entrySet()) {
+            runtimeAPI.setActivityInstanceVariable(task.getUUID(), entry.getKey(), entry.getValue());
+        }
+	}
+	
     public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars, Map<AttachmentInstance, byte[]> attachments) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
         initContext();
-        runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
-        runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
+        //runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
+        //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
+        setProcessAndActivityInstanceVariables(task, pVars, aVars);
         for (AttachmentInstance a : attachments.keySet()) {
             System.out.println(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
         }
@@ -768,11 +788,17 @@ public class BPMModule {
         return runtimeAPI.evaluateGroovyExpression(expression, pduuid);
     }
 
-    public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions,
+     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions,
             ActivityInstanceUUID activityUUID, boolean useActivityScope, boolean propagate)
             throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
         if (!expressions.isEmpty()) {
-            return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
+        	Map<String, Object> results=new Hashtable<String, Object>();
+	           for (Map.Entry<String, String> entry : expressions.entrySet()) {
+	               results.put(entry.getKey(),
+	                   runtimeAPI.evaluateGroovyExpression(entry.getValue(), activityUUID, useActivityScope, propagate));
+	           }
+             return results;
+            //return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
         } else {
             return null;
         }
@@ -780,7 +806,13 @@ public class BPMModule {
 
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
             throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
-        return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
+    		Map<String, Object> results=new Hashtable<String, Object>();
+	        for (Map.Entry<String, String> entry : expressions.entrySet()) {
+	                results.put(entry.getKey(),
+	                    runtimeAPI.evaluateGroovyExpression(entry.getValue(), processDefinitionUUID, context));
+	            }
+	        return results;
+        //return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
     }
 
     public void cancelProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
