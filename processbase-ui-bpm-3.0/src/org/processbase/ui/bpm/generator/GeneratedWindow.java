@@ -141,7 +141,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 //                        System.out.print(" W:" + cssProperty.getWidth());
 //                        System.out.println(" A:" + cssProperty.getAlign());
                     } else {
-                        if (!(component instanceof Button) && (fColumn == tColumn)) {
+                        if (!(component instanceof Table) && !(component instanceof Button) && (fColumn == tColumn)) {
                             component.setWidth("200px");
                         }
                     }
@@ -211,8 +211,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (widget.getType().equals(WidgetType.CHECKBOX)) {
                 component = getCheckBox(widget);
             }
-            if (widget.getType().equals(WidgetType.TABLE)) {
-//                component = new GeneratedTable(widget, taskInstance, processDefinition);
+            if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+                component = new GeneratedTable(widget, value, groovyScripts);
             }
             if (widget.getType().equals(WidgetType.CHECKBOX_GROUP)) {
                 component = getOptionGroup(widget, options);
@@ -291,7 +291,6 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
     private TextField getPasswordField(Widget widget) {
         TextField component = new TextField(widget.getLabel());
-//        System.out.println(widgets.getDisplayLabel()+" = " + (value!=null? component.getValue().getClass():""));
         component.setNullRepresentation("");
         return component;
     }
@@ -468,7 +467,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                                 value = ((AbstractField) comp).getValue();
                             }
                             if (comp instanceof GeneratedTable) {
-//                                value = ((GeneratedTable) comp).getTableValue();
+                                value = ((GeneratedTable) comp).getTableValue();
                             }
                             if (comp instanceof CheckBox) {
                                 value = ((CheckBox) comp).booleanValue();

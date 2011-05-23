@@ -23,121 +23,125 @@ import com.vaadin.ui.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.forms.Widget;
+import org.processbase.ui.core.bonita.forms.WidgetType;
 import org.processbase.ui.core.template.TableLinkButton;
 
 /**
  *
  * @author marat
  */
-public class GeneratedTable {
-//extends Table
-//        implements Table.FooterClickListener, Button.ClickListener {
+public class GeneratedTable extends Table implements Table.FooterClickListener, Button.ClickListener {
 
-//    private XMLWidgetsDefinition widgets;
-//    private TaskInstance task;
-//    private LightProcessDefinition processDef;
-//    protected List<String> columnHeaders = new ArrayList<String>();
-//    protected List<String> rowHeaders = new ArrayList<String>();
-//    protected List<List> values = new ArrayList<List>();
-//    protected List selectedValues = new ArrayList();
-//    protected int indexColumn = 0;
+    private Widget widget;
+    protected List<String> columnHeaders = new ArrayList<String>();
+    protected List<String> rowHeaders = new ArrayList<String>();
+    protected List<List> values = new ArrayList<List>();
+    protected List selectedValues = new ArrayList();
+    protected int indexColumn = 0;
 //
-//    public GeneratedTable(XMLWidgetsDefinition widgets, TaskInstance task, LightProcessDefinition processDef) {
-//        super();
-//        this.widgets = widgets;
-//        this.task = task;
-//        this.processDef = processDef;
-//        try {
-//            addStyleName("striped");
-//            if (widgets.getShowDisplayLabel()) {
-//                setCaption(widgets.getDisplayLabel());
-//            }
+
+    public GeneratedTable(Widget widget, Object value, Map<String, Object> groovyScripts) {
+        super();
+        this.widget = widget;
+        try {
+            addStyleName("striped");
+            setCaption(widget.getLabel());
 //            setSelectable(widgets.getAllowSelection() && !widgets.getReadOnly());
 //            setMultiSelect(widgets.getSelectionModeIsMultiple() && !widgets.getReadOnly());
-//            if (widgets.getShowDisplayLabel()) {
-//                setCaption(widgets.getDisplayLabel());
-//            }
-//            setDescription(widgets.getTooltip() != null ? widgets.getTooltip() : "");
-//
+            setDescription(widget.getTitle() != null ? widget.getTitle() : "");
+
+
 //            if (task != null) {
 //                preparedForTask();
 //            } else if (task == null) {
 //                preparedForNewProcess();
 //            }
-//
-//            for (String col : columnHeaders) {
-//                if (widgets.getType().equals("form:Table")) {
-//                    addContainerProperty(col, String.class, null, col, null, null);
-//                } else if (widgets.getType().equals("form:DynamicTable")) {
-//                    addContainerProperty(col, String.class, null, col, null, null);
-//                }
-//            }
-//            if (widgets.getType().equals("form:DynamicTable") && !widgets.getReadOnly()) {
-//                setEditable(true);
-//                if (widgets.getAllowAddRemoveRow()) {
-//                    setColumnFooter(columnHeaders.get(0), ProcessbaseApplication.getCurrent().getPbMessages().getString("addRow"));
-//                    setFooterVisible(true);
-//                    addListener((Table.FooterClickListener) this);
-//                    columnHeaders.add(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"));
-//                    addContainerProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-//                }
-//            }
-//            setVisibleColumns(columnHeaders.toArray());
-//
-//            if (!rowHeaders.isEmpty()) {
-//                setRowHeaderMode(Table.ROW_HEADER_MODE_EXPLICIT);
-//            }
-//
-//            for (int z = 0; z < values.size(); z++) {
-//                List row = values.get(z);
-//                Object id = row.get(indexColumn);
-//                Item woItem = addItem(id);
-//                for (int i = 0; i < columnHeaders.size(); i++) {
-//                    if (widgets.getType().equals("form:Table")) {
-//                        woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
-//                    } else if (widgets.getType().equals("form:DynamicTable")) {
-//                        if (columnHeaders.get(i).equals(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"))) {
-//                            TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-//                            woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
-//                        } else {
+
+            if (groovyScripts.containsKey(widget.getHorizontalHeader()) && groovyScripts.get(widget.getHorizontalHeader()) instanceof List) {
+                columnHeaders = (List<String>) groovyScripts.get(widget.getHorizontalHeader());
+                for (String col : columnHeaders) {
+                    addContainerProperty(col, String.class, null, col, null, null);
+                }
+            }
+
+
+            if (widget.getType().equals(WidgetType.EDITABLE_GRID) && !widget.isReadonly()) {
+                setEditable(true);
+                if (widget.isVariableRows()) {
+                    setColumnFooter(columnHeaders.get(0), ProcessbaseApplication.getCurrent().getPbMessages().getString("addRow"));
+                    setFooterVisible(true);
+                    addListener((Table.FooterClickListener) this);
+                    columnHeaders.add(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"));
+                    addContainerProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+                }
+            }
+            setVisibleColumns(columnHeaders.toArray());
+
+            if (!rowHeaders.isEmpty()) {
+                setRowHeaderMode(Table.ROW_HEADER_MODE_EXPLICIT);
+            }
+
+            if (value != null && value instanceof List) {
+                values = (List<List>) value;
+                for (int z = 0; z < values.size(); z++) {
+                    List row = values.get(z);
+                    Object id = row.get(indexColumn);
+                    Item woItem = addItem(id);
+                    for (int i = 0; i < columnHeaders.size(); i++) {
+                        if (widget.getType().equals(WidgetType.EDITABLE_GRID) && (i == columnHeaders.size() - 1)) {
+                            TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                            woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
+                        } else {
+                            woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
+                        }
+//                        if (widget.getType().equals(WidgetType.TABLE)) {
 //                            woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
+//                        } else if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+//                            if (columnHeaders.get(i).equals(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"))) {
+//                                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+//                                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
+//                            } else {
+//                                woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
+//                            }
 //                        }
-//                    }
-//                    if (!rowHeaders.isEmpty()) {
-//                        setItemCaption(row.get(indexColumn), rowHeaders.get(z));
-//                    }
-//                }
-//            }
-//            if (!selectedValues.isEmpty()) {
-//                setValue(selectedValues);
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            Logger.getLogger(GeneratedTable.class.getName()).log(Level.SEVERE, ex.getMessage());
-//        }
-//    }
-//
-//    public Object getTableValue() {
-//        if (widgets.getType().equals("form:Table")) {
-//            return getValue();
-//        } else {
-//            List result = new ArrayList(getContainerDataSource().getItemIds().size());
-//            for (Object id : getContainerDataSource().getItemIds()) {
-//                List row = new ArrayList(getContainerPropertyIds().size());
-//                for (Object prop : getContainerPropertyIds()) {
-//                    row.add(this.getItem(id).getItemProperty(prop).getValue().toString());
-//                }
-//                result.add(row);
-//            }
-//            return result;
-//        }
-//    }
-//
+                        if (!rowHeaders.isEmpty()) {
+                            setItemCaption(row.get(indexColumn), rowHeaders.get(z));
+                        }
+                    }
+                }
+            }
+            if (!selectedValues.isEmpty()) {
+                setValue(selectedValues);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Logger.getLogger(GeneratedTable.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+    }
+
+    public Object getTableValue() {
+        if (widget.getType().equals(WidgetType.TABLE)) {
+            return getValue();
+        } else {
+            List result = new ArrayList(getContainerDataSource().getItemIds().size());
+            for (Object id : getContainerDataSource().getItemIds()) {
+                List row = new ArrayList(getContainerPropertyIds().size());
+                for (Object prop : getContainerPropertyIds()) {
+                    row.add(this.getItem(id).getItemProperty(prop).getValue().toString());
+                }
+                result.add(row);
+            }
+            return result;
+        }
+    }
+
 //    private void preparedForTask() throws Exception {
 //        if (widgets.getMaxRowForPagination() != null) {
 //            setPageLength(Integer.valueOf((String) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
@@ -191,23 +195,29 @@ public class GeneratedTable {
 //        }
 //    }
 //
-//    public void footerClick(FooterClickEvent event) {
-//        Object id = Math.random();
-//        Item woItem = addItem(id);
-//        for (int i = 0; i < columnHeaders.size(); i++) {
+    public void footerClick(FooterClickEvent event) {
+        Object id = Math.random();
+        Item woItem = addItem(id);
+        for (int i = 0; i < columnHeaders.size(); i++) {
+            if (i == columnHeaders.size() - 1) {
+                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
+                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
+            } else {
+                woItem.getItemProperty(columnHeaders.get(i)).setValue("");
+            }
 //            if (columnHeaders.get(i).equals(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"))) {
 //                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
 //                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
 //            } else {
 //                woItem.getItemProperty(columnHeaders.get(i)).setValue("");
 //            }
-//        }
-//    }
-//
-//    public void buttonClick(ClickEvent event) {
-//        if (event.getButton() instanceof TableLinkButton) {
-//            TableLinkButton tlb = (TableLinkButton) event.getButton();
-//            removeItem(tlb.getTableValue());
-//        }
-//    }
+        }
+    }
+
+    public void buttonClick(ClickEvent event) {
+        if (event.getButton() instanceof TableLinkButton) {
+            TableLinkButton tlb = (TableLinkButton) event.getButton();
+            removeItem(tlb.getTableValue());
+        }
+    }
 }
