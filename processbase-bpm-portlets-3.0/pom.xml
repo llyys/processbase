@@ -20,6 +20,8 @@
 					<artifactId>maven-war-plugin</artifactId>
 					<configuration>
 						<webXml>web/WEB-INF/web.xml</webXml>
+						<warName>processbase-portlet</warName>
+						<warSourceDirectory>web</warSourceDirectory>
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
 							utters a warning because of it. This configuration should shut it up! FIXME: 

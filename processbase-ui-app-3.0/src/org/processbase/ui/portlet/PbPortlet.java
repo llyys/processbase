@@ -60,33 +60,36 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 
     public void initUI() {
 //        System.out.println("PbPortlet init ");
-        setTheme("processbase");
+        //setTheme("processbase");
         setLogoutURL(Constants.TASKLIST_PAGE_URL);
         setPortletApplicationContext2((PortletApplicationContext2) getContext());
         PortletConfig config = getPortletApplicationContext2().getPortletConfig();
         mainWindow = new PbWindow("Processbase User Portlet");
         mainWindow.setSizeFull();
         setMainWindow(mainWindow);
-        if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")) {
-            TaskListPanel ui = new TaskListPanel();
-            mainWindow.setContent(ui);
-            ui.initUI();
-        } else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")) {
-            BPMConfigurationPanel ui = new BPMConfigurationPanel();
-            mainWindow.setContent(ui);
-            ui.initUI();
-        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")) {
-            IdentityPanel ui = new IdentityPanel();
-            mainWindow.setContent(ui);
-            ui.initUI();
-        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")) {
-            BAMConfigurationPanel ui = new BAMConfigurationPanel();
-            mainWindow.setContent(ui);
-            ui.initUI();
-        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")) {
-            BPMMonitoringPanel ui = new BPMMonitoringPanel();
-            mainWindow.setContent(ui);
-            ui.initUI();
+        if(userName!=null)
+        {
+	        if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")) {
+	            TaskListPanel ui = new TaskListPanel();
+	            mainWindow.setContent(ui);
+	            ui.initUI();
+	        } else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")) {
+	            BPMConfigurationPanel ui = new BPMConfigurationPanel();
+	            mainWindow.setContent(ui);
+	            ui.initUI();
+	        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")) {
+	            IdentityPanel ui = new IdentityPanel();
+	            mainWindow.setContent(ui);
+	            ui.initUI();
+	        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")) {
+	            BAMConfigurationPanel ui = new BAMConfigurationPanel();
+	            mainWindow.setContent(ui);
+	            ui.initUI();
+	        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")) {
+	            BPMMonitoringPanel ui = new BPMMonitoringPanel();
+	            mainWindow.setContent(ui);
+	            ui.initUI();
+	        }
         }
         
     }
@@ -97,12 +100,16 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             try {
                 User user = PortalUtil.getUser(request);
 //                setPortalUser(user);
-                setUserName(user.getScreenName());
-                setLocale(request.getLocale());
-                setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
-                setBpmModule(new BPMModule(user.getScreenName()));
-                setDocumentLibrary(new PortalDocumentLibrary(user));
-                setPortletSession(request.getPortletSession());
+                if(user!=null)
+                {
+	                setUserName(user.getScreenName());
+	                setLocale(request.getLocale());
+	                setMessages(ResourceBundle.getBundle("resources/MessagesBundle", getLocale()));
+	                Constants.APP_SERVER="LIFERAY";
+	                setBpmModule(new BPMModule(user.getScreenName()));
+	                //setDocumentLibrary(new PortalDocumentLibrary(user));
+	                setPortletSession(request.getPortletSession());
+                }
 
             } catch (PortalException e) {
                 e.printStackTrace();

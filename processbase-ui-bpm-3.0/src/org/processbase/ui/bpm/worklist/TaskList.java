@@ -170,6 +170,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
                     genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
                     genWindow.setBarResource(barResource);
+                    genWindow.setXMLProcessDefinition(xmlProcess);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {

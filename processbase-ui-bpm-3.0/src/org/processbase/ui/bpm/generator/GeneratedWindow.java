@@ -67,6 +67,7 @@ import org.processbase.ui.core.bonita.forms.VariableType;
 import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetGroup;
 import org.processbase.ui.core.bonita.forms.WidgetType;
+import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.template.HumanTaskWindow;
 import org.processbase.ui.core.template.ImmediateUpload;
 
@@ -97,6 +98,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     @Override
     public void initUI() {
         super.initUI();
+        setWidth("845px");
+        setHeight("90%");        
+        setResizable(true);
         try {
             if (taskInstance != null && !taskInstance.getState().equals(ActivityState.FINISHED) && !taskInstance.getState().equals(ActivityState.ABORTED) && !taskInstance.getState().equals(ActivityState.CANCELLED)) {
                 pageFlow = getPageFlow(taskInstance.getActivityName());
@@ -158,6 +162,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             pages.add(verticalLayout);
         }
         taskPanel.setContent(pages.get(currentPage));
+        
+        taskPanel.setSizeFull();
         taskPanel.setCaption(pageFlow.getPages().getPages().get(currentPage).getPageLabel());
     }
 
@@ -283,6 +289,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 //                    + ProcessbaseApplication.getCurrent().getMessages().getString("validatorIntegerError")));
 //        }
         component.setNullRepresentation("");
+        component.setWidth("400px");
         return component;
     }
 
@@ -660,6 +667,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     public void setBarResource(BarResource barResource) {
         this.barResource = barResource;
         formsDefinition = this.barResource.getFormsDefinition();
+    }
+    XMLProcessDefinition _xmlProcess; 
+    public void setXMLProcessDefinition(XMLProcessDefinition xmlProcess)
+    {
+    	_xmlProcess=xmlProcess;
     }
 
     private PageFlow getPageFlow() {

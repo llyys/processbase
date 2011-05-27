@@ -24,7 +24,8 @@ public class BonitaFormParcer {
             Node mainProcess = doc.getElementsByTagName("process:MainProcess").item(0);
             NodeList processNodes = mainProcess.getChildNodes();
             for (int i = 0; i < processNodes.getLength(); i++) {
-                if (processNodes.item(i).getNodeName().equals("elements")
+                if (processNodes.item(i)!=null 
+                		&& processNodes.item(i).getNodeName().equals("elements")
                         && processNodes.item(i).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Pool")) {
                     Node processNode = processNodes.item(i);
                     process = new XMLProcessDefinition(processNode.getAttributes().getNamedItem("name").getNodeValue(), processNode.getAttributes().getNamedItem("label").getNodeValue());
@@ -74,6 +75,7 @@ public class BonitaFormParcer {
     public static FormsDefinition createFormsDefinition(String xmlString) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(FormsDefinition.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (FormsDefinition) unmarshaller.unmarshal(new ByteArrayInputStream(xmlString.getBytes()));
+        ByteArrayInputStream is = new ByteArrayInputStream(xmlString.getBytes());
+		return (FormsDefinition) unmarshaller.unmarshal(is);
     }
 }

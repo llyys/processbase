@@ -16,14 +16,15 @@
  */
 package org.processbase.ui.core;
 
-import com.sun.appserv.security.ProgrammaticLogin;
+//import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -129,12 +130,26 @@ public class BPMModule {
         bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
         commandAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getCommandAPI();
     }
+    
+    private Class<?> tryClass(String name)
+    {
+        try
+        {
+            return Class.forName(name);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return null;
+        }
+    }
+
 
     private void initContext() throws Exception {
         if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
             ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
             programmaticLogin.login(currentUserUID, "".toCharArray(), "processBaseRealm", false);
         }
+    	        
         DomainOwner.setDomain(Constants.BONITA_DOMAIN);
         UserOwner.setUser(currentUserUID);
     }
@@ -792,10 +807,10 @@ public class BPMModule {
             ActivityInstanceUUID activityUUID, boolean useActivityScope, boolean propagate)
             throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
         if (!expressions.isEmpty()) {
-        	Map<String, Object> results=new Hashtable<String, Object>();
+        	Map<String, Object> results=new HashMap<String, Object>();
 	           for (Map.Entry<String, String> entry : expressions.entrySet()) {
-	               results.put(entry.getKey(),
-	                   runtimeAPI.evaluateGroovyExpression(entry.getValue(), activityUUID, useActivityScope, propagate));
+	        	   Object result=runtimeAPI.evaluateGroovyExpression(entry.getValue(), activityUUID, useActivityScope, propagate);
+	               results.put(entry.getKey(), result);
 	           }
              return results;
             //return runtimeAPI.evaluateGroovyExpressions(expressions, activityUUID, useActivityScope, propagate);
@@ -806,7 +821,7 @@ public class BPMModule {
 
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
             throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
-    		Map<String, Object> results=new Hashtable<String, Object>();
+    		Map<String, Object> results=new HashMap<String, Object>();
 	        for (Map.Entry<String, String> entry : expressions.entrySet()) {
 	                results.put(entry.getKey(),
 	                    runtimeAPI.evaluateGroovyExpression(entry.getValue(), processDefinitionUUID, context));

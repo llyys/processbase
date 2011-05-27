@@ -8,6 +8,24 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <display-name>ProcessBase</display-name>
     <context-param>
         <param-name>productionMode</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
+    <servlet>
+		<servlet-name>ProcessBase Application</servlet-name>
+		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<init-param>
+			<description>
+			Vaadin application class to start</description>
+			<param-name>application</param-name>
+			<param-value>org.processbase.ui.portlet.PbPortlet</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProcessBase Application</servlet-name>
+		<url-pattern>/ProcessBase/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ProcessBase Application</servlet-name>
+		<url-pattern>/VAADIN/*</url-pattern>
+	</servlet-mapping>
 </web-app>
