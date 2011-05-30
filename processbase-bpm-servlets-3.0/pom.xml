@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+		<groupId>org.processbase</groupId>
+		<artifactId>processbase</artifactId>
+		<version>3.0</version>
+	</parent>
+  
+  <artifactId>processbase-bpm-servlets</artifactId>
+  <packaging>war</packaging>
+  <name>Processbase Servlet</name>
+  <build>
+		<sourceDirectory>src</sourceDirectory>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-war-plugin</artifactId>
+					<configuration>
+						<webXml>web/WEB-INF/web.xml</webXml>
+						<warName>processbase</warName>
+						<warSourceDirectory>web</warSourceDirectory>
+						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
+							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
+							utters a warning because of it. This configuration should shut it up! FIXME: 
+							Verify that this is a right way to do it. Maybe we should use gwt:mergewebxml? 
+							<packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
+					</configuration>
+				</plugin>
+				
+			</plugins>
+		</pluginManagement>
+		 <!--<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copyFiles</id>
+						<phase>verify</phase>
+						<configuration>
+							<tasks>
+								<copy todir="${server.deploy.path}" flatten="true" overwrite="true" verbose="true" failonerror="true">									
+									<fileset dir="target" includes="*.war" />
+								</copy>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>-->
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-app</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bam</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bpm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-engine-bam</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+    <properties></properties>
+</project>

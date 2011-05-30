@@ -82,7 +82,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     private PageFlow pageFlow;
     private HashMap<Component, Widget> components = new HashMap<Component, Widget>();
     private HashMap<String, Component> fields = new HashMap<String, Component>();
-    private ArrayList<VerticalLayout> pages = new ArrayList<VerticalLayout>();
+    private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
     private int currentPage = 0;
     private boolean hasAttachments = false;
     private List<AttachmentInstance> attachmentInstances = null;
@@ -159,7 +159,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 } else if (wg instanceof WidgetGroup) {
                 }
             }
-            pages.add(verticalLayout);
+            pages.add(gridLayout);
         }
         taskPanel.setContent(pages.get(currentPage));
         
@@ -442,12 +442,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private void commit() {
-        for (VerticalLayout grid : pages) {
+        for (GridLayout grid : pages) {
             commitPage(grid);
         }
     }
 
-    private void commitPage(VerticalLayout page) {
+    private void commitPage(GridLayout page) {
         for (Iterator<Component> iterator = page.getComponentIterator(); iterator.hasNext();) {
             Component comp = iterator.next();
             if (comp instanceof AbstractField) {

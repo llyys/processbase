@@ -1,0 +1,58 @@
+@import "../runo/styles.css";
+@import "button-special.css";
+
+.v-app {
+    background: #FFFFFF;
+}
+
+.v-disabled {
+    opacity: .6;
+    filter: alpha(opacity=60);
+    cursor: default;
+}
+
+.v-menubar-menuitem-blue {
+    color: #1c9cff;
+}
+
+.v-menubar-menuitem-blue-bold {
+    font-weight: bold;
+    color: #1c9cff;
+}
+
+.v-menubar-menuitem-red {
+    color: red;
+}
+
+.v-menubar-menuitem-red-bold {
+    font-weight: bold;
+    color: red;
+}
+
+.v-menubar-menuitem-actor {
+    font-weight: bold;
+}
+
+.v-panel-content {
+    border-left: 1px solid #babfc0;
+    border-right: 1px solid #babfc0;
+    border-bottom: none;
+    border-top: none;
+    background-color: #fff;
+}
+
+.v-tabsheet-content {
+    border-left: 1px solid #babfc0;
+    border-right: 1px solid #babfc0;
+    border-bottom: none;
+    border-top: none;
+    background-color: #fff;
+}
+
+.v-window-contents {
+	background: #fff;
+	border-left: 2px solid #babfc0;
+        border-right: 2px solid #babfc0;
+	border-top: none;
+	border-bottom: none;
+}

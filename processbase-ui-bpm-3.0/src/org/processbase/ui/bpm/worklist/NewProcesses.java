@@ -142,20 +142,18 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 ProcessbaseApplication.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(process.getUUID());
-                FormsDefinition formsDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getFormsDefinition(process.getUUID());
-                /*if (!xmlProcess.isByPassFormsGeneration() ) {//check that forms is not defined
-                    showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
-                } else */if (!xmlProcess.isByPassFormsGeneration() /*check that forms is defined*/) {
-                    GeneratedWindow2 genWindow = new GeneratedWindow2(process.getLabel());
-                    genWindow.setProcessDef(process);
-                    genWindow.setBarResource(barResource);
-                    this.getApplication().getMainWindow().addWindow(genWindow);
-                    genWindow.initUI();
-                } else {
-                    ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(process.getUUID());
-                    showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
-                }
+            	 BarResource barResource = new BarResource(process.getUUID());
+                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition();
+                 if (!xmlProcess.isByPassFormsGeneration()) {
+                     GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
+                     genWindow.setProcessDef(process);
+                     genWindow.setBarResource(barResource);
+                     this.getApplication().getMainWindow().addWindow(genWindow);
+                     genWindow.initUI();
+                 } else {
+                     ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(process.getUUID());
+                     showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
+                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();

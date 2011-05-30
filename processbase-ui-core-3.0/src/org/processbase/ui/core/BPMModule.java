@@ -145,11 +145,14 @@ public class BPMModule {
 
 
     private void initContext() throws Exception {
-        if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
-            ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
-            programmaticLogin.login(currentUserUID, "".toCharArray(), "processBaseRealm", false);
-        }
-    	        
+    	if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
+    		Class<?> authClass = tryClass("com.sun.appserv.security.ProgrammaticLogin");
+    		if(authClass!=null)
+    		{
+    			authClass.getMethod("login")
+    			.invoke(authClass.newInstance(), currentUserUID, "".toCharArray(), "processBaseRealm", false);        		
+    		}            
+    	}
         DomainOwner.setDomain(Constants.BONITA_DOMAIN);
         UserOwner.setUser(currentUserUID);
     }
