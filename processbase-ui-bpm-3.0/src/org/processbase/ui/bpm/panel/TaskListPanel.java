@@ -16,23 +16,25 @@
  */
 package org.processbase.ui.bpm.panel;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.core.template.TreeTablePanel;
-import org.processbase.ui.core.template.WorkPanel;
+
 import org.processbase.ui.bpm.worklist.NewProcesses;
 import org.processbase.ui.bpm.worklist.Processes;
 import org.processbase.ui.bpm.worklist.TaskCompleted;
 import org.processbase.ui.bpm.worklist.TaskList;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.TablePanel;
+import org.processbase.ui.core.template.TreeTablePanel;
+import org.processbase.ui.core.template.WorkPanel;
 import org.processbase.ui.osgi.PbPanelModule;
+
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  *

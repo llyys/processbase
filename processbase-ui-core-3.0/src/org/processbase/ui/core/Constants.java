@@ -61,7 +61,7 @@ public class Constants {
     public static void loadConstants() {
         try {
             File file = null;
-            String userHomeDir=System.getProperty("user.home");
+            String userHomeDir=System.getProperty("BONITA_HOME");
             file=new File(userHomeDir+"/processbase3.properties");//global configuration can be accessed %USER_HOME%\processbase3.properties
             if(!file.exists())//if there is no such folder, then read embeded resource
             	file=new File("processbase3.properties");

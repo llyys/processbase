@@ -19,6 +19,7 @@ package org.processbase.ui.core;
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -131,7 +132,7 @@ public class BPMModule {
         commandAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getCommandAPI();
     }
     
-    private Class<?> tryClass(String name)
+    private Class tryClass(String name)
     {
         try
         {
@@ -146,11 +147,11 @@ public class BPMModule {
 
     private void initContext() throws Exception {
     	if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
-    		Class<?> authClass = tryClass("com.sun.appserv.security.ProgrammaticLogin");
+    		Class authClass = tryClass("com.sun.appserv.security.ProgrammaticLogin");
     		if(authClass!=null)
     		{
-    			authClass.getMethod("login")
-    			.invoke(authClass.newInstance(), currentUserUID, "".toCharArray(), "processBaseRealm", false);        		
+    			Method login=authClass.getMethod("login");
+    			login.invoke(authClass.newInstance(), currentUserUID, "".toCharArray(), "processBaseRealm", false);        		
     		}            
     	}
         DomainOwner.setDomain(Constants.BONITA_DOMAIN);

@@ -59,6 +59,7 @@ public class BAMConstants {
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
+            
         }
     }
 }

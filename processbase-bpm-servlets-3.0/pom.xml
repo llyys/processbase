@@ -29,7 +29,7 @@
 				
 			</plugins>
 		</pluginManagement>
-		 <!--<plugins>
+		 <plugins>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -49,7 +49,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>-->
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
