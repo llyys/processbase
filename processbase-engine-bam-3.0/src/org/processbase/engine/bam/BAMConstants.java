@@ -31,7 +31,7 @@ public class BAMConstants {
     public static boolean LOADED = false;
     public static Properties properties = new Properties();
     //public static String BAM_DB_POOLNAME;
-    //public static String BAM_DB_DIALECT;
+    public static String BAM_DB_DIALECT;
     public static String BAM_MQ_CONNECTION_FACTORY;
     public static String BAM_MQ_DESTINATION_RESOURCE;
 
@@ -51,6 +51,7 @@ public class BAMConstants {
 
                 //BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
                 //BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
+                BAM_DB_DIALECT = properties.containsKey("hibernate.dialect") ? properties.getProperty("hibernate.dialect") : "org.hibernate.dialect.Oracle10gDialect";
             } else {
                 properties.setProperty("BAM_MQ_CONNECTION_FACTORY", "jms/pbbamConnectionFactory");
                 properties.setProperty("BAM_MQ_DESTINATION_RESOURCE", "jms/pbbamDestinationResource");

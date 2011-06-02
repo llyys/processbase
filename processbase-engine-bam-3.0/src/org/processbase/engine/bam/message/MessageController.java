@@ -48,6 +48,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.processbase.engine.bam.BAMConstants;
+import org.processbase.engine.bam.db.HibernateUtil;
 
 /**
  *
@@ -247,9 +248,10 @@ public class MessageController {
         try {
             InitialContext context = new InitialContext();
             //Look up our data source
-            DataSource ds = (DataSource) context.lookup(BAMConstants.BAM_DB_POOLNAME);
+            //DataSource ds = (DataSource) context.lookup(BAMConstants.BAM_DB_POOLNAME);
+            return HibernateUtil.getConfiguration().buildSettings().getConnectionProvider().getConnection();
             //Allocate and use a connection from the pool
-            con = ds.getConnection();
+            //con = ds.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
