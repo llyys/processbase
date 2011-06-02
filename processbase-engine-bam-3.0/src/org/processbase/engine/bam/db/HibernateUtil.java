@@ -27,6 +27,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
@@ -51,12 +52,18 @@ public class HibernateUtil {
             if (!BAMConstants.LOADED) {
                 BAMConstants.loadConstants();
             }
-            configuration = new Configuration();
+            /*configuration = new Configuration();
             configuration.setProperty("hibernate.dialect", BAMConstants.BAM_DB_DIALECT);
             configuration.setProperty("hibernate.connection.datasource", BAMConstants.BAM_DB_POOLNAME);
             configuration.addClass(org.processbase.engine.bam.metadata.MetaDim.class);
             configuration.addClass(org.processbase.engine.bam.metadata.MetaFact.class);
             configuration.addClass(org.processbase.engine.bam.metadata.MetaKpi.class);
+            sessionFactory = configuration.buildSessionFactory();*/
+            configuration=new AnnotationConfiguration()
+            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaDim.class)
+            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaFact.class)
+            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaKpi.class)
+            .setProperties(BAMConstants.hibernateProperties());
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
             ex.printStackTrace();

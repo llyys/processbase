@@ -53,8 +53,8 @@ public class Constants {
     public static Properties properties = new Properties();
     public static Hashtable BONITA_EJB_ENV = new Hashtable();
     public static String DL_GROUP = null;
-    public static String BAM_DB_POOLNAME;
-    public static String BAM_DB_DIALECT;
+    //public static String BAM_DB_POOLNAME;
+    //public static String BAM_DB_DIALECT;
     public static String BONITA_DOMAIN = "default";
     public static String APP_SERVER = "default";
 
@@ -62,7 +62,7 @@ public class Constants {
         try {
             File file = null;
             String userHomeDir=System.getProperty("BONITA_HOME");
-            file=new File(userHomeDir+"/processbase3.properties");//global configuration can be accessed %USER_HOME%\processbase3.properties
+            file=new File(userHomeDir+"/processbase3.properties");//global configuration can be accessed %BONITA_HOME%\processbase3.properties
             if(!file.exists())//if there is no such folder, then read embeded resource
             	file=new File("processbase3.properties");
             if (file.exists()) {
@@ -82,7 +82,7 @@ public class Constants {
         FileInputStream fis = new FileInputStream(file);
         if(properties==null)
         	properties=new Properties();
-        properties.loadFromXML(fis);
+        properties.load(fis);
         fis.close();
         TASKLIST_PAGE_URL = properties.getProperty("TASKLIST_PAGE_URL");
         //System.setProperty("org.ow2.bonita.api-type", properties.containsKey("org.ow2.bonita.api-type") ? properties.getProperty("org.ow2.bonita.api-type") : "EJB3");
@@ -99,8 +99,8 @@ public class Constants {
         BONITA_DOMAIN = properties.containsKey("BONITA_DOMAIN") ? properties.getProperty("BONITA_DOMAIN") : "default";
         APP_SERVER = properties.containsKey("APP_SERVER") ? properties.getProperty("APP_SERVER") : "GLASSFISH3";
 
-        BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
-        BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
+        //BAM_DB_POOLNAME = properties.containsKey("BAM_DB_POOLNAME") ? properties.getProperty("BAM_DB_POOLNAME") : "jdbc/pbbam";
+        //BAM_DB_DIALECT = properties.containsKey("BAM_DB_DIALECT") ? properties.getProperty("BAM_DB_DIALECT") : "org.hibernate.dialect.Oracle10gDialect";
 
         CUSTOM_UI_JAR_PATH = properties.containsKey("CUSTOM_UI_JAR_PATH") ? properties.getProperty("CUSTOM_UI_JAR_PATH") : "";
     }
@@ -118,15 +118,16 @@ public class Constants {
         properties.setProperty("DL_GROUP", "DOCUMENTS");
         properties.setProperty("BONITA_DOMAIN", "default");
 
-        properties.setProperty("BAM_DB_POOLNAME", "jdbc/pbbam");
-        properties.setProperty("BAM_DB_DIALECT", "org.hibernate.dialect.Oracle10gDialect");
+        properties.setProperty("hibernate.connection.datasource", "jdbc/pbbam");
+        properties.setProperty("hibernate.connection.driver_class", "oracle.jdbc.OracleDriver");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect");
         properties.setProperty("CUSTOM_UI_JAR_PATH", "/processbasecustomuijar");
 
         properties.setProperty("org.omg.CORBA.ORBInitialHost", "localhost");
         properties.setProperty("org.omg.CORBA.ORBInitialPort", "23700");
 
         FileOutputStream fos = new FileOutputStream(file);
-        properties.storeToXML(fos, null);
+        properties.store(fos, null);
         fos.close();
     }
 }

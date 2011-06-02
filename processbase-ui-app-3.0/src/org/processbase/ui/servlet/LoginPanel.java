@@ -11,6 +11,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
@@ -29,7 +30,7 @@ public class LoginPanel extends GridLayout implements Handler {
     private Button btnLogin = null;
     private Action action_ok = null;
     private TextField username = new TextField("Username", "");
-    private TextField password = new TextField("Password", "");
+    private PasswordField password = new PasswordField("Password", "");
     private Label labelLeft = new Label("");
     private Label labelRight = new Label("");
     private Locale locale = null;
@@ -55,7 +56,6 @@ public class LoginPanel extends GridLayout implements Handler {
         username.focus();
 
         password.setCaption(((PbApplication)getApplication()).getPbMessages().getString("password"));
-        password.setSecret(true);
         password.setWidth("100%");
         form.addComponent(password);
 
