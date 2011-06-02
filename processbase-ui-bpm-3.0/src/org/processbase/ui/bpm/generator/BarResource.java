@@ -54,6 +54,8 @@ public class BarResource {
         BonitaFormParcer bfb = new BonitaFormParcer(proc);
         xmlProcessDefinition = bfb.getProcess();
 //        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form, "UTF-8")); //If bar resource already is in UTF-8 encoding this caused a double encoding and thus resource was not available
+        if(form==null)
+        	throw new Exception("No form definitions found from process!");
         formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form));
     }
 

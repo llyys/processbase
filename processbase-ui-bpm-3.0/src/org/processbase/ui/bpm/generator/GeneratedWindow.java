@@ -48,6 +48,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
+import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
@@ -61,6 +63,7 @@ import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
 import org.processbase.ui.core.bonita.forms.Activities;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
+import org.processbase.ui.core.bonita.forms.FormsDefinition.Process;
 import org.processbase.ui.core.bonita.forms.PageFlow;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
 import org.processbase.ui.core.bonita.forms.SelectMode;
@@ -715,7 +718,36 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
     }
 
     private PageFlow getPageFlow() {
-        return formsDefinition.getProcesses().get(0).getPageflow();
+        Process process = formsDefinition.getProcesses().get(0);
+		PageFlow flow = process.getPageflow();
+        if(flow.getPages()!=null) //if there is no initial pageflow try activity
+        	return flow;
+        //try to find first activity if there is pageflow to execute
+        //return process.getActivities().getActivities().get(0).getPageflow();
+        ProcessInstanceUUID piUUID;
+		try {
+			piUUID = bpmModule.startNewProcess(processDefinition.getUUID());
+			taskInstance=bpmModule.nextUserTask(piUUID, getCurrentUser());
+			if(taskInstance!=null)
+        	{				
+				return getPageFlow(taskInstance.getActivityName());
+        	}
+		} catch (ProcessNotFoundException e) {
+			showError(e.getMessage());
+			e.printStackTrace();
+			return null;
+		} catch (VariableNotFoundException e) {
+			// TODO Auto-generated catch block
+			showError(e.getMessage());
+			e.printStackTrace();
+			return null;			
+		} catch (Exception e) {
+			showError(e.getMessage());
+			e.printStackTrace();
+			return null;		}
+        
+        
+        return null;
     }
 
     private PageFlow getPageFlow(String activityName) {
