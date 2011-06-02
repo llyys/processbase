@@ -53,7 +53,9 @@ import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.light.LightTaskInstance;
 import org.ow2.bonita.util.GroovyExpression;
+import org.processbase.ui.bpm.worklist.TaskList;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
@@ -102,7 +104,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         setHeight("90%");        
         setResizable(true);
         try {
-            if (taskInstance != null && !taskInstance.getState().equals(ActivityState.FINISHED) && !taskInstance.getState().equals(ActivityState.ABORTED) && !taskInstance.getState().equals(ActivityState.CANCELLED)) {
+            if (isTaskActive()) {
                 pageFlow = getPageFlow(taskInstance.getActivityName());
             } else if (taskInstance == null) {
                 pageFlow = getPageFlow();
@@ -119,14 +121,25 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         }
     }
 
+	private boolean isTaskActive() {
+		return !(
+				taskInstance == null 
+				|| taskInstance.getState().equals(ActivityState.FINISHED) 
+				|| taskInstance.getState().equals(ActivityState.ABORTED) 
+				|| taskInstance.getState().equals(ActivityState.CANCELLED)
+		);
+	}
+
     protected void generateWindow() throws Exception {
         prepareAttachments();
         prepareGroovyScripts();
+        
         if(pageFlow==null)
         {
         	showMessage("Pages not found in process", Notification.TYPE_WARNING_MESSAGE);
         	return;
         }
+        
         for (Page page : pageFlow.getPages().getPages()) {
             TableStyle ts = barResource.getTableStyle(page);
             GridLayout gridLayout = new GridLayout(ts.getColumns(), ts.getRows());
@@ -164,7 +177,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         taskPanel.setContent(pages.get(currentPage));
         
         taskPanel.setSizeFull();
-        taskPanel.setCaption(pageFlow.getPages().getPages().get(currentPage).getPageLabel());
+        String pageLabel = pageFlow.getPages().getPages().get(currentPage).getPageLabel();
+        setCaption(pageLabel);
+		taskPanel.setCaption(pageLabel);
     }
 
     private Component getComponent(Widget widget) {
@@ -391,6 +406,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         }
         return component;
     }
+    
+    private TaskList taskList;
+	
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -401,14 +419,16 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                 if (getWidgets(btn).getType().equals(WidgetType.BUTTON_SUBMIT)) {
                     commit();
                     setProcessVariables();
+                    ProcessInstanceUUID piUUID=null;
                     if (taskInstance == null) {
                         if (hasAttachments) {
                             prepareInitialAttachmentsToSave();
                         }
-                        ProcessInstanceUUID piUUID = ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
+                        piUUID = ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(processDefinition.getUUID(), processInstanceVariables);
                         if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
                             saveAttachmentsToPortal(piUUID.toString());
                         }
+                        
                     } else {
                         if (hasAttachments) {
                             prepareAttachmentsToSave();
@@ -416,9 +436,26 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                         if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
                             saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID().toString());
                         }
+                        piUUID = taskInstance.getProcessInstanceUUID();
                         ProcessbaseApplication.getCurrent().getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
                     }
-                    close();
+                    taskInstance=bpmModule.nextUserTask(piUUID, getCurrentUser());
+                    if(taskInstance!=null) //if there is a next task to be executed                    	
+                    {
+                    	pageFlow = getPageFlow(taskInstance.getActivityName());
+                    	currentPage=0;
+                    	pages.clear();
+                    	if(pageFlow!=null)
+                    		generateWindow();
+                    }
+                    else
+                    {
+                    	if(taskList!=null)
+                    		taskList.refreshTable();
+                    	close();
+                    }
+                    
+                    
 
                 } else if (getWidgets(btn).getType().equals(WidgetType.BUTTON_NEXT)) {
                     commitPage(pages.get(currentPage));
@@ -441,7 +478,10 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         }
     }
 
-    private void commit() {
+    
+
+
+	private void commit() {
         for (GridLayout grid : pages) {
             commitPage(grid);
         }
@@ -686,4 +726,12 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         }
         return null;
     }
+
+	public void setTaskList(TaskList taskList) {
+		this.taskList = taskList;
+	}
+
+	public TaskList getTaskList() {
+		return taskList;
+	}
 }

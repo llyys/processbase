@@ -53,7 +53,8 @@ public class BarResource {
         }
         BonitaFormParcer bfb = new BonitaFormParcer(proc);
         xmlProcessDefinition = bfb.getProcess();
-        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form, "UTF-8"));
+//        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form, "UTF-8")); //If bar resource already is in UTF-8 encoding this caused a double encoding and thus resource was not available
+        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form));
     }
 
     public TableStyle getTableStyle(Page page) {

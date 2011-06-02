@@ -148,6 +148,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                      GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
                      genWindow.setProcessDef(process);
                      genWindow.setBarResource(barResource);
+                     
                      this.getApplication().getMainWindow().addWindow(genWindow);
                      genWindow.initUI();
                  } else {

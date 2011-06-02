@@ -18,6 +18,8 @@ import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Runo;
 import java.util.Locale;
 
+import org.hibernate.annotations.common.Version;
+
 /**
  *
  * @author mgubaidullin
@@ -64,6 +66,11 @@ public class LoginPanel extends GridLayout implements Handler {
         action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
         form.addComponent(btnLogin);
         form.setComponentAlignment(btnLogin, Alignment.BOTTOM_RIGHT);
+        
+        Label version=new Label(org.processbase.ui.core.Version.VERSION);
+        version.setHeight("8px");
+        form.addComponent(version);
+        form.setComponentAlignment(version, Alignment.BOTTOM_RIGHT);
 //        btnLogin.addListener(this);
 
         createLogo();

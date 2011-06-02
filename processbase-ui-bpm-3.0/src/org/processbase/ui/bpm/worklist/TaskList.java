@@ -139,12 +139,12 @@ public class TaskList extends TablePanel implements Button.ClickListener {
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightTaskInstance task = (LightTaskInstance) ((TableLinkButton) event.getButton()).getTableValue();
-                LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
-                if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
-                    table.removeItem(task);
-                } else {
+//                LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
+//                if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
+//                    table.removeItem(task);
+//                } else {
                     openTaskPage(task);
-                }
+//                }
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -155,6 +155,11 @@ public class TaskList extends TablePanel implements Button.ClickListener {
 
     public void openTaskPage(LightTaskInstance task) {
         try {
+        	LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
+	        if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
+				table.removeItem(task);
+				return;
+	        }
             String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
@@ -171,6 +176,8 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                     genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
                     genWindow.setBarResource(barResource);
                     genWindow.setXMLProcessDefinition(xmlProcess);
+                    genWindow.setTaskList(this);
+                    
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {

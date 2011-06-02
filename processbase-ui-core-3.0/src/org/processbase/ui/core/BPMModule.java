@@ -280,6 +280,8 @@ public class BPMModule {
         initContext();
         return queryDefinitionAPI.getProcessActivities(uuid);
     }
+    
+   
 
     public Collection<TaskInstance> getTaskList(ActivityState state) throws Exception {
         initContext();
@@ -310,6 +312,24 @@ public class BPMModule {
         }
         return ti;
     }
+    
+    public TaskInstance nextUserTask(ProcessInstanceUUID processInstanceUUID, String currentUserName)  throws Exception {
+    	initContext();
+    	Set<LightActivityInstance> activities= queryRuntimeAPI.getLightActivityInstances(processInstanceUUID);
+    	for (LightActivityInstance instance : activities) {
+    		
+    		if(instance.getState() == ActivityState.READY 
+    				|| instance.getState() == ActivityState.EXECUTING 
+					|| instance.getState()==ActivityState.SUSPENDED)
+			{
+				LightTaskInstance task=instance.getTask();
+				if(!task.isTaskAssigned())
+				return assignAndStartTask(task.getUUID(), currentUserName);				
+			}
+		}
+		return null;
+		
+	} 
 
     public void finishTask(ActivityInstanceUUID activityInstanceUUID, boolean b) throws TaskNotFoundException, IllegalTaskStateException, Exception {
         initContext();
@@ -1053,5 +1073,7 @@ public class BPMModule {
     public <T extends Object> T execute(Command<T> cmnd) throws Exception{
         initContext();
         return commandAPI.execute(cmnd);
-    } 
+    }
+
+	
 }
