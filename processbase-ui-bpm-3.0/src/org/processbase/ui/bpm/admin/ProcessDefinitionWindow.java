@@ -16,21 +16,30 @@
  */
 package org.processbase.ui.bpm.admin;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.UUID;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.util.Misc;
 import org.processbase.ui.bpm.admin.process.CustomUiPanel;
 import org.processbase.ui.bpm.admin.process.DescriptionPanel;
 import org.processbase.ui.bpm.admin.process.ProcessAccessPanel;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.ByteArraySource;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbWindow;
 
+import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -143,9 +152,14 @@ public class ProcessDefinitionWindow extends PbWindow implements
             enableBtn = new CheckBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnEnable"), this);
             archiveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnArchive"), this);
 
+            
+            buttons.addButton(downloadBtn);
+            buttons.setComponentAlignment(downloadBtn, Alignment.MIDDLE_RIGHT);
+            
             deleteAllBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteProcessDefinition"));
             buttons.addButton(deleteAllBtn);
             buttons.setComponentAlignment(deleteAllBtn, Alignment.MIDDLE_RIGHT);
+            
             deleteInstancesBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteProcessInstances"));
             buttons.addButton(deleteInstancesBtn);
             buttons.setComponentAlignment(deleteInstancesBtn, Alignment.MIDDLE_RIGHT);
@@ -317,16 +331,22 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
     private void download() {
         try {
-//            ByteArraySource bas = new ByteArraySource(
-//                    XMLManager.createXML("java.util.HashMap", getCurrentTableValues()).getBytes("UTF-8"));
-//            StreamResource streamResource = new StreamResource(bas, processDefinition.getLabel() + "_" + processDefinition.getVersion() + "_ui.xml", getApplication());
-//            streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-//            streamResource.setMIMEType("mime/xml");
-//            getWindow().getWindow().open(streamResource, "_new");
+        	byte[] bytes = ProcessbaseApplication.getCurrent().getBpmModule().getBusinessArchiveFile(processDefinition.getUUID());
+        	
+        	ByteArraySource bas = new ByteArraySource(bytes);
+        	
+			StreamResource streamResource = new StreamResource(bas, processDefinition.getLabel() + "_" + processDefinition.getVersion() + ".bar", getApplication());
+			streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
+			streamResource.setMIMEType("application/octet-stream");
+			getWindow().getWindow().open(streamResource, "_new");
+        	
         } catch (Exception e) {
-            e.printStackTrace();
+        	showError(e);
+            
         }
     }
+    
+  
 
    
 

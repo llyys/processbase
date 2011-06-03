@@ -87,8 +87,10 @@ import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.uuid.AbstractUUID;
+import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyExpression;
+import org.ow2.bonita.util.Misc;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.slf4j.LoggerFactory;
 
@@ -761,7 +763,13 @@ public class BPMModule {
         initContext();
         return queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
     }
-
+    public byte[] getBusinessArchiveFile(ProcessDefinitionUUID uuid) throws Exception {
+    	initContext();
+    	BusinessArchive ba= queryDefinitionAPI.getBusinessArchive(uuid);
+    	File file=new File(ba.getProcessDefinition().getName()+".bar");
+    	byte[] barContent = Misc.generateJar(ba.getResources());
+    	return barContent;
+	}
     public void stopExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
         initContext();
         repairAPI.stopExecution(piUUID, stepName);
@@ -1074,6 +1082,8 @@ public class BPMModule {
         initContext();
         return commandAPI.execute(cmnd);
     }
+
+	
 
 	
 }
