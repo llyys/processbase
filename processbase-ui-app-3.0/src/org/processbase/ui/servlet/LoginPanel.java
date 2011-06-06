@@ -50,7 +50,7 @@ public class LoginPanel extends GridLayout implements Handler {
         addComponent(panel, 1, 1);
         setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 
-        panel.setWidth("285px");
+        panel.setWidth("300px");
 
         username.setCaption(((PbApplication)getApplication()).getPbMessages().getString("userName"));
         form.addComponent(username);

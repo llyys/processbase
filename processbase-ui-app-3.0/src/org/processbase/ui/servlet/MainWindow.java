@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
@@ -91,27 +92,27 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
             if (accessSet.contains("tasklist")) {
                 consolePanel = new TaskListPanel();
-                tabs.addTab(consolePanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmTasklist"), null);
+                tabs.addTab(consolePanel, getPbMessages("bpmTasklist"), null);
             }
             if (accessSet.contains("bpm")) {
                 bpmConfigurationPanel = new BPMConfigurationPanel();
-                tabs.addTab(bpmConfigurationPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmAdmin"), null);
+                tabs.addTab(bpmConfigurationPanel, getPbMessages("bpmAdmin"), null);
             }
             if (accessSet.contains("identity")) {
                 identityPanel = new IdentityPanel();
-                tabs.addTab(identityPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmIdentity"), null);
+                tabs.addTab(identityPanel, getPbMessages("bpmIdentity"), null);
             }
             if (accessSet.contains("bam")) {
                 bamConfigurationPanel = new BAMConfigurationPanel();
-                tabs.addTab(bamConfigurationPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bamAdmin"), null);
+                tabs.addTab(bamConfigurationPanel, getPbMessages("bamAdmin"), null);
             }
             if (accessSet.contains("monitoring")) {
                 bpmMonitoringPanel = new BPMMonitoringPanel();
-                tabs.addTab(bpmMonitoringPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmMonitoring"), null);
+                tabs.addTab(bpmMonitoringPanel, getPbMessages("bpmMonitoring"), null);
             }
             if (accessSet.contains("development")) {
                 developmentPanel = new DevelopmentPanel();
-                tabs.addTab(developmentPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("bpmDevelopment"), null);
+                tabs.addTab(developmentPanel, getPbMessages("bpmDevelopment"), null);
             }
 
             if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
@@ -128,6 +129,10 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         }
     }
 
+	private String getPbMessages(String msg) {
+		return ((PbApplication) getApplication()).getPbMessages().getString(msg);
+	}
+
     Layout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
@@ -142,13 +147,13 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         header.addComponent(logo);
         header.setExpandRatio(logo, 1.0f);
 
-        Label helloUser = new Label("Welcome, " + user.getFirstName() + " " + user.getLastName());
+        Label helloUser = new Label(getPbMessages("welcome")+", " + user.getFirstName() + " " + user.getLastName());
 //        helloUser.setStyleName(Runo.LABEL_H2);
         header.addComponent(helloUser);
         header.setComponentAlignment(helloUser, Alignment.MIDDLE_RIGHT);
         header.setExpandRatio(helloUser, 1.0f);
 
-        Button profile = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnProfile"), new Button.ClickListener() {
+        Button profile = new Button(getPbMessages("btnProfile"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 openProfileWindow();
@@ -158,7 +163,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         header.addComponent(profile);
         header.setComponentAlignment(profile, Alignment.MIDDLE_RIGHT);
 
-        Button logout = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"), new Button.ClickListener() {
+        Button logout = new Button(getPbMessages("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 openLogoutWindow();
@@ -172,7 +177,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     void openLogoutWindow() {
-        Window logout = new Window(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"));
+        Window logout = new Window(getPbMessages("btnLogout"));
         logout.setModal(true);
 //        logout.setStyleName(Reindeer.WINDOW_BLACK);
         logout.setWidth("260px");
@@ -188,7 +193,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
-        Button yes = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnLogout"), new Button.ClickListener() {
+        Button yes = new Button(getPbMessages("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 WebApplicationContext applicationContext = (WebApplicationContext) getApplication().getContext();
@@ -199,7 +204,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         yes.setStyleName(Reindeer.BUTTON_DEFAULT);
         yes.focus();
         buttons.addComponent(yes);
-        Button no = new Button(((PbApplication) getApplication()).getPbMessages().getString("btnCancel"), new Button.ClickListener() {
+        Button no = new Button(getPbMessages("btnCancel"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 removeWindow(event.getButton().getWindow());

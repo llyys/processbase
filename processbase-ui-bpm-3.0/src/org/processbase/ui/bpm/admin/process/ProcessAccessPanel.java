@@ -12,9 +12,11 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.processbase.ui.bpm.admin.ProcessDefinitionWindow;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ITabsheetPanel;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -33,11 +35,12 @@ import com.vaadin.ui.themes.Runo;
 *
 * @author llyys
 */
-public class ProcessAccessPanel extends PbPanel {
+public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 	private Set<String> deletedMembership = new HashSet<String>();
 	private Table tableMembership = new Table();
 	private Button addBtn;
-
+	private Button saveAccessBtn;
+	
 	@Override
 	public void initUI() {
 		setSpacing(true);
@@ -59,6 +62,17 @@ public class ProcessAccessPanel extends PbPanel {
 		addComponent(addBtn);
 		setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
 
+		saveAccessBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSaveProcessAccess"), new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				saveProcessAccess();
+				getParentWindow().close();
+			}
+		});
+         
+		getParentWindow().getButtons().addButton(saveAccessBtn);
+        getParentWindow().getButtons().setComponentAlignment(saveAccessBtn, Alignment.MIDDLE_RIGHT);
+
 		prepareTableMembership();
 		addComponent(tableMembership);
 		setSizeFull();
@@ -75,6 +89,10 @@ public class ProcessAccessPanel extends PbPanel {
 		((PbWindow) getWindow()).showError(errorMessage);
 	}
 
+	private void removeProcessAccess() throws Exception {
+    	ProcessbaseApplication.getCurrent().getBpmModule().removeRuleFromEntities(rule.getUUID(), null, null, null, deletedMembership, null);
+    }
+	
 	private void addTableMembershipRow(Membership membership) throws Exception {
 		String uuid = membership != null ? membership.getUUID() : "NEW_MEMBERSHIP_UUID_" + UUID.randomUUID().toString();
 		Item woItem = tableMembership.addItem(uuid);
@@ -110,8 +128,7 @@ public class ProcessAccessPanel extends PbPanel {
 		TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, 
 				new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
-						TableLinkButton tlb = (TableLinkButton) event
-								.getButton();
+						TableLinkButton tlb = (TableLinkButton) event.getButton();
 						String uuid = (String) tlb.getTableValue();
 						tableMembership.removeItem(uuid);
 						if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
@@ -237,4 +254,21 @@ public class ProcessAccessPanel extends PbPanel {
 			ex.printStackTrace();
 		}
 	}
+
+	@Override
+	public void onActivate(boolean isActive) {
+		saveAccessBtn.setVisible(isActive);		
+	}
+
+	public void setParentWindow(ProcessDefinitionWindow parentWindow) {
+		this.parentWindow = parentWindow;
+	}
+
+	public ProcessDefinitionWindow getParentWindow() {
+		return parentWindow;
+	}
+
+	private ProcessDefinitionWindow parentWindow;
+
+
 }
