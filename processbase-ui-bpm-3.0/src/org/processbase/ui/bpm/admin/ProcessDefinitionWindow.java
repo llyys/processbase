@@ -196,31 +196,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
 
     public void selectedTabChange(SelectedTabChangeEvent event) {
     	ITabsheetPanel selectedTab = (ITabsheetPanel)event.getTabSheet().getSelectedTab();
-		/*if (selectedTab.equals(descPanel)) {
-            saveAccessBtn.setVisible(false);
-            applyBtn.setVisible(false);
-            
-            deleteInstancesBtn.setVisible(true);
-            //downloadBtn.setVisible(true);
-            enableBtn.setVisible(true);
-            archiveBtn.setVisible(true);
-        } else if (event.getTabSheet().getSelectedTab().equals(uiPanel)) {
-            applyBtn.setVisible(true);
-            saveAccessBtn.setVisible(false);
-            deleteInstancesBtn.setVisible(false);
-            //downloadBtn.setVisible(false);
-            enableBtn.setVisible(false);
-            archiveBtn.setVisible(false);
-        } else if (event.getTabSheet().getSelectedTab().equals(accessPanel)) {
-            saveAccessBtn.setVisible(true);
-            applyBtn.setVisible(false);
-            
-            deleteInstancesBtn.setVisible(false);
-            //downloadBtn.setVisible(false);
-            enableBtn.setVisible(false);
-            archiveBtn.setVisible(false);
-        }
-        */
+		
 		for (Iterator<Component> i = tabSheet.getComponentIterator(); i.hasNext(); )
 		{
 			ITabsheetPanel panel=(ITabsheetPanel)i.next();

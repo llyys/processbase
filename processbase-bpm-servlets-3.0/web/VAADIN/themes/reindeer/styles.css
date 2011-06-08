@@ -419,8 +419,8 @@ div.v-app-loading {
 .v-loading-indicator-delay,
 .v-loading-indicator-wait {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 50%;
+	right: 50%;
 	z-index: 30000;
 	width: 31px;
 	height: 31px;
