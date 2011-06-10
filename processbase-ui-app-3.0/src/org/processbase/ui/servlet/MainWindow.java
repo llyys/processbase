@@ -242,7 +242,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         user = bpmModule.findUserByUserName(userName);
         for (Membership membership : user.getMemberships()) {
-            if (membership.getGroup().getParentGroup() != null && membership.getGroup().getParentGroup().getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
+            //if (membership.getGroup().getParentGroup() != null && membership.getGroup().getParentGroup().getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
                 if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
                     if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
                         accessSet.add("bpm");
@@ -256,11 +256,11 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                         accessSet.add("development");
                     }
                 } else if (membership.getRole().getName().equals(IdentityAPI.USER_ROLE_NAME)) {
-                    if (membership.getGroup().getName().equalsIgnoreCase("tasklist")) {
+                    //if (membership.getGroup().getName().equalsIgnoreCase("tasklist")) {
                         accessSet.add("tasklist");
-                    }
+                    //}
                 }
-            }
+            //}
         }
         if (bpmModule.isUserAdmin()) {
             accessSet.add("bpm");
