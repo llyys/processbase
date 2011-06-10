@@ -1,17 +1,10 @@
 package org.processbase.ui.core;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class CollectionHelper<T> {
 	
@@ -32,6 +25,4 @@ public class CollectionHelper<T> {
 	public interface GroupKey<T>{
 		public String key(T source);
 	}
-	
-	
 }

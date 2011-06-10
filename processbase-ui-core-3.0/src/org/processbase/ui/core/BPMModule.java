@@ -19,6 +19,7 @@ package org.processbase.ui.core;
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
+
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
@@ -91,8 +100,14 @@ import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.Misc;
+import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.slf4j.LoggerFactory;
+
+import com.sun.appserv.security.AppservRealm;
+import com.sun.appserv.security.ProgrammaticLogin;
+import com.sun.enterprise.security.auth.realm.Realm;
+
 
 /**
  *
@@ -149,15 +164,101 @@ public class BPMModule {
 
     private void initContext() throws Exception {
     	if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
+    		
+    		/*try {
+    			Subject subject=new Subject()
+    			LoginContext ctx = new LoginContext("processBaseRealm", new ProcessbaseAuthCallbackHandler());
+        		ctx.login();
+        			
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
     		Class authClass = tryClass("com.sun.appserv.security.ProgrammaticLogin");
     		if(authClass!=null)
     		{
+    			com.sun.appserv.security.ProgrammaticLogin pl=new ProgrammaticLogin();
+    			
     			Method login=authClass.getMethod("login");
     			login.invoke(authClass.newInstance(), currentUserUID, "".toCharArray(), "processBaseRealm", false);        		
-    		}            
+    		}
+    		 
+    		try {
+    			ProgrammaticLogin programmaticLogin = new ProgrammaticLogin();
+                programmaticLogin.login(currentUserUID, "".toCharArray(), "processBaseRealm", false);	
+			} catch (Exception e) {
+				
+			}
+    		if(Realm.isValidRealm("processBaseRealm"))
+    		{
+    			Realm r=Realm.getInstance("processBaseRealm")
+    		}
+    		LoginContext loginContext = null;
+    		Configuration config = Configuration.getConfiguration();
+            CallbackHandler handler = new SimpleCallbackHandler(currentUserUID, "");
+            Subject subject=new Subject();
+    		 try {
+    			 
+    			 AppConfigurationEntry[] entries = config.getAppConfigurationEntry("ProcessBaseAuth");
+    			 if(entries!=null)
+    			 {
+					for (AppConfigurationEntry entry : entries) {
+						String loginModule=entry.getLoginModuleName();
+						Class c=Class.forName(loginModule);
+						Object[] args = { };
+						 Constructor constructor = c.getConstructor();
+						 Object module=constructor.newInstance(args);   
+						 Method init=findMethod("init", c);
+							if(init!=null)
+							{	
+								Properties property=new Properties();
+								for(Entry<String,?> param:entry.getOptions().entrySet())
+									property.put(param.getKey(), param.getValue());
+								init.invoke(module, property);
+							}
+							Method login=findMethod("login", c);
+							if(login!=null)
+								login.invoke(module, null);
+					}
+						 
+					
+    				 
+    			 }
+    		 }
+    			 catch(Exception e)
+    			 {
+    				 
+    			 }*/
+    	            /*loginContext = new LoginContext("ProcessBaseAuth", subject, handler, config);
+    	            loginContext.login();
+    	            loginContext.logout();
+    	            
+    	        } catch (javax.security.auth.login.LoginException e) {
+    	            try {
+    	                // make another try after refresh
+    	                javax.security.auth.login.Configuration.getConfiguration().refresh();
+    	                loginContext = new LoginContext("ProcessBaseAuth", subject, handler, config);
+    	                loginContext.login();
+    	                loginContext.logout();
+    	            } catch (javax.security.auth.login.LoginException e2) {
+    	            
+    	                throw new RuntimeException("Authentication failed for user '" + currentUserUID + "'");
+    	            }
+    	        }*/
+    		
+
     	}
         DomainOwner.setDomain(Constants.BONITA_DOMAIN);
         UserOwner.setUser(currentUserUID);
+    }
+    
+    private Method findMethod(String name, Class c)
+    {
+    	for (Method method : c.getMethods()) 
+    	{
+			if(method.getName()==name)
+				return method;
+		}
+    	 return null;
     }
 
     public Set<ProcessDefinition> getProcessDefinitions() throws Exception {
@@ -317,16 +418,16 @@ public class BPMModule {
     
     public TaskInstance nextUserTask(ProcessInstanceUUID processInstanceUUID, String currentUserName)  throws Exception {
     	initContext();
-    	Set<LightActivityInstance> activities= queryRuntimeAPI.getLightActivityInstances(processInstanceUUID);
-    	for (LightActivityInstance instance : activities) {
+    	Set<ActivityInstance> activities= queryRuntimeAPI.getActivityInstances(processInstanceUUID);
+    	for (ActivityInstance instance : activities) {
     		
     		if(instance.getState() == ActivityState.READY 
     				|| instance.getState() == ActivityState.EXECUTING 
 					|| instance.getState()==ActivityState.SUSPENDED)
 			{
-				LightTaskInstance task=instance.getTask();
-				if(!task.isTaskAssigned())
-				return assignAndStartTask(task.getUUID(), currentUserName);				
+				TaskInstance task=instance.getTask();
+				if(task.getTaskCandidates().contains(currentUserName))
+					return assignAndStartTask(task.getUUID(), currentUserName);				
 			}
 		}
 		return null;
