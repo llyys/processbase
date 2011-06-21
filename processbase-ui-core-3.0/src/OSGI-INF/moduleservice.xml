@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<component name="org.processbase.ui.osgi.PbPanelModuleService" immediate="true">
-    <implementation class="org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl"/>
-    <service>
-        <provide interface="org.processbase.ui.osgi.PbPanelModuleService"/>
-    </service>
-</component>

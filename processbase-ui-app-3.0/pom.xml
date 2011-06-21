@@ -16,25 +16,36 @@
   <prerequisites>
     <maven>2.2</maven>
   </prerequisites>
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-war-plugin</artifactId>
-					<configuration>
-						<webXml>web/WEB-INF/web.xml</webXml>
-						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
-							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
-							utters a warning because of it. This configuration should shut it up! FIXME: 
-							Verify that this is a right way to do it. Maybe we should use gwt:mergewebxml? 
-							<packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+	
   <dependencies>
+   <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>processbase-ui-bam</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+    	<groupId>${project.groupId}</groupId>
+    	<artifactId>processbase-ui-bpm</artifactId>
+    	<version>${project.version}</version>    	
+    </dependency>
+    <dependency>
+    	<groupId>${project.groupId}</groupId>
+    	<artifactId>processbase-ui-core</artifactId>
+    	<version>${project.version}</version>    	
+    </dependency>
+    <dependency>
+    	<groupId>${project.groupId}</groupId>
+    	<artifactId>processbase-engine-bam</artifactId>
+    	<version>${project.version}</version>    	
+    </dependency>
+	
+	<dependency>
+      <groupId>com.liferay.portal</groupId>
+      <artifactId>portal-service</artifactId>
+      <version>6.0.5</version>
+      <scope>provided</scope>
+    </dependency>
+	
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
@@ -47,12 +58,7 @@
       <version>2.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.liferay.portal</groupId>
-      <artifactId>portal-service</artifactId>
-      <version>6.0.5</version>
-      <scope>provided</scope>
-    </dependency>
+   
 
 	<dependency>
 	    <groupId>javax.enterprise</groupId>
@@ -84,27 +90,39 @@
 		<version>3.5.6-Final</version>		
 	</dependency>
 	
-    <dependency>
+	
+	<!-- Use JDK logging for runtime since that's what Glassfish uses. -->
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-jdk14</artifactId>
+	 <version>${slf4j.version}</version>
+	  <scope>runtime</scope>
+	</dependency>
+	
+ <dependency>
+	        <groupId>org.slf4j</groupId>
+	        <artifactId>slf4j-log4j12</artifactId>
+	       <version>${slf4j.version}</version>
+	    </dependency>
+
+	
+	
+   <!-- <dependency>
       <groupId>jfree</groupId>
       <artifactId>jfreechart</artifactId>
       <version>1.0.13</version>
-    </dependency>
-    <dependency>
-      <groupId>com.vaadin</groupId>
-      <artifactId>vaadin</artifactId>
-      <version>6.5.3</version>
-    </dependency>
-    <dependency>
+    </dependency> 
+	<dependency>
       <groupId>org.vaadin.addons</groupId>
       <artifactId>refresher</artifactId>
       <version>1.1.0</version>
-    </dependency>
-    <dependency>
+    </dependency> 
+	<dependency>
       <groupId>org.vaadin.addons</groupId>
       <artifactId>vaadin-treetable</artifactId>
       <version>1.1.0</version>
-    </dependency>
-    <dependency>
+    </dependency> 
+	<dependency>
       <groupId>org.vaadin.addons</groupId>
       <artifactId>visualizationsforvaadin</artifactId>
       <version>1.1.2</version>
@@ -119,25 +137,12 @@
 	   <artifactId>batik-svggen</artifactId>
 	   <version>1.7</version>
 	</dependency>
+	-->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>processbase-ui-bam</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin</artifactId>
+      <version>${vaadin.version}</version>
     </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-ui-bpm</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-ui-core</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-engine-bam</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
+   
   </dependencies>
 </project>

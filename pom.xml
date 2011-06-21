@@ -12,129 +12,52 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.base.dir>C:\dev\processbase-git</project.base.dir>
 		<tomcat.home>C:\dev_env\liferay-portal-6.0.5\tomcat-6.0.26</tomcat.home>
 		<server.deploy.path>C:\dev_env\glassfish3\glassfish\domains\domain1\autodeploy</server.deploy.path>
 		<container.port>8080</container.port>
 		<bonita.version>5.4.2</bonita.version>
+		
+		<vaadin.version>6.6.2</vaadin.version>
+        <vaadin-invient.version>0.8.4</vaadin-invient.version>
+        <vaadin-refresher.version>1.1.0</vaadin-refresher.version>
+        <vaadin-treetable.version>1.2.1</vaadin-treetable.version>
+		
+		 <glassfish.version>3.1</glassfish.version>
+		<junit.version>4.8.1</junit.version>
+        <javaee-web-api.version>6.0</javaee-web-api.version>
+        <javaee-api.version>6.0</javaee-api.version>
+        <gson.version>1.6</gson.version>
+        <jericho-html.version>3.1</jericho-html.version>
+        <gwt-user.version>2.3.0</gwt-user.version>
+        <slf4j.version>1.6.1</slf4j.version>		
 	</properties>
 
-	<prerequisites>
-		<maven>2.2</maven>
-	</prerequisites>
-
-	<build>
-		<defaultGoal>package</defaultGoal>
-		<sourceDirectory>src</sourceDirectory><!-- Netbeans have all sources in 
-			src not in src/main/java -->
-		<resources>
-			<resource>
-				<directory>src/resources</directory>
-				<targetPath>resources</targetPath>
-			</resource>
-			<resource>
-				<directory>src/OSGI-INF</directory>
-				<targetPath>OSGI-INF</targetPath>
-			</resource>
-		</resources>
-		<pluginManagement>
-			<plugins>
-				<!-- Use Java 1.6 -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
-					</configuration>
-				</plugin>
-				
-				<plugin>
-					<artifactId>maven-war-plugin</artifactId>
-					<configuration>
-						<webResources>
-							<resource>
-								<!-- this is relative to the pom.xml directory -->
-								<directory>web/WEB-INF</directory>
-								<targetPath>WEB-INF</targetPath>
-							</resource>
-						</webResources>
-						<!-- Our app has vaadin servlets configured in resources/WEB-INF/web.xml 
-							Maven utters a warning because of it. This configuration should shut it up! 
-							FIXME: Verify that this is a right way to do it. Maybe we should use gwt:mergewebxml? 
-							<packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
-					</configuration>
-				</plugin>
-				<!--  
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.1.2</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>-->
-							<!--<phase>verify</phase> -->
-							<!-- <goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin> -->
-				
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-			  <groupId>org.zeroturnaround</groupId>
-			  <artifactId>jrebel-maven-plugin</artifactId>
-			  <executions>
-				<execution>
-				  <id>generate-rebel-xml</id>
-				  <phase>process-resources</phase>
-				  <goals>
-					<goal>generate</goal>
-				  </goals>
-				</execution>
-			  </executions>
-			</plugin>
-		</plugins>
-	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.glassfish.security</groupId>
-				<artifactId>security</artifactId>
-				<version>3.1</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<repositories>
-		<repository>
-			<id>vaadin-addons</id>
-			<name>Vaadin repository</name>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
-		</repository>
-		<repository>
-			<id>OW2</id>
-			<name>OW2 Consortium Repository</name>
-			<url>http://maven.ow2.org/maven2/</url>
-		</repository>
-		<repository>
-			<id>glassfish-repository</id>
-			<name>Java.net Repository for Glassfish</name>
-			<url>http://download.java.net/maven/glassfish</url>
-		</repository>
-		<repository>
-			<id>JBOSS</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-		</repository>
-		<repository>
-			<id>codehaus</id>
-			<name>codehaus</name>
-			<url>http://snapshots.repository.codehaus.org</url>
-		</repository>
+		 <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+        <repository>
+            <id>glassfish-repository</id>
+            <name>Java.net Repository for Glassfish</name>
+            <url>http://download.java.net/maven/glassfish</url>
+        </repository>
+        <repository>
+            <id>java.net2</id>
+            <name>Java.net Maven2 Repository</name>
+            <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+            <id>OW2</id>
+            <name>OW2 Consortium Repository</name>
+            <url>http://maven.ow2.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>codehaus</id>
+            <name>codehaus</name>
+            <url>http://snapshots.repository.codehaus.org</url>
+        </repository> 
 	</repositories>
 	<modules>
 
@@ -144,7 +67,7 @@
 		<module>processbase-ui-bam-${project.version}</module>
 		<module>processbase-realm-${project.version}</module>
 		<module>processbase-ui-bpm-${project.version}</module>
-		<module>processbase-bpm-portlets-${project.version}</module>
+		<!--<module>processbase-bpm-portlets-${project.version}</module>-->
 		<module>processbase-bpm-servlets-${project.version}</module>
 	</modules>
 

@@ -1,0 +1,64 @@
+@import "../reindeer/styles.css";
+
+@import "button/button.css";
+@import "window/window.css";
+@import "layout/layout.css";
+
+.v-app {
+    background: #FFFFFF;
+}
+
+.v-disabled {
+	opacity: .6;
+	filter: alpha(opacity=60);
+	cursor: default;
+}
+
+.buttonbar .v-horizontallayout-margin-top {
+    padding-top: 0px;
+}
+
+.buttonbar .v-horizontallayout-margin-bottom {
+    padding-bottom: 6px;
+}
+
+.buttonbar .v-horizontallayout-margin-left {
+    padding-left: 6px;
+}
+
+.buttonbar .v-horizontallayout-margin-right{
+    padding-right: 6px;
+}
+
+.v-horizontallayout-menubar, .v-verticallayout-menubar{
+    background-color: #323336;
+    background-repeat: repeat-x;
+    background-attachment: scroll;
+    background-image: url("../reindeer/common/img/vertical-sprites.png");
+    background-position: left -383px;
+    color: #d1d3d6;
+}
+
+
+.v-menubar-menuitem-blue {
+    color: #1c9cff;
+}
+
+.v-menubar-menuitem-blue-bold {
+    font-weight: bold;
+    color: #1c9cff;
+}
+
+.v-menubar-menuitem-red {
+    color: red;
+}
+
+.v-menubar-menuitem-red-bold {
+    font-weight: bold;
+    color: red;
+}
+
+.v-menubar-menuitem-actor {
+    font-weight: bold;
+    color: whitesmoke;
+}

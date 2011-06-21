@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
-    <system systemId="file:/home/marat/development/processbase/processbase-2.1.1/processbase-bpm-core-2.1.1/src/bam.xsd" uri="xml-resources/jaxb/bam/bam.xsd"/>
-</catalog>

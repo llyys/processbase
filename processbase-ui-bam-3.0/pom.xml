@@ -22,6 +22,26 @@
 	</prerequisites>
 
 	<dependencies>
+	<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-engine-bam</artifactId>
+			<version>${project.version}</version>    	
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-server</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-client</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -41,61 +61,42 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.ow2.bonita</groupId>
-			<artifactId>bonita-client</artifactId>
-			<version>${bonita.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.bonita</groupId>
-			<artifactId>bonita-server</artifactId>
-			<version>${bonita.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jfreechart</artifactId>
-			<version>1.0.13</version>
-		</dependency>
+		
+		
+	
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
-			<version>6.5.3</version>
+			<version>${vaadin.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>refresher</artifactId>
-			<version>1.1.0</version>
+			<version>${vaadin-refresher.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>vaadin-treetable</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>visualizationsforvaadin</artifactId>
-			<version>1.1.2</version>
+			<version>${vaadin-treetable.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>invient-charts</artifactId>
-			<version>0.8.2</version>
+			<version>${vaadin-invient.version}</version>
+		</dependency>
+		<!--
+			<dependency>
+			<groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.13</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-svggen</artifactId>
 			<version>1.7</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-ui-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-engine-bam</artifactId>
-			<version>${project.version}</version>    	
-		</dependency>
+			
+		
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -112,23 +113,22 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<!-- Hibernate uses slf4j for logging, for our purposes here use the simple backend	-->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<!-- Hibernate gives you a choice of bytecode providers between cglib and javassist	-->
+		
 		<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.8.0.GA</version>
 		</dependency>
+		-->
 		
+		<!-- Use JDK logging for runtime since that's what Glassfish uses. -->
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-jdk14</artifactId>
+	 <version>${slf4j.version}</version>
+	  <scope>runtime</scope>
+	</dependency>
+	
+	
 	</dependencies>
 </project>

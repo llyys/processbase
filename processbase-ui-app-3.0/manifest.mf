@@ -1,5 +1,0 @@
-Implementation-URL: http://processbase.biz
-Ant-Version: Apache Ant 1.7.1
-Bundle-Vendor: PROCESSBASE Ltd
-Implementation-Version: 3.0.0
-Implementation-Vendor: PROCESSBASE Ltd

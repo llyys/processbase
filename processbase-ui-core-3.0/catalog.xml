@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
-    <nextCatalog catalog="nbproject/private/cache/retriever/catalog.xml"/>
-    <system systemId="file:/home/marat/development/processbase/processbase-3.0/processbase-ui-core-3.0/../../../temp/Test/src/org/processbase/test/forms.xsd" uri="xml-resources/jaxb/bonitaforms/forms.xsd"/>
-</catalog>

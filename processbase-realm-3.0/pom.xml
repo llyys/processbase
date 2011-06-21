@@ -14,6 +14,29 @@
   <name>ProcessBase Realm</name>
   <build>
 	<sourceDirectory>src</sourceDirectory>
+	 <plugins>            
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            ${project.groupId}.${project.artifactId};version=${project.version}
+                        </Export-Package>
+                        <Import-Package>
+                            com.sun.appserv.security,
+                            org.glassfish.security.common,
+                            com.sun.enterprise.security.auth.realm,
+                            com.sun.enterprise.security.auth.login.common,
+                            java.util,
+                            javax.security.auth
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+	
   </build>
 
 
@@ -28,9 +51,11 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.glassfish.security</groupId>
-      <artifactId>security</artifactId>
-      <scope>provided</scope> 
-    </dependency>
+	  <groupId>org.glassfish.security</groupId>
+	  <artifactId>security</artifactId>
+	  <version>3.1</version>
+	</dependency>
+	   
   </dependencies>
+  
 </project>
