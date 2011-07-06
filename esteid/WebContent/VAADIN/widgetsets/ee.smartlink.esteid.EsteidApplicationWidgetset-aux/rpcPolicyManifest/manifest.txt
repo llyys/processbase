@@ -1,2 +1,0 @@
-# Module ee.smartlink.esteid.EsteidApplicationWidgetset
-# RPC service class, partial path of RPC policy file

@@ -79,6 +79,7 @@ import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
 import org.processbase.ui.core.bonita.forms.Activities;
+import org.processbase.ui.core.bonita.forms.Activities.Activity;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.FormsDefinition.Process;
 import org.processbase.ui.core.bonita.forms.PageFlow;
@@ -133,6 +134,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         setResizable(true);
         try {
             if (isTaskActive()) {
+            	
                 pageFlow = getPageFlow(taskInstance.getActivityName());
             } else if (taskInstance == null) {
                 pageFlow = getPageFlow();
@@ -167,6 +169,8 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         	showMessage("Pages not found in process", Notification.TYPE_WARNING_MESSAGE);
         	return;
         }
+        if(taskInstance!=null)
+        	addDescription(taskInstance);
         
         for (Page page : pageFlow.getPages().getPages()) {
         	
@@ -214,6 +218,9 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         try {
             if (widget.getInitialValue() != null && widget.getInitialValue().getExpression() != null) {
                 value = groovyScripts.get(widget.getInitialValue().getExpression());
+                
+                if (value instanceof Component)//if value is vaadin component return component instance 
+                	return (Component) value;
             }
             if (widget.getAvailableValues() != null) {
                 if (widget.getAvailableValues().getExpression() != null) {
@@ -225,42 +232,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
                     }
                 }
             }
-            
-
+            if (widget.getType().equals(WidgetType.MESSAGE)) {
+            	component = getLabel(widget, value);            	
+            }
             if (widget.getType().equals(WidgetType.TEXTBOX)) {
-            	/*ee.smartlink.esteid.EstEidComponent estEid=new ee.smartlink.esteid.EstEidComponent();
-            	estEid.addListener(new EstEidComponent.EstEidCardListener() {
-    				
-    				public void onEstEidEvent(EstEidEvent event) {
-    					
-    					switch (event.getEventType()) {
-    					case CARD_INSERTED:
-    						showInformation("Card inserted");
-    						break;
-    					case CARD_REMOVED:
-    						showInformation("Card removed");
-    						break;
-    					case ON_ERROR:
-    						showInformation("Error"+event.getMessage());
-    						break;
-    					case PLUGIN_READY:
-    						showInformation("Ready"+event.getMessage());    						
-    						break;
-    					case SIGN_FAILURE:
-    						showInformation("SignFailure"+event.getMessage());
-    						break;
-    					case SIGN_SUCCESS:
-    						showInformation("SignSuccess"+event.getMessage());
-    						break;
-    					default:
-    						break;
-    					}					
-    				}
-    			});
-            	 estEid.init();
-            	//return estEid;
-            	 component=estEid;
-                //*/component = getTextField(widget);
+            	component = getTextField(widget);
             }
             if (widget.getType().equals(WidgetType.DATE)) {
                 component = getPopupDateField(widget);
@@ -277,15 +253,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             if (widget.getType().equals(WidgetType.PASSWORD)) {
                 component = getPasswordField(widget);
             }
-            if (widget.getType().equals(WidgetType.MESSAGE)) {
-            	if(hasGroovyScript(widget.getVariableBound())){
-            		component = (Component)value;
-            	}
-            	else
-            	{
-            		component = getLabel(widget, value);
-            	}
-            }
+           
             if (widget.getType().equals(WidgetType.LISTBOX_SIMPLE)) {
                 component = getNativeSelect(widget, options);
             }
@@ -888,7 +856,18 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
     private PageFlow getPageFlow() {
         Process process = formsDefinition.getProcesses().get(0);
+        
 		PageFlow flow = process.getPageflow();
+		if(flow==null)
+		{
+			for (Activity activity : process.getActivities().getActivities()) {
+				if(activity.getPageflow()!=null)
+				{
+					flow=activity.getPageflow();
+					break;
+				}
+			}
+		}
         if(flow.getPages()!=null) //if there is no initial pageflow try activity
         	return flow;
         //try to find first activity if there is pageflow to execute

@@ -884,6 +884,8 @@ public class BPMModule {
         initContext();
         return queryDefinitionAPI.getProcess(processDefinitionUUID).getMetaData();
     }
+    
+    
 
     public byte[] getProcessDiagramm(LightProcessInstance pi) throws Exception {
     	logger.debug("getProcessDiagramm");

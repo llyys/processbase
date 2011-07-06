@@ -183,11 +183,16 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
 //        mainLayout.setExpandRatio(menubar, 1);
     }
 
-    private void addDescription() {
-
-        String dynLabel = taskInstance.getDynamicLabel();
-        String dynDescr = taskInstance.getDynamicDescription();
+    private Label descriptionLabel;
+    protected void addDescription(TaskInstance task) {
+    	String activytiDesc=task.getActivityDescription();
+        String dynLabel = task.getDynamicLabel();
+        String dynDescr = task.getDynamicDescription();
         StringBuilder text = new StringBuilder();
+        if(activytiDesc!=null)
+        {
+        	text.append(activytiDesc);
+        }
         if (dynLabel != null) {
             text.append("<b>").append(dynLabel).append("</b>");
         }
@@ -201,9 +206,16 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
             }
         }
 
-        if (text.length() > 0) {
-            layout.addComponent(new Label(text.toString(), Label.CONTENT_XHTML));
+        
+    	if(descriptionLabel==null)
+        {
+    		descriptionLabel=new Label(text.length() > 0?text.toString():"", Label.CONTENT_XHTML);
+    		layout.addComponent(descriptionLabel);
         }
+    	else{
+    		descriptionLabel.setValue(text.length() > 0?text.toString():"");
+    	}
+        
     }
 
     private void preparePanel() {

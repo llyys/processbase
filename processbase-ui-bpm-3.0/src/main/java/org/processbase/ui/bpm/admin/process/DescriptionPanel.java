@@ -15,10 +15,12 @@ import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.Reindeer;
 /**
 *
 * @author llyys
@@ -30,6 +32,7 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 	private Button btnDeleteInstances;
 	private CheckBox chbEnable;
 	private Button btnArchive;
+	 private Embedded processImage = null;
 	
 	private ProcessDefinitionWindow parentWindow;
 	private ProcessDefinition processDefinition = null;
@@ -39,6 +42,9 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 	 public void initUI() {
         
         setMargin(true, false, false, true);
+        
+        
+        
         
         btnDownload = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDownload"), this);
         getParentWindow().getButtons().addButton(btnDownload);
@@ -63,7 +69,7 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
         getParentWindow().getButtons().addButton(btnArchive);
         getParentWindow().getButtons().setComponentAlignment(btnArchive, Alignment.MIDDLE_RIGHT);
 
-        
+        getParentWindow().setResizable(true);
         if (processDefinition.getLabel() != null) {
             Label pdLabel = new Label("<b>" + processDefinition.getLabel() + "</b>");
             pdLabel.setContentMode(Label.CONTENT_XHTML);
@@ -75,7 +81,20 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
             pdDescription.setContentMode(Label.CONTENT_XHTML);
             addComponent(pdDescription);
             setExpandRatio(pdDescription, 1);
-        }               
+        }
+        
+        ByteArraySource bas;
+		try {
+			bas = new ByteArraySource(ProcessbaseApplication.getCurrent().getBpmModule().getProcessDiagramm(processDefinition.getUUID()));
+			StreamResource imageResource = new StreamResource(bas, "processInstance.png", ProcessbaseApplication.getCurrent());
+		    imageResource.setCacheTime(1000);
+		    processImage = new Embedded("", imageResource);
+		    addComponent(processImage);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      
 	 }
 	public void setProcessDefinition(ProcessDefinition processDefinition) {
 		this.processDefinition = processDefinition;

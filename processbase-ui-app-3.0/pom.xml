@@ -75,7 +75,7 @@
 	</dependency>
 	<dependency>
 		<groupId>org.ow2.bonita</groupId>
-		<artifactId>bonita-model</artifactId>
+		<artifactId>forms-model</artifactId>
 		<version>${bonita.version}</version>
 	</dependency>
 	<dependency>
