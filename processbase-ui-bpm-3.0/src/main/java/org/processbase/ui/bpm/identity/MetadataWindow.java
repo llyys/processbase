@@ -89,6 +89,7 @@ public class MetadataWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -107,6 +108,7 @@ public class MetadataWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 }

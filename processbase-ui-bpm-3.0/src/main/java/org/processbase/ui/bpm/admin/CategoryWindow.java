@@ -121,6 +121,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -144,6 +145,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -180,6 +182,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -215,6 +218,7 @@ public class CategoryWindow extends PbWindow implements ClickListener {
                                bpmModule.deleteCategories(cats);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

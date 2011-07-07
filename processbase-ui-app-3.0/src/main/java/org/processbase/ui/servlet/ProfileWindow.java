@@ -176,6 +176,7 @@ public class ProfileWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -229,6 +230,7 @@ public class ProfileWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 

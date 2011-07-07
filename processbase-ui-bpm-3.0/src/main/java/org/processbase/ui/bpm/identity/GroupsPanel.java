@@ -84,6 +84,7 @@ public class GroupsPanel extends TreeTablePanel implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -99,6 +100,7 @@ public class GroupsPanel extends TreeTablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 GroupWindow ngw = new GroupWindow(group);
@@ -125,6 +127,7 @@ public class GroupsPanel extends TreeTablePanel implements
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

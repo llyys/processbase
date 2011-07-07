@@ -74,6 +74,7 @@ public class UsersPanel extends TablePanel implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -89,6 +90,7 @@ public class UsersPanel extends TablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 UserWindow nuw = new UserWindow(user);
@@ -115,6 +117,7 @@ public class UsersPanel extends TablePanel implements
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

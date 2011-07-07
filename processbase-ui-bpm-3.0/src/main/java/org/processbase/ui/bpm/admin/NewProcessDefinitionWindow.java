@@ -74,6 +74,7 @@ public class NewProcessDefinitionWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -100,6 +101,7 @@ public class NewProcessDefinitionWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -124,6 +126,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             fos = new FileOutputStream(file);
         } catch (final java.io.FileNotFoundException ex) {
             ex.printStackTrace();
+            
             return null;
         }
         return fos;

@@ -95,6 +95,7 @@ public class RoleWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -113,6 +114,7 @@ public class RoleWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 }

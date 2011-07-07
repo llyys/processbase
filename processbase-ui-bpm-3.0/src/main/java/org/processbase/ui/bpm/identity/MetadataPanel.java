@@ -70,6 +70,7 @@ public class MetadataPanel extends TablePanel implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -85,6 +86,7 @@ public class MetadataPanel extends TablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 MetadataWindow nmw = new MetadataWindow(metadata);
@@ -112,6 +114,7 @@ public class MetadataPanel extends TablePanel implements
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

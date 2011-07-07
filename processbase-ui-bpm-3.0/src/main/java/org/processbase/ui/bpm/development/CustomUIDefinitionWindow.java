@@ -185,6 +185,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -246,6 +247,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -273,6 +275,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -297,6 +300,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -321,6 +325,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -345,6 +350,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 mainWindow.showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -444,6 +450,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -547,6 +554,7 @@ public class CustomUIDefinitionWindow extends PbWindow implements ClickListener,
         } catch (Exception ex) {
             ex.printStackTrace();
             getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            throw new RuntimeException(ex);
         }
     }
 }

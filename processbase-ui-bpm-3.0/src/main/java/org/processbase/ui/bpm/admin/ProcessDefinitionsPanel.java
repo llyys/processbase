@@ -98,6 +98,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             }
         }

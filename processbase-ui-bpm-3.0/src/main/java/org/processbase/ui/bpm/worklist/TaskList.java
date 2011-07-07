@@ -19,6 +19,7 @@ package org.processbase.ui.bpm.worklist;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -83,7 +84,9 @@ public class TaskList extends TablePanel implements Button.ClickListener {
             }
             this.rowCount = tasks.size();
         } catch (Exception ex) {
+        	
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         table.setSortContainerPropertyId("lastUpdate");
         table.setSortAscending(false);
@@ -92,44 +95,54 @@ public class TaskList extends TablePanel implements Button.ClickListener {
     }
 
     private void addTableRow(LightTaskInstance task, LightTaskInstance previousTask) throws InstanceNotFoundException, Exception {
-        Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
+    	Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
+        try {
+			
 
 //        woItem.getItemProperty("accepted").setValue(task.isTaskAssigned() ? new ThemeResource("icons/accept.png") : new ThemeResource("icons/email.png"));
-        ThemeResource icon = null;
-        if (!task.isTaskAssigned()) {
-            icon = new ThemeResource("icons/email.png");
-        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 0) {
-            icon = new ThemeResource("icons/pause_normal.png");
-        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 1) {
-            icon = new ThemeResource("icons/pause_high.png");
-        } else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 2) {
-            icon = new ThemeResource("icons/pause_urgent.png");
-        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 0) {
-            icon = new ThemeResource("icons/arrow_right_normal.png");
-        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 1) {
-            icon = new ThemeResource("icons/arrow_right_high.png");
-        } else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 2) {
-            icon = new ThemeResource("icons/arrow_right_urgent.png");
-        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 0) {
-            icon = new ThemeResource("icons/arrow_right_normal.png");
-        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 1) {
-            icon = new ThemeResource("icons/arrow_right_high.png");
-        } else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 2) {
-            icon = new ThemeResource("icons/arrow_right_urgent.png");
-        } else {
-            icon = new ThemeResource("icons/empty.png");
-        }
-        woItem.getItemProperty("accepted").setValue(icon);
-        LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
-        String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
-        String processInstanceUUID = task.getProcessInstanceUUID().toString();
-        TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
-        woItem.getItemProperty("processName").setValue(teb);
-        String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
-        String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";
-        woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
-        woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
-        woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
+			ThemeResource icon = null;
+			if (!task.isTaskAssigned()) {
+			    icon = new ThemeResource("icons/email.png");
+			} else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 0) {
+			    icon = new ThemeResource("icons/pause_normal.png");
+			} else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 1) {
+			    icon = new ThemeResource("icons/pause_high.png");
+			} else if (task.getState().equals(ActivityState.SUSPENDED) && task.getPriority() == 2) {
+			    icon = new ThemeResource("icons/pause_urgent.png");
+			} else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 0) {
+			    icon = new ThemeResource("icons/arrow_right_normal.png");
+			} else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 1) {
+			    icon = new ThemeResource("icons/arrow_right_high.png");
+			} else if (task.getState().equals(ActivityState.EXECUTING) && task.getPriority() == 2) {
+			    icon = new ThemeResource("icons/arrow_right_urgent.png");
+			} else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 0) {
+			    icon = new ThemeResource("icons/arrow_right_normal.png");
+			} else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 1) {
+			    icon = new ThemeResource("icons/arrow_right_high.png");
+			} else if (task.getState().equals(ActivityState.READY) && task.getPriority() == 2) {
+			    icon = new ThemeResource("icons/arrow_right_urgent.png");
+			} else {
+			    icon = new ThemeResource("icons/empty.png");
+			}
+			woItem.getItemProperty("accepted").setValue(icon);
+			LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
+			String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
+			String processInstanceUUID = task.getProcessInstanceUUID().toString();
+			TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
+			woItem.getItemProperty("processName").setValue(teb);
+			String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
+			String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";
+			woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
+			woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
+			woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Label label = new Label(task.getActivityName());
+			label.setComponentError(new UserError(e.getMessage()));
+			woItem.getItemProperty("taskName").setValue(label);
+			
+		}
 
     }
 
@@ -149,6 +162,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -189,6 +203,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
 //        try {
 //            String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());

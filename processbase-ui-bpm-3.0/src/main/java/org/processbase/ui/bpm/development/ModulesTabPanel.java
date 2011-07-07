@@ -113,6 +113,7 @@ public class ModulesTabPanel extends TablePanel implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -129,6 +130,7 @@ public class ModulesTabPanel extends TablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
                 try {
@@ -140,6 +142,7 @@ public class ModulesTabPanel extends TablePanel implements
                     System.out.println("----------------------------------------------");
                 } catch (ClassNotFoundException ex) {
                     ex.printStackTrace();
+                    throw new RuntimeException(ex);
                 }
             }
         }
@@ -171,6 +174,7 @@ public class ModulesTabPanel extends TablePanel implements
 //            bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 }

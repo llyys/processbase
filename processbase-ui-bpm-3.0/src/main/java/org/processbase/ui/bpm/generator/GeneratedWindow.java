@@ -148,6 +148,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -321,6 +322,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
             return component;
         } catch (Exception ex) {
             ex.printStackTrace();
+            //throw new RuntimeException(ex);
         }
         return new Label("");
     }
@@ -511,9 +513,11 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
         } catch (InvalidValueException ex) {
             ex.printStackTrace();
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            throw new RuntimeException(ex);
         } catch (Exception ex) {
             ex.printStackTrace();
             showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -721,6 +725,7 @@ public class GeneratedWindow extends HumanTaskWindow implements Button.ClickList
 
             } catch (Exception ex) {
                 ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
         } else {
 //            processDefinition.

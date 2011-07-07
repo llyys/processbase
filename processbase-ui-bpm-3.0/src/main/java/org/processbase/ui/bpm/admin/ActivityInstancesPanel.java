@@ -130,6 +130,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }

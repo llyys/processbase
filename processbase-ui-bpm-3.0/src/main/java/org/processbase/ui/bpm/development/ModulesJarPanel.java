@@ -111,6 +111,7 @@ public class ModulesJarPanel extends TablePanel implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -142,6 +143,7 @@ public class ModulesJarPanel extends TablePanel implements
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
+                    throw new RuntimeException(ex);
                 }
             }
         }
@@ -168,6 +170,7 @@ public class ModulesJarPanel extends TablePanel implements
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -178,6 +181,7 @@ public class ModulesJarPanel extends TablePanel implements
         try {
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -202,6 +206,7 @@ public class ModulesJarPanel extends TablePanel implements
             bpm.addMetaData("PROCESSBASE_UI_JAR_LIST", metaDataString);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 }

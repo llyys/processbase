@@ -126,6 +126,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             tabs.setImmediate(true);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -297,6 +298,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 } catch (Exception ex){
                     System.out.println("Exception with pm = " + pm.getName());
                     ex.printStackTrace();
+                    throw new RuntimeException(ex);
                 }
             }
         }

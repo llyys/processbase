@@ -73,6 +73,7 @@ public class Processes extends TablePanel implements Button.ClickListener {
              this.rowCount = processInstances.size();
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         table.setSortContainerPropertyId("lastUpdate");
         table.setSortAscending(false);
@@ -101,6 +102,7 @@ public class Processes extends TablePanel implements Button.ClickListener {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }

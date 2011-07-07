@@ -218,6 +218,7 @@ public class BPMConfigurationPanel extends PbPanelModule
         } catch (Exception ex) {
             ex.printStackTrace();
             ((PbWindow)getApplication().getMainWindow()).showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 

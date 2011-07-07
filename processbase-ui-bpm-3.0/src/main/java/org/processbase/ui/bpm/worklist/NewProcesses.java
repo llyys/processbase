@@ -89,6 +89,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
             this.rowCount = processes.size();
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         treeTable.setSortContainerPropertyId("category");
         treeTable.setSortAscending(true);
@@ -128,6 +129,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -159,6 +161,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 }

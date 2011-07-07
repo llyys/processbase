@@ -16,6 +16,9 @@
  */
 package org.processbase.ui.core.template;
 
+import org.processbase.ui.core.BPMModule;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.CloseEvent;
@@ -28,7 +31,7 @@ public class WorkPanel extends VerticalLayout {
 
     protected HorizontalLayout horizontalLayout = new HorizontalLayout();
     private boolean initialized = false;
-    
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(WorkPanel.class);
     public WorkPanel() {
         super();
         horizontalLayout.setSizeFull();

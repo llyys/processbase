@@ -114,6 +114,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -131,6 +132,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -150,6 +152,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -172,6 +175,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

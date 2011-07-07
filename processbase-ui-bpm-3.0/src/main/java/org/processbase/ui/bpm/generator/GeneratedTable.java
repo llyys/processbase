@@ -123,6 +123,7 @@ public class GeneratedTable extends Table implements Table.FooterClickListener, 
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(GeneratedTable.class.getName()).log(Level.SEVERE, ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 

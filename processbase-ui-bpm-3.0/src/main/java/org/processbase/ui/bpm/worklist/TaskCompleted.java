@@ -132,6 +132,7 @@ public class TaskCompleted extends TreeTablePanel {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
         //treeTable.setSortContainerPropertyId("lastUpdate");
         //treeTable.setSortAscending(false);
@@ -152,6 +153,7 @@ public class TaskCompleted extends TreeTablePanel {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -180,6 +182,7 @@ public class TaskCompleted extends TreeTablePanel {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
     

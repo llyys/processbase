@@ -141,6 +141,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
     
@@ -152,6 +153,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -171,6 +173,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
         } catch (Exception ex) {
             ex.printStackTrace();
             getWindow().showNotification(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+            throw new RuntimeException(ex);
         }
     }
 

@@ -89,6 +89,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -115,6 +116,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -161,6 +163,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -222,6 +225,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                                 woItem.getItemProperty("actions").setValue(tlb);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -251,6 +255,7 @@ public class SyncUsersWindow extends PbWindow implements ClickListener {
                                 }
                             } catch (Exception ex) {
                                 ex.printStackTrace();
+                                throw new RuntimeException(ex);
                             }
                         }
                     }

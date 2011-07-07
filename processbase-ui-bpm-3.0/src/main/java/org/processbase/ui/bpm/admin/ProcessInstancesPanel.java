@@ -86,6 +86,7 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -104,6 +105,7 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.toString());
+                throw new RuntimeException(ex);
             }
         }
     }

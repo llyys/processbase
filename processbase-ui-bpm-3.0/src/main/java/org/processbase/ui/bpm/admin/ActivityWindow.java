@@ -96,6 +96,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             dfds = ProcessbaseApplication.getCurrent().getBpmModule().getProcessDataFields(lightActivity.getProcessDefinitionUUID());
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
         reassignBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnReassign"), this);
@@ -122,6 +123,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             tabSheet.addTab(stateLayout, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskStateUpdates"), null);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
 
@@ -187,13 +189,13 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
                 if (value != null) {
                     field.setValue(new Long(value.toString()));
                 }
-//                    field.addValidator(new DoubleValidator("Значение должно быть цифровым"));
+//                    field.addValidator(new DoubleValidator("Š—Š½Š°Ń‡ŠµŠ½ŠøŠµ Š´Š¾Š»Š¶Š½Š¾ Š±Ń‹Ń‚Ń� Ń†ŠøŃ„Ń€Š¾Š²Ń‹Š¼"));
             } else if (dfd.getDataTypeClassName().equals("java.lang.Double")) {
                 field = new TextField(dfd.getLabel());
                 if (value != null) {
                     field.setValue(new Double(value.toString()));
                 }
-//                    field.addValidator(new DoubleValidator("Значение должно быть цифровым"));
+//                    field.addValidator(new DoubleValidator("Š—Š½Š°Ń‡ŠµŠ½ŠøŠµ Š´Š¾Š»Š¶Š½Š¾ Š±Ń‹Ń‚Ń� Ń†ŠøŃ„Ń€Š¾Š²Ń‹Š¼"));
             } else if (dfd.getDataTypeClassName().equals("java.util.Date")) {
                 field = new PopupDateField(dfd.getLabel());
                 if (value != null && value instanceof java.util.Date) {
@@ -351,6 +353,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.getMessage());
+                throw new RuntimeException(ex);
             }
         }
     }

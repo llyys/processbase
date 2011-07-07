@@ -18,8 +18,20 @@ package org.processbase.ui.core;
 
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
+import com.vaadin.terminal.Terminal;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
 /**
@@ -116,6 +128,43 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         if (application == this) {
             // Remove locale from the executing thread
             removeCurrent();
+        }
+    }
+    
+   /* public static String getStackTrace(Throwable t)
+    {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw, true);
+        t.printStackTrace(pw);
+        pw.flush();
+        sw.flush();
+        return sw.toString();
+    }*/
+    @Override
+    public void terminalError(Terminal.ErrorEvent event) {
+        // Call the default implementation.
+        super.terminalError(event);
+
+        // Some custom behaviour.
+        if (getMainWindow() != null) {
+           /* getMainWindow().showNotification(
+                    "An unchecked exception occured!",
+                    getStackTrace(event.getThrowable()),
+                    Notification.TYPE_ERROR_MESSAGE);*/
+        	Window  errwindow = new Window("Error");
+        	errwindow.setModal(true);
+        	errwindow.setWidth("80%");
+        	errwindow.setHeight("80%");
+        	VerticalLayout layout=new VerticalLayout();
+        	layout.setSpacing(true);
+        	Throwable[] exceptionlist = ExceptionUtils.getThrowables(event.getThrowable());
+        	for (Throwable throwable : exceptionlist) {
+        		String error=ExceptionUtils.getStackTrace(throwable);        		
+				layout.addComponent(new Label(error.replaceAll("\n","<BR />"), Label.CONTENT_XHTML));
+			}
+        	
+        	errwindow.addComponent(layout);
+        	getMainWindow().addWindow(errwindow);
         }
     }
 }

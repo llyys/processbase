@@ -75,6 +75,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             panelModuleService.addListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 

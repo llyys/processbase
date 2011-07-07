@@ -208,6 +208,7 @@ public class DevelopmentPanel extends PbPanelModule
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                                 ((PbWindow) getApplication().getMainWindow()).showError(ex.getMessage());
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
@@ -247,10 +248,13 @@ public class DevelopmentPanel extends PbPanelModule
                     bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    throw new RuntimeException(ex);
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
+           
         }
     }
 

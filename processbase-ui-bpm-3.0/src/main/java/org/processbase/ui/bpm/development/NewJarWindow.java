@@ -80,6 +80,7 @@ public class NewJarWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -100,6 +101,7 @@ public class NewJarWindow extends PbWindow
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 
@@ -140,6 +142,7 @@ public class NewJarWindow extends PbWindow
             fos.close();
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -171,6 +174,7 @@ public class NewJarWindow extends PbWindow
 //            bpm.addExceptionsToRuleByUUID(rule.getUUID(), uis);
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 }

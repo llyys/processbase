@@ -43,6 +43,7 @@ public class ActivitiesPanel extends TablePanel {
             this.processInstanceUUID = processInstanceUUID;
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
