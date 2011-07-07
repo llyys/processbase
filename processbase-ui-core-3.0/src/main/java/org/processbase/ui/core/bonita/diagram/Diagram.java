@@ -70,25 +70,25 @@ public class Diagram {
         parceProcesses();
         for (String pkey : processes.keySet()) {
             Process process = processes.get(pkey);
-            int coefficientX = processImage.getWidth() * 100 / (process.getWidth() + 20);
-            int coefficientY = processImage.getHeight() * 100 / (process.getHeight() + 20);
+            //int coefficientX = processImage.getWidth() * 100 / (process.getWidth() + 20);
+            //int coefficientY = processImage.getHeight() * 100 / (process.getHeight() + 20);
+            // well there is a bug in bonita software. Rendered image and task positions are totally off. But when process designer minimizes the diagram into right propotions then positions are ok.
 
 
             for (String skey : process.getSteps().keySet()) {
                 Step step = process.getSteps().get(skey);
-                if (getStepState(step.getName()) != null) {
-                    BufferedImage ind = Diagram.getImage(getStepState(step.getName()));
+                String stepState = getStepState(step.getName());
+				if (stepState != null) {
+                    BufferedImage ind = Diagram.getImage(stepState);
                     if (step.getType().equals("process:Task") || step.getType().equals("process:Activity")) {
-                        processImage.createGraphics().drawImage(ind,
-                                step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2 + 20,
-                                step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2 + 4,
-                                null);
+                        int x = step.getX()+20;// * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2 + 20;
+						int y = step.getY()+4;// * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2 + 4;
+						processImage.createGraphics().drawImage(ind,x,y,null);
                     } else {
-                        System.out.println(" DEBUG: " + step.getName() + (step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2) + " " + (step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2));
-                        processImage.createGraphics().drawImage(ind,
-                                step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2,
-                                step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2,
-                                null);
+                        //System.out.println(" DEBUG: " + step.getName() + (step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2) + " " + (step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2));
+                        int x = step.getX();// * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2;
+						int y = step.getY();// * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2;
+						processImage.createGraphics().drawImage(ind,x,y,null);
                     }
                 }
             }

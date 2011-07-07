@@ -43,8 +43,8 @@ public class PbServlet extends AbstractApplicationServlet {
             HttpServletRequest request) throws ServletException, IOException {
         page.write("<script type=\"text/javascript\">\n");
         page.write("//<![CDATA[\n");
-        page.write("document.write(\"<script language='javascript' src='./jquery/jquery-1.4.4.min.js'><\\/script>\");\n");
-        page.write("document.write(\"<script language='javascript' src='./js/highcharts.js'><\\/script>\");\n");
+        page.write("document.write(\"<script language='javascript' src='./scripts/jquery-1.6.2.min.js'><\\/script>\");\n");
+        page.write("document.write(\"<script language='javascript' src='./scripts/highcharts.js'><\\/script>\");\n");
         page.write("//]]>\n</script>\n");
         super.writeAjaxPageHtmlVaadinScripts(window, themeName, application,
                 page, appUrl, themeUri, appId, request);
