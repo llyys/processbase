@@ -309,26 +309,22 @@ var estEidLoader = {
 			  	 return;
 			  }
     		  estEidLoader.isCardIn=true;  
-			  estEidLoader.htmlLog("pluginReady");
     		  callbacks.pluginReady(estEidLoader.getCertBase64());
     		  return;
     	  }catch(err)
     	  {
     		  if(err.message.indexOf("No cards found")> -1){	  	
-				  estEidLoader.htmlLog("onCardRemoved");
-    			  callbacks.onCardRemoved();				  
+    			  callbacks.onCardRemoved();
     		  	  estEidLoader.isCardIn=false;
     		  }  
     		  else{
     			  estEidLoader.htmlLog(err);
-				  estEidLoader.htmlLog("pluginFail");
         		  callbacks.pluginFail('Error on plugin initialization: '+err);
         		  estEidLoader.isCardIn=false;  
         		  return;
     		  }
     		  
     	  }
-		  estEidLoader.htmlLog("pluginReady");
     	  callbacks.pluginReady(null);
     	  
       },
@@ -336,29 +332,23 @@ var estEidLoader = {
         if(e) estEidLoader.removeFromBody(e);
 
         if(estEidLoader.loadLegacySigner) {
-		 estEidLoader.htmlLog("loadLegacySigner");
           estEidLoader.loadLegacySigner(id, callbacks);
         } else {
-		 estEidLoader.htmlLog("pluginFail");
           callbacks.pluginFail('Unable to load EstEid plugin...');
         }
       },
 	  onCardInserted:function(reader){
 		  estEidLoader.isCardIn=true;
-		  estEidLoader.htmlLog("onCardInserted");
-		  callbacks.onCardInserted(estEidLoader.getCertBase64());
+		   callbacks.onCardInserted(estEidLoader.getCertBase64());
 	  },
 	  onCardRemoved:function(reader){
 		  estEidLoader.isCardIn=false;
-		  estEidLoader.htmlLog("onCardRemoved");
 		  callbacks.onCardRemoved();
 	  },
 	  onSignSuccess:function(hex){
-		estEidLoader.htmlLog("onSignSuccess");
 		  callbacks.onSignSuccess(hex);
 	  },
 	  onSignFailure:function(msg){
-		estEidLoader.htmlLog("onSignFailure");
 		  callbacks.onSignFailure(msg);
 	  }
     });

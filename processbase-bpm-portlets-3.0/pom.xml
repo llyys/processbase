@@ -105,13 +105,11 @@
 			<artifactId>processbase-engine-bam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--    <dependency>
+		<dependency>
 			<groupId>ee.smartlink.esteid</groupId>
-			<artifactId>esteid-component</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.base.dir}/libs/esteid-vaadin-component-0.1.0.jar</systemPath>
-		</dependency>-->
+			<artifactId>esteid-vaadin-component</artifactId>
+			<version>${esteid-vaadin-component.version}</version>			
+		</dependency>
 		<dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>

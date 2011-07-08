@@ -54,7 +54,7 @@
 	<dependency>
 			<groupId>ee.smartlink.esteid</groupId>
 			<artifactId>esteid-vaadin-component</artifactId>
-			<version>0.1.0</version>			
+			<version>${esteid-vaadin-component.version}</version>			
 		</dependency>
   </dependencies>
    
