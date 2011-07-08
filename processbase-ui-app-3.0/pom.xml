@@ -1,148 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.processbase</groupId>
-    <artifactId>processbase</artifactId>
-    <version>3.0</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.processbase</groupId>
+		<artifactId>processbase</artifactId>
+		<version>3.0</version>
+	</parent>
 
-  <artifactId>processbase-ui-app</artifactId>
-  <url>http://processbase.googlecode.com</url>
-  <name>ProcessBase UI App</name>
+	<artifactId>processbase-ui-app</artifactId>
+	<url>http://processbase.googlecode.com</url>
+	<name>ProcessBase UI App</name>
 
-  <prerequisites>
-    <maven>2.2</maven>
-  </prerequisites>
-	
-  <dependencies>
-   <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>processbase-ui-bam</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-ui-bpm</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-ui-core</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-engine-bam</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-	
-	<dependency>
-      <groupId>com.liferay.portal</groupId>
-      <artifactId>portal-service</artifactId>
-      <version>6.0.5</version>
-      <scope>provided</scope>
-    </dependency>
-	
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.portlet</groupId>
-      <artifactId>portlet-api</artifactId>
-      <version>2.0</version>
-      <scope>provided</scope>
-    </dependency>
-   
+	<prerequisites>
+		<maven>2.2</maven>
+	</prerequisites>
 
-	<dependency>
-	    <groupId>javax.enterprise</groupId>
-	    <artifactId>cdi-api</artifactId>
-	    <version>1.0-SP1</version>
-	</dependency>
-	
-	<!-- Bonita dependencies -->
-	
-	<dependency>
-		<groupId>org.ow2.bonita</groupId>
-		<artifactId>bonita-client</artifactId>
-		<version>${bonita.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.ow2.bonita</groupId>
-		<artifactId>forms-model</artifactId>
-		<version>${bonita.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.ow2.bonita</groupId>
-		<artifactId>forms-server</artifactId>
-		<version>${bonita.version}</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.hibernate</groupId>
-		<artifactId>hibernate-core</artifactId>
-		<version>3.5.6-Final</version>		
-	</dependency>
-	
-	
-	<!-- Use JDK logging for runtime since that's what Glassfish uses. -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-jdk14</artifactId>
-	 <version>${slf4j.version}</version>
-	  <scope>runtime</scope>
-	</dependency>
-	
- <dependency>
-	        <groupId>org.slf4j</groupId>
-	        <artifactId>slf4j-log4j12</artifactId>
-	       <version>${slf4j.version}</version>
-	    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bam</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bpm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-engine-bam</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-	
-	
-   <!-- <dependency>
-      <groupId>jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-      <version>1.0.13</version>
-    </dependency> 
-	<dependency>
-      <groupId>org.vaadin.addons</groupId>
-      <artifactId>refresher</artifactId>
-      <version>1.1.0</version>
-    </dependency> 
-	<dependency>
-      <groupId>org.vaadin.addons</groupId>
-      <artifactId>vaadin-treetable</artifactId>
-      <version>1.1.0</version>
-    </dependency> 
-	<dependency>
-      <groupId>org.vaadin.addons</groupId>
-      <artifactId>visualizationsforvaadin</artifactId>
-      <version>1.1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.vaadin.addons</groupId>
-      <artifactId>jfreechart-wrapper-for-vaadin</artifactId>
-      <version>2.4</version>
-    </dependency>
-	<dependency>
-	   <groupId>org.apache.xmlgraphics</groupId>
-	   <artifactId>batik-svggen</artifactId>
-	   <version>1.7</version>
-	</dependency>
-	-->
-    <dependency>
-      <groupId>com.vaadin</groupId>
-      <artifactId>vaadin</artifactId>
-      <version>${vaadin.version}</version>
-    </dependency>
-   
-  </dependencies>
+		<dependency>
+			<groupId>com.liferay.portal</groupId>
+			<artifactId>portal-service</artifactId>
+			<version>6.0.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.portlet</groupId>
+			<artifactId>portlet-api</artifactId>
+			<version>2.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			<version>1.0-SP1</version>
+		</dependency>
+
+		<!-- Bonita dependencies -->
+
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-client</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-model</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-server</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.5.6-Final</version>
+		</dependency>
+
+
+		<!-- <dependency> <groupId>jfree</groupId> <artifactId>jfreechart</artifactId> 
+			<version>1.0.13</version> </dependency> <dependency> <groupId>org.vaadin.addons</groupId> 
+			<artifactId>refresher</artifactId> <version>1.1.0</version> </dependency> 
+			<dependency> <groupId>org.vaadin.addons</groupId> <artifactId>vaadin-treetable</artifactId> 
+			<version>1.1.0</version> </dependency> <dependency> <groupId>org.vaadin.addons</groupId> 
+			<artifactId>visualizationsforvaadin</artifactId> <version>1.1.2</version> 
+			</dependency> <dependency> <groupId>org.vaadin.addons</groupId> <artifactId>jfreechart-wrapper-for-vaadin</artifactId> 
+			<version>2.4</version> </dependency> <dependency> <groupId>org.apache.xmlgraphics</groupId> 
+			<artifactId>batik-svggen</artifactId> <version>1.7</version> </dependency> -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+
+	</dependencies>
 </project>

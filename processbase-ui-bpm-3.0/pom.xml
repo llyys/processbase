@@ -1,61 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.processbase</groupId>
-    <artifactId>processbase</artifactId>
-    <version>3.0</version>
-  </parent>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.processbase</groupId>
+		<artifactId>processbase</artifactId>
+		<version>3.0</version>
+	</parent>
 
-  <artifactId>processbase-ui-bpm</artifactId>
-  <url>http://processbase.googlecode.com</url>
-  <name>ProcessBase Bpm</name>
-  <dependencies>
- 
-    
-	<dependency>
-		<groupId>org.ow2.bonita</groupId>
-	          <artifactId>forms-model</artifactId>
-	          <version>${bonita.version}</version>	          
-	</dependency>
-	<dependency>
-		<groupId>org.ow2.bonita</groupId>
-	          <artifactId>forms-server</artifactId>
-	          <version>${bonita.version}</version>	          
-	</dependency>
-    <dependency>
-    	<groupId>${project.groupId}</groupId>
-    	<artifactId>processbase-ui-core</artifactId>
-    	<version>${project.version}</version>    	
-    </dependency>
-    <dependency>
-	    <groupId>net.htmlparser.jericho</groupId>
-	    <artifactId>jericho-html</artifactId>
-	    <version>3.1</version>
-	</dependency>
-     <dependency>
-      <groupId>com.liferay.portal</groupId>
-      <artifactId>portal-service</artifactId>
-      <version>6.0.5</version>
-      <scope>provided</scope>
-    </dependency>
-    
-      <dependency>
-      <groupId>com.vaadin</groupId>
-      <artifactId>vaadin</artifactId>
-      <version>${vaadin.version}</version>
-    </dependency>
-    <dependency>
-	    <groupId>commons-lang</groupId>
-	    <artifactId>commons-lang</artifactId>
-	    <version>2.3</version>
-	</dependency>
-	<dependency>
+	<artifactId>processbase-ui-bpm</artifactId>
+	<url>http://processbase.googlecode.com</url>
+	<name>ProcessBase Bpm</name>
+	<dependencies>
+
+
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-model</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-server</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.htmlparser.jericho</groupId>
+			<artifactId>jericho-html</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.liferay.portal</groupId>
+			<artifactId>portal-service</artifactId>
+			<version>6.0.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
 			<groupId>ee.smartlink.esteid</groupId>
 			<artifactId>esteid-vaadin-component</artifactId>
-			<version>0.1.0</version>			
+			<version>${esteid-vaadin-component.version}</version>
 		</dependency>
-  </dependencies>
-   
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+	</dependencies>
+
 </project>

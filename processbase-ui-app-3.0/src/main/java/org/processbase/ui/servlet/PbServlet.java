@@ -60,6 +60,10 @@ public class PbServlet extends AbstractApplicationServlet {
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
     	if(panelModuleService==null)
     		panelModuleService=new PbPanelModuleServiceImpl();
+    	
+    	String configFilename=getApplicationProperty("log4jConfigLocation");
+    	String real_path =  getServletContext().getRealPath("/");
+    	org.apache.log4j.PropertyConfigurator.configure(real_path+configFilename);
         return new PbApplication(panelModuleService);
     }
 }

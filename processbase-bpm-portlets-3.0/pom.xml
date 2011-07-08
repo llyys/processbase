@@ -32,32 +32,30 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-		<plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt-user.version}</version>
-                <configuration>
-                <!-- if you don't specify any modules, the plugin will find them -->
-                <!--modules>
-                    ..
-                </modules-->
-                    <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory>
-                    <extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs>
-                    <runTarget>clean</runTarget>
-                    <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-                    <noServer>true</noServer>
-                    <port>8080</port>
-                    <soyc>false</soyc>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>resources</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<version>${gwt-user.version}</version>
+				<configuration>
+					<!-- if you don't specify any modules, the plugin will find them -->
+					<!--modules> .. </modules -->
+					<webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory>
+					<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs>
+					<runTarget>clean</runTarget>
+					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+					<noServer>true</noServer>
+					<port>8080</port>
+					<soyc>false</soyc>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>resources</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -66,7 +64,8 @@
 						<phase>verify</phase>
 						<configuration>
 							<tasks>
-								<copy todir="${liferay.deploy.path}" flatten="true" overwrite="true" verbose="true" failonerror="true">									
+								<copy todir="${liferay.deploy.path}" flatten="true"
+									overwrite="true" verbose="true" failonerror="true">
 									<fileset dir="target" includes="*.war" />
 								</copy>
 							</tasks>
@@ -105,19 +104,22 @@
 			<artifactId>processbase-engine-bam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--    <dependency>
-			<groupId>ee.smartlink.esteid</groupId>
-			<artifactId>esteid-component</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.base.dir}/libs/esteid-vaadin-component-0.1.0.jar</systemPath>
-		</dependency>-->
 		<dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwt-user.version}</version>
-            <scope>provided</scope>
-        </dependency>
-       
+			<groupId>ee.smartlink.esteid</groupId>
+			<artifactId>esteid-vaadin-component</artifactId>
+			<version>${esteid-vaadin-component.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwt-user.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
 	</dependencies>
 </project>

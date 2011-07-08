@@ -17,6 +17,8 @@
 
 package org.processbase.ui.core.template;
 
+import org.apache.log4j.Logger;
+
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -25,6 +27,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class PbPanel extends VerticalLayout {
 
+	protected static Logger LOGGER = Logger.getLogger(PbPanel.class);
     private boolean initialized = false;
 
     public abstract void initUI();

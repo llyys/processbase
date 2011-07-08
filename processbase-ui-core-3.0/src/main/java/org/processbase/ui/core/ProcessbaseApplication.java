@@ -32,7 +32,10 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.processbase.ui.osgi.PbPanelModuleService;
+
+
 
 /**
  *
@@ -43,7 +46,8 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     static ThreadLocal<ProcessbaseApplication> current = new ThreadLocal<ProcessbaseApplication>();
     public static int LIFERAY_PORTAL = 0;
     public static int STANDALONE = 1;
-
+    protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
+    
     public abstract int getApplicationType();
 
     public abstract void setSessionAttribute(String name, String value);
@@ -144,7 +148,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public void terminalError(Terminal.ErrorEvent event) {
         // Call the default implementation.
         super.terminalError(event);
-
+        LOGGER.error("RuntimeError", event.getThrowable());
         // Some custom behaviour.
         if (getMainWindow() != null) {
            /* getMainWindow().showNotification(
@@ -152,7 +156,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
                     getStackTrace(event.getThrowable()),
                     Notification.TYPE_ERROR_MESSAGE);*/
         	Window  errwindow = new Window("Error");
-        	errwindow.setModal(true);
+        	//errwindow.setModal(true);
         	errwindow.setWidth("80%");
         	errwindow.setHeight("80%");
         	VerticalLayout layout=new VerticalLayout();

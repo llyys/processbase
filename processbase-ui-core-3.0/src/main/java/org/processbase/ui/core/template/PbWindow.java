@@ -19,6 +19,8 @@ package org.processbase.ui.core.template;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+
+import org.apache.log4j.Logger;
 import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
@@ -28,7 +30,7 @@ import org.processbase.ui.core.ProcessbaseApplication;
 public class PbWindow extends Window {
 
     public boolean confirm = false;
-
+    protected static Logger LOGGER = Logger.getLogger(PbWindow.class);
     public PbWindow() {
     }
 

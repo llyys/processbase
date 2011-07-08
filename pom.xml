@@ -14,50 +14,53 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<project.base.dir>C:\dev\processbase-git</project.base.dir>
 		<tomcat.home>C:\dev_env\liferay-portal-6.0.5\tomcat-6.0.26</tomcat.home>
-		<server.deploy.path>C:\dev_env\glassfish3\glassfish\domains\domain1\autodeploy</server.deploy.path>
+		<server.deploy.path>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
 		<container.port>8080</container.port>
 		<bonita.version>5.5.1</bonita.version>
-		
+
 		<vaadin.version>6.6.2</vaadin.version>
-        <vaadin-invient.version>0.8.4</vaadin-invient.version>
-        <vaadin-refresher.version>1.1.0</vaadin-refresher.version>
-        <vaadin-treetable.version>1.2.1</vaadin-treetable.version>
-		
-		 <glassfish.version>3.1</glassfish.version>
+		<vaadin-invient.version>0.8.4</vaadin-invient.version>
+		<vaadin-refresher.version>1.1.0</vaadin-refresher.version>
+		<vaadin-treetable.version>1.2.1</vaadin-treetable.version>
+
+		<glassfish.version>3.1</glassfish.version>
 		<junit.version>4.8.1</junit.version>
-        <javaee-web-api.version>6.0</javaee-web-api.version>
-        <javaee-api.version>6.0</javaee-api.version>
-        <gson.version>1.6</gson.version>
-        <jericho-html.version>3.1</jericho-html.version>
-        <gwt-user.version>2.3.0</gwt-user.version>
-        <slf4j.version>1.6.1</slf4j.version>		
+		<javaee-web-api.version>6.0</javaee-web-api.version>
+		<javaee-api.version>6.0</javaee-api.version>
+		<gson.version>1.6</gson.version>
+		<jericho-html.version>3.1</jericho-html.version>
+		<gwt-user.version>2.3.0</gwt-user.version>
+		<log4j.version>1.2.16</log4j.version>
+		<spring.version>3.0.5.RELEASE</spring.version>
+		<spring-security.version>3.0.1</spring-security.version>
+		<esteid-vaadin-component.version>0.1.1</esteid-vaadin-component.version>
 	</properties>
 
 	<repositories>
-		 <repository>
-            <id>vaadin-addons</id>
-            <url>http://maven.vaadin.com/vaadin-addons</url>
-        </repository>
-        <repository>
-            <id>glassfish-repository</id>
-            <name>Java.net Repository for Glassfish</name>
-            <url>http://download.java.net/maven/glassfish</url>
-        </repository>
-        <repository>
-            <id>java.net2</id>
-            <name>Java.net Maven2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-        </repository>
-        <repository>
-            <id>OW2</id>
-            <name>OW2 Consortium Repository</name>
-            <url>http://maven.ow2.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>codehaus</id>
-            <name>codehaus</name>
-            <url>http://snapshots.repository.codehaus.org</url>
-        </repository> 
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+		<repository>
+			<id>glassfish-repository</id>
+			<name>Java.net Repository for Glassfish</name>
+			<url>http://download.java.net/maven/glassfish</url>
+		</repository>
+		<repository>
+			<id>java.net2</id>
+			<name>Java.net Maven2 Repository</name>
+			<url>http://download.java.net/maven/2</url>
+		</repository>
+		<repository>
+			<id>OW2</id>
+			<name>OW2 Consortium Repository</name>
+			<url>http://maven.ow2.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>codehaus</id>
+			<name>codehaus</name>
+			<url>http://snapshots.repository.codehaus.org</url>
+		</repository>
 	</repositories>
 	<modules>
 
@@ -67,7 +70,7 @@
 		<module>processbase-ui-bam-${project.version}</module>
 		<module>processbase-realm-${project.version}</module>
 		<module>processbase-ui-bpm-${project.version}</module>
-		<!--<module>processbase-bpm-portlets-${project.version}</module>-->
+		<!--<module>processbase-bpm-portlets-${project.version}</module> -->
 		<module>processbase-bpm-servlets-${project.version}</module>
 	</modules>
 

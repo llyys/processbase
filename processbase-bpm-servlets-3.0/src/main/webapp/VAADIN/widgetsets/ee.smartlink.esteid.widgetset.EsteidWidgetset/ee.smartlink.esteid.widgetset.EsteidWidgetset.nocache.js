@@ -42,27 +42,6 @@ function ee_smartlink_esteid_widgetset_EsteidWidgetset(){
   }
 
   function computeScriptBase(){
-    if (metaProps['baseUrl']) {
-      base = metaProps['baseUrl'];
-      return base;
-    }
-    var thisScript;
-    var scriptTags = $doc_0.getElementsByTagName('script');
-    for (var i = 0; i < scriptTags.length; ++i) {
-      if (scriptTags[i].src.indexOf('ee.smartlink.esteid.widgetset.EsteidWidgetset.nocache.js') != -1) {
-        thisScript = scriptTags[i];
-      }
-    }
-    if (!thisScript) {
-      var markerId = '__gwt_marker_ee.smartlink.esteid.widgetset.EsteidWidgetset';
-      var markerScript;
-      $doc_0.write('<script id="' + markerId + '"><\/script>');
-      markerScript = $doc_0.getElementById(markerId);
-      thisScript = markerScript && markerScript.previousSibling;
-      while (thisScript && thisScript.tagName != 'SCRIPT') {
-        thisScript = thisScript.previousSibling;
-      }
-    }
     function getDirectoryOfFile(path){
       var hashIndex = path.lastIndexOf('#');
       if (hashIndex == -1) {
@@ -76,30 +55,80 @@ function ee_smartlink_esteid_widgetset_EsteidWidgetset(){
       return slashIndex >= 0?path.substring(0, slashIndex + 1):'';
     }
 
-    ;
-    if (thisScript && thisScript.src) {
-      base = getDirectoryOfFile(thisScript.src);
-    }
-    if (base == '') {
-      var baseElements = $doc_0.getElementsByTagName('base');
-      if (baseElements.length > 0) {
-        base = baseElements[baseElements.length - 1].href;
+    function ensureAbsoluteUrl(url){
+      if (url.match(/^\w+:\/\//)) {
       }
        else {
-        base = getDirectoryOfFile($doc_0.location.href);
+        var img = $doc_0.createElement('img');
+        img.src = url + 'clear.cache.gif';
+        url = getDirectoryOfFile(img.src);
       }
+      return url;
     }
-     else if (base.match(/^\w+:\/\//)) {
+
+    function tryMetaTag(){
+      var metaVal = __gwt_getMetaProperty('baseUrl');
+      if (metaVal != null) {
+        return metaVal;
+      }
+      return '';
     }
-     else {
-      var img = $doc_0.createElement('img');
-      img.src = base + 'clear.cache.gif';
-      base = getDirectoryOfFile(img.src);
+
+    function tryNocacheJsTag(){
+      var scriptTags = $doc_0.getElementsByTagName('script');
+      for (var i = 0; i < scriptTags.length; ++i) {
+        if (scriptTags[i].src.indexOf('ee.smartlink.esteid.widgetset.EsteidWidgetset.nocache.js') != -1) {
+          return getDirectoryOfFile(scriptTags[i].src);
+        }
+      }
+      return '';
     }
-    if (markerScript) {
-      markerScript.parentNode.removeChild(markerScript);
+
+    function tryMarkerScript(){
+      var thisScript;
+      if (typeof isBodyLoaded == 'undefined' || !isBodyLoaded()) {
+        var markerId = '__gwt_marker_ee.smartlink.esteid.widgetset.EsteidWidgetset';
+        var markerScript;
+        $doc_0.write('<script id="' + markerId + '"><\/script>');
+        markerScript = $doc_0.getElementById(markerId);
+        thisScript = markerScript && markerScript.previousSibling;
+        while (thisScript && thisScript.tagName != 'SCRIPT') {
+          thisScript = thisScript.previousSibling;
+        }
+        if (markerScript) {
+          markerScript.parentNode.removeChild(markerScript);
+        }
+        if (thisScript && thisScript.src) {
+          return getDirectoryOfFile(thisScript.src);
+        }
+      }
+      return '';
     }
-    return base;
+
+    function tryBaseTag(){
+      var baseElements = $doc_0.getElementsByTagName('base');
+      if (baseElements.length > 0) {
+        return baseElements[baseElements.length - 1].href;
+      }
+      return '';
+    }
+
+    var tempBase = tryMetaTag();
+    if (tempBase == '') {
+      tempBase = tryNocacheJsTag();
+    }
+    if (tempBase == '') {
+      tempBase = tryMarkerScript();
+    }
+    if (tempBase == '') {
+      tempBase = tryBaseTag();
+    }
+    if (tempBase == '') {
+      tempBase = getDirectoryOfFile($doc_0.location.href);
+    }
+    tempBase = ensureAbsoluteUrl(tempBase);
+    base = tempBase;
+    return tempBase;
   }
 
   function processMetas(){
@@ -152,6 +181,11 @@ function ee_smartlink_esteid_widgetset_EsteidWidgetset(){
     }
   }
 
+  function __gwt_getMetaProperty(name_0){
+    var value = metaProps[name_0];
+    return value == null?null:value;
+  }
+
   function unflattenKeylistIntoAnswers(propValArray, value){
     var answer = answers;
     for (var i = 0, n = propValArray.length - 1; i < n; ++i) {
@@ -196,33 +230,42 @@ function ee_smartlink_esteid_widgetset_EsteidWidgetset(){
       return parseInt(result[1]) * 1000 + parseInt(result[2]);
     }
     ;
-    if (ua.indexOf('opera') != -1) {
+    if (function(){
+      return ua.indexOf('opera') != -1;
+    }
+    ())
       return 'opera';
+    if (function(){
+      return ua.indexOf('webkit') != -1;
     }
-     else if (ua.indexOf('webkit') != -1) {
+    ())
       return 'safari';
+    if (function(){
+      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 9;
     }
-     else if (ua.indexOf('msie') != -1) {
-      if (document.documentMode >= 8) {
-        return 'ie8';
-      }
-       else {
-        var result_0 = /msie ([0-9]+)\.([0-9]+)/.exec(ua);
-        if (result_0 && result_0.length == 3) {
-          var v = makeVersion(result_0);
-          if (v >= 6000) {
-            return 'ie6';
-          }
-        }
-      }
+    ())
+      return 'ie9';
+    if (function(){
+      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 8;
     }
-     else if (ua.indexOf('gecko') != -1) {
+    ())
+      return 'ie8';
+    if (function(){
+      var result = /msie ([0-9]+)\.([0-9]+)/.exec(ua);
+      if (result && result.length == 3)
+        return makeVersion(result) >= 6000;
+    }
+    ())
+      return 'ie6';
+    if (function(){
+      return ua.indexOf('gecko') != -1;
+    }
+    ())
       return 'gecko1_8';
-    }
     return 'unknown';
   }
   ;
-  values['user.agent'] = {gecko1_8:0, ie6:1, ie8:2, opera:3, safari:4};
+  values['user.agent'] = {gecko1_8:0, ie6:1, ie8:2, ie9:3, opera:4, safari:5};
   ee_smartlink_esteid_widgetset_EsteidWidgetset.onScriptLoad = function(){
     if (frameInjected) {
       loadDone = true;
@@ -251,11 +294,12 @@ function ee_smartlink_esteid_widgetset_EsteidWidgetset(){
   $stats && $stats({moduleName:'ee.smartlink.esteid.widgetset.EsteidWidgetset', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'bootstrap', millis:(new Date).getTime(), type:'selectingPermutation'});
   if (!isHostedMode()) {
     try {
-      unflattenKeylistIntoAnswers(['opera'], '0BD79719E73ABCD3622E33547E5D6FEA');
-      unflattenKeylistIntoAnswers(['gecko1_8'], '179C0FF72625457989D1CD59A00F148C');
-      unflattenKeylistIntoAnswers(['safari'], '7F43A54142196302AD4AA47DF3D05402');
-      unflattenKeylistIntoAnswers(['ie8'], '99FCA8D2B2263242B80809CC12E55FB5');
-      unflattenKeylistIntoAnswers(['ie6'], 'FA4CBAF0DFD27D2FFC3CBA4FB906E658');
+      unflattenKeylistIntoAnswers(['safari'], '40319B34E2B893856EEEE7B8CBDC5FF3');
+      unflattenKeylistIntoAnswers(['gecko1_8'], '5E08C36FBF5EE5905609C451100C2976');
+      unflattenKeylistIntoAnswers(['opera'], '7C4F90FBCB47136155CAC834508F1A8A');
+      unflattenKeylistIntoAnswers(['ie9'], 'D4D0FD35E1E6907221B11917E4A023D8');
+      unflattenKeylistIntoAnswers(['ie6'], 'E530C880370085934AAE91D0B08BDEDA');
+      unflattenKeylistIntoAnswers(['ie8'], 'EAE9306676F3F7ADCF8DF98B9EB25089');
       strongName = answers[computePropValue('user.agent')];
       var idx = strongName.indexOf(':');
       if (idx != -1) {

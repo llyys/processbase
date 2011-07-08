@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.processbase</groupId>
@@ -22,16 +21,16 @@
 	</prerequisites>
 
 	<dependencies>
-	<dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>processbase-engine-bam</artifactId>
-			<version>${project.version}</version>    	
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>processbase-ui-core</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>org.ow2.bonita</groupId>
 			<artifactId>bonita-server</artifactId>
@@ -61,9 +60,9 @@
 			<scope>provided</scope>
 		</dependency>
 
-		
-		
-	
+
+
+
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
@@ -84,51 +83,23 @@
 			<artifactId>invient-charts</artifactId>
 			<version>${vaadin-invient.version}</version>
 		</dependency>
-		<!--
-			<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jfreechart</artifactId>
-			<version>1.0.13</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-svggen</artifactId>
-			<version>1.7</version>
-		</dependency>
-			
-		
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>3.5.6-Final</version>
-			<exclusions>
-				<exclusion>
-					<groupId>dom4j</groupId>
-					<artifactId>dom4j</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.8.0.GA</version>
-		</dependency>
-		-->
-		
+		<!-- <dependency> <groupId>jfree</groupId> <artifactId>jfreechart</artifactId> 
+			<version>1.0.13</version> </dependency> <dependency> <groupId>org.apache.xmlgraphics</groupId> 
+			<artifactId>batik-svggen</artifactId> <version>1.7</version> </dependency> 
+			<dependency> <groupId>commons-logging</groupId> <artifactId>commons-logging</artifactId> 
+			<version>1.1.1</version> </dependency> <dependency> <groupId>org.hibernate</groupId> 
+			<artifactId>hibernate-core</artifactId> <version>3.5.6-Final</version> <exclusions> 
+			<exclusion> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId> </exclusion> 
+			</exclusions> </dependency> <dependency> <groupId>javassist</groupId> <artifactId>javassist</artifactId> 
+			<version>3.8.0.GA</version> </dependency> -->
+
 		<!-- Use JDK logging for runtime since that's what Glassfish uses. -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-jdk14</artifactId>
-	 <version>${slf4j.version}</version>
-	  <scope>runtime</scope>
-	</dependency>
-	
-	
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+
 	</dependencies>
 </project>

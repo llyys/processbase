@@ -1,20 +1,28 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
 		<groupId>org.processbase</groupId>
 		<artifactId>processbase</artifactId>
 		<version>3.0</version>
 	</parent>
-  
-  <artifactId>processbase-bpm-servlets</artifactId>
-  <packaging>war</packaging>
-  <name>Processbase Servlet</name>
-  
-  <properties>
-	<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-  </properties>
-  
-  
+
+	<artifactId>processbase-bpm-servlets</artifactId>
+	<packaging>war</packaging>
+	<name>Processbase Servlet</name>
+
+	<properties>
+		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+		<x-tee.version>2.1.1.32</x-tee.version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>wm</id>
+			<name>WM public Maven repository</name>
+			<url>http://maven2.webmedia.ee</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -36,81 +44,78 @@
 			<artifactId>processbase-ui-app</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		 <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>${javaee-web-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
 		<dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwt-user.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-dev</artifactId>
-            <version>${gwt-user.version}</version>
-            <scope>provided</scope>
-        </dependency>
-<!--		
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-engine-bam</artifactId>
-			<version>${project.version}</version>
+			<groupId>javax</groupId>
+			<artifactId>javaee-web-api</artifactId>
+			<version>${javaee-web-api.version}</version>
+			<scope>provided</scope>
 		</dependency>
-		
-		-->
-		
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwt-user.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-dev</artifactId>
+			<version>${gwt-user.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- <dependency> <groupId>${project.groupId}</groupId> <artifactId>processbase-engine-bam</artifactId> 
+			<version>${project.version}</version> </dependency> -->
+
 		<dependency>
 			<groupId>ee.smartlink.esteid</groupId>
 			<artifactId>esteid-vaadin-component</artifactId>
-			<version>0.1.0</version>			
+			<version>${esteid-vaadin-component.version}</version>
 		</dependency>
-<!-- Use JDK logging for runtime since that's what Glassfish uses. -->
+
 		<dependency>
-		  <groupId>org.slf4j</groupId>
-		  <artifactId>slf4j-jdk14</artifactId>
-		 <version>${slf4j.version}</version>
-		  <scope>runtime</scope>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
-		
-		<!-- Anything using log4j should defer to slf4j. -->
+
 		<dependency>
-		  <groupId>org.slf4j</groupId>
-		  <artifactId>log4j-over-slf4j</artifactId>
-		  <version>${slf4j.version}</version>
-		  <scope>runtime</scope>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
-		
-		<!-- Anything using commons-logging should defer to slf4j. -->
 		<dependency>
-		  <groupId>org.slf4j</groupId>
-		  <artifactId>jcl-over-slf4j</artifactId>
-		 <version>${slf4j.version}</version>
-		  <scope>runtime</scope>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
-		 <!-- concrete Log4J Implementation for SLF4J API-->
-	    <dependency>
-	        <groupId>org.slf4j</groupId>
-	        <artifactId>slf4j-log4j12</artifactId>
-	       <version>${slf4j.version}</version>
-	    </dependency>
-		
-		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ee.webmedia.xtee</groupId>
+			<artifactId>xtee-common</artifactId>
+			<version>${x-tee.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ee.webmedia.xtee</groupId>
+			<artifactId>xtee-client-transport</artifactId>
+			<version>${x-tee.version}</version>
+		</dependency>
+
+
 	</dependencies>
-    
-	
-		 <build>
-		
+
+
+	<build>
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
 					<configuration>
 						<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
-						<warName>processbase</warName>
+						<warName>SmartBPM</warName>
 						<warSourceDirectory>src/main/webapp</warSourceDirectory>
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
@@ -119,94 +124,62 @@
 							<packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
 					</configuration>
 				</plugin>
-				
+
 			</plugins>
 		</pluginManagement>
-		 <plugins>
-			
-		
-		<!-- 
-		 <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt-user.version}</version>
-                <configuration>
-               
-                    <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory>
-                    <extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs>
-                    <runTarget>clean</runTarget>
-                    <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-                    <noServer>true</noServer>
-                    <port>8080</port>
-                    <soyc>false</soyc>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>resources</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin> -->
-			<!-- 
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>1.0.2</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                        <modules>
-                            <module>org.processbase.vaadin.widgetset.DefaultWidgetSet</module>
-                        </modules>
-                        
-                        </configuration>
-                        <goals>
-                            <goal>update-widgetset</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-			 -->
-			  <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <compilerArguments>
-                        <endorseddirs>${endorsed.dir}</endorseddirs>
-                    </compilerArguments>
-                </configuration>
-            </plugin>
-			
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${endorsed.dir}</outputDirectory>
-                            <silent>true</silent>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax</groupId>
-                                    <artifactId>javaee-endorsed-api</artifactId>
-                                    <version>6.0</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+		<plugins>
+
+
+			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
+				<version>${gwt-user.version}</version> <configuration> <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
+				<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs> <runTarget>clean</runTarget> 
+				<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp> 
+				<noServer>true</noServer> <port>8080</port> <soyc>false</soyc> </configuration> 
+				<executions> <execution> <goals> <goal>resources</goal> <goal>compile</goal> 
+				</goals> </execution> </executions> </plugin> -->
+			<!-- <plugin> <groupId>com.vaadin</groupId> <artifactId>vaadin-maven-plugin</artifactId> 
+				<version>1.0.2</version> <executions> <execution> <configuration> <modules> 
+				<module>org.processbase.vaadin.widgetset.DefaultWidgetSet</module> </modules> 
+				</configuration> <goals> <goal>update-widgetset</goal> </goals> </execution> 
+				</executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<compilerArguments>
+						<endorseddirs>${endorsed.dir}</endorseddirs>
+					</compilerArguments>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${endorsed.dir}</outputDirectory>
+							<silent>true</silent>
+							<artifactItems>
+								<artifactItem>
+									<groupId>javax</groupId>
+									<artifactId>javaee-endorsed-api</artifactId>
+									<version>6.0</version>
+									<type>jar</type>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -215,7 +188,8 @@
 						<phase>verify</phase>
 						<configuration>
 							<tasks>
-								<copy todir="${server.deploy.path}" flatten="true" overwrite="true" verbose="true" failonerror="true">									
+								<copy todir="${server.deploy.path}" flatten="true"
+									overwrite="true" verbose="true" failonerror="true">
 									<fileset dir="target" includes="*.war" />
 								</copy>
 							</tasks>
@@ -227,6 +201,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		
+
 	</build>
 </project>

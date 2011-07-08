@@ -108,7 +108,7 @@ public class LoginPanel extends GridLayout implements Handler {
         } catch (Exception ex) {
              ex.printStackTrace();
             getApplication().getMainWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
-            throw new RuntimeException(ex);
+            //throw new RuntimeException(ex);
         }
     }
 }

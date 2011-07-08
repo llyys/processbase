@@ -309,7 +309,7 @@ var estEidLoader = {
 			  	 return;
 			  }
     		  estEidLoader.isCardIn=true;  
-    		  callbacks.pluginReady(estEidLoader.getCert());
+    		  callbacks.pluginReady(estEidLoader.getCertBase64());
     		  return;
     	  }catch(err)
     	  {
@@ -339,7 +339,7 @@ var estEidLoader = {
       },
 	  onCardInserted:function(reader){
 		  estEidLoader.isCardIn=true;
-		   callbacks.onCardInserted(estEidLoader.getCert());
+		   callbacks.onCardInserted(estEidLoader.getCertBase64());
 	  },
 	  onCardRemoved:function(reader){
 		  estEidLoader.isCardIn=false;

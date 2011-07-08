@@ -24,13 +24,15 @@ import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -40,14 +42,17 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class PbApplication extends ProcessbaseApplication implements PbPanelModuleServiceListener {
 
+	
     private PbPanelModuleService panelModuleService;
+	
     private MainWindow mainWindow;
     private HttpSession httpSession = null;
     private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
     private ResourceBundle customMessages = null;
     private String userName = null;
-    final static org.slf4j.Logger logger = LoggerFactory.getLogger(PbApplication.class);
+    
+    
 //    int type = STANDALONE;
 
     public PbApplication(PbPanelModuleService panelModuleService) {
@@ -55,14 +60,15 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     }
 
     public void initUI() {
+    	
         System.out.println("PbApplication init ");
 //        if (!Constants.LOADED) {
 //            Constants.loadConstants();
 //        }
        // setTheme("processbaseruno");
         try {
-        	BasicConfigurator.configure();
-        	logger.info("PbApplication init");
+        	//BasicConfigurator.configure();
+        	LOGGER.info("PbApplication init");
         	
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
             httpSession = applicationContext.getHttpSession();
