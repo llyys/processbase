@@ -19,10 +19,14 @@ package org.processbase.engine.bam.metadata;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Id;
+
+import org.hibernate.annotations.Entity;
+
 /**
  * MetaDim 
  */
-
+@Entity
 public class MetaDim implements java.io.Serializable {
 
     private long id;
@@ -51,7 +55,8 @@ public class MetaDim implements java.io.Serializable {
         this.valueLength = valueLength;
         this.metaKpis = metaKpis;
     }
-
+    
+    @Id
     public long getId() {
         return this.id;
     }

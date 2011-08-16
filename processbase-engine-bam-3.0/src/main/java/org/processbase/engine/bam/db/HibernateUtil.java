@@ -16,11 +16,14 @@
  */
 package org.processbase.engine.bam.db;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.hibernate.Query;
@@ -32,6 +35,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.processbase.engine.bam.BAMConstants;
 import org.processbase.engine.bam.metadata.MetaDim;
 import org.processbase.engine.bam.metadata.MetaFact;
@@ -49,9 +53,9 @@ public class HibernateUtil {
 
     static {
         try {
-            if (!BAMConstants.LOADED) {
+            /*if (!BAMConstants.LOADED) {
                 BAMConstants.loadConstants();
-            }
+            }*/
             /*configuration = new Configuration();
             configuration.setProperty("hibernate.dialect", BAMConstants.BAM_DB_DIALECT);
             configuration.setProperty("hibernate.connection.datasource", BAMConstants.BAM_DB_POOLNAME);
@@ -59,11 +63,23 @@ public class HibernateUtil {
             configuration.addClass(org.processbase.engine.bam.metadata.MetaFact.class);
             configuration.addClass(org.processbase.engine.bam.metadata.MetaKpi.class);
             sessionFactory = configuration.buildSessionFactory();*/
-            configuration=new AnnotationConfiguration()
-            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaDim.class)
-            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaFact.class)
-            .addAnnotatedClass(org.processbase.engine.bam.metadata.MetaKpi.class)
-            .setProperties(BAMConstants.hibernateProperties());
+            
+            String userHomeDir=System.getProperty("BONITA_HOME");
+            File file=new File(userHomeDir+"/server/default/conf/bonita-journal.properties");
+            FileInputStream fis = new FileInputStream(file);
+            Properties properties = null;
+			if(properties==null)
+            	properties=new Properties();
+            properties.load(fis);
+            fis.close();
+            
+            configuration=new Configuration()
+            .mergeProperties(properties)
+            .configure();
+            
+            //new SchemaUpdate(configuration).execute(true, true);
+            //new SchemaExport(configuration).create(true, true);
+            
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
             ex.printStackTrace();

@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -42,6 +40,7 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
 import org.apache.commons.collections.iterators.EntrySetMapIterator;
+import org.apache.log4j.LogManager;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
@@ -102,13 +101,13 @@ import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.Misc;
 import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.processbase.ui.core.bonita.diagram.Diagram;
-import org.slf4j.LoggerFactory;
+
 
 import com.sun.appserv.security.AppservRealm;
 import com.sun.appserv.security.ProgrammaticLogin;
 import com.sun.enterprise.security.auth.realm.Realm;
 
-
+import org.apache.log4j.Logger;
 /**
  *
  * @author mgubaidullin
@@ -125,7 +124,7 @@ public class BPMModule {
     final BAMAPI bamAPI;
     final CommandAPI commandAPI;
     private String currentUserUID;
-	final static org.slf4j.Logger logger = LoggerFactory.getLogger(BPMModule.class);
+	final static Logger logger = Logger.getLogger(BPMModule.class);
 
     public BPMModule(String currentUserUID) {
         if (!Constants.LOADED) {
@@ -135,7 +134,7 @@ public class BPMModule {
         try {
             initContext();
         } catch (Exception ex) {
-			logger.error("constructor", ex.getMessage());
+			logger.error("constructor", ex);
             //Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
@@ -1261,7 +1260,7 @@ public class BPMModule {
     }
 
     public User findUserByUserName(String userName) throws Exception {
-    	logger.debug("findUserByUserName:{0}", userName);
+    	logger.debug("findUserByUserName:"+ userName);
         initContext();
         return identityAPI.findUserByUserName(userName);
     }

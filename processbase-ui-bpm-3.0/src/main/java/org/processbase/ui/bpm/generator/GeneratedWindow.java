@@ -225,42 +225,38 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			gridLayout.setMargin(false, true, true, true);
 			gridLayout.setSpacing(true);
 
-			int fRow = 0;
-			int tRow = 0;
+			int row1 = 0;
+			int row2 = 0;
 
 			for (Object wg : page.getWidgets().getWidgetsAndGroups()) {
-				Component component = null;
+				Component c = null;
 				if (wg instanceof Widget) {
 					Widget widget = (Widget) wg;
-					component = getComponent(widget);
+					c = getComponent(widget);
 
-					if (component != null) {
-						components.put(component, widget);
-						fields.put(FIELD + widget.getId(), component);
-						int fColumn = 0;
-						int tColumn = 0;
+					if (c != null) {
+						components.put(c, widget);
+						fields.put(FIELD + widget.getId(), c);
+						int col1 = 0;
+						int col2 = 0;
 						if (isDynamicForm == false) {
-							ComponentStyle componentStyle = ts.getElements()
-									.get(widget.getId());
-							fColumn = componentStyle.getPosition().getFColumn();
-							fRow = componentStyle.getPosition().getFRow();
-							tColumn = componentStyle.getPosition().getTColumn();
-							tRow = componentStyle.getPosition().getTRow();
+							ComponentStyle componentStyle = ts.getElements().get(widget.getId());
+							col1 = componentStyle.getPosition().getFColumn();
+							row1 = componentStyle.getPosition().getFRow();
+							col2 = componentStyle.getPosition().getTColumn();
+							row2 = componentStyle.getPosition().getTRow();
 							CSSProperty cssProperty = componentStyle.getCss();
-							gridLayout.addComponent(component, fColumn, fRow,
-									tColumn, tRow);
+							gridLayout.addComponent(c, col1, row1, col2, row2);
 						} else {
-							gridLayout.addComponent(component, fColumn, fRow,
-									tColumn, tRow);
-							tRow++;
-							fRow++;
+							gridLayout.addComponent(c, col1, row1, col2, row2);
+							row2++;
+							row1++;
 						}
 					}
-
 				} else if (wg instanceof WidgetGroup) {
+					//TODO WidgetGroup
 				}
 			}
-
 			pages.add(gridLayout);
 		}
 
@@ -288,12 +284,10 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return pages2;
 	}
 
-	private Widgets generateProcessWidgets(
-			Map<String, DataFieldDefinition> processDataFieldDefinitions) {
+	private Widgets generateProcessWidgets( Map<String, DataFieldDefinition> processDataFieldDefinitions) {
 		Widgets widgets = new Widgets();
 
-		for (Entry<String, DataFieldDefinition> object : processDataFieldDefinitions
-				.entrySet()) {
+		for (Entry<String, DataFieldDefinition> object : processDataFieldDefinitions.entrySet()) {
 			Widget w = new Widget();
 			w.setType(WidgetType.TEXT);
 			DataFieldDefinition dataDefinition = object.getValue();
@@ -324,7 +318,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	}
 
 	private Component getComponent(Widget widget) {
-		Component component = null;
+		Component c = null;
 		Object value = null;
 		DataFieldDefinition dfd = null;
 		Collection options = null;
@@ -352,63 +346,63 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				}
 			}
 			if (widget.getType().equals(WidgetType.MESSAGE)) {
-				component = getLabel(widget, value);
+				c = getLabel(widget, value);
 			}
 			if (widget.getType().equals(WidgetType.TEXTBOX)) {
-				component = getTextField(widget);
+				c = getTextField(widget);
 			}
 			if (widget.getType().equals(WidgetType.DATE)) {
-				component = getPopupDateField(widget);
+				c = getPopupDateField(widget);
 			}
 			if (widget.getType().equals(WidgetType.TEXTAREA)) {
-				component = getTextArea(widget);
+				c = getTextArea(widget);
 			}
 			if (widget.getType().equals(WidgetType.RICH_TEXTAREA)) {
-				component = getRichTextArea(widget);
+				c = getRichTextArea(widget);
 			}
 			if (widget.getType().equals(WidgetType.TEXT)) {
-				component = getTextField(widget);
+				c = getTextField(widget);
 			}
 			if (widget.getType().equals(WidgetType.PASSWORD)) {
-				component = getPasswordField(widget);
+				c = getPasswordField(widget);
 			}
 
 			if (widget.getType().equals(WidgetType.LISTBOX_SIMPLE)) {
-				component = getNativeSelect(widget, options);
+				c = getNativeSelect(widget, options);
 			}
 			if (widget.getType().equals(WidgetType.SUGGESTBOX)) {
-				component = getComboBox(widget, options);
+				c = getComboBox(widget, options);
 			}
 			if (widget.getType().equals(WidgetType.RADIOBUTTON_GROUP)) {
-				component = getOptionGroup(widget, options);
+				c = getOptionGroup(widget, options);
 			}
 			if (widget.getType().equals(WidgetType.LISTBOX_MULTIPLE)) {
-				component = getListSelect(widget, options);
+				c = getListSelect(widget, options);
 			}
 			if (widget.getType().equals(WidgetType.CHECKBOX)) {
-				component = getCheckBox(widget);
+				c = getCheckBox(widget);
 			}
 			if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
-				component = new GeneratedTable(widget, value, groovyScripts);
+				c = new GeneratedTable(widget, value, groovyScripts);
 			}
 			if (widget.getType().equals(WidgetType.CHECKBOX_GROUP)) {
-				component = getOptionGroup(widget, options);
+				c = getOptionGroup(widget, options);
 			}
 			if (widget.getType().equals(WidgetType.FILEUPLOAD)) {
 				hasAttachments = true;
-				component = getUpload(widget);
+				c = getUpload(widget);
 			}
 			if (widget.getType().equals(WidgetType.FILEDOWNLOAD)) {
 				hasAttachments = true;
-				component = getDownload(widget);
+				c = getDownload(widget);
 			}
 			if (widget.getType().equals(WidgetType.BUTTON_SUBMIT)
 					|| widget.getType().equals(WidgetType.BUTTON_NEXT)
 					|| widget.getType().equals(WidgetType.BUTTON_PREVIOUS)) {
-				component = getButton(widget);
+				c = getButton(widget);
 			}
 
-			component = (component != null) ? component : new Label("");
+			c = (c != null) ? c : new Label("");
 			// add general atrubutes
 			// setWidth
 			// if (!(component instanceof Button)) {
@@ -423,33 +417,27 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			// component.setHeight(widget.getInputHeight());
 			// }
 
-			if (!(component instanceof Button)
-					&& component instanceof AbstractField) {
+			if (!(c instanceof Button)
+					&& c instanceof AbstractField) {
 				if (value != null) {
-					((AbstractField) component).setValue(value);
+					((AbstractField) c).setValue(value);
 				}
-				// System.out.println(widget.getLabel() + " value = " +
-				// widget.isMandatory());
+				
 				if (widget.isMandatory() != null) {
-					((AbstractField) component).setRequired(widget
-							.isMandatory());
+					((AbstractField) c).setRequired(widget.isMandatory());
 				}
-				((AbstractField) component).setRequiredError(widget.getLabel()
-						+ ProcessbaseApplication.getCurrent().getPbMessages()
-								.getString("fieldRequired"));
-				((AbstractField) component)
-						.setDescription(widget.getTitle() != null ? widget
-								.getTitle() : "");
-				((AbstractField) component).setInvalidCommitted(false);
-				((AbstractField) component).setWriteThrough(false);
+				((AbstractField) c).setRequiredError(widget.getLabel() + ProcessbaseApplication.getCurrent().getPbMessages().getString("fieldRequired"));
+				((AbstractField) c).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
+				((AbstractField) c).setInvalidCommitted(false);
+				((AbstractField) c).setWriteThrough(false);
 			}
 			if (widget.isReadonly() != null) {
-				component.setReadOnly(widget.isReadonly());
+				c.setReadOnly(widget.isReadonly());
 			}
-			return component;
+			return c;
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			// throw new RuntimeException(ex);
+			
 		}
 		return new Label("");
 	}
@@ -712,13 +700,14 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					.finishTask(taskInstance, true, processInstanceVariables,
 							activityInstanceVariables, attachments);
 		}
-
-		String confirmationMessage = pageFlow.getConfirmationMessage();
-		if (!StringUtils.isNullOrEmpty(confirmationMessage)) {
-			showMessage(evalGroovyScript(confirmationMessage),
-					Notification.TYPE_HUMANIZED_MESSAGE);
+		if(pageFlow!=null)
+		{
+			String confirmationMessage = pageFlow.getConfirmationMessage();
+			if (!StringUtils.isNullOrEmpty(confirmationMessage)) {
+				showMessage(evalGroovyScript(confirmationMessage),
+						Notification.TYPE_HUMANIZED_MESSAGE);
+			}
 		}
-
 		taskInstance = bpmModule.nextUserTask(piUUID, getCurrentUser());
 		if (taskInstance != null) // if there is a next task to be executed
 		{

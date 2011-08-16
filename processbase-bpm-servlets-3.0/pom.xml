@@ -91,18 +91,39 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
+		</dependency>		
+		
+		<!-- Estonian x-road dependencies -->
+		<dependency>
+	  		<groupId>ee.webmedia.xtee</groupId>
+	  		<artifactId>xtee-common</artifactId>
+	  		<version>${x-tee.version}</version>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>ee.webmedia.xtee</groupId>
+	  		<artifactId>xtee-client-transport</artifactId>
+	  		<version>${x-tee.version}</version>
+	  	</dependency>
+		<dependency>
+			<groupId>ee.smartlink.xtee</groupId>
+			<artifactId>xtee-connector</artifactId>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>ee.webmedia.xtee</groupId>
-			<artifactId>xtee-common</artifactId>
+			<artifactId>xtee-client-kr</artifactId>
 			<version>${x-tee.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ee.webmedia.xtee</groupId>
-			<artifactId>xtee-client-transport</artifactId>
+			<artifactId>xtee-client-rr</artifactId>
 			<version>${x-tee.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>ee.finestmedia.xtee</groupId>
+			<artifactId>xtee-client-adit</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 	</dependencies>
 

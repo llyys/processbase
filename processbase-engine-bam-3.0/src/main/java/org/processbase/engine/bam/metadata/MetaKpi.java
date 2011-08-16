@@ -20,10 +20,14 @@ package org.processbase.engine.bam.metadata;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Id;
+
+import org.hibernate.annotations.Entity;
+
 /**
  * MetaKpi 
  */
-
+@Entity
 public class MetaKpi implements java.io.Serializable {
 
     private long id;
@@ -57,7 +61,7 @@ public class MetaKpi implements java.io.Serializable {
         this.metaDims = metaDims;
         this.metaFacts = metaFacts;
     }
-
+    @Id
     public long getId() {
         return this.id;
     }

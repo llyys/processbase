@@ -10,17 +10,14 @@
     <!-- beans -->
     <!-- <bean id="panelModuleService" class="org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl"/> -->
 
-	<!-- <bean id="log4jInitialization"
-	 class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	   <property name="targetClass"
-	      value="org.springframework.util.Log4jConfigurer" />
+	<bean id="log4jInitialization" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	   <property name="targetClass" value="org.springframework.util.Log4jConfigurer" />
 	   <property name="targetMethod" value="initLogging" />
 	   <property name="arguments">
-	      <list>
-	         <value>conf/log4j.xml</value>
-	      </list>
+		  <list>
+			 <value>file:///${BONITA_HOME}/log4j.xml</value>
+		  </list>
 	   </property>
 	</bean>
- -->
 </beans>
 

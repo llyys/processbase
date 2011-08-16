@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.ui.Window;
+
+import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
@@ -61,9 +63,9 @@ public class PbServlet extends AbstractApplicationServlet {
     	if(panelModuleService==null)
     		panelModuleService=new PbPanelModuleServiceImpl();
     	
-    	String configFilename=getApplicationProperty("log4jConfigLocation");
+    	/*String configFilename=getApplicationProperty("log4jConfigLocation");
     	String real_path =  getServletContext().getRealPath("/");
-    	org.apache.log4j.PropertyConfigurator.configure(real_path+configFilename);
+    	org.apache.log4j.PropertyConfigurator.configure(real_path+configFilename);*/
         return new PbApplication(panelModuleService);
     }
 }

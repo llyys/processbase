@@ -20,19 +20,25 @@ import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.processbase.engine.bam.db.HibernateUtil;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  *
@@ -51,12 +57,13 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     private ResourceBundle messages = null;
     private ResourceBundle customMessages = null;
     private String userName = null;
-    
+    private ApplicationContext context;
     
 //    int type = STANDALONE;
 
     public PbApplication(PbPanelModuleService panelModuleService) {
     	this.panelModuleService = panelModuleService;
+    	 
     }
 
     public void initUI() {
@@ -68,15 +75,21 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
        // setTheme("processbaseruno");
         try {
         	//BasicConfigurator.configure();
-        	LOGGER.info("PbApplication init");
+        	LOGGER.info("PbApplication initialized with logger");
         	
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
+            
             httpSession = applicationContext.getHttpSession();
+            ServletContext servletContext = httpSession.getServletContext();
+            
+            context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+            
             setLocale(applicationContext.getBrowser().getLocale());
             
             setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
             mainWindow = new MainWindow();
             setMainWindow(mainWindow);
+
             mainWindow.initLogin();
             panelModuleService.addListener(this);
         } catch (Exception ex) {

@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import org.processbase.engine.bam.db.HibernateUtil;
+
 /**
  *
  * @author mgubaidullin
@@ -71,6 +73,7 @@ public class Constants {
                 save();
                 load(file);
             }
+            
             LOADED = true;
         } catch (Exception ex) {
             ex.printStackTrace();
