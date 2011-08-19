@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 
 import java.util.List;
 import java.util.Map;
@@ -510,10 +511,13 @@ public class BPMModule {
         runtimeAPI.finishTask(task.getUUID(), b);
     }
 
-    public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, byte[] value) throws Exception {
+    public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, String mimeType, byte[] value) throws Exception {
     	logger.debug("addAttachment");
         initContext();
-        runtimeAPI.addAttachment(instanceUUID, name, fileName, value);
+        Map<String, String> metadata=new Hashtable<String, String>();
+        metadata.put("content-type", mimeType);
+		//runtimeAPI.addAttachment(instanceUUID, name, fileName, value);
+        runtimeAPI.addAttachment(instanceUUID, name, null, null, fileName, metadata, value);
     }
 
     public byte[] getAttachmentValue(String processUUID, String name) throws Exception {

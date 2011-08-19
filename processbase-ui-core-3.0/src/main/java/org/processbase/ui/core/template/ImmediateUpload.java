@@ -202,5 +202,9 @@ public class ImmediateUpload extends VerticalLayout
         this.needToSave = needToSave;
     }
 
+	public Upload getUploadComponent() {
+		return upload;
+	}
+
 
 }

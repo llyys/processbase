@@ -4,7 +4,8 @@ var estEidLoader = {
   waitForObjectStart: null,
 
   keyString: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-	
+  _cert:null,
+  
   uTF8Encode: function(string) {
 		string = string.replace(/\x0d\x0a/g, "\x0a");
 		var output = "";
@@ -42,7 +43,7 @@ var estEidLoader = {
 			} else if (isNaN(chr3)) {
 				enc4 = 64;
 			}
-			output = output + keyString.charAt(enc1) + keyString.charAt(enc2) + keyString.charAt(enc3) + keyString.charAt(enc4);
+			output = output + estEidLoader.keyString.charAt(enc1) + estEidLoader.keyString.charAt(enc2) + estEidLoader.keyString.charAt(enc3) + estEidLoader.keyString.charAt(enc4);
 		}
 		return output;
 	},
@@ -68,7 +69,7 @@ var estEidLoader = {
 				output = output + String.fromCharCode(chr3);
 			}
 		}
-		output = uTF8Decode(output);
+		output = estEidLoader.uTF8Decode(output);
 		return output;
 	},
   /**
@@ -214,8 +215,11 @@ var estEidLoader = {
       }
     });
   },
+  
   getCert: function(){
-	  return estEidLoader.card.signCert.cert;
+	  if(estEidLoader._cert==null)
+	  estEidLoader._cert= estEidLoader.card.signCert.cert;
+	  return estEidLoader._cert;
   },
   getCertBase64: function(){
 	  return estEidLoader.base64Encode(estEidLoader.getCert());

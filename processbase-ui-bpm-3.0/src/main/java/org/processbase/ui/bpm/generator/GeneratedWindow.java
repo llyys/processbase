@@ -24,7 +24,9 @@ import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Upload;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -77,6 +79,7 @@ import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
@@ -456,8 +459,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 
 		// if there is no attached document then this button should be disabled
 		// mode.
-		String fileName = attachmentFileNames.get(widget.getInitialValue()
-				.getExpression());
+		String fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
 		if (fileName == null)
 			b.setEnabled(false);
 		else {
@@ -468,19 +470,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					Widget w = getWidgets(event.getButton());
 					byte[] bytes;
 					try {
-						String processUUID = taskInstance
-								.getProcessInstanceUUID().toString();
-						String fileName = attachmentFileNames.get(w
-								.getInitialValue().getExpression());
-						bytes = ProcessbaseApplication
-								.getCurrent()
-								.getBpmModule()
-								.getAttachmentValue(processUUID,
-										w.getVariableBound());
+						String processUUID = taskInstance.getProcessInstanceUUID().toString();
+						String fileName = attachmentFileNames.get(w.getInitialValue().getExpression());
+						bytes = getBpmModule().getAttachmentValue(processUUID,w.getVariableBound());
 						ByteArraySource bas = new ByteArraySource(bytes);
 
-						StreamResource streamResource = new StreamResource(bas,
-								fileName, getApplication());
+						StreamResource streamResource = new StreamResource(bas,fileName, getApplication());
 						streamResource.setCacheTime(50000); // no cache (<=0)
 															// does not work
 															// with IE8
@@ -603,11 +598,10 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		boolean hasFile = false;
 		if (taskInstance != null) {
 			processUUID = taskInstance.getProcessInstanceUUID().toString();
-			fileName = attachmentFileNames.get(widget.getInitialValue()
-					.getExpression());
-			System.out.println("widget.getInitialValue().getExpression() = "
-					+ widget.getInitialValue().getExpression());
-			System.out.println("fileName = " + fileName);
+			fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
+			
+			LOGGER.debug("widget.getInitialValue().getExpression() = "+ widget.getInitialValue().getExpression());
+			LOGGER.debug("fileName = " + fileName);
 			if (fileName != null) {
 				hasFile = true;
 			} else {
@@ -616,10 +610,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			// ai =
 			// findAttachmentInstance(widget.getInitialValue().getExpression());
 		}
-		component = new ImmediateUpload(processUUID, widget.getLabel(), widget
-				.getInitialValue().getExpression(), fileName, hasFile,
-				widget.isReadonly(), ProcessbaseApplication.getCurrent()
-						.getPbMessages());
+		component = new ImmediateUpload(processUUID, widget.getLabel(), widget.getInitialValue().getExpression(), fileName, hasFile, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
+		
 		return component;
 	}
 
@@ -683,29 +675,20 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			if (hasAttachments) {
 				prepareInitialAttachmentsToSave();
 			}
-			piUUID = ProcessbaseApplication
-					.getCurrent()
-					.getBpmModule()
-					.startNewProcess(processDefinition.getUUID(),
-							processInstanceVariables);
-			if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-				saveAttachmentsToPortal(piUUID.toString());
-			}
+			piUUID = getBpmModule().startNewProcess(processDefinition.getUUID(),processInstanceVariables);
+			//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+				saveAttachmentsToPortal(piUUID);
+			//}
 
 		} else {
 			if (hasAttachments) {
 				prepareAttachmentsToSave();
 			}
-			if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-				saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID()
-						.toString());
-			}
+			//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+				saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID());
+			//}
 			piUUID = taskInstance.getProcessInstanceUUID();
-			ProcessbaseApplication
-					.getCurrent()
-					.getBpmModule()
-					.finishTask(taskInstance, true, processInstanceVariables,
-							activityInstanceVariables, attachments);
+			getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
 		}
 		if(pageFlow!=null)
 		{
@@ -735,6 +718,10 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				taskList.refreshTable();
 			close();
 		}
+	}
+
+	private BPMModule getBpmModule() {
+		return ProcessbaseApplication.getCurrent().getBpmModule();
 	}
 
 	private void commit() {
@@ -866,7 +853,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		// }
 	}
 
-	private void saveAttachmentsToPortal(String processUUID) {
+	private void saveAttachmentsToPortal(ProcessInstanceUUID processUUID) {
 		try {
 			for (Component comp : components.keySet()) {
 				Widget widget = components.get(comp);
@@ -874,9 +861,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					if (widget.getType().equals(WidgetType.FILEUPLOAD)
 							&& ((ImmediateUpload) comp).isNeedToSave()) {
 						ImmediateUpload ui = (ImmediateUpload) comp;
-						ProcessbaseApplication.getCurrent().saveFile(
-								processUUID, widget.getVariableBound(),
-								ui.getFileName(), ui.getFileBody());
+						getBpmModule().addAttachment(processUUID, widget.getVariableBound(), ui.getFileName(), ui.getMimeType(), ui.getFileBody());
+						//ProcessbaseApplication.getCurrent().saveFile(processUUID, widget.getVariableBound(), ui.getFileName(), ui.getFileBody());
 					}
 				}
 			}
@@ -890,31 +876,20 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		if (taskInstance != null) {
 			try {
 				if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.STANDALONE) {
-					ProcessInstance pi = ProcessbaseApplication
-							.getCurrent()
-							.getBpmModule()
-							.getProcessInstance(
-									taskInstance.getProcessInstanceUUID());
+					
+					ProcessInstance pi = getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
+					
 					Set<String> names = new HashSet<String>();
 					for (AttachmentInstance ai : pi.getAttachments()) {
 						names.add(ai.getName());
 					}
-					attachmentInstances = ProcessbaseApplication
-							.getCurrent()
-							.getBpmModule()
-							.getLastAttachments(
-									taskInstance.getProcessInstanceUUID(),
-									names);
+					attachmentInstances = getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(),names);
 
 					for (AttachmentInstance ai : attachmentInstances) {
 						attachmentFileNames.put(ai.getName(), ai.getFileName());
 					}
-				} else if (ProcessbaseApplication.getCurrent()
-						.getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-					attachmentFileNames = ProcessbaseApplication.getCurrent()
-							.getFileList(
-									taskInstance.getProcessInstanceUUID()
-											.toString());
+				} else if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+					attachmentFileNames = ProcessbaseApplication.getCurrent().getFileList(taskInstance.getProcessInstanceUUID().toString());
 				}
 
 			} catch (Exception ex) {
@@ -936,6 +911,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	}
 
 	private void prepareGroovyScripts() throws Exception {
+		if(taskInstance!=null)
+		{
+			processInstanceVariables.clear();
+			processInstanceVariables.putAll(bpmModule.getProcessInstanceVariables(taskInstance.getProcessInstanceUUID()));
+		}
 		HashSet<String> expressions = new HashSet<String>();
 		HashMap<String, String> scripts = new HashMap<String, String>();
 		HashMap<String, String> strings = new HashMap<String, String>();
@@ -984,15 +964,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		context.put("parent", this);// for groovy component hack
 
 		if (taskInstance != null && !scripts.isEmpty()) {
-			groovyScripts = ProcessbaseApplication
-					.getCurrent()
-					.getBpmModule()
+			groovyScripts = getBpmModule()
 					.evaluateGroovyExpressions(scripts, taskInstance.getUUID(),
 							context, false, false);
 		} else if (taskInstance == null && !scripts.isEmpty()) {
-			groovyScripts = ProcessbaseApplication
-					.getCurrent()
-					.getBpmModule()
+			groovyScripts = getBpmModule()
 					.evaluateGroovyExpressions(scripts,
 							processDefinition.getUUID(), context, true);
 		}
@@ -1024,16 +1000,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				context.put("parent", this);// for groovy component hack
 
 				if (taskInstance != null && !script.isEmpty()) {
-					resultGroovyScripts = ProcessbaseApplication
-							.getCurrent()
-							.getBpmModule()
+					resultGroovyScripts = getBpmModule()
 							.evaluateGroovyExpressions(scripts,
 									taskInstance.getUUID(), context, false,
 									false);
 				} else if (taskInstance == null && !script.isEmpty()) {
-					resultGroovyScripts = ProcessbaseApplication
-							.getCurrent()
-							.getBpmModule()
+					resultGroovyScripts = getBpmModule()
 							.evaluateGroovyExpressions(scripts,
 									processDefinition.getUUID(), context, true);
 				}
@@ -1135,6 +1107,15 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return taskList;
 	}
 
+	public Object getProcessValue(String key){
+		
+		if(processInstanceVariables.containsKey(key))
+		{
+			return processInstanceVariables.get(key);
+		}
+		return null;
+	}
+	
 	private boolean isTaskActive() {
 		return !(taskInstance == null
 				|| taskInstance.getState().equals(ActivityState.FINISHED)
