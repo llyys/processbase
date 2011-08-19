@@ -28,7 +28,7 @@ var estEidLoader = {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
-		input = uTF8Encode(input);
+		input = estEidLoader.uTF8Encode(input);
 		while (i < input.length) {
 			chr1 = input.charCodeAt(i++);
 			chr2 = input.charCodeAt(i++);
@@ -68,7 +68,7 @@ var estEidLoader = {
 				output = output + String.fromCharCode(chr3);
 			}
 		}
-		output = uTF8Decode(output);
+		output = estEidLoader.uTF8Decode(output);
 		return output;
 	},
   /**

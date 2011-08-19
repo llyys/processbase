@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <mapping resource="org/processbase/engine/bam/metadata/MetaDim.hbm.xml"/>
+        <mapping resource="org/processbase/engine/bam/metadata/MetaFact.hbm.xml"/>
+        <mapping resource="org/processbase/engine/bam/metadata/MetaKpi.hbm.xml"/>
+    </session-factory>
+</hibernate-configuration>

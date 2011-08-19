@@ -72,6 +72,8 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.services.DocumentationManager;
+import org.ow2.bonita.services.Folder;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.identity.Group;
@@ -97,9 +99,12 @@ import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.ow2.bonita.util.Command;
+import org.ow2.bonita.util.EnvTool;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.Misc;
 import org.ow2.bonita.util.SimpleCallbackHandler;
+import org.processbase.commands.documents.DeleteDocumentCommand;
+import org.processbase.engine.bam.command.DeleteMetaDim;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 
 
@@ -125,6 +130,7 @@ public class BPMModule {
     final CommandAPI commandAPI;
     private String currentUserUID;
 	final static Logger logger = Logger.getLogger(BPMModule.class);
+	//private DocumentationManager documentatinManager;
 
     public BPMModule(String currentUserUID) {
         if (!Constants.LOADED) {
@@ -146,6 +152,8 @@ public class BPMModule {
         identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
         bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
         commandAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getCommandAPI();
+        
+        
     }
     
     private Class tryClass(String name)
@@ -270,6 +278,9 @@ public class BPMModule {
         initContext();
         return managementAPI.isUserAdmin(currentUserUID);
     }
+    
+    
+
 
     public Set<ProcessDefinition> getProcessDefinitions(ProcessState state) throws Exception {
     	logger.debug("getProcessDefinitions");
@@ -657,6 +668,19 @@ public class BPMModule {
         initContext();
         return managementAPI.createRule(name, label, description, type);
     }
+    
+    public Rule findRule(String name, Collection<String> memberships, String entityId, RuleType type) throws Exception{
+    	logger.debug("createRule");
+        initContext();
+
+        List<Rule>rules=managementAPI.getApplicableRules(type, null, null, null, memberships, entityId);
+		if(rules==null) return null;
+		for (Rule rule : rules) {
+			if(rule.getName().equalsIgnoreCase(name))
+				return rule;
+		}
+        return null;
+    }
 
     public <E extends AbstractUUID> void addExceptionsToRuleByUUID(final String ruleUUID, final Set<E> exceptions) throws Exception{
     	logger.debug("addExceptionsToRuleByUUID");
@@ -694,6 +718,9 @@ public class BPMModule {
         managementAPI.deleteProcess(pd.getUUID());
         Rule rule = findRule(pd.getUUID().toString());
         managementAPI.deleteRuleByUUID(rule.getUUID());
+        
+        //new bonita 5.5 uses xCMIS and when deleting the process, API does not remove the folder from xCMIS this will fix it.
+        execute(new DeleteDocumentCommand(pd.getUUID().toString()));
     }
 
     public void deleteAllProcessInstances(ProcessDefinition pd) throws Exception {
@@ -1101,6 +1128,25 @@ public class BPMModule {
     	logger.debug("getAllRoles");
         initContext();
         return identityAPI.getAllRoles();
+    }
+    
+    public Role findRoleByName(String name)throws Exception{
+    	logger.debug("findRoleByName");
+    	for(Role role:getAllRoles())
+    	{
+    		if(role.getName().equalsIgnoreCase(name))
+    			return role;
+    	}
+    	return null;
+    }
+    
+    public Group findGroupByName(String name)throws Exception{
+    	logger.debug("findGroupByName");
+    	for(Group g:getAllGroups()){
+    		if(g.getName().equalsIgnoreCase(name))
+    			return g;
+    	}
+    	return null;
     }
 
     public List<Group> getAllGroups() throws Exception {

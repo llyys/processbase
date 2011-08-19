@@ -135,6 +135,13 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			return fields.get(FIELD + id);
 		return null;
 	}
+	
+	public void addCustomComponent(String id, Component component){
+		if(!fields.containsKey(id))
+		{
+			fields.put(FIELD + id, component);
+		}
+	}
 
 	@Override
 	public void initUI() {

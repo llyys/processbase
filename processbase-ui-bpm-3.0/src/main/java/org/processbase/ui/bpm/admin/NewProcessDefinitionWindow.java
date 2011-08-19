@@ -16,6 +16,8 @@
  */
 package org.processbase.ui.bpm.admin;
 
+import com.vaadin.data.Item;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -25,10 +27,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+
+import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.Role;
+import org.ow2.bonita.facade.privilege.Rule;
+import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.util.BusinessArchiveFactory;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
 
@@ -45,6 +58,7 @@ public class NewProcessDefinitionWindow extends PbWindow
     private File file;
     private String filename;
     private String originalFilename;
+    private CheckBox cbAddAdminInitRight;
     private String fileExt;
     public static String FILE_BAR = "FILE_BAR";
     public static String FILE_JAR = "FILE_JAR";
@@ -68,7 +82,10 @@ public class NewProcessDefinitionWindow extends PbWindow
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
-
+            
+            cbAddAdminInitRight=new CheckBox("Enable");
+            
+            
             setWidth("350px");
             setResizable(false);
         } catch (Exception ex) {
@@ -90,20 +107,48 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = ProcessbaseApplication.getCurrent().getBpmModule().deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
+                ProcessDefinition deployResult = getBpmModule().deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
+                
+                //Add default ENTITY_PROCESS_START rule for administrator
+            	Role admin=getBpmModule().findRoleByName(IdentityAPI.ADMIN_ROLE_NAME);
+            	Group defaultGroup = getBpmModule().findGroupByName(IdentityAPI.DEFAULT_GROUP_NAME);
+            	if(admin!=null && defaultGroup!=null)
+            	{
+            		Membership membership = getBpmModule().getMembershipForRoleAndGroup(admin.getUUID(), defaultGroup.getUUID());
+            		Set<String> membershipUUIDs = new HashSet<String>();
+            		membershipUUIDs.add(membership.getUUID());
+            		
+            		Set<String> entityUUIDs = new HashSet<String>();
+    				entityUUIDs.add(deployResult.getUUID().toString());
+    				
+            		Rule rule = getBpmModule().findRule(deployResult.getUUID().toString());
+            		if(rule==null || rule.getType()!=RuleType.PROCESS_START)
+            		{
+            			rule=getBpmModule().createRule(deployResult.getUUID().toString(), "ENTITY_PROCESS_START", "Rule to start a process", RuleType.PROCESS_START);
+            		}
+    				getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null,membershipUUIDs, entityUUIDs);
+            	}            	
+            	
                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {
-                ProcessbaseApplication.getCurrent().getBpmModule().deployJar(originalFilename, readData);
+                getBpmModule().deployJar(originalFilename, readData);
                 showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();
-        } catch (Exception ex) {
+        }
+        catch (org.ow2.bonita.facade.exception.DocumentAlreadyExistsException ex){
+        	showError("Document already exists");
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
-            showError(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
+
+	private BPMModule getBpmModule() {
+		return ProcessbaseApplication.getCurrent().getBpmModule();
+	}
 
     public void uploadFailed(FailedEvent event) {
         showError(event.getReason().getMessage());

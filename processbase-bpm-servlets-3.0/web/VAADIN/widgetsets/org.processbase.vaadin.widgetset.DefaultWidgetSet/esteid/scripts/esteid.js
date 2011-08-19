@@ -28,7 +28,7 @@ var estEidLoader = {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
-		input = uTF8Encode(input);
+		input = estEidLoader.uTF8Encode(input);
 		while (i < input.length) {
 			chr1 = input.charCodeAt(i++);
 			chr2 = input.charCodeAt(i++);
@@ -309,7 +309,7 @@ var estEidLoader = {
 			  	 return;
 			  }
     		  estEidLoader.isCardIn=true;  
-    		  callbacks.pluginReady(estEidLoader.getCert());
+    		  callbacks.pluginReady(estEidLoader.getCertBase64());
     		  return;
     	  }catch(err)
     	  {
@@ -339,7 +339,7 @@ var estEidLoader = {
       },
 	  onCardInserted:function(reader){
 		  estEidLoader.isCardIn=true;
-		   callbacks.onCardInserted(estEidLoader.getCert());
+		   callbacks.onCardInserted(estEidLoader.getCertBase64());
 	  },
 	  onCardRemoved:function(reader){
 		  estEidLoader.isCardIn=false;

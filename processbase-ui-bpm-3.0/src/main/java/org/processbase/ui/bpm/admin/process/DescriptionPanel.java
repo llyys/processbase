@@ -148,7 +148,7 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 	                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
 	                            } catch (Exception ex) {
 	                                ex.printStackTrace();
-	                                mainWindow.showError(ex.getMessage());
+	                                throw new RuntimeException(ex);
 	                            }
 	                        }
 	                    }
