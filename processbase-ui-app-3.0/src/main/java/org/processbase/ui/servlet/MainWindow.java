@@ -80,12 +80,9 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             mainLayout.removeAllComponents();
             mainLayout.setMargin(true);
             mainLayout.setSizeFull();
-            mainLayout.addComponent(getHeader());
+            
             tabs = new TabSheet();
-            tabs.setSizeFull();
-            mainLayout.addComponent(tabs);
-            mainLayout.addComponent(tabs);
-            mainLayout.setExpandRatio(tabs, 1);
+            
 
             // prepare tabs
 
@@ -93,7 +90,17 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
 
             if (accessSet.contains("tasklist")) {
-                consolePanel = new TaskListPanel();
+            	consolePanel = new TaskListPanel();
+            	if(accessSet.size()==1){
+            		 
+            		 consolePanel.initUI();
+            		 consolePanel.setInitialized(true);
+            		 consolePanel.setSizeFull();
+            		 mainLayout.addComponent(consolePanel);
+                     mainLayout.setExpandRatio(consolePanel, 1);
+            		 return;
+            	}
+                
                 tabs.addTab(consolePanel, getPbMessages("bpmTasklist"), null);
             }
             if (accessSet.contains("bpm")) {
@@ -123,7 +130,12 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 first.setInitialized(true);
                 first.setSizeFull();
             }
-
+            mainLayout.addComponent(getHeader());
+            tabs.setSizeFull();
+            mainLayout.addComponent(tabs);
+            //mainLayout.addComponent(tabs);
+            mainLayout.setExpandRatio(tabs, 1);
+            
             tabs.addListener((SelectedTabChangeListener) this);
             tabs.setImmediate(true);
         } catch (Exception ex) {
@@ -244,11 +256,11 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         accessSet = new HashSet<String>();
         String userName = ProcessbaseApplication.getCurrent().getUserName();
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+        user = bpmModule.findUserByUserName(userName);
         if(userName==BPMModule.USER_GUEST){
         	accessSet.add("tasklist");
         	return;
         }
-        user = bpmModule.findUserByUserName(userName);
         for (Membership membership : user.getMemberships()) {
             if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
                 if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {

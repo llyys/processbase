@@ -30,6 +30,7 @@ import javax.enterprise.context.SessionScoped;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.processbase.engine.bam.db.HibernateUtil;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
@@ -80,7 +81,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 //        }
        // setTheme("processbaseruno");
         try {
-        	PropertyConfigurator.configure(Constants.getBonitaHomeDir()+"/log4j.properties");        	
+        	DOMConfigurator.configure(Constants.getBonitaHomeDir()+"/log4j.xml");        	
         	
         	LOGGER.info("PbApplication initialized");
         	
@@ -104,17 +105,17 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             uriFragment = new UriFragmentUtility();
             mainWindow.addComponent(uriFragment);
             
-            if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null)
+            if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null 
+            		&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
             {
             	setUserName(BPMModule.USER_GUEST);
-            }
-            
-            if(userName==null)
-            	mainWindow.initLogin();
-            else{
             	LOGGER.debug("log in as "+BPMModule.USER_GUEST);
-            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST);            	
+            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST);   
+            	setUserName(BPMModule.USER_GUEST);
+            	mainWindow.initUI();
             }
+            else
+            	mainWindow.initLogin();
             panelModuleService.addListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();

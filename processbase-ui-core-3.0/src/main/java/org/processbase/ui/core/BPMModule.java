@@ -1318,8 +1318,10 @@ public class BPMModule {
     public boolean checkUserCredentials(String username, String password) throws Exception {
     	logger.debug("checkUserCredentials");
     	initContext();
-    	if(username=="guest"){
-    		addUser(username, "guest", "", "", "", "", null, null);
+    	if(username==USER_GUEST){
+    		if(findUserByUserName(USER_GUEST) == null)
+    			addUser(username, "guest", "", "", "", "", null, null);
+    		return true;
     	}        
         return managementAPI.checkUserCredentials(username, password);
     }

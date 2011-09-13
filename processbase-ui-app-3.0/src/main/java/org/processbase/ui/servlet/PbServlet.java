@@ -76,7 +76,7 @@ public class PbServlet extends AbstractApplicationServlet {
     	
     	
         PbApplication pbApplication = new PbApplication(panelModuleService);
-        
+        pbApplication.onRequestStart(request, null);
 		return pbApplication;
     }
 }

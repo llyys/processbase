@@ -71,8 +71,8 @@
 		<module>processbase-ui-bam-${project.version}</module>
 		<module>processbase-realm-${project.version}</module>
 		<module>processbase-ui-bpm-${project.version}</module>
-		<module>processbase-bpm-portlets-${project.version}</module> 
-		<!-- <module>processbase-bpm-servlets-${project.version}</module> -->
+		<!-- <module>processbase-bpm-portlets-${project.version}</module> --> 
+		 <module>processbase-bpm-servlets-${project.version}</module> 
 	</modules>
 
 </project>

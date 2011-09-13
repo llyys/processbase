@@ -24,6 +24,7 @@ import org.processbase.ui.bpm.worklist.NewProcesses;
 import org.processbase.ui.bpm.worklist.Processes;
 import org.processbase.ui.bpm.worklist.TaskCompleted;
 import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.TablePanel;
@@ -59,24 +60,36 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         removeAllComponents();
         setMargin(false);    
   
-        prepareButtonBar();
-        addComponent(buttonBar, 0);
+       
+        
 
+       
+       // myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+        newProcessesPanel = new NewProcesses();
+        if(ProcessbaseApplication.getCurrent().getUserName()==BPMModule.USER_GUEST)
+        {
+        	addComponent(newProcessesPanel, 0);
+        	setExpandRatio(newProcessesPanel, 1);
+        	newProcessesPanel.initUI();
+        	newProcessesPanel.refreshTable();        	
+        	return;
+        }
+        addComponent(buttonBar, 0);
         taskListPanel = new TaskList();
         panels.put(myTaskListBtn, taskListPanel);
         addComponent(taskListPanel, 1);
         setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
-        myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
-
+        
+        prepareButtonBar();
         taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
 
         processesPanel = new Processes();
         panels.put(myProcessesBtn, processesPanel);
 
-        newProcessesPanel = new NewProcesses();
+        
         panels.put(myNewProcessesBtn, newProcessesPanel);
     }
 
