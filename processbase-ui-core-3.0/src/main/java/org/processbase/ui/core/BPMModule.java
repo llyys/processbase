@@ -119,7 +119,7 @@ import org.apache.log4j.Logger;
  * @author mgubaidullin
  */
 public class BPMModule {
-
+	public static final String USER_GUEST = "guest";
     final RuntimeAPI runtimeAPI;
     final QueryRuntimeAPI queryRuntimeAPI;
     final ManagementAPI managementAPI;
@@ -540,7 +540,7 @@ public class BPMModule {
         return new ArrayList<AttachmentInstance>(queryRuntimeAPI.getLastAttachments(instanceUUID, attachmentNames));
     }
 
-    public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
+	public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
     	logger.debug("assignTask");
         initContext();
         TaskInstance ti = getTaskInstance(activityInstanceUUID);
@@ -1317,7 +1317,10 @@ public class BPMModule {
 
     public boolean checkUserCredentials(String username, String password) throws Exception {
     	logger.debug("checkUserCredentials");
-        initContext();
+    	initContext();
+    	if(username=="guest"){
+    		addUser(username, "guest", "", "", "", "", null, null);
+    	}        
         return managementAPI.checkUserCredentials(username, password);
     }
 

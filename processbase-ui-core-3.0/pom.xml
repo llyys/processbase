@@ -68,14 +68,10 @@
 								<property name="package.name" value="org.processbase.ui.core" />
 								<property name="buildtime" value="${maven.build.timestamp}" />
 
-								<echo file="${src.dir}/${package.dir}/Version.java"
-									message="package ${package.name};${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Version.java" append="true"
-									message="public final class Version {${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Version.java" append="true"
-									message=" public static String VERSION=&quot;${buildtime}&quot;;${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Version.java" append="true"
-									message="}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Version.java"	message="package ${package.name};${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Version.java" append="true" message="public final class Version {${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Version.java" append="true" message=" public static String VERSION=&quot;${buildtime}&quot;;${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Version.java" append="true" message="}${line.separator}" />
 								<echo message="BUILD ${buildtime}" />
 							</tasks>
 						</configuration>

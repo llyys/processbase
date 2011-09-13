@@ -49,6 +49,7 @@ public class Constants {
     public static final String ACTION_DELETE_PROCESS_AND_INSTANCES = "ACTION_DELETE_PROCESS_AND_INSTANCES";
     public static final String ACTION_DELETE_INSTANCES = "ACTION_DELETE_INSTANCES";
     public static final String ACTION_DELETE_PROCESS_INSTANCE = "ACTION_DELETE_PROCESS_INSTANCE";
+	public static final String BONITA_HOME = "BONITA_HOME";
     public static boolean LOADED = false;
     public static String TASKLIST_PAGE_URL;
     public static String CUSTOM_UI_JAR_PATH;
@@ -63,8 +64,8 @@ public class Constants {
     public static void loadConstants() {
         try {
             File file = null;
-            String userHomeDir=System.getProperty("BONITA_HOME");
-            file=new File(userHomeDir+"/processbase3.properties");//global configuration can be accessed %BONITA_HOME%\processbase3.properties
+            
+            file=new File(getBonitaHomeDir()+"/processbase3.properties");//global configuration can be accessed %BONITA_HOME%\processbase3.properties
             if(!file.exists())//if there is no such folder, then read embeded resource
             	file=new File("processbase3.properties");
             if (file.exists()) {
@@ -78,6 +79,10 @@ public class Constants {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    
+    public static String getBonitaHomeDir(){
+    	return System.getProperty(BONITA_HOME);
     }
 
     private static void load(File file) throws FileNotFoundException, IOException {

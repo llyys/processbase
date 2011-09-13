@@ -17,6 +17,8 @@
 package org.processbase.ui.servlet;
 
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.UriFragmentUtility;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -27,8 +29,10 @@ import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.processbase.engine.bam.db.HibernateUtil;
 import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModule;
@@ -58,6 +62,8 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     private ResourceBundle customMessages = null;
     private String userName = null;
     private ApplicationContext context;
+
+	private UriFragmentUtility uriFragment;
     
 //    int type = STANDALONE;
 
@@ -74,8 +80,9 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 //        }
        // setTheme("processbaseruno");
         try {
-        	//BasicConfigurator.configure();
-        	LOGGER.info("PbApplication initialized with logger");
+        	PropertyConfigurator.configure(Constants.getBonitaHomeDir()+"/log4j.properties");        	
+        	
+        	LOGGER.info("PbApplication initialized");
         	
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
             
@@ -87,10 +94,27 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             setLocale(applicationContext.getBrowser().getLocale());
             
             setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
+            
+
+            
             mainWindow = new MainWindow();
             setMainWindow(mainWindow);
 
-            mainWindow.initLogin();
+            
+            uriFragment = new UriFragmentUtility();
+            mainWindow.addComponent(uriFragment);
+            
+            if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null)
+            {
+            	setUserName(BPMModule.USER_GUEST);
+            }
+            
+            if(userName==null)
+            	mainWindow.initLogin();
+            else{
+            	LOGGER.debug("log in as "+BPMModule.USER_GUEST);
+            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST);            	
+            }
             panelModuleService.addListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -195,5 +219,14 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     public Map<String, String> getFileList(String processUUID) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+/**
+ * URI fragment utility allows to controlling url # tags in this case for navigating panels
+ * @see http://vaadin.com/book/-/page/advanced.urifu.html
+ * @return
+ */    
+	public UriFragmentUtility getUriFragmentUtility() {
+		return uriFragment;
+	}
 
 }

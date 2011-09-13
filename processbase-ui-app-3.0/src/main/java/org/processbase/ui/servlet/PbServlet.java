@@ -27,6 +27,8 @@ import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.ui.Window;
 
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
@@ -57,15 +59,24 @@ public class PbServlet extends AbstractApplicationServlet {
             throws ClassNotFoundException {
         return PbApplication.class;
     }
+    
+    
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
     	if(panelModuleService==null)
     		panelModuleService=new PbPanelModuleServiceImpl();
     	
-    	/*String configFilename=getApplicationProperty("log4jConfigLocation");
-    	String real_path =  getServletContext().getRealPath("/");
-    	org.apache.log4j.PropertyConfigurator.configure(real_path+configFilename);*/
-        return new PbApplication(panelModuleService);
+    	String configFilename=getServletContext().getRealPath("/")+getApplicationProperty("log4jConfigLocation");
+    	
+    	if(Constants.getBonitaHomeDir()!=null)
+    		configFilename=Constants.getBonitaHomeDir()+"/log4j.properties";
+    	
+    	org.apache.log4j.PropertyConfigurator.configure(configFilename);    	
+    	
+    	
+        PbApplication pbApplication = new PbApplication(panelModuleService);
+        
+		return pbApplication;
     }
 }

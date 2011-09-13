@@ -31,7 +31,7 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 	   
 	   setSpacing(true);
        
-       addBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd")
+       addBtn = new Button(ProcessbaseApplication.getString("btnAdd")
 				, new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
 						try {
@@ -48,7 +48,7 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 		addComponent(addBtn);
 		setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
        
-		saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave")
+		saveBtn = new Button(ProcessbaseApplication.getString("btnSave")
 				, new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
 						/*try {
@@ -66,7 +66,7 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 	   tableLegislations.setColumnWidth("name", 300);
        tableLegislations.addContainerProperty("url", Component.class, null, "Õigusakti aadress", null, null);
        
-       tableLegislations.addContainerProperty("actions",Component.class,null,ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+       tableLegislations.addContainerProperty("actions",Component.class,null,ProcessbaseApplication.getString("tableCaptionActions"), null, null);
        tableLegislations.setColumnWidth("actions", 50);
        
        tableLegislations.setWidth("100%");
@@ -106,7 +106,7 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 				woItem.getItemProperty("url").setValue(urlField);
 				woItem.getItemProperty("name").setValue(nameField);
 				
-				TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, 
+				TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", uuid, 
 						new Button.ClickListener() {
 							public void buttonClick(ClickEvent event) {
 								/*TableLinkButton tlb = (TableLinkButton) event .getButton();
@@ -136,7 +136,7 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 	
 	@Override
 	public String getCaption(){
-		return ProcessbaseApplication.getCurrent().getPbMessages().getString("processLegislationInfo");		
+		return ProcessbaseApplication.getString("processLegislationInfo");		
 	}
 	
 	public void refreshTable()

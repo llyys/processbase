@@ -18,6 +18,9 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/processbase-engine-bam/processbase-engine-bam">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/xtee-connector/xtee-connector">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="processbase-bpm-portlets"/>
         <property name="java-output-path" value="/processbase-bpm-portlets/target/classes"/>
     </wb-module>

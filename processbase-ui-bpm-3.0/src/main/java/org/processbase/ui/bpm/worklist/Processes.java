@@ -17,6 +17,7 @@
 package org.processbase.ui.bpm.worklist;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import java.util.Date;
@@ -43,15 +44,16 @@ public class Processes extends TablePanel implements Button.ClickListener {
     @Override
     public void initUI() {
         super.initUI();
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        table.setColumnWidth("state", 90);
         table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessName"), null, null);
-        table.setColumnExpandRatio("name", 1);
+        table.setColumnExpandRatio("name", 1);        
         table.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
         table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 110);
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
-        table.setColumnWidth("state", 90);
+        
         table.setVisibleColumns(new Object[]{"name", "version", "lastUpdate", "state"});
         
     }
@@ -68,7 +70,10 @@ public class Processes extends TablePanel implements Button.ClickListener {
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
                 woItem.getItemProperty("lastUpdate").setValue(process.getLastUpdate());
-                woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(process.getInstanceState().toString()));
+                Property stateColumn = woItem.getItemProperty("state");
+				stateColumn.setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(process.getInstanceState().toString()));
+				
+                
             }
              this.rowCount = processInstances.size();
         } catch (Exception ex) {

@@ -19,6 +19,7 @@ package org.processbase.ui.core;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.Terminal;
+import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -31,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.processbase.ui.osgi.PbPanelModuleService;
@@ -41,13 +45,14 @@ import org.processbase.ui.osgi.PbPanelModuleService;
  *
  * @author mgubaidullin
  */
-public abstract class ProcessbaseApplication extends Application implements TransactionListener {
+public abstract class ProcessbaseApplication extends Application implements TransactionListener, HttpServletRequestListener  {
 
     static ThreadLocal<ProcessbaseApplication> current = new ThreadLocal<ProcessbaseApplication>();
     public static int LIFERAY_PORTAL = 0;
     public static int STANDALONE = 1;
     protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
-    
+	private HttpServletRequest httpServletRequest;
+	    
     public abstract int getApplicationType();
 
     public abstract void setSessionAttribute(String name, String value);
@@ -82,6 +87,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
     @Override
     public void init() {
+    	
         setCurrent(this);
         if (!Constants.LOADED) {
             Constants.loadConstants();
@@ -99,6 +105,26 @@ public abstract class ProcessbaseApplication extends Application implements Tran
      */
     public static ProcessbaseApplication getCurrent() {
         return current.get();
+    }
+    
+    public static String getString(String key){
+    	ResourceBundle messages = getCurrent().getPbMessages();
+    	if(messages==null || messages.containsKey(key)==false)
+    		return key;
+    	return messages.getString(key);
+    }
+    
+    /**
+     * Translate using resources
+     * @param key
+     * @param defaultValue if resource not found
+     * @return translated value
+     */
+    public static String getString(String key, String defaultValue){
+    	ResourceBundle messages = getCurrent().getPbMessages();
+    	if(messages==null || messages.containsKey(key)==false)
+    		return defaultValue;
+    	return messages.getString(key);
     }
 
     /**
@@ -171,4 +197,21 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         	getMainWindow().addWindow(errwindow);
         }
     }
+    
+    public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
+    	this.httpServletRequest = request;
+		LOGGER.debug("[Start of request");
+		LOGGER.debug(" Query string: " + request.getQueryString());
+		LOGGER.debug(" Path: " + request.getPathInfo());
+	}
+
+	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+		LOGGER.debug(" End of request]");
+		this.httpServletRequest=null;		
+	}
+	
+
+	public HttpServletRequest getHttpServletRequest() {
+		return httpServletRequest;
+	}
 }

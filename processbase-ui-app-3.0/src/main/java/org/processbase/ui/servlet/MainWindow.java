@@ -46,7 +46,7 @@ import org.processbase.ui.osgi.PbPanelModuleService;
  */
 public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
-    private VerticalLayout mainLayout;
+	private VerticalLayout mainLayout;
     private TabSheet tabs;
     
     private TaskListPanel consolePanel;
@@ -60,10 +60,12 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private HashSet<String> accessSet;
 
     public MainWindow() {
-        super("PROCESSBASE BPMS");
+        super(ProcessbaseApplication.getString("appName","BPMS"));
     }
 
-    public void initLogin() {
+   
+
+	public void initLogin() {
         mainLayout = (VerticalLayout) getContent();
         LoginPanel loginPanel = new LoginPanel();
         mainLayout.addComponent(loginPanel);
@@ -131,9 +133,10 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
 	private String getPbMessages(String msg) {
-		return ((PbApplication) getApplication()).getPbMessages().getString(msg);
+		return ProcessbaseApplication.getString(msg, msg);
 	}
-
+	
+	 
     Layout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
@@ -241,36 +244,32 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         accessSet = new HashSet<String>();
         String userName = ProcessbaseApplication.getCurrent().getUserName();
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+        if(userName==BPMModule.USER_GUEST){
+        	accessSet.add("tasklist");
+        	return;
+        }
         user = bpmModule.findUserByUserName(userName);
         for (Membership membership : user.getMemberships()) {
-            //if (membership.getGroup().getParentGroup() != null && membership.getGroup().getParentGroup().getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
-                if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
-                    if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
-                        accessSet.add("bpm");
-                    } else if (membership.getGroup().getName().equalsIgnoreCase("bam")) {
-                        accessSet.add("bam");
-                    } else if (membership.getGroup().getName().equalsIgnoreCase("identity")) {
-                        accessSet.add("identity");
-                    } else if (membership.getGroup().getName().equalsIgnoreCase("monitoring")) {
-                        accessSet.add("monitoring");
-                    } else if (membership.getGroup().getName().equalsIgnoreCase("development")) {
-                        accessSet.add("development");
-                    }
-                } 
-                //else if (membership.getRole().getName().equals(IdentityAPI.USER_ROLE_NAME)) {
-//                    //if (membership.getGroup().getName().equalsIgnoreCase("tasklist")) {
-//                        accessSet.add("tasklist");
-//                    //}
-//                }
-            //}
+            if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
+                if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
+                    accessSet.add("bpm");
+                } else if (membership.getGroup().getName().equalsIgnoreCase("bam")) {
+                    accessSet.add("bam");
+                } else if (membership.getGroup().getName().equalsIgnoreCase("identity")) {
+                    accessSet.add("identity");
+                } else if (membership.getGroup().getName().equalsIgnoreCase("monitoring")) {
+                    accessSet.add("monitoring");
+                } else if (membership.getGroup().getName().equalsIgnoreCase("development")) {
+                    accessSet.add("development");
+                }
+            }                
         }
         if (bpmModule.isUserAdmin()) {
             accessSet.add("bpm");
             accessSet.add("bam");
             accessSet.add("identity");
             accessSet.add("monitoring");
-            accessSet.add("development");
-            //accessSet.add("tasklist");
+            accessSet.add("development");            
         }
         accessSet.add("tasklist");
     }

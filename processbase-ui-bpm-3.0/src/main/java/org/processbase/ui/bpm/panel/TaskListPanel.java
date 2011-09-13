@@ -68,7 +68,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
-        myTaskListBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+        myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
 
         taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
@@ -97,32 +97,32 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare myNewProcessesBtn button
-        myNewProcessesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("myNewProcessesBtn"), this);
+        myNewProcessesBtn = new Button(ProcessbaseApplication.getString("myNewProcessesBtn"), this);
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myNewProcessesBtn, 0);
         buttonBar.setComponentAlignment(myNewProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
-        myTaskListBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskListBtn"), this);
+        myTaskListBtn = new Button(ProcessbaseApplication.getString("myTaskListBtn"), this);
         myTaskListBtn.setStyleName("special");
         myTaskListBtn.setEnabled(false);
         buttonBar.addComponent(myTaskListBtn, 1);
         buttonBar.setComponentAlignment(myTaskListBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        myProcessesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("myProcessesBtn"), this);
+        myProcessesBtn = new Button(ProcessbaseApplication.getString("myProcessesBtn"), this);
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myProcessesBtn, 2);
         buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskCompletedBtn button
-        myTaskCompletedBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskCompletedBtn"), this);
+        myTaskCompletedBtn = new Button(ProcessbaseApplication.getString("myTaskCompletedBtn"), this);
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myTaskCompletedBtn, 3);
         buttonBar.setComponentAlignment(myTaskCompletedBtn, Alignment.MIDDLE_LEFT);
 
         // prepare help button
-        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
@@ -142,32 +142,32 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
             setCurrentPanel(panel);
         }
         if (!myTaskListBtn.isEnabled()) {
-            myTaskListBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
+            myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
-            myProcessesBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
+            myProcessesBtn.setCaption(ProcessbaseApplication.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
         } else if (!myTaskCompletedBtn.isEnabled()) {
-            myTaskCompletedBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
+            myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
         } else if (!myNewProcessesBtn.isEnabled()) {
-            myNewProcessesBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myNewProcessesBtn"));
+            myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
         }
     }
 
     private void activateButtons() {
         myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myProcessesBtn.setEnabled(true);
-        myProcessesBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myProcessesBtn"));
+        myProcessesBtn.setCaption(ProcessbaseApplication.getString("myProcessesBtn"));
 
         myTaskListBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskListBtn.setEnabled(true);
-        myTaskListBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskListBtn"));
+        myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn"));
 
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskCompletedBtn.setEnabled(true);
-        myTaskCompletedBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myTaskCompletedBtn"));
+        myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn"));
 
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myNewProcessesBtn.setEnabled(true);
-        myNewProcessesBtn.setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("myNewProcessesBtn"));
+        myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
     }
 
     @Override

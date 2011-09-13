@@ -4,8 +4,7 @@ var estEidLoader = {
   waitForObjectStart: null,
 
   keyString: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-  _cert:null,
-  
+	
   uTF8Encode: function(string) {
 		string = string.replace(/\x0d\x0a/g, "\x0a");
 		var output = "";
@@ -29,7 +28,7 @@ var estEidLoader = {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
-		input = estEidLoader.uTF8Encode(input);
+		input = uTF8Encode(input);
 		while (i < input.length) {
 			chr1 = input.charCodeAt(i++);
 			chr2 = input.charCodeAt(i++);
@@ -43,7 +42,7 @@ var estEidLoader = {
 			} else if (isNaN(chr3)) {
 				enc4 = 64;
 			}
-			output = output + estEidLoader.keyString.charAt(enc1) + estEidLoader.keyString.charAt(enc2) + estEidLoader.keyString.charAt(enc3) + estEidLoader.keyString.charAt(enc4);
+			output = output + keyString.charAt(enc1) + keyString.charAt(enc2) + keyString.charAt(enc3) + keyString.charAt(enc4);
 		}
 		return output;
 	},
@@ -69,7 +68,7 @@ var estEidLoader = {
 				output = output + String.fromCharCode(chr3);
 			}
 		}
-		output = estEidLoader.uTF8Decode(output);
+		output = uTF8Decode(output);
 		return output;
 	},
   /**
@@ -215,11 +214,8 @@ var estEidLoader = {
       }
     });
   },
-  
   getCert: function(){
-	  if(estEidLoader._cert==null)
-	  estEidLoader._cert= estEidLoader.card.signCert.cert;
-	  return estEidLoader._cert;
+	  return estEidLoader.card.signCert.cert;
   },
   getCertBase64: function(){
 	  return estEidLoader.base64Encode(estEidLoader.getCert());

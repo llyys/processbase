@@ -413,20 +413,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			}
 
 			c = (c != null) ? c : new Label("");
-			// add general atrubutes
-			// setWidth
-			// if (!(component instanceof Button)) {
-			// component.setWidth((widget.getInputWidth() != null) ?
-			// widget.getInputWidth() : "200px");
-			// } else if ((component instanceof Button) &&
-			// widget.getInputWidth() != null) {
-			// component.setWidth(widget.getInputWidth());
-			// }
-			// setHeght
-			// if (widget.getInputHeight() != null) {
-			// component.setHeight(widget.getInputHeight());
-			// }
-
+		
 			if (!(c instanceof Button)
 					&& c instanceof AbstractField) {
 				if (value != null) {
@@ -875,7 +862,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	private void prepareAttachments() {
 		if (taskInstance != null) {
 			try {
-				if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.STANDALONE) {
+				//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.STANDALONE) {
 					
 					ProcessInstance pi = getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
 					
@@ -888,9 +875,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					for (AttachmentInstance ai : attachmentInstances) {
 						attachmentFileNames.put(ai.getName(), ai.getFileName());
 					}
-				} else if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+				/*} else if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
 					attachmentFileNames = ProcessbaseApplication.getCurrent().getFileList(taskInstance.getProcessInstanceUUID().toString());
-				}
+				}*/
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
