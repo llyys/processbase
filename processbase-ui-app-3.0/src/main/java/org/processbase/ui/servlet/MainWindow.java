@@ -26,6 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
+
+import javax.servlet.http.Cookie;
+
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
@@ -212,9 +215,24 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         Button yes = new Button(getPbMessages("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
+            	
+            	PbApplication app=(PbApplication)getApplication();
+            	Cookie cookie=null;
+            	for (Cookie c : app.getHttpServletRequest().getCookies()) {
+					if("username".equals(c.getName())){
+						cookie=c;
+						break;
+					}
+				}
+            	if(cookie!=null){
+            			Cookie del=new Cookie("username", "");
+            			cookie.setMaxAge(0); // Delete
+            			app.getHttpServletResponse().addCookie(del);
+            	}
                 WebApplicationContext applicationContext = (WebApplicationContext) getApplication().getContext();
                 getApplication().close();
                 applicationContext.getHttpSession().invalidate();
+                
             }
         });
         yes.setStyleName(Reindeer.BUTTON_DEFAULT);

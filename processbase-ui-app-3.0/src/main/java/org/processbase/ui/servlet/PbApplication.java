@@ -16,6 +16,8 @@
  */
 package org.processbase.ui.servlet;
 
+import antlr.StringUtils;
+
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.UriFragmentUtility;
 
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
 
@@ -105,17 +108,35 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             uriFragment = new UriFragmentUtility();
             mainWindow.addComponent(uriFragment);
             
+            
             if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null 
             		&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
             {
             	setUserName(BPMModule.USER_GUEST);
             	LOGGER.debug("log in as "+BPMModule.USER_GUEST);
-            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST);   
+            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false);   
             	setUserName(BPMModule.USER_GUEST);
             	mainWindow.initUI();
             }
             else
-            	mainWindow.initLogin();
+            {
+            	
+            	Cookie cookie=null;
+            	for (Cookie c : getHttpServletRequest().getCookies()) {
+					if("username".equals(c.getName())){
+						cookie=c;
+						break;
+					}
+				}
+            	if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
+            	{
+            		setUserName(BPMModule.USER_GUEST);
+            		mainWindow.initUI();
+            	}
+            	else{
+        			mainWindow.initLogin();
+        		}
+            }
             panelModuleService.addListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -129,7 +150,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         super.close();
     }
 
-    public void authenticate(String login, String password) throws Exception {
+    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
         BPMModule bpmm = new BPMModule(login);
         if (bpmm.checkUserCredentials(login, password)) {
             setUserName(login);
@@ -137,6 +158,12 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             if (locale != null) {
                 setLocale(new Locale(locale));
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
+            }
+            if(rememberMe){
+            	Cookie cookie = new Cookie("username", login);
+				cookie.setMaxAge(3600); // One hour
+				getHttpServletResponse().addCookie(cookie);
+				System.out.println("Set cookie.");
             }
             setBpmModule(bpmm);
             mainWindow.initUI();

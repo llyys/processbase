@@ -1046,8 +1046,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				}
 			}
 		}
-		if (flow.getPages() != null) // if there is no initial pageflow try
-										// activity
+		
+		//if process has a Entry pageflow, system will show entry page and when user just closes the form the process acts like it's not started. This is a good way to enable process description to be shown.
+		if (flow.getPages() != null) 
 			return flow;
 		// try to find first activity if there is pageflow to execute
 		// return process.getActivities().getActivities().get(0).getPageflow();

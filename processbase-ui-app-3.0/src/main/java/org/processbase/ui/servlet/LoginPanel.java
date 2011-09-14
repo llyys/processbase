@@ -6,6 +6,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
@@ -18,7 +19,10 @@ import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Runo;
 import java.util.Locale;
 
+import javax.servlet.http.Cookie;
+
 import org.hibernate.annotations.common.Version;
+import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -37,6 +41,7 @@ public class LoginPanel extends GridLayout implements Handler {
     private Label labelRight = new Label("");
     private Locale locale = null;
     private Embedded logo = null;
+    private CheckBox cbRememberMe=null;
 
     public LoginPanel() {
         super(3, 2);
@@ -61,6 +66,9 @@ public class LoginPanel extends GridLayout implements Handler {
         password.setWidth("100%");
         form.addComponent(password);
 
+        cbRememberMe=new CheckBox(ProcessbaseApplication.getString("rememberMe", "Remember me"));
+        form.addComponent(cbRememberMe);
+        
         btnLogin = new Button(((PbApplication)getApplication()).getPbMessages().getString("login"), this, "okHandler");
         btnLogin.setStyleName(Runo.BUTTON_DEFAULT);
         action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
@@ -104,7 +112,8 @@ public class LoginPanel extends GridLayout implements Handler {
         try {
             username.commit();
             password.commit();
-            ((PbApplication)getApplication()).authenticate(username.getValue().toString(), password.getValue().toString());
+            ((PbApplication)getApplication()).authenticate(username.getValue().toString(), password.getValue().toString(), cbRememberMe.booleanValue());
+           
         } catch (Exception ex) {
              ex.printStackTrace();
             getApplication().getMainWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);

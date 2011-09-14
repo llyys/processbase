@@ -52,6 +52,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public static int STANDALONE = 1;
     protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
 	private HttpServletRequest httpServletRequest;
+	private HttpServletResponse httpServletResponse;
 	    
     public abstract int getApplicationType();
 
@@ -200,6 +201,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     
     public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
     	this.httpServletRequest = request;
+    	this.httpServletResponse=response;
 		LOGGER.debug("[Start of request");
 		LOGGER.debug(" Query string: " + request.getQueryString());
 		LOGGER.debug(" Path: " + request.getPathInfo());
@@ -207,11 +209,17 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
 	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
 		LOGGER.debug(" End of request]");
+		this.httpServletResponse=response;
 		this.httpServletRequest=null;		
 	}
 	
 
 	public HttpServletRequest getHttpServletRequest() {
 		return httpServletRequest;
+	}
+
+
+	public HttpServletResponse getHttpServletResponse() {
+		return httpServletResponse;
 	}
 }
