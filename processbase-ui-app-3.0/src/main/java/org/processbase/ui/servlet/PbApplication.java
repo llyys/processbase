@@ -128,9 +128,13 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 						break;
 					}
 				}
-            	if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
+            	
+				if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
             	{
-            		setUserName(BPMModule.USER_GUEST);
+					String userName2 = cookie.getValue();
+            		setUserName(userName2);
+            		BPMModule bpmm = new BPMModule(userName2);
+            		setBpmModule(bpmm);
             		mainWindow.initUI();
             	}
             	else{

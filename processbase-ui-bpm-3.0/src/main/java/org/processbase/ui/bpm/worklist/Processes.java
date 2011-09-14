@@ -100,7 +100,7 @@ public class Processes extends TablePanel implements Button.ClickListener {
                 TableLinkButton execBtn = (TableLinkButton) event.getButton();
                 LightProcessInstance process = (LightProcessInstance) ((TableLinkButton) event.getButton()).getTableValue();
                 if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                    ProcessInstanceWindow window = new ProcessInstanceWindow(process, false);
+                    ProcessInstanceWindow window = new ProcessInstanceWindow(process, true);
                     this.getWindow().addWindow(window);
                     window.initUI();
                 }
