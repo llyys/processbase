@@ -122,7 +122,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             {
             	
             	Cookie cookie=null;
-            	for (Cookie c : getHttpServletRequest().getCookies()) {
+            	for (Cookie c : getCookies()) {
 					if("username".equals(c.getName())){
 						cookie=c;
 						break;
@@ -148,6 +148,12 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         }
     }
 
+    private Cookie[] getCookies(){
+    	if(getHttpServletRequest()==null || getHttpServletRequest().getCookies()==null)
+    		return new Cookie[0];
+    	return getHttpServletRequest().getCookies();
+    }
+    
     @Override
     public void close() {
         panelModuleService.removeListener(this);

@@ -70,10 +70,10 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             imageLayout.setMargin(false);
             imageLayout.setSpacing(false);
 
-            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
-            refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
-            deleteBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), this);
-            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
+            closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
+            refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
+            deleteBtn = new Button(ProcessbaseApplication.getString("btnRemove", "Eemalda menetlus"), this);
+            cancelBtn = new Button(ProcessbaseApplication.getString("btnBack", "Tagasi"), this);
 
             buttons.addButton(deleteBtn);
             buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_LEFT);
@@ -124,8 +124,10 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                 activitiesPanel.refreshTable();
             } else if (event.getButton().equals(deleteBtn)) {
                 delete();
+                close();
             } else if (event.getButton().equals(cancelBtn)) {
                 cancel();
+                close();
             } else if (event.getButton().equals(closeBtn)) {
                 close();
             }

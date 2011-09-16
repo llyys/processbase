@@ -72,7 +72,7 @@ public class PbServlet extends AbstractApplicationServlet {
     	if(Constants.getBonitaHomeDir()!=null)
     		configFilename=Constants.getBonitaHomeDir()+"/log4j.properties";
     	
-    	org.apache.log4j.PropertyConfigurator.configure(configFilename);    	
+    	org.apache.log4j.xml.DOMConfigurator.configure(configFilename);    	
     	
     	
         PbApplication pbApplication = new PbApplication(panelModuleService);

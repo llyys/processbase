@@ -234,7 +234,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			}
 			gridLayout.setMargin(false, true, true, true);
 			gridLayout.setSpacing(true);
-
+			gridLayout.setSizeFull();
 			int row1 = 0;
 			int row2 = 0;
 
@@ -281,7 +281,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					.getPageLabel();
 
 		setCaption(pageLabel);
-		taskPanel.setCaption(pageLabel);
+		//taskPanel.setCaption(pageLabel);
 	}
 
 	public List<Page> generateDynamicPage() {
@@ -525,6 +525,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	private Label getLabel(Widget widget, Object value) {
 		String escaped = StringEscapeUtils.unescapeHtml(value.toString());
 		Label component = new Label(escaped);
+		component.setWidth("100%");
 		component.setContentMode(Label.CONTENT_XHTML);
 		return component;
 	}
@@ -644,7 +645,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		} catch (InvalidValueException ex) {
 			ex.printStackTrace();
 			showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
-			throw new RuntimeException(ex);
+			//throw new RuntimeException(ex);  
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
