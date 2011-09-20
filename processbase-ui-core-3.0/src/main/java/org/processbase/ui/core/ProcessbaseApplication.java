@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
 
@@ -63,6 +64,17 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public abstract Object getSessionAttribute(String name);
 
     public abstract String getUserName();
+    
+    
+    
+    public User getCurrentUser(){
+    	try {
+			return getBpmModule().findUserByUserName(getUserName());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+    }
 
     public abstract void setUserName(String userName);
 

@@ -42,6 +42,7 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
@@ -183,31 +184,32 @@ public class UserWindow extends PbWindow
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(saveBtn)) {
-                if (user == null) {
-                    User userNew = ProcessbaseApplication.getCurrent().getBpmModule().addUser(
+                BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+				if (user == null) {
+                    User userNew = bpmModule.addUser(
                             userName.getValue().toString(),
                             password.getValue().toString(),
                             userFirstName.getValue().toString(),
                             userLastName.getValue().toString(),
                             "", userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, new HashMap<String, String>());
-                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserProfessionalContactInfo(
+                    bpmModule.updateUserProfessionalContactInfo(
                             userNew.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
                 } else {
-                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserByUUID(
+                    bpmModule.updateUserByUUID(
                             user.getUUID(),
                             userName.getValue().toString(),
-                            userFirstName.getValue().toString(),
-                            userLastName.getValue().toString(),
+                            userFirstName.getValue()!=null?userFirstName.getValue().toString():"",
+                            userLastName.getValue()!=null?userLastName.getValue().toString():"",
                             "",
                             userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, getUserMetadata());
-                    ProcessbaseApplication.getCurrent().getBpmModule().updateUserProfessionalContactInfo(
+                    bpmModule.updateUserProfessionalContactInfo(
                             user.getUUID(), userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
                     if (!user.getPassword().equals(password.getValue().toString())) {
-                        ProcessbaseApplication.getCurrent().getBpmModule().updateUserPassword(user.getUUID(), password.getValue().toString());
+                        bpmModule.updateUserPassword(user.getUUID(), password.getValue().toString());
                     }
 
                 }
@@ -294,28 +296,22 @@ public class UserWindow extends PbWindow
     private void refreshTableMetadata() {
         try {
             tableMetadata.removeAllItems();
-            List<ProfileMetadata> metadatas = ProcessbaseApplication.getCurrent().getBpmModule().getAllProfileMetadata();
+            BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			List<ProfileMetadata> metadatas = bpmModule.getAllProfileMetadata();
             for (ProfileMetadata profileMetadata : metadatas) {
                 Item woItem = tableMetadata.addItem(profileMetadata);
                 woItem.getItemProperty("name").setValue(profileMetadata.getName());
                 TextField metadataValue = new TextField();
                 metadataValue.setWidth("100%");
                 metadataValue.setNullRepresentation("");
-                metadataValue.setValue(getUserMetadataValue(profileMetadata.getName()));
+                metadataValue.setValue(bpmModule.getUserMetadataValue(user, profileMetadata.getName()));
                 woItem.getItemProperty("value").setValue(metadataValue);
             }
         } catch (Exception ex) {
         }
     }
 
-    private String getUserMetadataValue(String metadataName) {
-        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-            if (profileMetadata.getName().equals(metadataName)) {
-                return user.getMetadata().get(profileMetadata);
-            }
-        }
-        return null;
-    }
+  
 
     private void addTableMembershipRow(Membership membership) throws Exception {
         String uuid = membership != null ? membership.getUUID() : "NEW_MEMBERSHIP_UUID_" + UUID.randomUUID().toString();

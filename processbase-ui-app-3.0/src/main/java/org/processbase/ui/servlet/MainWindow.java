@@ -21,8 +21,10 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
@@ -30,6 +32,7 @@ import java.util.TreeMap;
 import javax.servlet.http.Cookie;
 
 import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
 
@@ -60,6 +63,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private DevelopmentPanel developmentPanel;
     
     private User user;
+    private List<Group> userGroups;
+    private Group activeGroup;
     private HashSet<String> accessSet;
 
     public MainWindow() {
@@ -94,6 +99,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
             if (accessSet.contains("tasklist")) {
             	consolePanel = new TaskListPanel();
+            	
             	if(accessSet.size()==1){
             		 
             		 consolePanel.initUI();
@@ -274,12 +280,14 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         accessSet = new HashSet<String>();
         String userName = ProcessbaseApplication.getCurrent().getUserName();
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+        
         user = bpmModule.findUserByUserName(userName);
         if(userName==BPMModule.USER_GUEST){
         	accessSet.add("tasklist");
         	return;
         }
         for (Membership membership : user.getMemberships()) {
+        	
             if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
                 if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
                     accessSet.add("bpm");
@@ -338,4 +346,28 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             first.setSizeFull();
         }
     }
+
+
+
+	public void setUserGroups(List<Group> userGroups) {
+		this.userGroups = userGroups;
+	}
+
+
+
+	public List<Group> getUserGroups() {
+		return userGroups;
+	}
+
+
+
+	public void setActiveGroup(Group activeGroup) {
+		this.activeGroup = activeGroup;
+	}
+
+
+
+	public Group getActiveGroup() {
+		return activeGroup;
+	}
 }

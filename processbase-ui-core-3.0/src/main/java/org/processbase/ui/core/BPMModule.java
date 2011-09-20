@@ -62,9 +62,12 @@ import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.DeploymentException;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
+import org.ow2.bonita.facade.exception.MetadataNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.TaskNotFoundException;
+import org.ow2.bonita.facade.exception.UserAlreadyExistsException;
+import org.ow2.bonita.facade.exception.UserNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.ActivityState;
@@ -1266,6 +1269,37 @@ public class BPMModule {
         initContext();
         return identityAPI.updateUserPassword(userUUID, password);
     }
+    
+    public void updateUserMetadata(User user, String metaKey, String metaValue) throws Exception{
+    	initContext();
+    	
+    	ProfileMetadata foundProfileMetadata=null;
+    	List<ProfileMetadata> profileMetadatas = getAllProfileMetadata();
+    	for (ProfileMetadata profileMetadata : profileMetadatas) {
+			if(profileMetadata.getName()==metaKey)
+				{
+					foundProfileMetadata=profileMetadata;
+					break;
+				}
+		}
+    	if(foundProfileMetadata==null){
+    		addProfileMetadata(metaKey, metaKey);
+    	}
+    	
+    	
+    	Map<String, String> metadata=new Hashtable<String, String>();
+    	 for (ProfileMetadata profileMetadata1 : user.getMetadata().keySet()) {
+             if (profileMetadata1.getName().equals(metaKey)) {
+                 metadata.put(metaKey, metaValue);
+             }
+             else
+             {
+            	 metadata.put(profileMetadata1.getName(), user.getMetadata().get(profileMetadata1.getName()));
+             }
+         }
+    	
+		identityAPI.updateUserByUUID(user.getUUID(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getTitle(), user.getJobTitle(), user.getManagerUUID(), metadata);
+    }
 
     public void setUserMemberships(String userUUID, Collection<String> membershipUUIDs) throws Exception {
     	logger.debug("setUserMemberships");
@@ -1307,6 +1341,15 @@ public class BPMModule {
     	logger.debug("getMembershipForRoleAndGroup");
         initContext();
         return identityAPI.getMembershipForRoleAndGroup(roleUUID, groupUUID);
+    }
+    
+    public ProfileMetadata getUserMetadataValue(User user, String metadataName) {
+        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
+            if (profileMetadata.getName().equals(metadataName)) {
+                return profileMetadata;
+            }
+        }
+        return null;
     }
 
     public User findUserByUserName(String userName) throws Exception {

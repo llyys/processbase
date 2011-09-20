@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.ProfileMetadata;
+import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.bpm.worklist.NewProcesses;
 import org.processbase.ui.bpm.worklist.Processes;
 import org.processbase.ui.bpm.worklist.TaskCompleted;
@@ -32,6 +35,8 @@ import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.template.WorkPanel;
 import org.processbase.ui.osgi.PbPanelModule;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -74,21 +79,69 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         	newProcessesPanel.refreshTable();        	
         	return;
         }
-        addComponent(buttonBar, 0);
+        
+       
+        
+        addComponent(buttonBar);
+        
         taskListPanel = new TaskList();
         panels.put(myTaskListBtn, taskListPanel);
-        addComponent(taskListPanel, 1);
+        addComponent(taskListPanel);
         setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
         
         prepareButtonBar();
+        
+        User user=ProcessbaseApplication.getCurrent().getCurrentUser();
+        com.vaadin.ui.ComboBox roleCombo = new com.vaadin.ui.ComboBox();
+        roleCombo.setInputPrompt("Select group");
+        roleCombo.setInvalidAllowed(false);
+        roleCombo.removeAllItems();
+        if(user!=null && user.getMemberships()!=null){
+        	for (Membership membership : user.getMemberships()) {
+        		roleCombo.addItem(membership.getGroup().getLabel());
+			}
+        }
+        if(roleCombo.size()>0)
+        {
+        	
+        	ProfileMetadata currentProfileMetadata=null;
+			for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
+	            if (profileMetadata.getName().equals("CURRENT_GROUP")) {
+	            	currentProfileMetadata=profileMetadata;
+	            	break;
+	            }
+	        }
+			if(currentProfileMetadata!=null)
+				roleCombo.select(currentProfileMetadata.getLabel());
+			
+        	buttonBar.addComponent(roleCombo);
+        	roleCombo.setImmediate(true);
+        	roleCombo.addListener(new com.vaadin.data.Property.ValueChangeListener() {
+				
+				public void valueChange(ValueChangeEvent event) {
+					Property property = event.getProperty();
+					getWindow().showNotification("Selected role:"+property);	
+					
+					try {
+						ProcessbaseApplication.getCurrent().getBpmModule().updateUserMetadata(ProcessbaseApplication.getCurrent().getCurrentUser(), "CURRENT_GROUP", property.toString());
+					} catch (Exception e) {
+						
+						throw new RuntimeException("Error on updating user metadata",e );
+					}
+				}
+			});
+        }
         taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
 
         processesPanel = new Processes();
         panels.put(myProcessesBtn, processesPanel);
-
+        
+        
+        
+        
         
         panels.put(myNewProcessesBtn, newProcessesPanel);
     }
