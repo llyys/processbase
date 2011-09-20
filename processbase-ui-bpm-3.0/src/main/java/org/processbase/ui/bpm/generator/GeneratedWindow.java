@@ -183,6 +183,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 
 		setWidth("845px");
 		setHeight("90%");
+		
 		setResizable(true);
 		try {
 			if (isTaskActive()) {
