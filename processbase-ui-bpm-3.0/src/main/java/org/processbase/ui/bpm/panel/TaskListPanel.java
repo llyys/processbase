@@ -98,11 +98,12 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         User user=ProcessbaseApplication.getCurrent().getCurrentUser();
         roleCombo = new com.vaadin.ui.ComboBox();
         roleCombo.setInputPrompt("Select group");
+        roleCombo.setNullSelectionAllowed(false);
         roleCombo.setInvalidAllowed(false);
         roleCombo.removeAllItems();
         if(user!=null && user.getMemberships()!=null){
         	for (Membership membership : user.getMemberships()) {
-        		roleCombo.addItem(membership.getGroup().getName());
+        		roleCombo.addItem(membership.getGroup().getLabel());
 			}
         }
         if(roleCombo.size()>0)
@@ -137,7 +138,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 					User currentUser = ProcessbaseApplication.getCurrent().getCurrentUser();
 					ProcessbaseApplication.getCurrent().getBpmModule().updateUserMetadata(currentUser, "CURRENT_GROUP", property.toString());
 					for (Membership membership : currentUser.getMemberships()) {
-		        		if(membership.getGroup().getName().equals(property.toString()))
+		        		if(membership.getGroup().getLabel().equals(property.toString()))
 		        			{
 		        				newProcessesPanel.setUserCurrentGroup(membership.getGroup());
 		        				return;
