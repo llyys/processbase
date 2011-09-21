@@ -304,13 +304,16 @@ public class BPMModule {
         return queryDefinitionAPI.getLightProcesses();
     }
 
-    public Set<LightProcessDefinition> getAllowedLightProcessDefinitions() throws Exception {
+    public Set<LightProcessDefinition> getAllowedLightProcessDefinitions(Group groupFilter) throws Exception {
     	logger.debug("getAllowedLightProcessDefinitions");
         initContext();
         User user = identityAPI.findUserByUserName(currentUserUID);
         Set<String> membershipUUIDs = new HashSet<String>();
         for (Membership membership : user.getMemberships()) {
-            membershipUUIDs.add(membership.getUUID());
+        	if(groupFilter==null)
+        		membershipUUIDs.add(membership.getUUID());
+        	else if(membership.getGroup().getName().equals(groupFilter.getName()))
+        		membershipUUIDs.add(membership.getUUID());
         }
         List<Rule> userRules = managementAPI.getApplicableRules(RuleType.PROCESS_START, null, null, null, membershipUUIDs, null);
 
@@ -1276,7 +1279,7 @@ public class BPMModule {
     	ProfileMetadata foundProfileMetadata=null;
     	List<ProfileMetadata> profileMetadatas = getAllProfileMetadata();
     	for (ProfileMetadata profileMetadata : profileMetadatas) {
-			if(profileMetadata.getName()==metaKey)
+			if(metaKey.equals(profileMetadata.getName()))
 				{
 					foundProfileMetadata=profileMetadata;
 					break;
@@ -1297,7 +1300,9 @@ public class BPMModule {
             	 metadata.put(profileMetadata1.getName(), user.getMetadata().get(profileMetadata1.getName()));
              }
          }
-    	
+    	if(!metadata.containsKey(metaKey)){
+    		metadata.put(metaKey, metaValue);
+    	}
 		identityAPI.updateUserByUUID(user.getUUID(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getTitle(), user.getJobTitle(), user.getManagerUUID(), metadata);
     }
 
@@ -1343,13 +1348,14 @@ public class BPMModule {
         return identityAPI.getMembershipForRoleAndGroup(roleUUID, groupUUID);
     }
     
-    public ProfileMetadata getUserMetadataValue(User user, String metadataName) {
-        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-            if (profileMetadata.getName().equals(metadataName)) {
-                return profileMetadata;
-            }
-        }
-        return null;
+    public String getUserMetadataValue(User user, String metadataName) {
+    	 
+         for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
+             if (profileMetadata.getName().equals(metadataName)) {
+                 return user.getMetadata().get(profileMetadata);
+             }
+         }
+         return null;
     }
 
     public User findUserByUserName(String userName) throws Exception {

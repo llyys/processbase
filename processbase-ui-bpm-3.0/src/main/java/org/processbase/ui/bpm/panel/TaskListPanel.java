@@ -59,6 +59,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     private Button myProcessesBtn = null;
     private Button myNewProcessesBtn = null;
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
+	private com.vaadin.ui.ComboBox roleCombo;
 
     public void initUI(){
         panels.clear();
@@ -85,22 +86,23 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         addComponent(buttonBar);
         
         taskListPanel = new TaskList();
+        prepareButtonBar();
         panels.put(myTaskListBtn, taskListPanel);
-        addComponent(taskListPanel);
+        addComponent(taskListPanel, 1);
         setExpandRatio(taskListPanel, 1);
         taskListPanel.initUI();
         taskListPanel.refreshTable();
         
-        prepareButtonBar();
+        
         
         User user=ProcessbaseApplication.getCurrent().getCurrentUser();
-        com.vaadin.ui.ComboBox roleCombo = new com.vaadin.ui.ComboBox();
+        roleCombo = new com.vaadin.ui.ComboBox();
         roleCombo.setInputPrompt("Select group");
         roleCombo.setInvalidAllowed(false);
         roleCombo.removeAllItems();
         if(user!=null && user.getMemberships()!=null){
         	for (Membership membership : user.getMemberships()) {
-        		roleCombo.addItem(membership.getGroup().getLabel());
+        		roleCombo.addItem(membership.getGroup().getName());
 			}
         }
         if(roleCombo.size()>0)
@@ -114,36 +116,48 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 	            }
 	        }
 			if(currentProfileMetadata!=null)
-				roleCombo.select(currentProfileMetadata.getLabel());
+			{
+				String mt= user.getMetadata().get(currentProfileMetadata.getName());
+				String userMetadataValue = ProcessbaseApplication.getCurrent().getBpmModule().getUserMetadataValue(user, currentProfileMetadata.getName());
+				roleCombo.select(userMetadataValue);
+			}
 			
-        	buttonBar.addComponent(roleCombo);
-        	roleCombo.setImmediate(true);
-        	roleCombo.addListener(new com.vaadin.data.Property.ValueChangeListener() {
-				
-				public void valueChange(ValueChangeEvent event) {
-					Property property = event.getProperty();
-					getWindow().showNotification("Selected role:"+property);	
-					
-					try {
-						ProcessbaseApplication.getCurrent().getBpmModule().updateUserMetadata(ProcessbaseApplication.getCurrent().getCurrentUser(), "CURRENT_GROUP", property.toString());
-					} catch (Exception e) {
-						
-						throw new RuntimeException("Error on updating user metadata",e );
-					}
-				}
-			});
+        	
         }
+        
+        buttonBar.addComponent(roleCombo);
+    	roleCombo.setImmediate(true);
+    	roleCombo.addListener(new com.vaadin.data.Property.ValueChangeListener() {
+			
+			public void valueChange(ValueChangeEvent event) {
+				Property property = event.getProperty();
+				getWindow().showNotification("Selected role:"+property);	
+				
+				try {
+					User currentUser = ProcessbaseApplication.getCurrent().getCurrentUser();
+					ProcessbaseApplication.getCurrent().getBpmModule().updateUserMetadata(currentUser, "CURRENT_GROUP", property.toString());
+					for (Membership membership : currentUser.getMemberships()) {
+		        		if(membership.getGroup().getName().equals(property.toString()))
+		        			{
+		        				newProcessesPanel.setUserCurrentGroup(membership.getGroup());
+		        				return;
+		        			}
+					}
+					
+				} catch (Exception e) {
+					
+					throw new RuntimeException("Error on updating user metadata",e );
+				}
+			}
+		});
+        roleCombo.setVisible(false);
         taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
 
         processesPanel = new Processes();
         panels.put(myProcessesBtn, processesPanel);
-        
-        
-        
-        
-        
         panels.put(myNewProcessesBtn, newProcessesPanel);
+        //setCurrentPanel(taskListPanel);
     }
 
     private void setCurrentPanel(WorkPanel workPanel) {
@@ -157,7 +171,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         } else if (workPanel instanceof TreeTablePanel){
             ((TreeTablePanel)workPanel).refreshTable();
         }
-        
+        //workPanel.initUI();
     }
 
     private void prepareButtonBar() {
@@ -207,6 +221,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
         }
+        roleCombo.setVisible(false);
         if (!myTaskListBtn.isEnabled()) {
             myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
@@ -214,6 +229,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         } else if (!myTaskCompletedBtn.isEnabled()) {
             myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
         } else if (!myNewProcessesBtn.isEnabled()) {
+        	roleCombo.setVisible(roleCombo.size()>0);
             myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
         }
     }

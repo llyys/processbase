@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
+import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.generator.BarResource;
@@ -63,15 +64,17 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
 
     @Override
     public void refreshTable() {
+    	if(treeTable==null) return;
         treeTable.removeAllItems();
         try {
             Set<Category> categories = ProcessbaseApplication.getCurrent().getBpmModule().getAllCategories();
-            Collection<LightProcessDefinition> processes = ProcessbaseApplication.getCurrent().getBpmModule().getAllowedLightProcessDefinitions();
-
+            Collection<LightProcessDefinition> processes = ProcessbaseApplication.getCurrent().getBpmModule().getAllowedLightProcessDefinitions(group);
+           
             for (Category category : categories) {
                 CategoryAndProcessDefinition capParent = new CategoryAndProcessDefinition(category, null);
                 addTableRow(capParent, null);
                 for (LightProcessDefinition process : processes) {
+                	
                     if (process.getCategoryNames().contains(category.getName())
                     		|| (process.getCategoryNames().size()==0 && category.getName().equalsIgnoreCase("No Category"))//if there are multiple items that does not have any category then they won't be shown in tasklist Start processs list		
                     ) 
@@ -164,4 +167,10 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
             throw new RuntimeException(ex);
         }
     }
+    Group group;
+	public void setUserCurrentGroup(Group group) {
+		this.group=group;
+		refreshTable();
+		
+	}
 }

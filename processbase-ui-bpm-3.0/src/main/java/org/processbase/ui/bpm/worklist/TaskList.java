@@ -51,9 +51,10 @@ public class TaskList extends TablePanel implements Button.ClickListener {
     public TaskList() {
         super();
     }
-
+    private boolean isInitialized=false;
     @Override
     public void initUI() {
+    	if(isInitialized) return;
         super.initUI();
         table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
         table.addContainerProperty("accepted", ThemeResource.class, null);
