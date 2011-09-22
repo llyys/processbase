@@ -28,7 +28,7 @@ import org.processbase.ui.core.ProcessbaseApplication;
  * @author mgubaidullin
  */
 public class PbWindow extends Window {
-
+	 public static final int TYPE_IMPORTANT_MESSAGE = 5;
     public boolean confirm = false;
     protected static Logger LOGGER = Logger.getLogger(PbWindow.class);
     public PbWindow() {
@@ -54,18 +54,7 @@ public class PbWindow extends Window {
     }
 
     public void showImportantInformation(String description) {
-        StringBuffer desc = new StringBuffer();
-        if (description != null) {
-            int i = 0;
-            for (; description.length() > i + 50; i = i + 50) {
-                desc.append("<br/> " + description.substring(i, i + 50));
-            }
-            desc.append("<br/> " + description.substring(i));
-        } else {
-            desc.append("<br/> null");
-        }
-        showNotification(ProcessbaseApplication.getCurrent().getPbMessages().getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
-
+        showMessage(description, TYPE_IMPORTANT_MESSAGE);
     }
 
     public void showMessage(String description, int type) {
@@ -79,17 +68,26 @@ public class PbWindow extends Window {
         } else {
             desc.append("<br/> null");
         }
+        Notification notification=null;
         switch (type) {
             case Notification.TYPE_WARNING_MESSAGE:
-                showNotification(ProcessbaseApplication.getCurrent().getPbMessages().getString("warningCaption"), desc.substring(0), type);
+            	notification=new Notification(ProcessbaseApplication.getString("warningCaption"), desc.substring(0), type);
+            	notification.setDelayMsec(-1);//click to hide
                 break;
             case Notification.TYPE_HUMANIZED_MESSAGE:
-                showNotification(ProcessbaseApplication.getCurrent().getPbMessages().getString("informationCaption"), desc.substring(0), type);
-                break;
+            	notification=new Notification(ProcessbaseApplication.getString("informationCaption"), desc.substring(0), type);
+            	notification.setDelayMsec(1000);//wait 1 sec
+            	break;
+            case TYPE_IMPORTANT_MESSAGE:
+            	notification=new Notification(ProcessbaseApplication.getString("informationCaption"), desc.substring(0), Notification.TYPE_ERROR_MESSAGE);
+            	notification.setDelayMsec(-1);//click to hide
+                break;            
             case Notification.TYPE_ERROR_MESSAGE:
-                showNotification(ProcessbaseApplication.getCurrent().getPbMessages().getString("exceptionCaption"), desc.substring(0), type);
+            	notification=new Notification(ProcessbaseApplication.getString("exceptionCaption"), desc.substring(0), type);
+            	notification.setDelayMsec(1000);//wait 1 sec
                 break;
         }
+        super.showNotification(notification);
     }
 
     @Override
