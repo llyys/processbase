@@ -73,7 +73,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private DescriptionPanel descPanel=new DescriptionPanel();
     private CustomUiPanel uiPanel=new CustomUiPanel();
     private ProcessAccessPanel accessPanel=new ProcessAccessPanel();
-    private LegislationPanel legislationPanel=new LegislationPanel();
+   // private LegislationPanel legislationPanel=new LegislationPanel();
     
     public ProcessDefinitionWindow(ProcessDefinition processDefinition) {
         super(processDefinition.getLabel());
@@ -106,14 +106,14 @@ public class ProcessDefinitionWindow extends PbWindow implements
             accessPanel.initUI();
             accessPanel.onActivate(false);
             tabSheet.addTab(accessPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("processAccess"), null);
-            
+            /*
             
             legislationPanel.setProcessDefinition(processDefinition);
             legislationPanel.setParentWindow(this);
             legislationPanel.initUI();
             legislationPanel.onActivate(false);
             tabSheet.addTab(legislationPanel, legislationPanel.getCaption(), null);
-
+*/
             tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
             tabSheet.setSizeFull();
             tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
