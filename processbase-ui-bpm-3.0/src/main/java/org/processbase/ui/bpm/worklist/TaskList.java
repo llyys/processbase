@@ -27,11 +27,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import java.util.Collection;
 import java.util.Date;
+
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.bpm.generator.BarResource;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
@@ -170,12 +173,13 @@ public class TaskList extends TablePanel implements Button.ClickListener {
 
     public void openTaskPage(LightTaskInstance task) {
         try {
-        	LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
+        	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			LightTaskInstance newTask = bpmModule.getTaskInstance(task.getUUID());
 	        if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
 				table.removeItem(task);
 				return;
 	        }
-            String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+            String url = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
@@ -184,11 +188,12 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                 this.getWindow().open(new ExternalResource(url));
             } else {
                 BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
-                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition();
+                ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
+                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (taskDef != null && !taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
-                    genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
+                    genWindow.setTask(bpmModule.getTaskInstance(task.getUUID()));
                     genWindow.setBarResource(barResource);
                     genWindow.setXMLProcessDefinition(xmlProcess);
                     genWindow.setTaskList(this);
@@ -196,8 +201,8 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();
                 } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().startTask(task.getUUID(), true);
-                    ProcessbaseApplication.getCurrent().getBpmModule().finishTask(task.getUUID(), true);
+                    bpmModule.startTask(task.getUUID(), true);
+                    bpmModule.finishTask(task.getUUID(), true);
                     showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskExecuted"));
                 }
             }

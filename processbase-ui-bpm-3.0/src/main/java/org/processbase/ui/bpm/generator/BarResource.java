@@ -17,6 +17,7 @@
 package org.processbase.ui.bpm.generator;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -33,7 +34,7 @@ public class BarResource {
 
     private ProcessDefinitionUUID puuid;
     private Map<String, byte[]> resource;
-    private XMLProcessDefinition xmlProcessDefinition;
+    private Map<String, XMLProcessDefinition> xmlProcessDefinition;
     private FormsDefinition formsDefinition;
     private byte[] proc = null;
     private byte[] form = null;
@@ -86,11 +87,13 @@ public class BarResource {
         this.resource = resource;
     }
 
-    public XMLProcessDefinition getXmlProcessDefinition() {
-        return xmlProcessDefinition;
+    public XMLProcessDefinition getXmlProcessDefinition(String name) {
+        return xmlProcessDefinition.get(name);
     }
 
-    public void setXmlProcessDefinition(XMLProcessDefinition xmlProcessDefinition) {
-        this.xmlProcessDefinition = xmlProcessDefinition;
+    public void setXmlProcessDefinition(String name, XMLProcessDefinition xmlProcessDefinition) {
+    	if(this.xmlProcessDefinition==null)
+    		this.xmlProcessDefinition=new Hashtable<String, XMLProcessDefinition>();
+        this.xmlProcessDefinition.put(name, xmlProcessDefinition);
     }
 }

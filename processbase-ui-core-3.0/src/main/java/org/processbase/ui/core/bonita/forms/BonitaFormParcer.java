@@ -2,6 +2,9 @@ package org.processbase.ui.core.bonita.forms;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -13,10 +16,13 @@ import org.w3c.dom.NodeList;
 
 public class BonitaFormParcer {
 
-    private XMLProcessDefinition process;
+    private Map<String, XMLProcessDefinition> processPoolMap;
+    
+    
 
     public BonitaFormParcer(byte[] procBytes) {
         try {
+        	processPoolMap=new Hashtable<String,XMLProcessDefinition>();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new ByteArrayInputStream(procBytes));
@@ -28,7 +34,9 @@ public class BonitaFormParcer {
                 		&& processNodes.item(i).getNodeName().equals("elements")
                         && processNodes.item(i).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Pool")) {
                     Node processNode = processNodes.item(i);
-                    process = new XMLProcessDefinition(processNode.getAttributes().getNamedItem("name").getNodeValue(), processNode.getAttributes().getNamedItem("label").getNodeValue());
+                    String nodeName=processNode.getAttributes().getNamedItem("name").getNodeValue();
+                   
+                    XMLProcessDefinition process = new XMLProcessDefinition(nodeName, processNode.getAttributes().getNamedItem("label").getNodeValue());
                     process.setByPassFormsGeneration(processNode.getAttributes().getNamedItem("byPassFormsGeneration") != null && processNode.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                     NodeList processChilds = processNode.getChildNodes();
                     for (int y = 0; y < processChilds.getLength(); y++) {
@@ -58,6 +66,7 @@ public class BonitaFormParcer {
                             
                             }
                         }
+                        processPoolMap.put(nodeName, process);
                     }
                 }
             }
@@ -66,8 +75,9 @@ public class BonitaFormParcer {
         }
     }
 
-    public XMLProcessDefinition getProcess() {
-        return process;
+    
+    public Map<String, XMLProcessDefinition> getProcess() {
+        return processPoolMap;
     }
 
     

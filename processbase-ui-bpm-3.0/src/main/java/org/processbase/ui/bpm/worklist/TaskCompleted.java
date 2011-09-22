@@ -23,11 +23,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.CollectionHelper;
 import org.processbase.ui.core.CollectionHelper.GroupKey;
 import org.processbase.ui.core.Constants;
@@ -160,20 +162,23 @@ public class TaskCompleted extends TreeTablePanel {
 
     public void openTaskPage(LightTaskInstance task) {
         try {
-            String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+            BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			String url = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
             ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
             ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
                 BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
-                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition();
+                ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
+                
+                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() /*check that forms is not defined*/) {
                     showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
-                    genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
+                    genWindow.setTask(bpmModule.getTaskInstance(task.getUUID()));
                     genWindow.setBarResource(barResource);
                     this.getApplication().getMainWindow().addWindow(genWindow);
                     genWindow.initUI();

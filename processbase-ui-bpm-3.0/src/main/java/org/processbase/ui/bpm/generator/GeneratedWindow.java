@@ -468,7 +468,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 															// does not work
 															// with IE8
 						streamResource.setMIMEType("application/octet-stream");
-						getWindow().getWindow().open(streamResource, "_new");
+						getWindow().getWindow().open(streamResource, "_blank");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
