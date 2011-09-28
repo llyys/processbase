@@ -84,7 +84,7 @@ public class PbWindow extends Window {
                 break;            
             case Notification.TYPE_ERROR_MESSAGE:
             	notification=new Notification(ProcessbaseApplication.getString("exceptionCaption"), desc.substring(0), type);
-            	notification.setDelayMsec(1000);//wait 1 sec
+            	notification.setDelayMsec(-1);//wait 1 sec
                 break;
         }
         super.showNotification(notification);

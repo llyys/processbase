@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.ow2.bonita.connector.core.configuration.Configuration;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
@@ -188,6 +189,9 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         // Call the default implementation.
         super.terminalError(event);
         LOGGER.error("RuntimeError", event.getThrowable());
+        if("SHOW".equals(Constants.getSetting("SHOW_ERROR_MESSAGES", "HIDE")))
+        	return;
+        		
         // Some custom behaviour.
         if (getMainWindow() != null) {
            /* getMainWindow().showNotification(

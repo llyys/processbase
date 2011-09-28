@@ -148,7 +148,7 @@ public class SchemesPanel extends TablePanel implements
                 ProcessbaseApplication.getCurrent().getPbMessages().getString("generateSchema") + "?",
                 ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
                 ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
-                new ConfirmDialog.Listener() {
+                new ConfirmDialog.Listener() { 
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {

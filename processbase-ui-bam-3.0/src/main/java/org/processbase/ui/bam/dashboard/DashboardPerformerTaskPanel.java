@@ -137,7 +137,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
             removeAllComponents();
             InvientCharts ich = createchart(new ArrayList(performersNames), xySeries);
             ich.setWidth("100%");
-            addComponent(ich);
+            addComponent(ich); 
         } catch (Exception ex) {
             ex.printStackTrace();
         }

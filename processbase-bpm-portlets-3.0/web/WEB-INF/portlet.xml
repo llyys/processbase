@@ -27,7 +27,8 @@
 			<short-title>ConsolePortlet</short-title>
 		</portlet-info>
 	</portlet>
-	<portlet>
+	
+	<!-- <portlet>
 		<portlet-name>AdminPortlet</portlet-name>
 		<display-name>AdminPortlet</display-name>
 		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
@@ -148,5 +149,5 @@
 			<title>ChartPortlet</title>
 			<short-title>ChartPortlet</short-title>
 		</portlet-info>
-	</portlet>
+	</portlet> -->
 </portlet-app>

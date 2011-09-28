@@ -105,7 +105,7 @@ public class KPIWindow extends PbWindow
             for (MetaDim metaDim : metaDims) {
                 Item woItem = dimensions.addItem(metaDim);
                 dimensions.setItemCaption(metaDim, metaDim.getCode() + " (" + metaDim.getName() + ")");
-            }
+            } 
 
             dimensions.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             dimensions.setWidth("570px");

@@ -94,7 +94,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
             removeAllComponents();
             InvientCharts ich = createchart(processNames, xySeries);
             ich.setWidth("100%");
-            addComponent(ich);
+            addComponent(ich); 
         } catch (Exception ex) {
             ex.printStackTrace();
         }

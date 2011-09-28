@@ -81,6 +81,17 @@ public class Constants {
         }
     }
     
+    public static String getSetting(String name){
+    	return getSetting(name, null);
+    }
+    public static String getSetting(String name, String defaultVal){
+    	if(properties==null)
+    		loadConstants();
+    	if(properties!=null && properties.containsKey(name))
+    		return properties.getProperty(name);
+    	return null;
+    }
+    
     public static String getBonitaHomeDir(){
     	return System.getProperty(BONITA_HOME);
     }

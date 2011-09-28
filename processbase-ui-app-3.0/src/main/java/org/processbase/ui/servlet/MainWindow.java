@@ -117,7 +117,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 tabs.addTab(bpmConfigurationPanel, getPbMessages("bpmAdmin"), null);
             }
             if (accessSet.contains("identity")) {
-                identityPanel = new IdentityPanel();
+                identityPanel = new IdentityPanel(); 
                 tabs.addTab(identityPanel, getPbMessages("bpmIdentity"), null);
             }
             if (accessSet.contains("bam")) {

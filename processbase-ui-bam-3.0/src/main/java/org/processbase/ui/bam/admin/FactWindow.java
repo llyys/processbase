@@ -110,7 +110,7 @@ public class FactWindow extends PbWindow
 
     public void buttonClick(ClickEvent event) {
         try {
-            if (event.getButton().equals(saveBtn)) {
+            if (event.getButton().equals(saveBtn)) { 
                 commit();
                 metaFact = new MetaFact();
                 metaFact.setCode(code.getValue().toString());

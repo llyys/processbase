@@ -51,7 +51,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     private ButtonBar buttonBar = new ButtonBar();
     private TaskList taskListPanel;
     private TaskCompleted taskCompletedPanel;
-    private Processes processesPanel;
+    private Processes processesPanel; 
     private NewProcesses newProcessesPanel;
     private Button refreshBtn = null;
     private Button myTaskListBtn = null;

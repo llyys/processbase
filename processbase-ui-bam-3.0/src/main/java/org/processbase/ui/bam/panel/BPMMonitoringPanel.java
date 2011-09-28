@@ -32,7 +32,7 @@ import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.DashboardPanel;
 import org.processbase.ui.core.template.PbPanel;
 
-/**
+/** 
  *
  * @author mgubaidullin
  */

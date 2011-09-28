@@ -35,6 +35,10 @@ import com.vaadin.ui.themes.Reindeer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ResourceBundle;
+
+import org.ow2.bonita.facade.runtime.AttachmentInstance;
+import org.ow2.bonita.facade.runtime.Document;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
@@ -130,11 +134,14 @@ public class ImmediateUpload extends VerticalLayout
                 status.setValue("");
                 deleteBtn.setVisible(false);
             } else if (event.getButton().equals(downloadBtn)) {
-                ByteArraySource bas = new ByteArraySource(
-                        ProcessbaseApplication.getCurrent().getFileBody(processUUID, attachmentName));
-                StreamResource streamResource = new StreamResource(bas, fileName, getApplication());
+            	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+				AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
+				
+				//Document document = bpmModule.getDocument(attachment.getUUID());
+                ByteArraySource bas = new ByteArraySource(ProcessbaseApplication.getCurrent().getFileBody(processUUID, attachmentName));
+                StreamResource streamResource = new StreamResource(bas, attachment.getFileName(), getApplication());
                 streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-                getWindow().getWindow().open(streamResource, "_new");
+                getWindow().getWindow().open(streamResource, "_blank");
             }
         } catch (Exception ex) {
             ex.printStackTrace();

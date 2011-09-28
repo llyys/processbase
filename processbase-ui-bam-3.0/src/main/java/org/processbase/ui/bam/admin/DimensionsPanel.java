@@ -74,7 +74,7 @@ public class DimensionsPanel extends TablePanel implements
             }
             table.setSortContainerPropertyId("id");
             table.setSortAscending(false);
-            table.sort();
+            table.sort(); 
         } catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());

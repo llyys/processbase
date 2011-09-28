@@ -35,7 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Random;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightActivityInstance;
-import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.ProcessbaseApplication; 
 import org.processbase.ui.core.template.DashboardPanel;
 
 /**

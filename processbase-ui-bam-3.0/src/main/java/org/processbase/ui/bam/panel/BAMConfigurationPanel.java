@@ -171,7 +171,7 @@ public class BAMConfigurationPanel extends PbPanelModule
         ((TablePanel) getComponent(1)).refreshTable();
     }
 
-    private void addBAMConfig() {
+    private void addBAMConfig() { 
         if (getComponent(1) instanceof DimensionsPanel) {
             DimentionWindow ndw = new DimentionWindow(null);
             ndw.addListener((Window.CloseListener) this);

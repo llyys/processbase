@@ -147,7 +147,7 @@ public class DimentionWindow extends PbWindow
                     ProcessbaseApplication.getCurrent().getBpmModule().execute(new AddMetaDim(metaDim));
                 } else {
                     throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueDimCode"));
-                }
+                } 
                 close();
             } else if (event.getButton().equals(closeBtn)) {
                 close();

@@ -27,6 +27,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
@@ -179,14 +180,15 @@ public class TaskList extends TablePanel implements Button.ClickListener {
 				table.removeItem(task);
 				return;
 	        }
-            String url = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
+            Map<String, String> processMetaData = bpmModule.getProcessMetaData(task.getProcessDefinitionUUID());
+            String url =  processMetaData.get(task.getActivityDefinitionUUID().toString());
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
 
                 ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
-            } else {
+            } else { 
                 BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
                 ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
@@ -207,8 +209,8 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
-            showError(ex.getMessage());
+            //ex.printStackTrace();
+            //showError(ex.getMessage());
             throw new RuntimeException(ex);
         }
 //        try {

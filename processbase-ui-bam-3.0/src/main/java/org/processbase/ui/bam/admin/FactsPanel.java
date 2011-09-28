@@ -67,7 +67,7 @@ public class FactsPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaFact.getName());
                 TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaFact, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
-            }
+            } 
             table.setSortContainerPropertyId("id");
             table.setSortAscending(false);
             table.sort();

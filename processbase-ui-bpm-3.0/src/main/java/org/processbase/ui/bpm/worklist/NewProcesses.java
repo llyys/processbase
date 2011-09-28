@@ -146,7 +146,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
                 ProcessbaseApplication.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
-            } else {
+            } else { 
             	 BarResource barResource = new BarResource(process.getUUID());
                  XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(process.getName());
                  if (!xmlProcess.isByPassFormsGeneration()) {

@@ -109,7 +109,7 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 			StreamResource streamResource = new StreamResource(bas, processDefinition.getLabel() + "_" + processDefinition.getVersion() + ".bar", getApplication());
 			streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
 			streamResource.setMIMEType("application/octet-stream");
-			getWindow().getWindow().open(streamResource, "_new");
+			getWindow().getWindow().open(streamResource, "_blank");
         	
         } catch (Exception e) {
         	showError(e);            

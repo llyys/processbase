@@ -71,6 +71,7 @@ import org.ow2.bonita.facade.exception.TaskNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
+import org.ow2.bonita.facade.runtime.Document;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
@@ -372,7 +373,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				c = getRichTextArea(widget);
 			}
 			if (widget.getType().equals(WidgetType.TEXT)) {
-				c = getTextField(widget);
+				String val=value==null?"":value.toString();
+				c = getLabel(widget, widget.getLabel()+"<br/>"+val);
+				
 			}
 			if (widget.getType().equals(WidgetType.PASSWORD)) {
 				c = getPasswordField(widget);
@@ -454,16 +457,17 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			b.addListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
-					// TODO Auto-generated method stub
 					Widget w = getWidgets(event.getButton());
 					byte[] bytes;
 					try {
 						String processUUID = taskInstance.getProcessInstanceUUID().toString();
 						String fileName = attachmentFileNames.get(w.getInitialValue().getExpression());
-						bytes = getBpmModule().getAttachmentValue(processUUID,w.getVariableBound());
+						AttachmentInstance attachment = getBpmModule().getAttachment(processUUID,w.getVariableBound());
+						Document document = getBpmModule().getDocument(attachment.getUUID());
+						bytes = getBpmModule().getAttachmentBytes(attachment);
 						ByteArraySource bas = new ByteArraySource(bytes);
 
-						StreamResource streamResource = new StreamResource(bas,fileName, getApplication());
+						StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), getApplication());
 						streamResource.setCacheTime(50000); // no cache (<=0)
 															// does not work
 															// with IE8
@@ -614,6 +618,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	}
 
 	private TaskList taskList;
+	
+	private Widget clickedButtonWidtet;
 
 	@Override
 	public void buttonClick(ClickEvent event) {
@@ -622,10 +628,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			if (components.containsKey(event.getButton())) {
 				Button btn = event.getButton();
 
-				if (getWidgets(btn).getType().equals(WidgetType.BUTTON_SUBMIT)) {
+				Widget widget = getWidgets(btn);
+				clickedButtonWidtet=widget;
+				if (widget.getType().equals(WidgetType.BUTTON_SUBMIT)) {
 					submitPage();
 
-				} else if (getWidgets(btn).getType().equals(
+				} else if (widget.getType().equals(
 						WidgetType.BUTTON_NEXT)) {
 					commitPage(pages.get(currentPage));
 					currentPage = (pages.size() > (currentPage + 1)) ? currentPage + 1
@@ -633,7 +641,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					taskPanel.setContent(pages.get(currentPage));
 					taskPanel.setCaption(pageFlow.getPages().getPages()
 							.get(currentPage).getPageLabel());
-				} else if (getWidgets(btn).getType().equals(
+				} else if (widget.getType().equals(
 						WidgetType.BUTTON_PREVIOUS)) {
 					commitPage(pages.get(currentPage));
 					currentPage = (currentPage != 0) ? currentPage - 1
@@ -642,6 +650,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					taskPanel.setCaption(pageFlow.getPages().getPages()
 							.get(currentPage).getPageLabel());
 				}
+				clickedButtonWidtet=null;
 			}
 		} catch (InvalidValueException ex) {
 			ex.printStackTrace();
@@ -705,6 +714,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		} else {
 			if (taskList != null)
 				taskList.refreshTable();
+			showMessage("Protsess edastatud, palun vaadake antud protsessi edasist kulgu tööülesannete nimekirjast",	Notification.TYPE_HUMANIZED_MESSAGE);
 			close();
 		}
 	}
@@ -748,7 +758,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		for (Page page : pageFlow.getPages().getPages()) {
 			if (page.getActions() != null) {
 				for (Action action : page.getActions().getActions()) {
-					if (action.getType().equals(ActionType.SET_VARIABLE)) {
+					if (action.getType().equals(ActionType.SET_VARIABLE)) 
+					{
 						Component comp = null;
 						Object value = null;
 						if (action.getExpression().startsWith("field")) {
@@ -756,21 +767,37 @@ public class GeneratedWindow extends HumanTaskWindow implements
 							if (comp instanceof AbstractField) {
 								value = ((AbstractField) comp).getValue();
 							}
-							if (comp instanceof GeneratedTable) {
+							else if (comp instanceof GeneratedTable) {
 								value = ((GeneratedTable) comp).getTableValue();
 							}
-							if (comp instanceof CheckBox) {
+							else if (comp instanceof CheckBox) {
 								value = ((CheckBox) comp).booleanValue();
+							} else {
+								value = action.getExpression();
+							}							
+							
+							if (action.getVariableType().equals( VariableType.PROCESS_VARIABLE)) {
+								piVariablesTemp.put(action.getVariable(), value);
+							} else if (action.getVariableType().equals( VariableType.ACTIVITY_VARIABLE)) {
+								aiVariablesTemp.put(action.getVariable(), value);
 							}
-						} else {
-							value = action.getExpression();
 						}
-						if (action.getVariableType().equals(
-								VariableType.PROCESS_VARIABLE)) {
-							piVariablesTemp.put(action.getVariable(), value);
-						} else if (action.getVariableType().equals(
-								VariableType.ACTIVITY_VARIABLE)) {
-							aiVariablesTemp.put(action.getVariable(), value);
+						else 
+						{
+							if(org.apache.commons.lang.StringUtils.isNotBlank(action.getSubmitButton()) && this.clickedButtonWidtet!=null)
+							{							
+								String script=getPureScript(action.getExpression());
+								script=GroovyExpression.START_DELIMITER+script+GroovyExpression.END_DELIMITER;
+								Object actionValue=getBpmModule().evaluateExpression(script, getProcessDefinition().getUUID());
+								if(this.clickedButtonWidtet.getId().equals(action.getSubmitButton())){
+									if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
+										 piVariablesTemp.put(action.getVariable(), actionValue);
+										
+									} else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
+										aiVariablesTemp.put(action.getVariable(), actionValue);
+									}
+								}
+							}
 						}
 					}
 				}

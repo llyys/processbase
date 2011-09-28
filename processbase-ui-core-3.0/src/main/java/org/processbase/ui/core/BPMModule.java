@@ -74,6 +74,7 @@ import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.DocumentUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.services.DocumentationManager;
@@ -461,8 +462,8 @@ public class BPMModule {
     	logger.debug("nextUserTask");
         initContext();
     	Set<ActivityInstance> activities= queryRuntimeAPI.getActivityInstances(processInstanceUUID);
-    	for (ActivityInstance instance : activities) {
-    		
+    	Collection<TaskInstance> taskList = queryRuntimeAPI.getTaskList(processInstanceUUID, ActivityState.EXECUTING);
+    	for (ActivityInstance instance : activities) {    		
     		if(instance.getState() == ActivityState.READY 
     				|| instance.getState() == ActivityState.EXECUTING 
 					|| instance.getState()==ActivityState.SUSPENDED)
@@ -511,7 +512,7 @@ public class BPMModule {
         //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         setProcessAndActivityInstanceVariables(task, pVars, aVars);
         for (AttachmentInstance a : attachments.keySet()) {
-            System.out.println(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+        	logger.debug(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
         }
         runtimeAPI.addAttachments(attachments);
         runtimeAPI.finishTask(task.getUUID(), b);
@@ -528,9 +529,22 @@ public class BPMModule {
 
     public byte[] getAttachmentValue(String processUUID, String name) throws Exception {
     	logger.debug("getAttachmentValue");
+    	initContext();
+    	AttachmentInstance attachmentInstance = queryRuntimeAPI.getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
+    	return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
+    }
+    
+    public AttachmentInstance getAttachment(String processUUID, String name) throws Exception {
+    	logger.debug("getAttachmentValue");
         initContext();
-        System.out.println("-------------------------------------------- name = " + name);
         AttachmentInstance attachmentInstance = queryRuntimeAPI.getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
+        return attachmentInstance;
+        //return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
+    }
+    
+    public byte[] getAttachmentBytes(AttachmentInstance attachmentInstance) throws Exception {
+    	logger.debug("getAttachmentValue");
+        initContext();
         return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
     }
 
@@ -540,6 +554,12 @@ public class BPMModule {
         return new ArrayList<AttachmentInstance>(queryRuntimeAPI.getLastAttachments(instanceUUID, regex));
     }
 
+    public org.ow2.bonita.facade.runtime.Document getDocument(DocumentUUID docId) throws Exception 
+    {
+    	initContext();
+    	org.ow2.bonita.facade.runtime.Document doc = queryRuntimeAPI.getDocument(docId);
+    	return doc;
+    }
     public List<AttachmentInstance> getLastAttachments(ProcessInstanceUUID instanceUUID, Set<String> attachmentNames) throws Exception {
     	logger.debug("getLastAttachments");
         initContext();

@@ -35,11 +35,13 @@ import java.util.UUID;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -58,7 +60,7 @@ public class NewProcessDefinitionWindow extends PbWindow
     private File file;
     private String filename;
     private String originalFilename;
-    private CheckBox cbAddAdminInitRight;
+    private CheckBox cbDisableOtherInstances;
     private String fileExt;
     public static String FILE_BAR = "FILE_BAR";
     public static String FILE_JAR = "FILE_JAR";
@@ -70,23 +72,24 @@ public class NewProcessDefinitionWindow extends PbWindow
 
     public void initUI() {
         try {
+        	
             setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newProcessDefinition"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
-
+            cbDisableOtherInstances=new CheckBox("Leave old process active");
+            
             // prepare upload button
             upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
+            addComponent(cbDisableOtherInstances);
             
-            cbAddAdminInitRight=new CheckBox("Enable");
             
-            
-            setWidth("350px");
+            setWidth("360px");
             setResizable(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -109,6 +112,17 @@ public class NewProcessDefinitionWindow extends PbWindow
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
                 ProcessDefinition deployResult = getBpmModule().deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
                 
+                if(cbDisableOtherInstances.booleanValue()==false)//disable other instances
+                {
+                	for (LightProcessDefinition process : getBpmModule().getLightProcessDefinitions()) {
+						if(process.getName().equals(deployResult.getName())
+								&& process.getUUID().equals(deployResult.getUUID())==false)
+						{
+							if(process.getState()==ProcessState.ENABLED)
+								getBpmModule().disableProcessDefinitions(process.getUUID());
+						}
+					}	 
+                }
                 //Add default ENTITY_PROCESS_START rule for administrator
             	Role admin=getBpmModule().findRoleByName(IdentityAPI.ADMIN_ROLE_NAME);
             	Group defaultGroup = getBpmModule().findGroupByName(IdentityAPI.DEFAULT_GROUP_NAME);
@@ -136,6 +150,9 @@ public class NewProcessDefinitionWindow extends PbWindow
             }
             file.delete();
             close();
+        }
+        catch (org.ow2.bonita.facade.exception.DeploymentException ex){
+        	showError(ex.getLocalizedMessage());
         }
         catch (org.ow2.bonita.facade.exception.DocumentAlreadyExistsException ex){
         	showError("Document already exists");

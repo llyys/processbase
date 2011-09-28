@@ -62,7 +62,7 @@ public class BonitaFormParcer {
                                         task.setByPassFormsGeneration(nodeTask.getAttributes().getNamedItem("byPassFormsGeneration") != null && nodeTask.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                                         process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
                                     }
-                                }
+                                } 
                             
                             }
                         }

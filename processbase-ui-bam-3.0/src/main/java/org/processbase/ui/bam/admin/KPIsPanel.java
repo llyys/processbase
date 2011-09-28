@@ -75,7 +75,7 @@ public class KPIsPanel extends TablePanel implements
                 TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
                 tlb.setEnabled(metaKpi.getStatus().equals("EDITABLE"));
                 woItem.getItemProperty("actions").setValue(tlb);
-            }
+            } 
             table.setSortContainerPropertyId("id");
             table.setSortAscending(false);
             table.sort();

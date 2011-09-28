@@ -171,7 +171,7 @@ public class TaskCompleted extends TreeTablePanel {
             } else {
                 BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
                 ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
-                
+                 
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() /*check that forms is not defined*/) {
