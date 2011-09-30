@@ -204,7 +204,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 */
         // prepare help button
         refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
-        buttonBar.addComponent(refreshBtn, 4);
+        buttonBar.addComponent(refreshBtn, 3); 
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setExpandRatio(refreshBtn, 1);
         buttonBar.setWidth("100%");

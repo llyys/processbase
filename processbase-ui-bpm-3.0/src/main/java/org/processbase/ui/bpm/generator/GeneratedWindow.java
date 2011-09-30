@@ -360,6 +360,10 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			if (widget.getType().equals(WidgetType.MESSAGE)) {
 				c = getLabel(widget, value);
 			}
+			if (widget.getType().equals(WidgetType.HIDDEN)) {
+				c = getTextField(widget);
+				((TextField)c).setVisible(false);
+			}
 			if (widget.getType().equals(WidgetType.TEXTBOX)) {
 				c = getTextField(widget);
 			}
