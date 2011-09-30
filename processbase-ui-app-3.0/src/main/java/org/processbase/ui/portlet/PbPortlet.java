@@ -117,6 +117,17 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
                 	setUserName(BPMModule.USER_GUEST);
                 	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
                 }
+                try {
+					org.ow2.bonita.facade.identity.User user2 = getBpmModule().findUserByUserName(user.getScreenName());
+					if(user2==null){
+						setUserName(BPMModule.USER_GUEST);
+	                	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					setUserName(BPMModule.USER_GUEST);
+                	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
+				}
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
                 Constants.APP_SERVER="LIFERAY";

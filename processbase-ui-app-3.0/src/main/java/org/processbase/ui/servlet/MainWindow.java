@@ -96,9 +96,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             // prepare tabs
             String userName = ProcessbaseApplication.getCurrent().getUserName();
             prepareTabs();
-            if(userName.equals(BPMModule.USER_GUEST)){
-            	mainLayout.addComponent(getHeader());
-            }
+            mainLayout.addComponent(getHeader());
             if (accessSet.contains("tasklist")) {
             	consolePanel = new TaskListPanel();
             	

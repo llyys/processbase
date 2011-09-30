@@ -50,12 +50,12 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 
     private ButtonBar buttonBar = new ButtonBar();
     private TaskList taskListPanel;
-    private TaskCompleted taskCompletedPanel;
+    //private TaskCompleted taskCompletedPanel; 
     private Processes processesPanel; 
     private NewProcesses newProcessesPanel;
     private Button refreshBtn = null;
     private Button myTaskListBtn = null;
-    private Button myTaskCompletedBtn = null;
+    //private Button myTaskCompletedBtn = null;
     private Button myProcessesBtn = null;
     private Button myNewProcessesBtn = null;
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
@@ -152,9 +152,9 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 			}
 		});
         roleCombo.setVisible(false);
-        taskCompletedPanel = new TaskCompleted();
+       /* taskCompletedPanel = new TaskCompleted();
         panels.put(myTaskCompletedBtn, taskCompletedPanel);
-
+*/
         processesPanel = new Processes();
         panels.put(myProcessesBtn, processesPanel);
         panels.put(myNewProcessesBtn, newProcessesPanel);
@@ -197,11 +197,11 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskCompletedBtn button
-        myTaskCompletedBtn = new Button(ProcessbaseApplication.getString("myTaskCompletedBtn"), this);
+       /* myTaskCompletedBtn = new Button(ProcessbaseApplication.getString("myTaskCompletedBtn"), this);
         myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(myTaskCompletedBtn, 3);
         buttonBar.setComponentAlignment(myTaskCompletedBtn, Alignment.MIDDLE_LEFT);
-
+*/
         // prepare help button
         refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
@@ -227,9 +227,11 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
             myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
         } else if (!myProcessesBtn.isEnabled()) {
             myProcessesBtn.setCaption(ProcessbaseApplication.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
-        } else if (!myTaskCompletedBtn.isEnabled()) {
+        }
+        /*else if (!myTaskCompletedBtn.isEnabled()) {
             myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
-        } else if (!myNewProcessesBtn.isEnabled()) {
+        } */
+        else if (!myNewProcessesBtn.isEnabled()) {
         	roleCombo.setVisible(roleCombo.size()>0);
             myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
         }
@@ -244,10 +246,10 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         myTaskListBtn.setEnabled(true);
         myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn"));
 
-        myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
+       /* myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
         myTaskCompletedBtn.setEnabled(true);
         myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn"));
-
+*/
         myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
         myNewProcessesBtn.setEnabled(true);
         myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
