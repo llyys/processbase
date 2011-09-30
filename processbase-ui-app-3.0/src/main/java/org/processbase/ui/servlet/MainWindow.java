@@ -31,6 +31,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
@@ -93,10 +94,11 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             
 
             // prepare tabs
-
+            String userName = ProcessbaseApplication.getCurrent().getUserName();
             prepareTabs();
-
-
+            if(userName.equals(BPMModule.USER_GUEST)){
+            	mainLayout.addComponent(getHeader());
+            }
             if (accessSet.contains("tasklist")) {
             	consolePanel = new TaskListPanel();
             	
@@ -139,7 +141,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 first.setInitialized(true);
                 first.setSizeFull();
             }
-            mainLayout.addComponent(getHeader());
+           
             tabs.setSizeFull();
             mainLayout.addComponent(tabs);
             //mainLayout.addComponent(tabs);
@@ -171,23 +173,27 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
         header.addComponent(logo);
         header.setExpandRatio(logo, 1.0f);
-
-        Label helloUser = new Label(getPbMessages("welcome")+", " + user.getFirstName() + " " + user.getLastName());
+        Label helloUser; 
+        if(StringUtils.isEmpty(user.getFirstName()) && StringUtils.isEmpty(user.getLastName()))
+        	helloUser = new Label(getPbMessages("welcome")+", " + user.getUsername());
+        else 
+        	helloUser = new Label(getPbMessages("welcome")+", " + user.getFirstName() + " " + user.getLastName());
 //        helloUser.setStyleName(Runo.LABEL_H2);
         header.addComponent(helloUser);
         header.setComponentAlignment(helloUser, Alignment.MIDDLE_RIGHT);
         header.setExpandRatio(helloUser, 1.0f);
-
-        Button profile = new Button(getPbMessages("btnProfile"), new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                openProfileWindow();
-            }
-        });
-        profile.setStyleName(Runo.BUTTON_LINK);
-        header.addComponent(profile);
-        header.setComponentAlignment(profile, Alignment.MIDDLE_RIGHT);
-
+        String userName = ProcessbaseApplication.getCurrent().getUserName();
+        if(!userName.equals(BPMModule.USER_GUEST)){
+	        Button profile = new Button(getPbMessages("btnProfile"), new Button.ClickListener() {
+	
+	            public void buttonClick(ClickEvent event) {
+	                openProfileWindow();
+	            }
+	        });
+	        profile.setStyleName(Runo.BUTTON_LINK);
+	        header.addComponent(profile);
+	        header.setComponentAlignment(profile, Alignment.MIDDLE_RIGHT);
+        }
         Button logout = new Button(getPbMessages("btnLogout"), new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
@@ -282,7 +288,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         
         user = bpmModule.findUserByUserName(userName);
-        if(userName==BPMModule.USER_GUEST){
+        if(userName.equals(BPMModule.USER_GUEST)){
         	accessSet.add("tasklist");
         	return;
         }
