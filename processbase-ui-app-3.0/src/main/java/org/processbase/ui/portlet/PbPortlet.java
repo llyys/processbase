@@ -29,6 +29,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletSession;
+import javax.servlet.http.Cookie;
+
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 
@@ -100,6 +102,12 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         
     }
 
+    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
+        BPMModule bpmm = new BPMModule(login);
+        setBpmModule(bpmm);
+        initUI();        
+    }
+    
     public void onRequestStart(PortletRequest request, PortletResponse response) {
     	logger.debug("PbPortlet onRequestStart ");
     	

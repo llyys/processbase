@@ -66,7 +66,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
     public abstract String getUserName();
     
-    
+    public abstract void authenticate(String login, String password, boolean rememberMe);
     
     public User getCurrentUser(){
     	try {
