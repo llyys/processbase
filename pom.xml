@@ -36,6 +36,7 @@
 		<spring.version>3.0.5.RELEASE</spring.version>
 		<spring-security.version>3.0.1</spring-security.version>
 		<esteid-vaadin-component.version>0.1.1</esteid-vaadin-component.version>
+		<jdigidoc.version>2.3.99.2</jdigidoc.version>
 	</properties>
 
 	<repositories>
@@ -66,7 +67,7 @@
 		<repository>
 			<id>smartlink</id>
 			<name>smartlink</name>
-			<url>http://mvn.smartlink.ee</url>
+			<url>https://mvn.smartlink.ee/content/repositories/public/</url>
 		</repository>
 	</repositories>
 	<modules>
