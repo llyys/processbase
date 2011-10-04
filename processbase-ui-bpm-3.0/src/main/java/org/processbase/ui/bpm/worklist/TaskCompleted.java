@@ -169,7 +169,7 @@ public class TaskCompleted extends TreeTablePanel {
             if (url != null && !url.isEmpty() && url.length() > 0) {
                 this.getWindow().open(new ExternalResource(url));
             } else {
-                BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
+                BarResource barResource = BarResource.getBarResource(task.getProcessDefinitionUUID());
                 ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
                  
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());

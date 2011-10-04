@@ -189,7 +189,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                 ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
             } else { 
-                BarResource barResource = new BarResource(task.getProcessDefinitionUUID());
+                BarResource barResource = BarResource.getBarResource(task.getProcessDefinitionUUID());
                 ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());

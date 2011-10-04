@@ -87,7 +87,7 @@
 			<groupId>org.ow2.bonita</groupId>
 			<artifactId>bonita-server</artifactId>
 			<version>${bonita.version}</version>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.glassfish.security</groupId>
 			<artifactId>security</artifactId>
@@ -162,6 +162,10 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.2</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>net.sf.ehcache</groupId>
+		    <artifactId>ehcache-core</artifactId>
+		    <version>${ehcache.version}</version>		    
+		  </dependency>
 	</dependencies>
 </project>

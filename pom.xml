@@ -18,6 +18,7 @@
 		<liferay.deploy.path>C:\dev_env\liferay-portal-6.0.5\deploy</liferay.deploy.path>
 		<container.port>8080</container.port>
 		<bonita.version>5.5.1</bonita.version>
+		<ehcache.version>2.2.0</ehcache.version>
 
 		<vaadin.version>6.6.4</vaadin.version>
 		<vaadin-invient.version>0.8.4</vaadin-invient.version>

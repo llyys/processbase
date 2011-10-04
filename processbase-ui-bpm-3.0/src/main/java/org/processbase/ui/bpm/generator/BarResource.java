@@ -25,6 +25,8 @@ import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
+import org.processbase.ui.core.util.CacheUtil;
+import org.processbase.ui.core.util.ICacheDelegate;
 
 /**
  *
@@ -40,7 +42,17 @@ public class BarResource {
     private byte[] form = null;
     private byte[] css = null;
 
-    public BarResource(ProcessDefinitionUUID puuid) throws Exception {
+    
+    public static BarResource getBarResource(final ProcessDefinitionUUID puuid) throws Exception {
+    	return CacheUtil.getOrCache("BAR_RESOURCE", puuid, new ICacheDelegate<BarResource>() {
+			public BarResource execute() throws Exception {
+				// TODO Auto-generated method stub
+				return new BarResource(puuid);
+			}
+		});
+    }
+    
+    private BarResource(ProcessDefinitionUUID puuid) throws Exception{
         this.puuid = puuid;
         resource = ProcessbaseApplication.getCurrent().getBpmModule().getBusinessArchive(this.puuid);
         for (String key : resource.keySet()) {

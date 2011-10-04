@@ -18,6 +18,7 @@ package org.processbase.ui.core;
 
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -54,6 +55,7 @@ import org.ow2.bonita.facade.RuntimeAPI;
 import org.ow2.bonita.facade.WebAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
+import org.ow2.bonita.facade.def.majorElement.ActivityDefinition.Type;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ParticipantDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
@@ -111,7 +113,10 @@ import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.processbase.commands.documents.DeleteDocumentCommand;
 import org.processbase.engine.bam.command.DeleteMetaDim;
 import org.processbase.ui.core.bonita.diagram.Diagram;
+import org.processbase.ui.core.util.CacheUtil;
+import org.processbase.ui.core.util.ICacheDelegate;
 
+ 
 
 import com.sun.appserv.security.AppservRealm;
 import com.sun.appserv.security.ProgrammaticLogin;
@@ -123,6 +128,7 @@ import org.apache.log4j.Logger;
  * @author mgubaidullin
  */
 public class BPMModule {
+	private static final String BUSINESS_ARCHIVE = "BAR_RESOURCE";
 	public static final String USER_GUEST = "guest";
     final RuntimeAPI runtimeAPI;
     final QueryRuntimeAPI queryRuntimeAPI;
@@ -468,9 +474,21 @@ public class BPMModule {
     				|| instance.getState() == ActivityState.EXECUTING 
 					|| instance.getState()==ActivityState.SUSPENDED)
 			{
+    			
+    			if(instance.getType()==Type.Subflow){
+    				ProcessInstance subProcessInstance = getProcessInstance(instance.getSubflowProcessInstanceUUID());
+    				Set<TaskInstance> tasks = subProcessInstance.getTasks();
+    				for (TaskInstance taskInstance : tasks) {
+						if(taskInstance.getTaskCandidates().contains(currentUserName) && taskInstance.getState()==ActivityState.EXECUTING)
+							return assignAndStartTask(taskInstance.getUUID(), currentUserName);
+					}
+    				
+    			}
+    			else{
 				TaskInstance task=instance.getTask();
 				if(task.getTaskCandidates().contains(currentUserName))
-					return assignAndStartTask(task.getUUID(), currentUserName);				
+					return assignAndStartTask(task.getUUID(), currentUserName);
+    			}
 			}
 		}
 		return null;
@@ -945,16 +963,13 @@ public class BPMModule {
 
     public byte[] getProcessDiagramm(LightProcessInstance pi) throws Exception {
     	logger.debug("getProcessDiagramm");
-        initContext();
-        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(pi.getProcessDefinitionUUID()).getResources();
-        byte[] img = null;
+        Map<String, byte[]> resource = getBusinessArchive(pi.getProcessDefinitionUUID());
+        byte[] img = getProcessDiagramm(pi.getProcessDefinitionUUID());
         byte[] proc = null;
         for (String key : resource.keySet()) {
             if (key.substring(key.length() - 4, key.length()).equals("proc")) {
                 proc = resource.get(key);
-            } else if (key.equals(pi.getProcessDefinitionUUID().toString() + ".png")) {
-                img = resource.get(key);
-            }
+            } 
         }
         File x = new File("AAA.png");
         FileOutputStream fos = new FileOutputStream(x);
@@ -989,8 +1004,7 @@ public class BPMModule {
 
     public byte[] getProcessDiagramm(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
     	logger.debug("getProcessDiagramm");
-        initContext();
-        Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+        Map<String, byte[]> resource = getBusinessArchive(processDefinitionUUID);
         byte[] img = null;
         for (String key : resource.keySet()) { 
         	if(key.contains(processDefinitionUUID.toString()+".png"))
@@ -1001,10 +1015,16 @@ public class BPMModule {
         return null;
     }
     
-    public Map<String, byte[]> getBusinessArchive(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
-    	logger.debug("getBusinessArchive");
-        initContext();
-        return queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+    public Map<String, byte[]> getBusinessArchive(final ProcessDefinitionUUID processDefinitionUUID) throws Exception {
+    	return CacheUtil.getOrCache(BUSINESS_ARCHIVE, processDefinitionUUID, new ICacheDelegate<Map<String, byte[]>>() {
+			@Override
+			public Map<String, byte[]> execute() throws Exception {
+				initContext();
+		        return queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
+			}    		
+		});
+    	
+        
     }
     public byte[] getBusinessArchiveFile(ProcessDefinitionUUID uuid) throws Exception {
     	logger.debug("getBusinessArchiveFile");
