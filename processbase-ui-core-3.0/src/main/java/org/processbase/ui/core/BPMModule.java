@@ -992,12 +992,13 @@ public class BPMModule {
         initContext();
         Map<String, byte[]> resource = queryDefinitionAPI.getBusinessArchive(processDefinitionUUID).getResources();
         byte[] img = null;
-        for (String key : resource.keySet()) {
-            if (key.substring(key.length() - 3, key.length()).equals("png")) {
-                img = resource.get(key);
+        for (String key : resource.keySet()) { 
+        	if(key.contains(processDefinitionUUID.toString()+".png"))
+            {
+        		return resource.get(key);
             }
         }
-        return img;
+        return null;
     }
     
     public Map<String, byte[]> getBusinessArchive(ProcessDefinitionUUID processDefinitionUUID) throws Exception {
