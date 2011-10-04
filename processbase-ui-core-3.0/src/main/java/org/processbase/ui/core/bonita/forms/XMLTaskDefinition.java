@@ -57,9 +57,4 @@ public class XMLTaskDefinition {
     public void setByPassFormsGeneration(boolean byPassFormsGeneration) {
         this.byPassFormsGeneration = byPassFormsGeneration;
     }
-
-
-    
-
-
 }

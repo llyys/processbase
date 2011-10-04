@@ -148,7 +148,7 @@ public class NewProcessDefinitionWindow extends PbWindow
                 getBpmModule().deployJar(originalFilename, readData);
                 showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }
-            file.delete();
+           
             close();
         }
         catch (org.ow2.bonita.facade.exception.DeploymentException ex){
@@ -160,6 +160,9 @@ public class NewProcessDefinitionWindow extends PbWindow
         catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
+        }
+        finally{
+        	 file.delete();
         }
     }
 

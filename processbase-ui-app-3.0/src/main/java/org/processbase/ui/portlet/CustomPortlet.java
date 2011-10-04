@@ -165,7 +165,9 @@ public class CustomPortlet extends ProcessbaseApplication
             portletSession.setAttribute("PROCESSBASE_PORTLET_CREATED", "PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
         }
     }
-
+    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
+                
+    }
     @Override
     public void close() {
         ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");

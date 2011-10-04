@@ -10,7 +10,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.processbase.ui.core.bonita.forms.subprocess.XMLSubProcessInput;
+import org.processbase.ui.core.bonita.forms.subprocess.XMLSubProcessOutput;
+import org.processbase.ui.core.bonita.forms.subprocess.XMLSubProcessTaskDefinition;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -41,28 +46,42 @@ public class BonitaFormParcer {
                     NodeList processChilds = processNode.getChildNodes();
                     for (int y = 0; y < processChilds.getLength(); y++) {
                         // TASKS IN POOL (NO LANES)
-                        if (processChilds.item(y).getNodeName().equals("elements")
-                                && processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Task")) {
+                        String nodeName2 = processChilds.item(y).getNodeName();
+						if (nodeName2.equals("elements") && processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Task")) {
                             Node nodeTask = processChilds.item(y);
                             if (nodeTask.getChildNodes().getLength() > 0) {
                                 XMLTaskDefinition task = new XMLTaskDefinition(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), nodeTask.getAttributes().getNamedItem("label").getNodeValue());
                                 task.setByPassFormsGeneration(nodeTask.getAttributes().getNamedItem("byPassFormsGeneration") != null && nodeTask.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                                 process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
                             }
-                            // TASKS IN LANES
-                        } else if (processChilds.item(y).getNodeName().equals("elements")
-                                && processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Lane")) {
+						}    
+						//Sub process
+						else if (nodeName2.equals("elements") && processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:SubProcess")) {
+                            Node nodeTask = processChilds.item(y);
+                            if (nodeTask.getChildNodes().getLength() > 0) {
+                                XMLSubProcessTaskDefinition task = ExtractSubProcessTaskDefinition(nodeTask);
+                                process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
+                            }                         
+                        } 
+                         // TASKS IN LANES
+                         else if (nodeName2.equals("elements") && processChilds.item(y).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Lane")) {
                             NodeList laneChilds = processChilds.item(y).getChildNodes();
                             for (int z = 0; z < laneChilds.getLength(); z++) {
-                                if (laneChilds.item(z).getNodeName().equals("elements")
-                                        && laneChilds.item(z).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Task")) {
+                                if (laneChilds.item(z).getNodeName().equals("elements") && laneChilds.item(z).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:Task")) {
                                     Node nodeTask = laneChilds.item(z);
                                     if (nodeTask.getChildNodes().getLength() > 0) {
                                         XMLTaskDefinition task = new XMLTaskDefinition(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), nodeTask.getAttributes().getNamedItem("label").getNodeValue());
                                         task.setByPassFormsGeneration(nodeTask.getAttributes().getNamedItem("byPassFormsGeneration") != null && nodeTask.getAttributes().getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
                                         process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
                                     }
-                                } 
+                                }
+                                else if (laneChilds.item(z).getNodeName().equals("elements") && laneChilds.item(z).getAttributes().getNamedItem("xmi:type").getNodeValue().equals("process:SubProcess")) {
+                                    Node nodeTask = laneChilds.item(z);
+                                    if (nodeTask.getChildNodes().getLength() > 0) {
+                                    	XMLSubProcessTaskDefinition task = ExtractSubProcessTaskDefinition(nodeTask);
+                                    	process.addTask(nodeTask.getAttributes().getNamedItem("name").getNodeValue(), task);
+                                    }
+                                }
                             
                             }
                         }
@@ -74,6 +93,28 @@ public class BonitaFormParcer {
             ex.printStackTrace();
         }
     }
+
+
+	public XMLSubProcessTaskDefinition ExtractSubProcessTaskDefinition( Node nodeTask) {
+		
+		NamedNodeMap attributes = nodeTask.getAttributes();
+		XMLSubProcessTaskDefinition task = new XMLSubProcessTaskDefinition(attributes.getNamedItem("name").getNodeValue(), attributes.getNamedItem("label").getNodeValue(), attributes.getNamedItem("subprocessName").getNodeValue());
+		
+		task.setByPassFormsGeneration(attributes.getNamedItem("byPassFormsGeneration") != null 
+				&& attributes.getNamedItem("byPassFormsGeneration").getNodeValue().equals("true"));
+		
+		for (int j = 0; j < nodeTask.getChildNodes().getLength(); j++) {
+			
+			Node inputMap=nodeTask.getChildNodes().item(j);
+			NamedNodeMap attributes2 = inputMap.getAttributes();
+			if("inputMappings".equals(inputMap.getNodeName()))
+				task.addInputMapping(new XMLSubProcessInput(attributes2.getNamedItem("subprocessTarget").getNodeValue()));	
+			else if("outputMappings".equals(inputMap.getNodeName())){
+				task.addOutputMapping(new XMLSubProcessOutput(attributes2.getNamedItem("subprocessSource").getNodeValue()));
+			}									
+		}
+		return task;
+	}
 
     
     public Map<String, XMLProcessDefinition> getProcess() {

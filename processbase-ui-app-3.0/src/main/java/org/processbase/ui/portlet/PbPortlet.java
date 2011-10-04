@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PbPortlet extends ProcessbaseApplication implements PortletRequestListener {
 
-    PbWindow mainWindow;
+    private static final String AUTHENTICATEDUSER = "authenticateduser";
+	PbWindow mainWindow;
     PortletApplicationContext2 portletApplicationContext2 = null;
     PortletSession portletSession = null;
     BPMModule bpmModule = null;
@@ -105,6 +106,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     public void authenticate(String login, String password, boolean rememberMe) throws Exception {
         BPMModule bpmm = new BPMModule(login);
         setBpmModule(bpmm);
+        setUserName(login);
+        setSessionAttribute(AUTHENTICATEDUSER, login);
         initUI();        
     }
     
@@ -113,35 +116,45 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     	
         if (!inited) {
             try {
-                User user = PortalUtil.getUser(request);
-//                setPortalUser(user);
-                if(user!=null)
-                {                	
-	                setUserName(user.getScreenName());
-	                setBpmModule(new BPMModule(user.getScreenName()));	               
-                }
-                else{
+            	setPortletSession(request.getPortletSession());
+            	
+            	org.ow2.bonita.facade.identity.User bonitaUser =null;
+            	String screenName=null;
+            	
+                User portalUser = PortalUtil.getUser(request);
+                if(portalUser!=null)
+                {           
+                	if(getSessionAttribute(AUTHENTICATEDUSER)==null)
+                		screenName = portalUser.getScreenName();
+                	else
+                		screenName= getSessionAttribute(AUTHENTICATEDUSER).toString();
                 	
-                	setUserName(BPMModule.USER_GUEST);
-                	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
-                }
-                try {
-					org.ow2.bonita.facade.identity.User user2 = getBpmModule().findUserByUserName(user.getScreenName());
-					if(user2==null){
-						setUserName(BPMModule.USER_GUEST);
-	                	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
+	                try {
+	                	setBpmModule(new BPMModule(screenName));
+						bonitaUser = getBpmModule().findUserByUserName(screenName);
+						if(bonitaUser==null){
+							screenName= BPMModule.USER_GUEST;			                	
+						}							
+					} catch (Exception e) { //user not found in bonita, make user as guest					
+						screenName= BPMModule.USER_GUEST;		                	
 					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					setUserName(BPMModule.USER_GUEST);
-                	setBpmModule(new BPMModule(BPMModule.USER_GUEST));
-				}
+                }
+                else {
+            		screenName= BPMModule.USER_GUEST;
+            		if(getSessionAttribute(AUTHENTICATEDUSER)!=null)
+            			screenName= getSessionAttribute(AUTHENTICATEDUSER).toString();
+                    	
+                    		
+                }
+            	
+			    setUserName(screenName);
+			    setBpmModule(new BPMModule(screenName));	                               
+                
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
                 Constants.APP_SERVER="LIFERAY";
                 
-                //setDocumentLibrary(new PortalDocumentLibrary(user));
-                setPortletSession(request.getPortletSession());
+                //setDocumentLibrary(new PortalDocumentLibrary(user));                
                // initUI();
 
             } catch (PortalException e) {

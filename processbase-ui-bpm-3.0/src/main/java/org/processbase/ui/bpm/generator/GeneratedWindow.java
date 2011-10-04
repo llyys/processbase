@@ -139,10 +139,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			return fields.get(FIELD + id);
 		return null;
 	}
-	
-	public void addCustomComponent(String id, Component component){
-		if(!fields.containsKey(id))
-		{
+
+	public void addCustomComponent(String id, Component component) {
+		if (!fields.containsKey(id)) {
 			fields.put(FIELD + id, component);
 		}
 	}
@@ -166,12 +165,15 @@ public class GeneratedWindow extends HumanTaskWindow implements
 														boolean removeProcess) {
 													if (removeProcess) {
 														try {
-															bpmModule.cancelProcessInstance(taskInstance.getProcessInstanceUUID());
+															bpmModule
+																	.cancelProcessInstance(taskInstance
+																			.getProcessInstanceUUID());
 														} catch (Exception e) {
 															// TODO
 															// Auto-generated
 															// catch block
-															throw new RuntimeException(e);
+															throw new RuntimeException(
+																	e);
 														}
 													}
 													close();
@@ -184,11 +186,10 @@ public class GeneratedWindow extends HumanTaskWindow implements
 
 		setWidth("845px");
 		setHeight("90%");
-		
+
 		setResizable(true);
 		try {
 			if (isTaskActive()) {
-
 				pageFlow = getPageFlow(taskInstance.getActivityName());
 			} else if (taskInstance == null) {
 				pageFlow = getPageFlow();
@@ -252,7 +253,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 						int col1 = 0;
 						int col2 = 0;
 						if (isDynamicForm == false) {
-							ComponentStyle componentStyle = ts.getElements().get(widget.getId());
+							ComponentStyle componentStyle = ts.getElements()
+									.get(widget.getId());
 							col1 = componentStyle.getPosition().getFColumn();
 							row1 = componentStyle.getPosition().getFRow();
 							col2 = componentStyle.getPosition().getTColumn();
@@ -266,7 +268,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 						}
 					}
 				} else if (wg instanceof WidgetGroup) {
-					//TODO WidgetGroup
+					// TODO WidgetGroup
 				}
 			}
 			pages.add(gridLayout);
@@ -283,7 +285,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					.getPageLabel();
 
 		setCaption(pageLabel);
-		//taskPanel.setCaption(pageLabel);
+		// taskPanel.setCaption(pageLabel);
 	}
 
 	public List<Page> generateDynamicPage() {
@@ -296,10 +298,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return pages2;
 	}
 
-	private Widgets generateProcessWidgets( Map<String, DataFieldDefinition> processDataFieldDefinitions) {
+	private Widgets generateProcessWidgets(
+			Map<String, DataFieldDefinition> processDataFieldDefinitions) {
 		Widgets widgets = new Widgets();
 
-		for (Entry<String, DataFieldDefinition> object : processDataFieldDefinitions.entrySet()) {
+		for (Entry<String, DataFieldDefinition> object : processDataFieldDefinitions
+				.entrySet()) {
 			Widget w = new Widget();
 			w.setType(WidgetType.TEXT);
 			DataFieldDefinition dataDefinition = object.getValue();
@@ -340,7 +344,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				value = groovyScripts.get(widget.getInitialValue()
 						.getExpression());
 
-				if (value instanceof Component)// if value is vaadin component return component instance
+				if (value instanceof Component)// if value is vaadin component
+												// return component instance
 					return (Component) value;
 			}
 			if (widget.getAvailableValues() != null) {
@@ -362,7 +367,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			}
 			if (widget.getType().equals(WidgetType.HIDDEN)) {
 				c = getTextField(widget);
-				((TextField)c).setVisible(false);
+				((TextField) c).setVisible(false);
 			}
 			if (widget.getType().equals(WidgetType.TEXTBOX)) {
 				c = getTextField(widget);
@@ -377,9 +382,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				c = getRichTextArea(widget);
 			}
 			if (widget.getType().equals(WidgetType.TEXT)) {
-				String val=value==null?"":value.toString();
-				c = getLabel(widget, widget.getLabel()+"<br/>"+val);
-				
+				String val = value == null ? "" : value.toString();
+				c = getLabel(widget, widget.getLabel() + "<br/>" + val);
+
 			}
 			if (widget.getType().equals(WidgetType.PASSWORD)) {
 				c = getPasswordField(widget);
@@ -421,18 +426,21 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			}
 
 			c = (c != null) ? c : new Label("");
-		
-			if (!(c instanceof Button)
-					&& c instanceof AbstractField) {
+
+			if (!(c instanceof Button) && c instanceof AbstractField) {
 				if (value != null) {
 					((AbstractField) c).setValue(value);
 				}
-				
+
 				if (widget.isMandatory() != null) {
 					((AbstractField) c).setRequired(widget.isMandatory());
 				}
-				((AbstractField) c).setRequiredError(widget.getLabel() + ProcessbaseApplication.getCurrent().getPbMessages().getString("fieldRequired"));
-				((AbstractField) c).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
+				((AbstractField) c).setRequiredError(widget.getLabel()
+						+ ProcessbaseApplication.getCurrent().getPbMessages()
+								.getString("fieldRequired"));
+				((AbstractField) c)
+						.setDescription(widget.getTitle() != null ? widget
+								.getTitle() : "");
 				((AbstractField) c).setInvalidCommitted(false);
 				((AbstractField) c).setWriteThrough(false);
 			}
@@ -442,7 +450,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			return c;
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			
+
 		}
 		return new Label("");
 	}
@@ -454,7 +462,8 @@ public class GeneratedWindow extends HumanTaskWindow implements
 
 		// if there is no attached document then this button should be disabled
 		// mode.
-		String fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
+		String fileName = attachmentFileNames.get(widget.getInitialValue()
+				.getExpression());
 		if (fileName == null)
 			b.setEnabled(false);
 		else {
@@ -464,14 +473,20 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					Widget w = getWidgets(event.getButton());
 					byte[] bytes;
 					try {
-						String processUUID = taskInstance.getProcessInstanceUUID().toString();
-						String fileName = attachmentFileNames.get(w.getInitialValue().getExpression());
-						AttachmentInstance attachment = getBpmModule().getAttachment(processUUID,w.getVariableBound());
-						Document document = getBpmModule().getDocument(attachment.getUUID());
+						String processUUID = taskInstance
+								.getProcessInstanceUUID().toString();
+						String fileName = attachmentFileNames.get(w
+								.getInitialValue().getExpression());
+						AttachmentInstance attachment = getBpmModule()
+								.getAttachment(processUUID,
+										w.getVariableBound());
+						Document document = getBpmModule().getDocument(
+								attachment.getUUID());
 						bytes = getBpmModule().getAttachmentBytes(attachment);
 						ByteArraySource bas = new ByteArraySource(bytes);
 
-						StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), getApplication());
+						StreamResource streamResource = new StreamResource(bas,
+								document.getContentFileName(), getApplication());
 						streamResource.setCacheTime(50000); // no cache (<=0)
 															// does not work
 															// with IE8
@@ -595,9 +610,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		boolean hasFile = false;
 		if (taskInstance != null) {
 			processUUID = taskInstance.getProcessInstanceUUID().toString();
-			fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
-			
-			LOGGER.debug("widget.getInitialValue().getExpression() = "+ widget.getInitialValue().getExpression());
+			fileName = attachmentFileNames.get(widget.getInitialValue()
+					.getExpression());
+
+			LOGGER.debug("widget.getInitialValue().getExpression() = "
+					+ widget.getInitialValue().getExpression());
 			LOGGER.debug("fileName = " + fileName);
 			if (fileName != null) {
 				hasFile = true;
@@ -607,8 +624,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			// ai =
 			// findAttachmentInstance(widget.getInitialValue().getExpression());
 		}
-		component = new ImmediateUpload(processUUID, widget.getLabel(), widget.getInitialValue().getExpression(), fileName, hasFile, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
-		
+		component = new ImmediateUpload(processUUID, widget.getLabel(), widget
+				.getInitialValue().getExpression(), fileName, hasFile,
+				widget.isReadonly(), ProcessbaseApplication.getCurrent()
+						.getPbMessages());
+
 		return component;
 	}
 
@@ -622,7 +642,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	}
 
 	private TaskList taskList;
-	
+
 	private Widget clickedButtonWidtet;
 
 	@Override
@@ -633,20 +653,18 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				Button btn = event.getButton();
 
 				Widget widget = getWidgets(btn);
-				clickedButtonWidtet=widget;
+				clickedButtonWidtet = widget;
 				if (widget.getType().equals(WidgetType.BUTTON_SUBMIT)) {
 					submitPage();
 
-				} else if (widget.getType().equals(
-						WidgetType.BUTTON_NEXT)) {
+				} else if (widget.getType().equals(WidgetType.BUTTON_NEXT)) {
 					commitPage(pages.get(currentPage));
 					currentPage = (pages.size() > (currentPage + 1)) ? currentPage + 1
 							: currentPage;
 					taskPanel.setContent(pages.get(currentPage));
 					taskPanel.setCaption(pageFlow.getPages().getPages()
 							.get(currentPage).getPageLabel());
-				} else if (widget.getType().equals(
-						WidgetType.BUTTON_PREVIOUS)) {
+				} else if (widget.getType().equals(WidgetType.BUTTON_PREVIOUS)) {
 					commitPage(pages.get(currentPage));
 					currentPage = (currentPage != 0) ? currentPage - 1
 							: currentPage;
@@ -654,12 +672,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					taskPanel.setCaption(pageFlow.getPages().getPages()
 							.get(currentPage).getPageLabel());
 				}
-				clickedButtonWidtet=null;
+				clickedButtonWidtet = null;
 			}
 		} catch (InvalidValueException ex) {
 			ex.printStackTrace();
 			showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
-			//throw new RuntimeException(ex);  
+			// throw new RuntimeException(ex);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			showMessage(ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
@@ -677,23 +695,27 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			if (hasAttachments) {
 				prepareInitialAttachmentsToSave();
 			}
-			piUUID = getBpmModule().startNewProcess(processDefinition.getUUID(),processInstanceVariables);
-			//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-				saveAttachmentsToPortal(piUUID);
-			//}
+			piUUID = getBpmModule().startNewProcess(
+					processDefinition.getUUID(), processInstanceVariables);
+			// if (ProcessbaseApplication.getCurrent().getApplicationType() ==
+			// ProcessbaseApplication.LIFERAY_PORTAL) {
+			saveAttachmentsToPortal(piUUID);
+			// }
 
 		} else {
 			if (hasAttachments) {
 				prepareAttachmentsToSave();
 			}
-			//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-				saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID());
-			//}
+			// if (ProcessbaseApplication.getCurrent().getApplicationType() ==
+			// ProcessbaseApplication.LIFERAY_PORTAL) {
+			saveAttachmentsToPortal(taskInstance.getProcessInstanceUUID());
+			// }
 			piUUID = taskInstance.getProcessInstanceUUID();
-			getBpmModule().finishTask(taskInstance, true, processInstanceVariables, activityInstanceVariables, attachments);
+			getBpmModule().finishTask(taskInstance, true,
+					processInstanceVariables, activityInstanceVariables,
+					attachments);
 		}
-		if(pageFlow!=null)
-		{
+		if (pageFlow != null) {
 			String confirmationMessage = pageFlow.getConfirmationMessage();
 			if (!StringUtils.isNullOrEmpty(confirmationMessage)) {
 				showMessage(evalGroovyScript(confirmationMessage),
@@ -718,7 +740,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		} else {
 			if (taskList != null)
 				taskList.refreshTable();
-			showMessage("Protsess edastatud, palun vaadake antud protsessi edasist kulgu tööülesannete nimekirjast",	Notification.TYPE_HUMANIZED_MESSAGE);
+			showMessage(
+					"Protsess edastatud, palun vaadake antud protsessi edasist kulgu tööülesannete nimekirjast",
+					Notification.TYPE_HUMANIZED_MESSAGE);
 			close();
 		}
 	}
@@ -762,43 +786,57 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		for (Page page : pageFlow.getPages().getPages()) {
 			if (page.getActions() != null) {
 				for (Action action : page.getActions().getActions()) {
-					if (action.getType().equals(ActionType.SET_VARIABLE)) 
-					{
+					if (action.getType().equals(ActionType.SET_VARIABLE)) {
 						Component comp = null;
 						Object value = null;
 						if (action.getExpression().startsWith("field")) {
 							comp = fields.get(action.getExpression());
 							if (comp instanceof AbstractField) {
 								value = ((AbstractField) comp).getValue();
-							}
-							else if (comp instanceof GeneratedTable) {
+							} else if (comp instanceof GeneratedTable) {
 								value = ((GeneratedTable) comp).getTableValue();
-							}
-							else if (comp instanceof CheckBox) {
+							} else if (comp instanceof CheckBox) {
 								value = ((CheckBox) comp).booleanValue();
 							} else {
 								value = action.getExpression();
-							}							
-							
-							if (action.getVariableType().equals( VariableType.PROCESS_VARIABLE)) {
-								piVariablesTemp.put(action.getVariable(), value);
-							} else if (action.getVariableType().equals( VariableType.ACTIVITY_VARIABLE)) {
-								aiVariablesTemp.put(action.getVariable(), value);
 							}
-						}
-						else 
-						{
-							if(org.apache.commons.lang.StringUtils.isNotBlank(action.getSubmitButton()) && this.clickedButtonWidtet!=null)
-							{							
-								String script=getPureScript(action.getExpression());
-								script=GroovyExpression.START_DELIMITER+script+GroovyExpression.END_DELIMITER;
-								Object actionValue=getBpmModule().evaluateExpression(script, getProcessDefinition().getUUID());
-								if(this.clickedButtonWidtet.getId().equals(action.getSubmitButton())){
-									if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
-										 piVariablesTemp.put(action.getVariable(), actionValue);
-										
-									} else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
-										aiVariablesTemp.put(action.getVariable(), actionValue);
+
+							if (action.getVariableType().equals(
+									VariableType.PROCESS_VARIABLE)) {
+								piVariablesTemp
+										.put(action.getVariable(), value);
+							} else if (action.getVariableType().equals(
+									VariableType.ACTIVITY_VARIABLE)) {
+								aiVariablesTemp
+										.put(action.getVariable(), value);
+							}
+						} else {
+							if (org.apache.commons.lang.StringUtils
+									.isNotBlank(action.getSubmitButton())
+									&& this.clickedButtonWidtet != null) {
+								String script = getPureScript(action
+										.getExpression());
+								script = GroovyExpression.START_DELIMITER
+										+ script
+										+ GroovyExpression.END_DELIMITER;
+								Object actionValue = getBpmModule()
+										.evaluateExpression(
+												script,
+												getProcessDefinition()
+														.getUUID());
+								if (this.clickedButtonWidtet.getId().equals(
+										action.getSubmitButton())) {
+									if (action.getVariableType().equals(
+											VariableType.PROCESS_VARIABLE)) {
+										piVariablesTemp.put(
+												action.getVariable(),
+												actionValue);
+
+									} else if (action.getVariableType().equals(
+											VariableType.ACTIVITY_VARIABLE)) {
+										aiVariablesTemp.put(
+												action.getVariable(),
+												actionValue);
 									}
 								}
 							}
@@ -881,8 +919,12 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					if (widget.getType().equals(WidgetType.FILEUPLOAD)
 							&& ((ImmediateUpload) comp).isNeedToSave()) {
 						ImmediateUpload ui = (ImmediateUpload) comp;
-						getBpmModule().addAttachment(processUUID, widget.getVariableBound(), ui.getFileName(), ui.getMimeType(), ui.getFileBody());
-						//ProcessbaseApplication.getCurrent().saveFile(processUUID, widget.getVariableBound(), ui.getFileName(), ui.getFileBody());
+						getBpmModule().addAttachment(processUUID,
+								widget.getVariableBound(), ui.getFileName(),
+								ui.getMimeType(), ui.getFileBody());
+						// ProcessbaseApplication.getCurrent().saveFile(processUUID,
+						// widget.getVariableBound(), ui.getFileName(),
+						// ui.getFileBody());
 					}
 				}
 			}
@@ -895,22 +937,30 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	private void prepareAttachments() {
 		if (taskInstance != null) {
 			try {
-				//if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.STANDALONE) {
-					
-					ProcessInstance pi = getBpmModule().getProcessInstance(taskInstance.getProcessInstanceUUID());
-					
-					Set<String> names = new HashSet<String>();
-					for (AttachmentInstance ai : pi.getAttachments()) {
-						names.add(ai.getName());
-					}
-					attachmentInstances = getBpmModule().getLastAttachments(taskInstance.getProcessInstanceUUID(),names);
+				// if (ProcessbaseApplication.getCurrent().getApplicationType()
+				// == ProcessbaseApplication.STANDALONE) {
 
-					for (AttachmentInstance ai : attachmentInstances) {
-						attachmentFileNames.put(ai.getName(), ai.getFileName());
-					}
-				/*} else if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
-					attachmentFileNames = ProcessbaseApplication.getCurrent().getFileList(taskInstance.getProcessInstanceUUID().toString());
-				}*/
+				ProcessInstance pi = getBpmModule().getProcessInstance(
+						taskInstance.getProcessInstanceUUID());
+
+				Set<String> names = new HashSet<String>();
+				for (AttachmentInstance ai : pi.getAttachments()) {
+					names.add(ai.getName());
+				}
+				attachmentInstances = getBpmModule().getLastAttachments(
+						taskInstance.getProcessInstanceUUID(), names);
+
+				for (AttachmentInstance ai : attachmentInstances) {
+					attachmentFileNames.put(ai.getName(), ai.getFileName());
+				}
+				/*
+				 * } else if
+				 * (ProcessbaseApplication.getCurrent().getApplicationType() ==
+				 * ProcessbaseApplication.LIFERAY_PORTAL) { attachmentFileNames
+				 * =
+				 * ProcessbaseApplication.getCurrent().getFileList(taskInstance
+				 * .getProcessInstanceUUID().toString()); }
+				 */
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -931,10 +981,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	}
 
 	private void prepareGroovyScripts() throws Exception {
-		if(taskInstance!=null)
-		{
+		if (taskInstance != null) {
 			processInstanceVariables.clear();
-			processInstanceVariables.putAll(bpmModule.getProcessInstanceVariables(taskInstance.getProcessInstanceUUID()));
+			processInstanceVariables.putAll(bpmModule
+					.getProcessInstanceVariables(taskInstance
+							.getProcessInstanceUUID()));
 		}
 		HashSet<String> expressions = new HashSet<String>();
 		HashMap<String, String> scripts = new HashMap<String, String>();
@@ -984,13 +1035,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		context.put("parent", this);// for groovy component hack
 
 		if (taskInstance != null && !scripts.isEmpty()) {
-			groovyScripts = getBpmModule()
-					.evaluateGroovyExpressions(scripts, taskInstance.getUUID(),
-							context, false, false);
+			groovyScripts = getBpmModule().evaluateGroovyExpressions(scripts,
+					taskInstance.getUUID(), context, false, false);
 		} else if (taskInstance == null && !scripts.isEmpty()) {
-			groovyScripts = getBpmModule()
-					.evaluateGroovyExpressions(scripts,
-							processDefinition.getUUID(), context, true);
+			groovyScripts = getBpmModule().evaluateGroovyExpressions(scripts,
+					processDefinition.getUUID(), context, true);
 		}
 		for (String string : strings.keySet()) {
 			groovyScripts.put(string, strings.get(string));
@@ -1079,9 +1128,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				}
 			}
 		}
-		
-		//if process has a Entry pageflow, system will show entry page and when user just closes the form the process acts like it's not started. This is a good way to enable process description to be shown.
-		if (flow.getPages() != null) 
+
+		// if process has a Entry pageflow, system will show entry page and when
+		// user just closes the form the process acts like it's not started.
+		// This is a good way to enable process description to be shown.
+		if (flow == null || flow.getPages() != null)
 			return flow;
 		// try to find first activity if there is pageflow to execute
 		// return process.getActivities().getActivities().get(0).getPageflow();
@@ -1128,15 +1179,14 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return taskList;
 	}
 
-	public Object getProcessValue(String key){
-		
-		if(processInstanceVariables.containsKey(key))
-		{
+	public Object getProcessValue(String key) {
+
+		if (processInstanceVariables.containsKey(key)) {
 			return processInstanceVariables.get(key);
 		}
 		return null;
 	}
-	
+
 	private boolean isTaskActive() {
 		return !(taskInstance == null
 				|| taskInstance.getState().equals(ActivityState.FINISHED)

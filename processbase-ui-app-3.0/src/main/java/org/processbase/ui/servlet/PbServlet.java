@@ -61,6 +61,7 @@ public class PbServlet extends AbstractApplicationServlet {
     }
     
     
+    
 
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
@@ -70,13 +71,17 @@ public class PbServlet extends AbstractApplicationServlet {
     	String configFilename=getServletContext().getRealPath("/")+getApplicationProperty("log4jConfigLocation");
     	
     	if(Constants.getBonitaHomeDir()!=null)
-    		configFilename=Constants.getBonitaHomeDir()+"/log4j.properties";
+    		configFilename=Constants.getBonitaHomeDir()+"/log4j.xml";
     	
     	org.apache.log4j.xml.DOMConfigurator.configure(configFilename);    	
     	
     	
         PbApplication pbApplication = new PbApplication(panelModuleService);
         pbApplication.onRequestStart(request, null);
+        
 		return pbApplication;
     }
+    
+    
+    
 }
