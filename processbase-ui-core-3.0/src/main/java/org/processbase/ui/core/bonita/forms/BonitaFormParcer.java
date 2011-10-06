@@ -1,6 +1,7 @@
 package org.processbase.ui.core.bonita.forms;
 
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -19,7 +20,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class BonitaFormParcer {
+public class BonitaFormParcer implements Serializable{
 
     private Map<String, XMLProcessDefinition> processPoolMap;
     

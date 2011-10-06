@@ -3,6 +3,7 @@ package org.processbase.ui.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -25,4 +26,6 @@ public class CollectionHelper<T> {
 	public interface GroupKey<T>{
 		public String key(T source);
 	}
+	
+	
 }

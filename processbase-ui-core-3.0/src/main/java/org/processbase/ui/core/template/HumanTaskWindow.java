@@ -174,13 +174,7 @@ public class HumanTaskWindow extends PbWindow implements MenuBar.Command, Button
         priority2.setStyleName("red-bold");
         repaintPriorityMenu(taskInstance.getPriority());
 
-//        topBar.addComponent(menubar, 0);
-//        topBar.setComponentAlignment(menubar, Alignment.TOP_LEFT);
-//        topBar.setExpandRatio(menubar, 1);
-
         mainLayout.addComponent(menubar, 0);
-//        mainLayout.setComponentAlignment(menubar, Alignment.TOP_LEFT);
-//        mainLayout.setExpandRatio(menubar, 1);
     }
 
     private Label descriptionLabel;

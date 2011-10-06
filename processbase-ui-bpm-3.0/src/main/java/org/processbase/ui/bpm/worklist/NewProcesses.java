@@ -21,6 +21,8 @@ import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Window;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,7 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.generator.view.NewProcessPanel;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -146,20 +149,24 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
                 ProcessbaseApplication.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
-            } else { 
-            	 BarResource barResource = BarResource.getBarResource(process.getUUID());
+            } else {
+            	 NewProcessPanel ppanel=new NewProcessPanel(process);
+            	 ppanel.initUI();
+            	 this.getApplication().getMainWindow().addWindow(ppanel);
+            	 
+            	/* BarResource barResource = BarResource.getBarResource(process.getUUID());
                  XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(process.getName());
                  if (!xmlProcess.isByPassFormsGeneration()) {
                      GeneratedWindow genWindow = new GeneratedWindow(process.getLabel());
                      genWindow.setProcessDef(process);
                      genWindow.setBarResource(barResource);
                      
-                     this.getApplication().getMainWindow().addWindow(genWindow);
+                     
                      genWindow.initUI();
                  } else {
                      ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(process.getUUID());
                      showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
-                 }
+                 }*/
             }
         } catch (Exception ex) {
             ex.printStackTrace();

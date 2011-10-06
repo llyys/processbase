@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.bpm.generator;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -32,7 +33,7 @@ import org.processbase.ui.core.util.ICacheDelegate;
  *
  * @author marat
  */
-public class BarResource {
+public class BarResource implements Serializable {
 
     private ProcessDefinitionUUID puuid;
     private Map<String, byte[]> resource;

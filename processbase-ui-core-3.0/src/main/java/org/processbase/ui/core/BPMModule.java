@@ -47,6 +47,7 @@ import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.exception.UndeletableProcessException;
+import org.ow2.bonita.facade.APIAccessor;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
@@ -139,6 +140,7 @@ public class BPMModule {
     final IdentityAPI identityAPI;
     final BAMAPI bamAPI;
     final CommandAPI commandAPI;
+    final APIAccessor apiAccessor=null; 
     private String currentUserUID;
 	final static Logger logger = Logger.getLogger(BPMModule.class);
 	//private DocumentationManager documentatinManager;
@@ -154,17 +156,21 @@ public class BPMModule {
 			logger.error("constructor", ex);
             //Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
-        runtimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRuntimeAPI();
-        queryRuntimeAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryRuntimeAPI();
-        managementAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getManagementAPI();
-        queryDefinitionAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getQueryDefinitionAPI();
-        repairAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getRepairAPI();
-        webAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getWebAPI();
-        identityAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getIdentityAPI();
-        bamAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getBAMAPI();
-        commandAPI = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV).getCommandAPI();
+        APIAccessor apiAccessor = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
+		runtimeAPI = apiAccessor.getRuntimeAPI();
+        queryRuntimeAPI = apiAccessor.getQueryRuntimeAPI();
+        managementAPI = apiAccessor.getManagementAPI();
+        queryDefinitionAPI = apiAccessor.getQueryDefinitionAPI();
+        repairAPI = apiAccessor.getRepairAPI();
+        webAPI = apiAccessor.getWebAPI();
+        identityAPI = apiAccessor.getIdentityAPI();
+        bamAPI = apiAccessor.getBAMAPI();
+        commandAPI = apiAccessor.getCommandAPI();
         
-        
+    }
+    
+    public APIAccessor getAPIAccessor(){
+    	return apiAccessor;
     }
     
     private Class tryClass(String name)
