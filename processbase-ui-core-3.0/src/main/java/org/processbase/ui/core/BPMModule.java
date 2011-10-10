@@ -124,6 +124,7 @@ import com.sun.appserv.security.ProgrammaticLogin;
 import com.sun.enterprise.security.auth.realm.Realm;
 
 import org.apache.log4j.Logger;
+import org.h2.util.StringUtils;
 /**
  *
  * @author mgubaidullin
@@ -1116,6 +1117,17 @@ public class BPMModule {
         return runtimeAPI.evaluateGroovyExpression(expression, pduuid);
     }
 
+    public Object evaluateGroovyExpression(String script, ActivityInstanceUUID activityUUID, Map<String, Object> context, boolean useActivityScope, boolean propagate) throws Exception {
+    	initContext();
+    	 logger.debug("evaluateGroovyExpressions");
+         if (StringUtils.isNullOrEmpty(script)==false && GroovyExpression.isGroovyExpression(script)) {
+    		   Object result=runtimeAPI.evaluateGroovyExpression(script, activityUUID, context, useActivityScope, propagate);
+               return result;	           
+        } else {
+            return null;
+        }
+    }    
+    
      public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions,
             ActivityInstanceUUID activityUUID, Map<String, Object> context, boolean useActivityScope, boolean propagate)
             throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
@@ -1133,6 +1145,16 @@ public class BPMModule {
         }
     }
 
+     public Object evaluateGroovyExpression(String script, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues) throws Exception {
+    	 initContext();
+       	 logger.debug("evaluateGroovyExpressions");
+            if (StringUtils.isNullOrEmpty(script)==false && GroovyExpression.isGroovyExpression(script)) {
+                     return runtimeAPI.evaluateGroovyExpression(script, processDefinitionUUID, context);
+            }
+            return null;
+	 //return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
+	}
+     
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
             throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
     	logger.debug("evaluateGroovyExpressions");

@@ -21,6 +21,7 @@ import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
 /**
@@ -39,29 +40,27 @@ public class NewProcessPanel extends PbWindow{
 	 */
 	public NewProcessPanel(LightProcessDefinition process) throws Exception{
 		processManager=new ProcessManager(process, null);
-		processManager.setWindow(this);
-		setModal(true);
+		
 	}
 	
 	
 	public void initUI() {
 		
-		List<Component> components;
 		try {
-			components = processManager.openStartTask();
-			setCaption(processManager.getTaskInstance().getActivityLabel());
-			if(components.size()==1){
-				this.addComponent(components.get(0));
-			}
-			else {
-				Accordion accordionLayout=new Accordion();
-				accordionLayout.setSizeFull();
-				
-				for (Component component : components) {
-					accordionLayout.addTab(component, component.getCaption(), null);
-				}
-				this.addComponent(accordionLayout);
-			}
+			setWidth("845px");
+			setHeight("90%");
+			setResizable(true);
+			this.setContent(processManager);
+			processManager.setWindow(this);
+			
+			setModal(true);
+			center();
+			
+			processManager.initUI();
+			setCaption(processManager.getLabel());
+			
+			
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

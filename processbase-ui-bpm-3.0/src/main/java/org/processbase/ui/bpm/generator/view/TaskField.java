@@ -45,9 +45,19 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class TaskField {
 	
-	private Object value;
-	private final TaskManager taskManager;
+	private List<Action> actions;
+	private Component component;
 
+	private String name;
+	private final TaskManager taskManager;
+	
+	private Object value;
+	private Widget widget;
+	public TaskField(TaskManager taskManager, Widget widget) {
+		this.taskManager = taskManager;		
+		this.widget=widget;
+		taskManager.getFields().put(widget.getId(), this);
+	}
 	public TaskField(TaskManager taskManager, Widget widget, Component component, String name, Object value){
 		this.taskManager = taskManager;
 		this.widget=widget;
@@ -57,109 +67,12 @@ public class TaskField {
 		taskManager.getFields().put(name, this);
 		
 	}
-	public TaskField(TaskManager taskManager, Widget widget) {
-		this.taskManager = taskManager;		
-		this.widget=widget;
-		taskManager.getFields().put(widget.getId(), this);
-	}
 	
-	private Component component;
-	private Widget widget;
-	private String name;
-	private List<Action> actions;
-	
-	private void setWidget(Widget widget) {
-		this.widget = widget;
+	private void addAction(Action action) {
+		if(this.actions==null)
+			this.actions=new ArrayList<Action>();
+		this.actions.add(action);
 	}
-	public Widget getWidget() {
-		return widget;
-	}
-	public void setComponent(Component component) {
-		this.component = component;
-	}
-	public Component getComponent() {
-		if(component==null)
-			createComponent(widget);
-		return component;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getName() {
-		return name;
-	}
-	public Object getValue() {
-		return value;
-	}
-	
-	public Object getComponentValue(){
-		try {
-		if(component!=null)
-		{
-			if (component instanceof AbstractField) {
-				return ((AbstractField) component).getValue();
-			} else if (component instanceof GeneratedTable) {
-				return ((GeneratedTable) component).getTableValue();
-			} else if (component instanceof CheckBox) {
-				return ((CheckBox) component).booleanValue();
-			} else {
-				//return action.getExpression();
-			}
-		}
-		if(widget==null)
-			return null;
-		if (widget.getInitialValue() != null
-				&& widget.getInitialValue().getExpression() != null) {
-			if(GroovyExpression.isGroovyExpression(widget.getInitialValue().getExpression()))
-				value = taskManager.evalGroovyExpression(widget.getInitialValue().getExpression());
-			else
-				return widget.getInitialValue().getExpression();
-
-			if (value instanceof Component)// if value is vaadin component return component instance
-				return (Component) value;
-		}
-		Collection options = null;
-		if (widget.getAvailableValues() != null) {
-			if (widget.getAvailableValues().getExpression() != null) {
-				options = (Collection) taskManager.evalGroovyExpression(widget.getAvailableValues().getExpression());
-			} else if (!widget.getAvailableValues().getValuesList().getAvailableValues().isEmpty()) {
-				options = new ArrayList<String>();
-				for (ValuesList.AvailableValue avalue : widget
-						.getAvailableValues().getValuesList()
-						.getAvailableValues()) {
-					options.add(avalue.getValue());
-				}
-			}
-		}		
-		return options;
-		} catch (GroovyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public String validate(){
-		
-		StringBuilder errorMsg=new StringBuilder();
-		if(this.component!=null && component instanceof AbstractField){
-			try {
-				((AbstractField) component).setComponentError(null);
-				((AbstractField) component).validate();
-			} catch (InvalidValueException ex) {
-				
-				if (ex instanceof EmptyValueException){
-					((AbstractField) component).setComponentError(new UserError(
-							((AbstractField) component).getRequiredError()));
-					errorMsg.append("Required"+ex.getMessage());
-				}
-				errorMsg.append("Invalid value"+ex.getMessage());
-				throw ex;
-			}
-		}
-		return errorMsg.length()==0?null:errorMsg.toString();
-	}
-	
 	private Component createComponent(Widget widget) {
 		this.component=getComponent(widget);
 		this.component = (this.component != null) ? this.component : new Label("");
@@ -181,7 +94,14 @@ public class TaskField {
 		}
 		return this.component;
 	}
-	
+	public List<Action> getActions() {
+		return actions;
+	}
+	public Component getComponent() {
+		if(component==null)
+			createComponent(widget);
+		return component;
+	}
 	private Component getComponent(Widget widget) {
 		Object value = null;
 		DataFieldDefinition dfd = null;
@@ -306,30 +226,52 @@ public class TaskField {
 		}
 		return new Label("");
 	}
-	
-	private ImmediateUpload getUpload(Widget widget) {
-		/*ImmediateUpload component = null;
-		String processUUID = null;
-		String fileName = null;
-		boolean hasFile = false;
-		if (taskInstance != null) {
-			processUUID = taskInstance.getProcessInstanceUUID().toString();
-			fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
+	public Object getComponentValue(){
+		try {
+		if(component!=null)
+		{
+			if (component instanceof AbstractField) {
+				return ((AbstractField) component).getValue();
+			} else if (component instanceof GeneratedTable) {
+				return ((GeneratedTable) component).getTableValue();
+			} else if (component instanceof CheckBox) {
+				return ((CheckBox) component).booleanValue();
+			} else {
+				//return action.getExpression();
+			}
+		}
+		if(widget==null)
+			return null;
+		if (widget.getInitialValue() != null
+				&& widget.getInitialValue().getExpression() != null) {
+			if(GroovyExpression.isGroovyExpression(widget.getInitialValue().getExpression()))
+				value = taskManager.evalGroovyExpression(widget.getInitialValue().getExpression());
+			else
+				return widget.getInitialValue().getExpression();
 
-			LOGGER.debug("widget.getInitialValue().getExpression() = "+ widget.getInitialValue().getExpression());
-			LOGGER.debug("fileName = " + fileName);
-			if (fileName != null) {
-				hasFile = true;
-			}		}
-		component = new ImmediateUpload(processUUID, widget.getLabel(), widget
-				.getInitialValue().getExpression(), fileName, hasFile,
-				widget.isReadonly(), ProcessbaseApplication.getCurrent()
-						.getPbMessages());
-
-		return component;*/
-		return null;
+			if (value instanceof Component)// if value is vaadin component return component instance
+				return (Component) value;
+		}
+		Collection options = null;
+		if (widget.getAvailableValues() != null) {
+			if (widget.getAvailableValues().getExpression() != null) {
+				options = (Collection) taskManager.evalGroovyExpression(widget.getAvailableValues().getExpression());
+			} else if (!widget.getAvailableValues().getValuesList().getAvailableValues().isEmpty()) {
+				options = new ArrayList<String>();
+				for (ValuesList.AvailableValue avalue : widget
+						.getAvailableValues().getValuesList()
+						.getAvailableValues()) {
+					options.add(avalue.getValue());
+				}
+			}
+		}		
+		return options;
+		} catch (GroovyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
-	
 	private Component getDownload(Widget widget) {
 /*
 		Button b = new Button(widget.getLabel());
@@ -370,7 +312,45 @@ public class TaskField {
 		return b;*/
 		return null;
 	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	private ImmediateUpload getUpload(Widget widget) {
+		/*ImmediateUpload component = null;
+		String processUUID = null;
+		String fileName = null;
+		boolean hasFile = false;
+		if (taskInstance != null) {
+			processUUID = taskInstance.getProcessInstanceUUID().toString();
+			fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
+
+			LOGGER.debug("widget.getInitialValue().getExpression() = "+ widget.getInitialValue().getExpression());
+			LOGGER.debug("fileName = " + fileName);
+			if (fileName != null) {
+				hasFile = true;
+			}		}
+		component = new ImmediateUpload(processUUID, widget.getLabel(), widget
+				.getInitialValue().getExpression(), fileName, hasFile,
+				widget.isReadonly(), ProcessbaseApplication.getCurrent()
+						.getPbMessages());
+
+		return component;*/
+		return null;
+	}
+	
+	public Object getValue() {
+		return value;
+	}
+	
+	public Widget getWidget() {
+		return widget;
+	}
+	
 	public void registerActions(List<Action> actions) {
+		if(actions==null)
+			return;
 		for (Action action : actions) {
 			String expression="";
 			if(GroovyExpression.isGroovyExpression(action.getExpression()))				
@@ -382,14 +362,36 @@ public class TaskField {
 				this.addAction(action);
 		}
 	}
-	private void addAction(Action action) {
-		if(this.actions==null)
-			this.actions=new ArrayList<Action>();
-		this.actions.add(action);
+	
+	public void setComponent(Component component) {
+		this.component = component;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	private void setWidget(Widget widget) {
+		this.widget = widget;
 	}
 	
-	public List<Action> getActions() {
-		return actions;
+	public String validate(){
+		
+		StringBuilder errorMsg=new StringBuilder();
+		if(this.component!=null && component instanceof AbstractField){
+			try {
+				((AbstractField) component).setComponentError(null);
+				((AbstractField) component).validate();
+			} catch (InvalidValueException ex) {
+				
+				if (ex instanceof EmptyValueException){
+					((AbstractField) component).setComponentError(new UserError(
+							((AbstractField) component).getRequiredError()));
+					errorMsg.append("Required"+ex.getMessage());
+				}
+				errorMsg.append("Invalid value"+ex.getMessage());
+				throw ex;
+			}
+		}
+		return errorMsg.length()==0?null:errorMsg.toString();
 	}
 	
 	
