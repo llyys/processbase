@@ -47,6 +47,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 public class ProcessManager extends PbPanel{
@@ -55,6 +56,7 @@ public class ProcessManager extends PbPanel{
 	private ActivityInstanceUUID activityInstanceUUID;
 	private BarResource barResource;
 	protected BPMModule bpmModule=ProcessbaseApplication.getCurrent().getBpmModule();
+
 	//rendered from forms.xml file
 	private FormsDefinition formsDefinition;
 	private Map<String, Object> groovyContext;
@@ -102,25 +104,15 @@ public class ProcessManager extends PbPanel{
 	
 	@Override
 	public void initUI() {
-		/*taskLabel=new Label("test");
-        taskLabel.setVisible(true);
-        taskLabel.setSizeFull();
-        
-        this.addComponent(taskLabel);
-        
-        taskDescription=new Label("test2");
-        taskDescription.setVisible(true);
-        this.addComponent(taskDescription);
-        */
-        //this.panel.setScrollable(true);
-		
 		this.setHeight("100%");
 		this.setWidth("100%");
 		this.addComponent(taskPanel);
 		taskPanel.setHeight("100%");
+	
 		this.setExpandRatio(taskPanel, 1.0f);
-		 setMargin(false);
-         setSpacing(false);
+		setMargin(false);
+        setSpacing(false);
+        
         this.setComponentAlignment(taskPanel, Alignment.TOP_CENTER);
         
         try {
@@ -138,10 +130,6 @@ public class ProcessManager extends PbPanel{
 			else{
 				openTask(taskInstance);
 			}
-			
-			
-	        //this.setComponentAlignment(buttons, Alignment.BOTTOM_CENTER);
-	        //setExpandRatio(buttons, 0f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -159,6 +147,7 @@ public class ProcessManager extends PbPanel{
 		formsDefinition = this.barResource.getFormsDefinition();
 		process = formsDefinition.getProcesses().get(0);
 		activityDefinitions=new HashMap<String, Activities.Activity>();
+		
         for (Activities.Activity a : formsDefinition.getProcesses().get(0).getActivities().getActivities()) {
          	activityDefinitions.put(a.getName(), a);					
 		}  
@@ -207,25 +196,27 @@ public class ProcessManager extends PbPanel{
 		return window;
 	}
 	public Map<String, Object> initGroovyContext() {
-		if(groovyContext==null){
-			groovyContext=new Hashtable<String, Object>();
+			groovyContext=new HashMap<String, Object>();
 			//groovyContext.put("process_manager", this);
 			ProcessbaseApplication application = ProcessbaseApplication.getCurrent();
 			groovyContext.put("application", application);
 	//		groovyContext.put("apiAccessor", application.getBpmModule().getAPIAccessor());
-			groovyContext.put("loggedUser", application.getUserName());			
-		}
+			groovyContext.put("loggedUser", application.getUserName());
+		
+			for (Entry<String, Object> pvar : processVariables.entrySet()) {
+				Object value = pvar.getValue();
+				groovyContext.put(pvar.getKey(), value);
+			}		
 		return groovyContext;
 	}
-	
-	
+		
 	
 	public void initializeNewProcess() throws ProcessNotFoundException, VariableNotFoundException, Exception {
 		  ProcessInstanceUUID startNewProcess = getBpmModule().startNewProcess(processDefinitionUUID, getProcessVariables());
 		  setProcessInstanceUUID(startNewProcess);
 	}
 	
-	private void initProcessVariables() {
+	void initProcessVariables() {
 		try {
 			
             if (this.getTaskInstance() != null) { //open existing task
@@ -272,8 +263,9 @@ public class ProcessManager extends PbPanel{
 		
 		PageFlow pageFlow=process.getPageflow();
 		taskManager = new TaskManager(this);
+		
 		if(pageFlow!=null)//this is a entry pageflow, start process after clicking next button
-		{
+		{			
 			updateView(taskManager.renderPageflow(pageFlow));
 			return;
 		}
@@ -283,7 +275,6 @@ public class ProcessManager extends PbPanel{
 		 setTaskInstance(bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName()));
 		 
 		 String activityName=getTaskInstance().getActivityName();
-		
 		 updateView(taskManager.renderPageflow(activityDefinitions.get(activityName).getPageflow()));
 		 
 	}
@@ -297,7 +288,11 @@ public class ProcessManager extends PbPanel{
 	public void openTask(TaskInstance taskInstance) throws Exception
 	{
 		this.taskInstance=taskInstance;
-		
+		if(taskInstance.getProcessDefinitionUUID().equals(this.processDefinitionUUID)==false){
+			//this is new (sub)process
+			this.processDefinitionUUID=taskInstance.getProcessDefinitionUUID();
+			initManagerVariables();
+		}
 		if(!activityDefinitions.containsKey(taskInstance.getActivityName()))
 			return;//activity not found quitting
 		
@@ -309,13 +304,16 @@ public class ProcessManager extends PbPanel{
 		taskManager.setActivity(activity);
 		//clean and reload all process variables
 		
-		initProcessVariables();
+		//initProcessVariables();
 		 
 		updateView(taskManager.renderPageflow(pageFlow));
 	}
 
 
 	private void updateView(List<Component> components) {
+		
+		
+		
 		this.buttons.removeAllComponents();
 		this.taskPanel.removeAllComponents();
 		if(components.size()==1){
@@ -338,15 +336,35 @@ public class ProcessManager extends PbPanel{
 				this.buttons.addButton(button);
 			}
 		}
+		
 		Button buttonKatkesta = new Button("Katkesta");
+		buttonKatkesta.addListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				try {
+					if(taskInstance!=null)
+						getBpmModule().cancelProcessInstance(getProcessInstanceUUID());
+					getWindow().close();
+				} catch (Exception e) {
+					getWindow().showError("Unable to cancel the process");
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		
 		this.buttons.addButton(buttonKatkesta);
 		this.buttons.setComponentAlignment(buttonKatkesta, Alignment.MIDDLE_RIGHT);
-		buttonKatkesta.setSizeUndefined();
+		buttonKatkesta.setWidth("80px");
 		
-		Button buttonSulge = new Button("Sulge");
-		this.buttons.addButton(buttonSulge);
-		this.buttons.setComponentAlignment(buttonSulge, Alignment.MIDDLE_RIGHT);
-		buttonSulge.setSizeUndefined();
+		Button buttonClose = new Button("Sulge");
+		buttonClose.addListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				getWindow().close();
+			}
+		});
+		
+		this.buttons.addButton(buttonClose);
+		this.buttons.setComponentAlignment(buttonClose, Alignment.MIDDLE_RIGHT);
+		buttonClose.setWidth("80px");
 	}
 	
 	public void setParent(PbPanel parent) {
@@ -376,18 +394,6 @@ public class ProcessManager extends PbPanel{
 		else
 			this.activityInstanceUUID=new ActivityInstanceUUID(taskInstance.getActivityInstanceId());
 	}
-
-	public void setWindow(PbWindow window) {
-		this.window = window;
-	}
-
-	public void updateVariableValue(String variable, Object componentValue) {
-		processVariables.put(variable, componentValue);		
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
 	
 	public void finishTask(TaskManager manager) {
 		try {
@@ -397,27 +403,20 @@ public class ProcessManager extends PbPanel{
 			getWindow().showInformation(confirmationMessage);
 		}
 		if(taskInstance!=null){
-			getBpmModule().finishTask(taskInstance, 
-					true,
-					getProcessVariables(), 
-					manager.getActivityVariables(),
-					null);//TODO: ATTACHMENTS now it's null
+			getBpmModule().finishTask(taskInstance, true, getProcessVariables(), manager.getActivityVariables(), null);//TODO: ATTACHMENTS now it's null
 		}
 		//find next task to execute
-		taskInstance = bpmModule.nextUserTask(getProcessInstanceUUID(), 
-				ProcessbaseApplication.getCurrent().getUserName());
+		taskInstance = bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName());
+		
 		if(taskInstance!=null){
 			manager.Dispose();
 			openTask(taskInstance);
 		}
-		else{
+		else if(window!=null) {
 			//there is no more steps show info message
-			if(window!=null)
-			{
-				window.showInformation("Process finished or assinged to another user!");
-				window.close();
-				return;
-			}
+			window.showInformation("Process finished or assinged to another user!");
+			window.close();
+			return;			
 		}			
 		
 		} catch (TaskNotFoundException e) {
@@ -432,7 +431,20 @@ public class ProcessManager extends PbPanel{
 			window.showError(e.getMessage());
 		}
 	}
+	
+	
+	public void setWindow(PbWindow window) {
+		this.window = window;
+	}
 
+	public void updateVariableValue(String variable, Object componentValue) {
+		processVariables.put(variable, componentValue);		
+		groovyContext.put(variable, componentValue);
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
 	
 	
 }

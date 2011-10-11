@@ -486,7 +486,11 @@ public class BPMModule {
     				ProcessInstance subProcessInstance = getProcessInstance(instance.getSubflowProcessInstanceUUID());
     				Set<TaskInstance> tasks = subProcessInstance.getTasks();
     				for (TaskInstance taskInstance : tasks) {
-						if(taskInstance.getTaskCandidates().contains(currentUserName) && taskInstance.getState()==ActivityState.EXECUTING)
+						if(taskInstance.getTaskCandidates().contains(currentUserName) 
+								&& (taskInstance.getState() == ActivityState.READY 
+									|| taskInstance.getState()==ActivityState.EXECUTING 
+									|| taskInstance.getState()==ActivityState.SUSPENDED)
+								)
 							return assignAndStartTask(taskInstance.getUUID(), currentUserName);
 					}
     				
@@ -536,10 +540,12 @@ public class BPMModule {
         //runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
         //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         setProcessAndActivityInstanceVariables(task, pVars, aVars);
-        for (AttachmentInstance a : attachments.keySet()) {
-        	logger.debug(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+        if(attachments!=null){
+	        for (AttachmentInstance a : attachments.keySet()) {
+	        	logger.debug(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+	        }
+	        runtimeAPI.addAttachments(attachments);
         }
-        runtimeAPI.addAttachments(attachments);
         runtimeAPI.finishTask(task.getUUID(), b);
     }
 

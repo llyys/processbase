@@ -76,8 +76,7 @@ public class TaskManager //extends ProcessManager
 	
 	
 	public TaskManager(ProcessManager processManager){
-		this.processManager = processManager;
-		
+		this.processManager = processManager;		
 	}
 	
 	/**
@@ -105,7 +104,7 @@ public class TaskManager //extends ProcessManager
 	
 	
 	public Map<String, Object> getActivityVariables() {
-		updateActionValues();
+		//updateActionValues();
 		return activityVariables;
 	}
 	
@@ -139,13 +138,6 @@ public class TaskManager //extends ProcessManager
 	public Iterable<TaskField> getIterator() {
         return fields.values();
     }
-	private Label getLabel(Widget widget, Object value) {
-		String escaped = StringEscapeUtils.unescapeHtml(value.toString());
-		Label component = new Label(escaped);
-		component.setWidth("100%");
-		component.setContentMode(Label.CONTENT_XHTML);
-		return component;
-	}
 	
 	public TaskField getWidgetField(Widget widget) {
 		return getFields().get(widget.getId());
@@ -170,12 +162,6 @@ public class TaskManager //extends ProcessManager
 		return null;
 	}
 	
-	private boolean isTaskActive() {
-		return !(processManager.getTaskInstance() == null
-				|| processManager.getTaskInstance().getState().equals(ActivityState.FINISHED)
-				|| processManager.getTaskInstance().getState().equals(ActivityState.ABORTED) 
-				|| processManager.getTaskInstance().getState().equals(ActivityState.CANCELLED));
-	}
 	
 	public void onFinishTask() {
 		
@@ -193,7 +179,7 @@ public class TaskManager //extends ProcessManager
 					if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
 						processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue());
 					}
-					else if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
+					else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
 						updateVariableValue(action.getVariable(), taskField.getComponentValue());
 					}
 				}
@@ -218,6 +204,9 @@ public class TaskManager //extends ProcessManager
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
+		}
+		else{
+			processManager.finishTask(this);
 		}
 	}
 	
@@ -316,8 +305,14 @@ public class TaskManager //extends ProcessManager
 				TaskField field=new TaskField(this, widget);
 				field.registerActions(this.actions);
 				c = field.getComponent();
+				
+				//remove submit buttons from grid and later put them into button bar
 				if(field.getWidget().getType()==WidgetType.BUTTON_SUBMIT)
+				{
 					c=new Label();
+					((Label)c).setVisible(false);
+				}
+				
 				if (c != null) {
 										
 					int col1 = 0;
@@ -330,7 +325,7 @@ public class TaskManager //extends ProcessManager
 						col2 = componentStyle.getPosition().getTColumn();
 						row2 = componentStyle.getPosition().getTRow();
 						
-						CSSProperty cssProperty = componentStyle.getCss();
+						//CSSProperty cssProperty = componentStyle.getCss();
 						gridLayout.addComponent(c, col1, row1, col2, row2);
 					} else {
 						gridLayout.addComponent(c, col1, row1, col2, row2);
@@ -347,6 +342,7 @@ public class TaskManager //extends ProcessManager
 		
 	}
 	public List<Component> renderPageflow(PageFlow pageFlow) {
+		processManager.initProcessVariables();
 		components=new ArrayList<Component>();
 		if(pageFlow==null){
 			setLabel(processManager.getTaskInstance().getActivityName());
@@ -389,53 +385,7 @@ public class TaskManager //extends ProcessManager
 		this.fields = fields;
 	}
 	
-	
-	private void updateActionValues(){
-		if(getActions() == null) return;
 		
-		List<Action> processActions=new ArrayList<Action>();
-		Map<String, Object> merged=new Hashtable<String, Object>();
-		
-		for (Action action : getActions()) {
-			if (action.getType().equals(ActionType.SET_VARIABLE)) {
-				if (action.getExpression().startsWith("field")) {
-					TaskField tf=findTaskFieldByName(action.getExpression());					
-					if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
-						processManager.getProcessVariables().put(action.getVariable(), tf.getComponentValue());
-						merged.put(action.getVariable(), tf.getComponentValue());
-					} else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
-						activityVariables.put(action.getVariable(), tf.getComponentValue());
-						merged.put(action.getVariable(), tf.getComponentValue());
-					}
-				}
-				//handle button actions
-				else if(org.apache.commons.lang.StringUtils.isNotBlank(action.getSubmitButton()) && this.clickedWidget != null){
-					
-					String script = action.getExpression();
-					if(!GroovyExpression.isGroovyExpression(script))						
-						script = GroovyExpression.START_DELIMITER + script + GroovyExpression.END_DELIMITER;
-					
-					Object actionValue=null;
-					try {
-
-						if (this.clickedWidget.getId().equals(action.getSubmitButton())) {							
-							if (action.getVariableType().equals(VariableType.PROCESS_VARIABLE)) {
-								actionValue = GroovyUtil.evaluate(script, merged);
-								processManager.getProcessVariables().put(action.getVariable(), actionValue);
-
-							} else if (action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)) {
-								actionValue = GroovyUtil.evaluate(script,merged);
-								activityVariables.put(action.getVariable(), actionValue);
-							}
-						}
-					} catch (GroovyException e) {
-						// plain ignorance ;)
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-	}
 	public void updateVariableValue(String variable, Object componentValue) {
 		activityVariables.put(variable, componentValue);		
 	}

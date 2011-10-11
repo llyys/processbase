@@ -47,40 +47,38 @@ public class TaskField {
 	
 	private List<Action> actions;
 	private Component component;
-
-	private String name;
-	private final TaskManager taskManager;
-	
+	private final TaskManager taskManager;	
 	private Object value;
 	private Widget widget;
+	
 	public TaskField(TaskManager taskManager, Widget widget) {
 		this.taskManager = taskManager;		
 		this.widget=widget;
-		taskManager.getFields().put(widget.getId(), this);
+		taskManager.getFields().put(getName(), this);
 	}
-	public TaskField(TaskManager taskManager, Widget widget, Component component, String name, Object value){
+	
+	public TaskField(TaskManager taskManager, Widget widget, Component component, Object value){
 		this.taskManager = taskManager;
 		this.widget=widget;
 		this.component=component;
-		this.name=name;
 		this.value = value;
-		taskManager.getFields().put(name, this);
-		
+		taskManager.getFields().put(getName(), this);
 	}
 	
-	private void addAction(Action action) {
-		if(this.actions==null)
-			this.actions=new ArrayList<Action>();
-		this.actions.add(action);
-	}
-	private Component createComponent(Widget widget) {
-		this.component=getComponent(widget);
+	
+	
+	private Component createComponent() {
+		
+		//TaskField field=taskManager.getWidgetField(widget);
+		this.component=initComponent();
 		this.component = (this.component != null) ? this.component : new Label("");
-		if (!(this.component instanceof Button) && this.component instanceof AbstractField) {
-			/*if (value != null) {
-				((AbstractField) c).setValue(value);
+		
+		if (!(this.component instanceof Button) 
+				&& this.component instanceof AbstractField) {
+			
+			if (value != null) {
+				((AbstractField) this.component).setValue(value);
 			}
-			*/
 			if (widget.isMandatory() != null) {
 				((AbstractField) this.component).setRequired(widget.isMandatory());
 			}
@@ -94,22 +92,32 @@ public class TaskField {
 		}
 		return this.component;
 	}
+	
+	private void addAction(Action action) {
+		if(this.actions==null)
+			this.actions=new ArrayList<Action>();
+		this.actions.add(action);
+	}
+	
 	public List<Action> getActions() {
 		return actions;
 	}
+	
 	public Component getComponent() {
 		if(component==null)
-			createComponent(widget);
+			createComponent();
 		return component;
 	}
-	private Component getComponent(Widget widget) {
+	
+	private Component initComponent() {
 		Object value = null;
 		DataFieldDefinition dfd = null;
 		Collection options = null;
 		try {
-			TaskField field=taskManager.getWidgetField(widget);
-			value=field.getComponentValue();
-			
+			value=updateComponentValue();
+			String label=widget.getLabel(); 
+			if(label==null)
+				label="";
 			if(value!=null && value instanceof Component){//if this is a vaadin component
 				return (Component) value;
 			}
@@ -123,56 +131,59 @@ public class TaskField {
 			if (widget.getType().equals(WidgetType.TEXT)) {
 				String val = value == null ? "" : value.toString();
 				String escaped = StringEscapeUtils.unescapeHtml(val.toString());
-				Label component = new Label(widget.getLabel() + "<br/>" + val);
+				String content = label + "<br/>" + escaped;
+				if("".equals(label))
+					content=escaped;
+				Label component = new Label(content);
 				component.setWidth("100%");
 				component.setContentMode(Label.CONTENT_XHTML);
 				return component;				
 			}
 			
 			if (widget.getType().equals(WidgetType.HIDDEN)) {
-				TextField component = new TextField(widget.getLabel());
+				TextField component = new TextField(label);
 				component.setNullRepresentation("");
 				component.setVisible(false);
 				return component;				
 			}
 			if (widget.getType().equals(WidgetType.TEXTBOX)) {
-				TextField component = new TextField(widget.getLabel());
+				TextField component = new TextField(label);
 				component.setNullRepresentation("");
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.DATE)) {
-				PopupDateField component = new PopupDateField(widget.getLabel());
+				PopupDateField component = new PopupDateField(label);
 				component.setResolution(PopupDateField.RESOLUTION_DAY);
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.TEXTAREA)) {
-				TextArea component = new TextArea(widget.getLabel());
+				TextArea component = new TextArea(label);
 				component.setNullRepresentation("");
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.RICH_TEXTAREA)) {
-				RichTextArea component = new RichTextArea(widget.getLabel());
+				RichTextArea component = new RichTextArea(label);
 				component.setNullRepresentation("");
 				return component;
 			}
 			
 			if (widget.getType().equals(WidgetType.PASSWORD)) {
-				TextField component = new TextField(widget.getLabel());
+				TextField component = new TextField(label);
 				component.setNullRepresentation("");				
 				return component;
 			}
 
 			if (widget.getType().equals(WidgetType.LISTBOX_SIMPLE)) {
-				NativeSelect component = new NativeSelect(widget.getLabel(), (Collection)value);
+				NativeSelect component = new NativeSelect(label, (Collection)value);
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.SUGGESTBOX)) {
-				ComboBox component = new ComboBox(widget.getLabel(), (Collection)value);
+				ComboBox component = new ComboBox(label, (Collection)value);
 				component.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.RADIOBUTTON_GROUP)) {
-				OptionGroup component = new OptionGroup(widget.getLabel(), (Collection)value);
+				OptionGroup component = new OptionGroup(label, (Collection)value);
 				if (widget.getSelectMode() != null
 						&& widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
 					component.setMultiSelect(true);
@@ -180,18 +191,18 @@ public class TaskField {
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.LISTBOX_MULTIPLE)) {
-				ListSelect component = new ListSelect(widget.getLabel(), (Collection)value);
+				ListSelect component = new ListSelect(label, (Collection)value);
 				component.setMultiSelect(true);
 				return component;
 			}
 			if (widget.getType().equals(WidgetType.CHECKBOX)) {
-				return new CheckBox(widget.getLabel());				
+				return new CheckBox(label);				
 			}
 			if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
 				//c = new GeneratedTable(widget, value, groovyScripts);
 			}
 			if (widget.getType().equals(WidgetType.CHECKBOX_GROUP)) {
-				OptionGroup component = new OptionGroup(widget.getLabel(), (Collection)value);
+				OptionGroup component = new OptionGroup(label, (Collection)value);
 				if (widget.getSelectMode() != null && widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
 					component.setMultiSelect(true);
 				}
@@ -206,7 +217,7 @@ public class TaskField {
 				return getDownload(widget);
 			}
 			if (widget.getType().equals(WidgetType.BUTTON_SUBMIT)/* || widget.getType().equals(WidgetType.BUTTON_NEXT) || widget.getType().equals(WidgetType.BUTTON_PREVIOUS)*/) {
-				Button component = new Button(widget.getLabel());
+				Button component = new Button(label);
 				//component.addListener((Button.ClickListener) this);
 				if (widget.isLabelButton()) {
 					component.setStyleName(Reindeer.BUTTON_LINK);
@@ -226,32 +237,23 @@ public class TaskField {
 		}
 		return new Label("");
 	}
-	public Object getComponentValue(){
-		try {
-		if(component!=null)
-		{
-			if (component instanceof AbstractField) {
-				return ((AbstractField) component).getValue();
-			} else if (component instanceof GeneratedTable) {
-				return ((GeneratedTable) component).getTableValue();
-			} else if (component instanceof CheckBox) {
-				return ((CheckBox) component).booleanValue();
-			} else {
-				//return action.getExpression();
-			}
-		}
-		if(widget==null)
-			return null;
-		if (widget.getInitialValue() != null
+	
+
+	public Object updateComponentValue() throws Exception{
+		if (widget.getInitialValue() != null 
 				&& widget.getInitialValue().getExpression() != null) {
-			if(GroovyExpression.isGroovyExpression(widget.getInitialValue().getExpression()))
-				value = taskManager.evalGroovyExpression(widget.getInitialValue().getExpression());
+			
+			String expression = widget.getInitialValue().getExpression();
+			
+			if(GroovyExpression.isGroovyExpression(expression))
+				value = taskManager.evalGroovyExpression(expression);
 			else
-				return widget.getInitialValue().getExpression();
+				return expression;
 
 			if (value instanceof Component)// if value is vaadin component return component instance
 				return (Component) value;
 		}
+		
 		Collection options = null;
 		if (widget.getAvailableValues() != null) {
 			if (widget.getAvailableValues().getExpression() != null) {
@@ -266,12 +268,29 @@ public class TaskField {
 			}
 		}		
 		return options;
-		} catch (GroovyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		
 	}
+	
+	public Object getComponentValue(){
+		
+		if(component!=null)
+		{
+			if (component instanceof AbstractField) {
+				return ((AbstractField) component).getValue();
+			} else if (component instanceof GeneratedTable) {
+				return ((GeneratedTable) component).getTableValue();
+			} else if (component instanceof CheckBox) {
+				return ((CheckBox) component).booleanValue();
+			} else {
+				//return action.getExpression();
+			}
+		}
+		if(widget==null){
+			return null;		
+		} 
+		return null;		
+	}
+	
 	private Component getDownload(Widget widget) {
 /*
 		Button b = new Button(widget.getLabel());
@@ -314,7 +333,7 @@ public class TaskField {
 	}
 	
 	public String getName() {
-		return name;
+		return widget.getId();
 	}
 	
 	private ImmediateUpload getUpload(Widget widget) {
@@ -358,7 +377,7 @@ public class TaskField {
 			else
 				expression=action.getExpression();
 			
-			if(("field_"+this.getName()).equalsIgnoreCase(expression))
+			if(("field_"+this.widget.getId()).equalsIgnoreCase(expression))
 				this.addAction(action);
 		}
 	}
@@ -366,9 +385,7 @@ public class TaskField {
 	public void setComponent(Component component) {
 		this.component = component;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
+	
 	private void setWidget(Widget widget) {
 		this.widget = widget;
 	}
