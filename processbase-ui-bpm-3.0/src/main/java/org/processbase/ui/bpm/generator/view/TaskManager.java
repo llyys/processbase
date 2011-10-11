@@ -46,7 +46,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-public class TaskManager //extends ProcessManager
+public class TaskManager 
 {
 	public static String stripGroovyExpression(String script){
 		script = script.replace(GroovyExpression.START_DELIMITER, "");

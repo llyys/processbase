@@ -1,9 +1,11 @@
 package org.processbase.ui.bpm.generator.view;
 
 import java.util.List;
+import java.util.Stack;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
@@ -32,15 +34,64 @@ import com.vaadin.ui.VerticalLayout;
 public class NewProcessPanel extends PbWindow{
 
 	private ProcessManager processManager;
+	//when running subtasks we need a process stack
+	private Stack<ProcessManager> processManagerStack = new Stack<ProcessManager>();
 
 	/**
 	 * When user opens new process panel
 	 * @param task
 	 * @throws Exception 
 	 */
-	public NewProcessPanel(LightProcessDefinition process) throws Exception{
+	public NewProcessPanel(LightProcessDefinition process) throws Exception {
 		processManager=new ProcessManager(process, null);
-		
+		IProcessManagerActions actions = new IProcessManagerActions() {
+			
+			public void onViewUpdated(TaskInstance taskInstance) {
+				
+			}
+			
+			public void onTaskFinished(TaskInstance taskInstance) {
+				
+			}
+			
+			public void onFinishProcess(ProcessDefinitionUUID processDefinitionUUID) {
+				if(processManagerStack.size()>0){
+						processManager=processManagerStack.pop();
+						parent.setContent(processManager);
+				}
+				else{
+					showInformation("Process completed");
+					
+				}
+			}
+
+			public void onStartSubProcess(
+					ProcessDefinitionUUID processDefinitionUUID,
+					ActivityInstanceUUID activityInstanceUUID) {
+				try {
+					processManager=new ProcessManager(processDefinitionUUID, activityInstanceUUID);
+					processManagerStack.push(processManager);
+					
+					parent.setContent(processManager);
+					processManager.setWindow(this.parent);
+					processManager.initUI();
+					
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			
+			NewProcessPanel parent=null;
+			public void setParent(Object parent) {
+				this.parent = (NewProcessPanel) parent;
+				
+			}
+		};
+		processManager.setActions(actions);
+		actions.setParent(this);
+		processManagerStack.push(processManager);
 	}
 	
 	

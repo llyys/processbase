@@ -50,11 +50,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
-public class ProcessManager extends PbPanel{
+public class ProcessManager extends PbPanel {
 	
 	private HashMap<String, Activities.Activity> activityDefinitions;
 	private ActivityInstanceUUID activityInstanceUUID;
 	private BarResource barResource;
+	private IProcessManagerActions actions;
 	protected BPMModule bpmModule=ProcessbaseApplication.getCurrent().getBpmModule();
 
 	//rendered from forms.xml file
@@ -290,8 +291,10 @@ public class ProcessManager extends PbPanel{
 		this.taskInstance=taskInstance;
 		if(taskInstance.getProcessDefinitionUUID().equals(this.processDefinitionUUID)==false){
 			//this is new (sub)process
-			this.processDefinitionUUID=taskInstance.getProcessDefinitionUUID();
-			initManagerVariables();
+			if(this.actions !=null)
+				this.actions.onStartSubProcess(taskInstance.getProcessDefinitionUUID(), taskInstance.getUUID());
+			//this.processDefinitionUUID=taskInstance.getProcessDefinitionUUID();
+			//initManagerVariables();
 		}
 		if(!activityDefinitions.containsKey(taskInstance.getActivityName()))
 			return;//activity not found quitting
@@ -445,6 +448,11 @@ public class ProcessManager extends PbPanel{
 	public void setLabel(String label) {
 		this.label = label;
 	}
+
+	public void setActions(IProcessManagerActions actions) {
+		this.actions = actions;
+	}
+
 	
 	
 }
