@@ -97,7 +97,7 @@ public class ProcessManager extends PbPanel {
 	public ProcessManager(ProcessDefinitionUUID processDefinitionUUID, ActivityInstanceUUID activityInstanceUUID) throws Exception{
 		this.activityInstanceUUID = activityInstanceUUID;
 		this.processDefinitionUUID=processDefinitionUUID;
-		this.setTaskInstance(null);
+		this.setTaskInstance(getBpmModule().getTaskInstance(activityInstanceUUID));
 		initManagerVariables();   	
 		
 	}
@@ -200,7 +200,9 @@ public class ProcessManager extends PbPanel {
 			groovyContext=new HashMap<String, Object>();
 			//groovyContext.put("process_manager", this);
 			ProcessbaseApplication application = ProcessbaseApplication.getCurrent();
-			groovyContext.put("application", application);
+			groovyContext.put("parent", this);
+			groovyContext.put("taskManager", this.taskManager);
+			groovyContext.put("appication", application);
 	//		groovyContext.put("apiAccessor", application.getBpmModule().getAPIAccessor());
 			groovyContext.put("loggedUser", application.getUserName());
 		
@@ -265,7 +267,7 @@ public class ProcessManager extends PbPanel {
 		PageFlow pageFlow=process.getPageflow();
 		taskManager = new TaskManager(this);
 		
-		if(pageFlow!=null)//this is a entry pageflow, start process after clicking next button
+		if(pageFlow!=null && pageFlow.getPages()!=null)//this is a entry pageflow, start process after clicking next button
 		{			
 			updateView(taskManager.renderPageflow(pageFlow));
 			return;
@@ -289,13 +291,7 @@ public class ProcessManager extends PbPanel {
 	public void openTask(TaskInstance taskInstance) throws Exception
 	{
 		this.taskInstance=taskInstance;
-		if(taskInstance.getProcessDefinitionUUID().equals(this.processDefinitionUUID)==false){
-			//this is new (sub)process
-			if(this.actions !=null)
-				this.actions.onStartSubProcess(taskInstance.getProcessDefinitionUUID(), taskInstance.getUUID());
-			//this.processDefinitionUUID=taskInstance.getProcessDefinitionUUID();
-			//initManagerVariables();
-		}
+		
 		if(!activityDefinitions.containsKey(taskInstance.getActivityName()))
 			return;//activity not found quitting
 		
@@ -407,18 +403,26 @@ public class ProcessManager extends PbPanel {
 		}
 		if(taskInstance!=null){
 			getBpmModule().finishTask(taskInstance, true, getProcessVariables(), manager.getActivityVariables(), null);//TODO: ATTACHMENTS now it's null
+			if(actions!=null)
+				actions.onTaskFinished(taskInstance);
 		}
 		//find next task to execute
-		taskInstance = bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName());
+		TaskInstance newTask = bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName());
 		
-		if(taskInstance!=null){
+		if(newTask!=null){
 			manager.Dispose();
-			openTask(taskInstance);
+			if(newTask.getProcessDefinitionUUID().equals(this.processDefinitionUUID)==false){
+				//this is new (sub)process
+				if(this.actions !=null)
+					this.actions.onStartSubProcess(newTask.getProcessDefinitionUUID(), newTask.getUUID());
+				return;
+			}
+			openTask(newTask);
 		}
-		else if(window!=null) {
+		else {
 			//there is no more steps show info message
-			window.showInformation("Process finished or assinged to another user!");
-			window.close();
+			if(actions!=null)
+				actions.onFinishProcess(processDefinitionUUID);
 			return;			
 		}			
 		
@@ -433,6 +437,11 @@ public class ProcessManager extends PbPanel {
 		} catch (Exception e) {
 			window.showError(e.getMessage());
 		}
+	}
+	
+	public void finishTask(){
+		if(taskManager!=null)
+			taskManager.onFinishTask();
 	}
 	
 	
@@ -451,6 +460,27 @@ public class ProcessManager extends PbPanel {
 
 	public void setActions(IProcessManagerActions actions) {
 		this.actions = actions;
+	}
+
+	public void reloadTask() {
+		try { 
+			TaskInstance nextTask= bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName());
+			if(nextTask!=null)
+			{
+				openTask(nextTask);
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	
+
+	public TaskManager getTaskManager() {
+		return taskManager;
 	}
 
 	

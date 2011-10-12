@@ -55,26 +55,17 @@ public class NewProcessPanel extends PbWindow{
 			}
 			
 			public void onFinishProcess(ProcessDefinitionUUID processDefinitionUUID) {
-				if(processManagerStack.size()>0){
-						processManager=processManagerStack.pop();
-						parent.setContent(processManager);
-				}
-				else{
-					showInformation("Process completed");
-					
-				}
+				
+				parent.finishProcess();
 			}
 
 			public void onStartSubProcess(
 					ProcessDefinitionUUID processDefinitionUUID,
 					ActivityInstanceUUID activityInstanceUUID) {
 				try {
-					processManager=new ProcessManager(processDefinitionUUID, activityInstanceUUID);
-					processManagerStack.push(processManager);
-					
-					parent.setContent(processManager);
-					processManager.setWindow(this.parent);
-					processManager.initUI();
+					ProcessManager pm=new ProcessManager(processDefinitionUUID, activityInstanceUUID);
+					pm.setActions(this);
+					parent.startSubProcess(pm);					
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -91,9 +82,35 @@ public class NewProcessPanel extends PbWindow{
 		};
 		processManager.setActions(actions);
 		actions.setParent(this);
-		processManagerStack.push(processManager);
+		//processManagerStack.push(processManager);
 	}
 	
+	
+	protected void finishProcess() {
+		// TODO Auto-generated method stub
+		if(processManagerStack.size()>0){
+			ProcessManager pm=processManagerStack.pop();	
+			setContent(pm);
+			pm.reloadTask();
+			//replaceComponent(processManager, pm);
+			pm.setWindow(this);
+			setCaption(pm.getLabel());
+			processManager=pm;
+		}
+		else{
+			showInformation("Process completed");			
+		}
+	}
+
+
+	public void startSubProcess(ProcessManager pm){
+		processManagerStack.push(processManager);
+		setContent(pm);
+		setCaption(pm.getLabel());
+		pm.setWindow(this);		
+		pm.initUI();
+		processManager=pm;
+	}
 	
 	public void initUI() {
 		
@@ -118,6 +135,11 @@ public class NewProcessPanel extends PbWindow{
 			throw new RuntimeException(e);
 		}
 		
+	}
+
+
+	public ProcessManager getProcessManager() {
+		return processManager;
 	}
 	
 }

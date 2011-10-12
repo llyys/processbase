@@ -91,7 +91,12 @@ public class TaskManager
 		return GroovyUtil.evaluate(expression, processManager.getGroovyContext());
 	}
 	
-	
+	public Component getComponentByWidgetId(String id){
+		TaskField taskFieldByName = findTaskFieldByName(id);
+		if(taskFieldByName!=null)
+			return taskFieldByName.getComponent();
+		return null;
+	}
 	
 	public TaskField findTaskFieldByName(String name){
 		if(getFields().containsKey(name))
@@ -176,11 +181,13 @@ public class TaskManager
 				errors.add(error);
 			if(taskField.getActions()!=null){
 				for (Action action : taskField.getActions()) {
-					if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
-						processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue());
-					}
-					else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
-						updateVariableValue(action.getVariable(), taskField.getComponentValue());
+					if(action.getVariableType()!=null){
+						if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
+							processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue());
+						}
+						else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
+							updateVariableValue(action.getVariable(), taskField.getComponentValue());
+						}
 					}
 				}
 			}
