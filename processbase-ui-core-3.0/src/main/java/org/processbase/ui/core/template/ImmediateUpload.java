@@ -139,12 +139,17 @@ public class ImmediateUpload extends VerticalLayout
 				
 				//Document document = bpmModule.getDocument(attachment.getUUID());
                 ByteArraySource bas = new ByteArraySource(ProcessbaseApplication.getCurrent().getFileBody(processUUID, attachmentName));
-                StreamResource streamResource = new StreamResource(bas, attachment.getFileName(), getApplication());
-                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-                getWindow().getWindow().open(streamResource, "_blank");
+                if(bas!=null && bas.byteArray.length!=0){
+	                StreamResource streamResource = new StreamResource(bas, attachment.getFileName(), getApplication());
+	                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
+	                getWindow().getWindow().open(streamResource, "_blank");
+                }
+                else
+                	getWindow().showNotification("File " + attachmentName + "is empty");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            getWindow().showNotification("File loading error");
         }
     }
 
