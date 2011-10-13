@@ -37,6 +37,7 @@ import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetGroup;
 import org.processbase.ui.core.bonita.forms.WidgetType;
 import org.processbase.ui.core.bonita.forms.Widgets;
+import org.processbase.ui.core.template.ImmediateUpload;
 
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -188,6 +189,17 @@ public class TaskManager
 						else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
 							updateVariableValue(action.getVariable(), taskField.getComponentValue());
 						}
+						
+					}
+					else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
+						ImmediateUpload upload=(ImmediateUpload) taskField.getComponent();
+						
+						try {
+							processManager.getBpmModule().addAttachment(processManager.getProcessInstanceUUID(), taskField.getName(), upload.getFileName(), upload.getMimeType(), upload.getFileBody());
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -219,6 +231,13 @@ public class TaskManager
 	
 	public void onTaskFieldButtonClick(TaskField field, ClickEvent event){
 		if(field.getWidget().getType()==WidgetType.BUTTON_SUBMIT){
+			if(actions!=null){
+				for (Action action : actions) {
+					if(action.getSubmitButton()!=null && action.getSubmitButton().equalsIgnoreCase(field.getName())){
+						field.addAction(action);
+					}	
+				}
+			}			
 			onFinishTask();
 		}		
 	}	
@@ -310,7 +329,7 @@ public class TaskManager
 			if (wg instanceof Widget) {
 				Widget widget = (Widget) wg;
 				TaskField field=new TaskField(this, widget);
-				field.registerActions(this.actions);
+				
 				c = field.getComponent();
 				
 				//remove submit buttons from grid and later put them into button bar
@@ -403,6 +422,10 @@ public class TaskManager
 
 	public String getLabel() {
 		return label;
+	}
+
+	public ProcessManager getProcessManager() {
+		return processManager;
 	}
 
 	

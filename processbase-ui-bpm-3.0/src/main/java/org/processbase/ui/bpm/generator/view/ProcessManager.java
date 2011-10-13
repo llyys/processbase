@@ -332,7 +332,10 @@ public class ProcessManager extends PbPanel {
 			TaskField tf=component.getValue();
 			if(tf.getWidget().getType()== WidgetType.BUTTON_SUBMIT){
 				Button button = (Button) tf.getComponent();
+				
 				this.buttons.addButton(button);
+				this.buttons.setComponentAlignment(button, Alignment.MIDDLE_LEFT);
+				
 			}
 		}
 		
@@ -349,10 +352,14 @@ public class ProcessManager extends PbPanel {
 				}
 			}
 		});
+		Label empty=new Label("");
+		this.buttons.addComponent(empty);
+		this.buttons.setComponentAlignment(empty, Alignment.MIDDLE_RIGHT);
+		buttons.setExpandRatio(empty, 1.0f);
 		
 		this.buttons.addButton(buttonKatkesta);
 		this.buttons.setComponentAlignment(buttonKatkesta, Alignment.MIDDLE_RIGHT);
-		buttonKatkesta.setWidth("80px");
+		//buttonKatkesta.setWidth("100%");
 		
 		Button buttonClose = new Button("Sulge");
 		buttonClose.addListener(new Button.ClickListener() {
@@ -363,7 +370,7 @@ public class ProcessManager extends PbPanel {
 		
 		this.buttons.addButton(buttonClose);
 		this.buttons.setComponentAlignment(buttonClose, Alignment.MIDDLE_RIGHT);
-		buttonClose.setWidth("80px");
+		//buttonClose.setWidth("100%");
 	}
 	
 	public void setParent(PbPanel parent) {
