@@ -58,7 +58,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 	    
     public abstract int getApplicationType();
 
-    public abstract void setSessionAttribute(String name, String value);
+    public abstract void setSessionAttribute(String name, Object value);
 
     public abstract void removeSessionAttribute(String name);
 

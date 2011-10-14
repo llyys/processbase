@@ -3,6 +3,7 @@ package org.processbase.ui.servlet;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -15,6 +16,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Runo;
 import java.util.Locale;
@@ -23,6 +25,7 @@ import javax.servlet.http.Cookie;
 
 import org.hibernate.annotations.common.Version;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
 
 /**
  *
@@ -55,7 +58,7 @@ public class LoginPanel extends GridLayout implements Handler {
         addComponent(panel, 1, 1);
         setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 
-        panel.setWidth("300px"); 
+        panel.setWidth("330px"); 
 
         username.setCaption(((PbApplication)getApplication()).getPbMessages().getString("userName"));
         form.addComponent(username);
@@ -72,13 +75,39 @@ public class LoginPanel extends GridLayout implements Handler {
         btnLogin = new Button(((PbApplication)getApplication()).getPbMessages().getString("login"), this, "okHandler");
         btnLogin.setStyleName(Runo.BUTTON_DEFAULT);
         action_ok = new ShortcutAction("Default key", ShortcutAction.KeyCode.ENTER, null);
-        form.addComponent(btnLogin);
-        form.setComponentAlignment(btnLogin, Alignment.BOTTOM_RIGHT);
         
-        Label version=new Label(org.processbase.ui.core.Version.VERSION);
-        version.setHeight("8px");
-        form.addComponent(version);
-        form.setComponentAlignment(version, Alignment.BOTTOM_RIGHT);
+        ButtonBar buttons=new ButtonBar();
+        buttons.addButton(btnLogin);
+        
+        Button idButton=new Button("ID-kaart");
+        buttons.addButton(idButton);
+        idButton.addListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				String url="https://aar.smartlink.ee/aar/web.idlogin?loc="+getWindow().getURL().toExternalForm();
+				url=url.replaceFirst("SmartBPM.+", "SmartBPM/auth");
+				//event.getButton().getWindow().executeJavaScript("window.location.href="+url+";");
+				ExternalResource res=new ExternalResource(url);
+				event.getButton().getWindow().open(res);
+				//event.getButton().getWindow().executeJavaScript("alert('meek');"); 
+			}
+		});
+        
+        Button mobidButton=new Button("MobiilID"); 
+        buttons.addButton(mobidButton);
+       
+        mobidButton.addListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				String url="https://aar.smartlink.ee/aar/!web.mobiillogin?id=?loc="+getWindow().getURL().toExternalForm();
+				url=url.replaceFirst("SmartBPM.+", "SmartBPM/auth");
+				ExternalResource res=new ExternalResource(url);
+				event.getButton().getWindow().open(res);
+				//getWindow().executeJavaScript("window.location.href="+url+";");
+			}
+		});
+        
+        //buttons.setComponentAlignment(btnLogin, Alignment.BOTTOM_RIGHT);
+        
+        
 //        btnLogin.addListener(this);
 
         createLogo();
@@ -86,8 +115,15 @@ public class LoginPanel extends GridLayout implements Handler {
         vlayout.setComponentAlignment(logo, Alignment.MIDDLE_CENTER);
         vlayout.addComponent(form);
         vlayout.setComponentAlignment(form, Alignment.MIDDLE_CENTER);
+        
         vlayout.setMargin(false, true, false, true);
         vlayout.setSpacing(true);
+        vlayout.addComponent(buttons);
+        
+        Label version=new Label(org.processbase.ui.core.Version.VERSION);
+        vlayout.addComponent(version);
+        vlayout.setComponentAlignment(version, Alignment.BOTTOM_RIGHT);
+        
         panel.setContent(vlayout);
         panel.addActionHandler(this);
     }

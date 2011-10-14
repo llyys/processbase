@@ -88,8 +88,9 @@ public class TaskManager
 		
 	}
 	
-	public Object evalGroovyExpression(String expression) throws GroovyException {
-		return GroovyUtil.evaluate(expression, processManager.getGroovyContext());
+	public Object evalGroovyExpression(String expression) throws Exception {
+		return processManager.evalGroovyExpression(expression);
+		//return GroovyUtil.evaluate(expression, processManager.getGroovyContext());
 	}
 	
 	public Component getComponentByWidgetId(String id){
@@ -127,7 +128,7 @@ public class TaskManager
 				Object result=evalGroovyExpression(confirmationMessage);
 				if(result!=null)
 					return result.toString();
-			} catch (GroovyException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				return null;
 			}
@@ -149,7 +150,7 @@ public class TaskManager
 		return getFields().get(widget.getId());
 	}
 	
-	public Object getWidgetValue(Widget widget) throws GroovyException {
+	public Object getWidgetValue(Widget widget) throws Exception {
 		if (widget.getInitialValue() != null && widget.getInitialValue().getExpression() != null) {				
 			return evalGroovyExpression(widget.getInitialValue().getExpression());			
 		}

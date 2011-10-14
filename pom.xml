@@ -69,6 +69,11 @@
 			<name>smartlink</name>
 			<url>https://mvn.smartlink.ee/content/repositories/public/</url>
 		</repository>
+		<repository>
+		<id>repo1</id>
+		<name>repo1</name>
+		<url>http://repo1.maven.org/maven2/</url>
+		</repository>
 	</repositories>
 	<modules>
 

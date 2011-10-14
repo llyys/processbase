@@ -155,6 +155,7 @@
 						<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
 						<warName>SmartBPM</warName>
 						<warSourceDirectory>src/main/webapp</warSourceDirectory>
+						
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
 							utters a warning because of it. This configuration should shut it up! FIXME: 

@@ -161,7 +161,9 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     }
 
     public void authenticate(String login, String password, boolean rememberMe) throws Exception {
+    	
         BPMModule bpmm = new BPMModule(login);
+        
         if (bpmm.checkUserCredentials(login, password)) {
             setUserName(login);
             String locale = bpmm.getUserMetadata("locale");
@@ -182,7 +184,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         }
     }
 
-    public void setSessionAttribute(String name, String value) {
+    public void setSessionAttribute(String name, Object value) {
         httpSession.setAttribute("PROCESSBASE_SHARED_" + name, value);
     }
 

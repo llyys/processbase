@@ -73,15 +73,23 @@ public class CacheUtil {
 		}
 		
 		public static <T extends Object> T getOrCache(final String cacheName, final Object key, ICacheDelegate<T> cmd) throws Exception{
-			
-			T result=(T) get(cacheName, key);
+			T result=null;
+			try {
+			result=(T) get(cacheName, key);
 			
 			if(result==null){
-				result=cmd.execute();
-				store(cacheName, null, key, result);
+				
+					result=cmd.execute();
+					store(cacheName, null, key, result);
+					return result;
 			}
-			
-			return result;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				clear(cacheName);
+				
+				//store(cacheName, null, key, result);
+			}
+			return (T)cmd.execute();
 		}
 	 
 }

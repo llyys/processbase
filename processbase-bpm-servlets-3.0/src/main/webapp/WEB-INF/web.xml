@@ -19,7 +19,10 @@
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
-	
+	<servlet>
+		<servlet-name>IDAuthServlet</servlet-name>
+		<servlet-class>org.processbase.servlets.IdAuthServlet</servlet-class>
+	</servlet>
     <servlet>
         <servlet-name>PbServlet</servlet-name>
         <servlet-class>org.processbase.ui.servlet.PbServlet</servlet-class>
@@ -36,6 +39,10 @@
             <param-value>1</param-value>
         </init-param>
     </servlet>
+    <servlet-mapping>
+    	<servlet-name>IDAuthServlet</servlet-name>
+    	<url-pattern>/auth/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PbServlet</servlet-name>
         <url-pattern>/*</url-pattern>

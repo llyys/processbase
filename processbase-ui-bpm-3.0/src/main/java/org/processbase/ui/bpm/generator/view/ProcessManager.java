@@ -20,6 +20,7 @@ import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.generator.BarResource;
@@ -155,8 +156,14 @@ public class ProcessManager extends PbPanel {
         
 	}
 	
-	public Object evalGroovyExpression(String expression) throws GroovyException {
-		return GroovyUtil.evaluate(expression, groovyContext, processDefinitionUUID, true);		
+	public Object evalGroovyExpression(String expression) throws Exception {
+		
+			if(taskInstance==null)
+				return getBpmModule().evaluateGroovyExpression(expression, processDefinitionUUID, groovyContext, false);
+			else 
+				return getBpmModule().evaluateGroovyExpression(expression, taskInstance.getUUID(), groovyContext, false, false);
+		
+		//return GroovyUtil.evaluate(expression, groovyContext, processDefinitionUUID, true);		
 	}
 	
 	public BarResource getBarResource() {
@@ -204,7 +211,11 @@ public class ProcessManager extends PbPanel {
 			groovyContext.put("taskManager", this.taskManager);
 			groovyContext.put("appication", application);
 	//		groovyContext.put("apiAccessor", application.getBpmModule().getAPIAccessor());
-			groovyContext.put("loggedUser", application.getUserName());
+			if(application.getApplicationType()==ProcessbaseApplication.LIFERAY_PORTAL)
+				
+				groovyContext.put("loggedUser", application.getSessionAttribute("LiferayUser"));
+			else
+				groovyContext.put("loggedUser", application.getUserName());
 		
 			for (Entry<String, Object> pvar : processVariables.entrySet()) {
 				Object value = pvar.getValue();
@@ -414,7 +425,7 @@ public class ProcessManager extends PbPanel {
 				actions.onTaskFinished(taskInstance);
 		}
 		//find next task to execute
-		TaskInstance newTask = bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName());
+		TaskInstance newTask = bpmModule.nextUserTask(getProcessInstanceUUID(), ProcessbaseApplication.getCurrent().getUserName()); 
 		
 		if(newTask!=null){
 			manager.Dispose();

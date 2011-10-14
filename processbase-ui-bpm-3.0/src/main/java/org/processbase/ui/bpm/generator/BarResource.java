@@ -70,7 +70,10 @@ public class BarResource implements Serializable {
 //        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form, "UTF-8")); //If bar resource already is in UTF-8 encoding this caused a double encoding and thus resource was not available
         if(form==null)
         	throw new Exception("No form definitions found from process!");
-        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form));
+        
+        String old=new String(form, "UTF-8");
+       // String data=String.copyValueOf(old.toCharArray());
+        formsDefinition = BonitaFormParcer.createFormsDefinition(old);
     }
 
     public org.processbase.ui.bpm.generator.TableStyle getTableStyle(Page page) {

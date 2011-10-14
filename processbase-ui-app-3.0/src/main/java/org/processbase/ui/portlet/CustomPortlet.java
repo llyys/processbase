@@ -248,7 +248,7 @@ public class CustomPortlet extends ProcessbaseApplication
         return this.portletSession;
     }
 
-    public void setSessionAttribute(String name, String value) {
+    public void setSessionAttribute(String name, Object value) {
         getPortletSession().setAttribute("PROCESSBASE_SHARED_" + name, value, PortletSession.APPLICATION_SCOPE);
     }
 

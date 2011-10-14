@@ -260,6 +260,8 @@ public class TaskField {
 
 			if (value instanceof Component)// if value is vaadin component return component instance
 				return (Component) value;
+			else 
+				return value;
 		}
 		
 		Collection options = null;

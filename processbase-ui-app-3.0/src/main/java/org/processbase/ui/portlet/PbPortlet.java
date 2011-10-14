@@ -65,6 +65,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     final Logger logger = LoggerFactory.getLogger(PbPortlet.class);
 
     private boolean inited = false;
+	private User portalUser;
 
     public void initUI() {
         logger.debug("PbPortlet init ");
@@ -121,9 +122,10 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             	org.ow2.bonita.facade.identity.User bonitaUser =null;
             	String screenName=null;
             	
-                User portalUser = PortalUtil.getUser(request);
+                portalUser = PortalUtil.getUser(request);
                 if(portalUser!=null)
                 {           
+                	setSessionAttribute("LiferayUser", portalUser.getScreenName());
                 	if(getSessionAttribute(AUTHENTICATEDUSER)==null)
                 		screenName = portalUser.getScreenName();
                 	else
@@ -193,7 +195,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 //        currentProcessbase.remove();
 //    }
 
-    public void setSessionAttribute(String name, String value) {
+    public void setSessionAttribute(String name, Object value) {
         getPortletSession().setAttribute("PROCESSBASE_SHARED_" + name, value, PortletSession.APPLICATION_SCOPE);
     }
 
@@ -299,4 +301,10 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     public Map<String, String> getFileList(String processUUID) throws Exception {
         return getDocumentLibrary().getFileList(processUUID);
     }
+
+	
+
+	public User getPortalUser() {
+		return portalUser;
+	}
 }
