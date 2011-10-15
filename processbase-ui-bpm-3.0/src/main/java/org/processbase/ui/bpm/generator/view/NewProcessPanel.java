@@ -98,7 +98,8 @@ public class NewProcessPanel extends PbWindow{
 			processManager=pm;
 		}
 		else{
-			showInformation("Process completed");			
+			showInformation("Process completed");
+			this.close();
 		}
 	}
 

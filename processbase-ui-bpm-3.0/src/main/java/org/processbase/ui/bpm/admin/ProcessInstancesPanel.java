@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
@@ -36,6 +37,7 @@ import org.processbase.ui.core.template.TablePanel;
 public class ProcessInstancesPanel extends TablePanel implements Button.ClickListener {
 
     private ProcessDefinitionUUID filter = null;
+	private BPMConfigurationPanel bpmConfigurationPanel;
 
     public ProcessInstancesPanel() {
         super();
@@ -113,6 +115,13 @@ public class ProcessInstancesPanel extends TablePanel implements Button.ClickLis
     public void setFilter(ProcessDefinitionUUID filter) {
         this.filter = filter;
     }
+
+	public void setBpmConfigurationPanel(
+			BPMConfigurationPanel bpmConfigurationPanel) {
+				this.bpmConfigurationPanel = bpmConfigurationPanel;
+		// TODO Auto-generated method stub
+		
+	}
 
     
 }

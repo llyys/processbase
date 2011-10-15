@@ -27,6 +27,7 @@ import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
@@ -41,6 +42,7 @@ import org.processbase.ui.core.template.TablePanel;
 public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
 
     private ProcessDefinitionUUID filter = null;
+	private BPMConfigurationPanel bpmConfigurationPanel;
 
     public ActivityInstancesPanel() {
         super();
@@ -138,4 +140,11 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
     public void setFilter(ProcessDefinitionUUID filter) {
         this.filter = filter;
     }
+
+	public void setBpmConfigurationPanel(
+			BPMConfigurationPanel bpmConfigurationPanel) {
+				this.bpmConfigurationPanel = bpmConfigurationPanel;
+		// TODO Auto-generated method stub
+		
+	}
 }

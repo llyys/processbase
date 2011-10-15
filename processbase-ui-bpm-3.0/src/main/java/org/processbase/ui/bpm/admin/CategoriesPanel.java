@@ -22,6 +22,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 import java.util.Set;
 import org.ow2.bonita.facade.runtime.Category;
+import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -35,7 +36,10 @@ public class CategoriesPanel extends TablePanel implements
         Button.ClickListener,
         Window.CloseListener {
 
-    public CategoriesPanel() {
+    private BPMConfigurationPanel bpmConfigurationPanel;
+
+
+	public CategoriesPanel() {
         super();
     }
 
@@ -95,6 +99,14 @@ public class CategoriesPanel extends TablePanel implements
             }
         }
     }
+
+
+	public void setBpmConfigurationPanel(
+			BPMConfigurationPanel bpmConfigurationPanel) {
+				this.bpmConfigurationPanel = bpmConfigurationPanel;
+		// TODO Auto-generated method stub
+		
+	}
 
     
 }

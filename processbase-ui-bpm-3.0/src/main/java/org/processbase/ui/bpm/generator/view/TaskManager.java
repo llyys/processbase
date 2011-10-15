@@ -93,7 +93,7 @@ public class TaskManager
 		//return GroovyUtil.evaluate(expression, processManager.getGroovyContext());
 	}
 	
-	public Component getComponentByWidgetId(String id){
+	public Component getComponentByWidgetId(String id) throws Exception{
 		TaskField taskFieldByName = findTaskFieldByName(id);
 		if(taskFieldByName!=null)
 			return taskFieldByName.getComponent();
@@ -170,7 +170,7 @@ public class TaskManager
 	}
 	
 	
-	public void onFinishTask() {
+	public void onFinishTask() throws Exception {
 		
 		//validate all fields in task
 		List<String> errors=new ArrayList<String>();
@@ -230,7 +230,7 @@ public class TaskManager
 		}
 	}
 	
-	public void onTaskFieldButtonClick(TaskField field, ClickEvent event){
+	public void onTaskFieldButtonClick(TaskField field, ClickEvent event) throws Exception{
 		if(field.getWidget().getType()==WidgetType.BUTTON_SUBMIT){
 			if(actions!=null){
 				for (Action action : actions) {
@@ -267,7 +267,7 @@ public class TaskManager
 		}		
 	}
 
-	public Component RenderDynamicPageComponents(String pageLabel) {
+	public Component RenderDynamicPageComponents(String pageLabel) throws Exception {
 		setLabel(pageLabel);
 		VerticalLayout layout=new VerticalLayout(); 
 		for (DataFieldDefinition dataField : processManager.getProcessDataFields()) {
@@ -304,7 +304,7 @@ public class TaskManager
 		
 	}
 	
-	private Component RenderPageComponents(Page page) {
+	private Component RenderPageComponents(Page page) throws Exception {
 		// TODO Auto-generated method stub
 		int gridColumns=1;
 		int gridRows=page.getWidgets().getWidgetsAndGroups().size();
@@ -368,7 +368,7 @@ public class TaskManager
 		return gridLayout;
 		
 	}
-	public List<Component> renderPageflow(PageFlow pageFlow) {
+	public List<Component> renderPageflow(PageFlow pageFlow) throws Exception {
 		processManager.initProcessVariables();
 		components=new ArrayList<Component>();
 		if(pageFlow==null){

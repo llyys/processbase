@@ -23,6 +23,7 @@ import com.vaadin.ui.Window;
 import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
@@ -37,7 +38,9 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         Button.ClickListener,
         Window.CloseListener {
 
-    public ProcessDefinitionsPanel() {
+    private BPMConfigurationPanel bpmConfigurationPanel;
+
+	public ProcessDefinitionsPanel() {
         super();
     }
 
@@ -103,4 +106,11 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             }
         }
     }
+
+	public void setBpmConfigurationPanel(
+			BPMConfigurationPanel bpmConfigurationPanel) {
+				this.bpmConfigurationPanel = bpmConfigurationPanel;
+		// TODO Auto-generated method stub
+		
+	}
 }

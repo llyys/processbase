@@ -14,6 +14,7 @@ import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.generator.GeneratedTable;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.forms.AvailableValues;
 import org.processbase.ui.core.bonita.forms.SelectMode;
 import org.processbase.ui.core.bonita.forms.ValuesList;
 import org.processbase.ui.core.bonita.forms.Widget;
@@ -72,7 +73,7 @@ public class TaskField {
 	
 	
 	
-	private Component createComponent() {
+	private Component createComponent() throws Exception {
 		
 		//TaskField field=taskManager.getWidgetField(widget);
 		this.component=initComponent();
@@ -108,17 +109,17 @@ public class TaskField {
 		return actions;
 	}
 	
-	public Component getComponent() {
+	public Component getComponent() throws Exception {
 		if(component==null)
 			createComponent();
 		return component;
 	}
 	
-	private Component initComponent() {
+	private Component initComponent() throws Exception {
 		Object value = null;
 		DataFieldDefinition dfd = null;
 		Collection options = null;
-		try {
+		
 			value=updateComponentValue();
 			String label=widget.getLabel(); 
 			if(label==null)
@@ -234,15 +235,17 @@ public class TaskField {
 				component.addListener(new Button.ClickListener() {					
 					public void buttonClick(ClickEvent event) {
 						TaskField that=(TaskField) event.getButton().getData();
-						taskManager.onTaskFieldButtonClick(that, event);
+						try {
+							taskManager.onTaskFieldButtonClick(that, event);
+						} catch (Exception e) {
+							throw new RuntimeException("Task field button click", e);							
+						}
 					}
 				});
 				return component;
 			}			
 			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		
 		return new Label("");
 	}
 	
@@ -260,25 +263,26 @@ public class TaskField {
 
 			if (value instanceof Component)// if value is vaadin component return component instance
 				return (Component) value;
-			else 
-				return value;
+			 
+				
 		}
 		
 		Collection options = null;
-		if (widget.getAvailableValues() != null) {
-			if (widget.getAvailableValues().getExpression() != null) {
-				options = (Collection) taskManager.evalGroovyExpression(widget.getAvailableValues().getExpression());
-			} else if (!widget.getAvailableValues().getValuesList().getAvailableValues().isEmpty()) {
+		AvailableValues availableValues = widget.getAvailableValues();
+		if (availableValues != null) {
+			if (availableValues.getExpression() != null) {
+				options = (Collection) taskManager.evalGroovyExpression(availableValues.getExpression());
+			} else if (!availableValues.getValuesList().getAvailableValues().isEmpty()) {
 				options = new ArrayList<String>();
-				for (ValuesList.AvailableValue avalue : widget
-						.getAvailableValues().getValuesList()
+				for (ValuesList.AvailableValue avalue : availableValues.getValuesList()
 						.getAvailableValues()) {
 					options.add(avalue.getValue());
 				}
 			}
+			return options;
 		}		
-		return options;
-		
+		//return options;
+		return value;
 	}
 	
 	public Object getComponentValue(){

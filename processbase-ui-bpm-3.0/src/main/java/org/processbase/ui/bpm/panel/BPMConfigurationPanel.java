@@ -74,20 +74,25 @@ public class BPMConfigurationPanel extends PbPanelModule
         addComponent(buttonBar, 0);
 
         processDefinitionsPanel = new ProcessDefinitionsPanel();
+        processDefinitionsPanel.setBpmConfigurationPanel(this);
         panels.put(processDefinitionBtn, processDefinitionsPanel);
         addComponent(processDefinitionsPanel, 1);
         setExpandRatio(processDefinitionsPanel, 1);
         processDefinitionsPanel.initUI();
+                
         processDefinitionsPanel.refreshTable();
 
 
         processInstancesPanel = new ProcessInstancesPanel();
+        processInstancesPanel.setBpmConfigurationPanel(this);        
         panels.put(processInstancesBtn, processInstancesPanel);
 
         activityInstancesPanel = new ActivityInstancesPanel();
+        activityInstancesPanel.setBpmConfigurationPanel(this);
         panels.put(activityInstancesBtn, activityInstancesPanel);
 
         categoriesPanel = new CategoriesPanel();
+        categoriesPanel.setBpmConfigurationPanel(this);
         panels.put(categoriesBtn, categoriesPanel);
 
         refreshProcessDefinitionCombo();
@@ -99,9 +104,11 @@ public class BPMConfigurationPanel extends PbPanelModule
         if (!tablePanel.isInitialized()){
             tablePanel.initUI();
         }
+        
+        /*
         if (tablePanel.equals(processDefinitionsPanel) || tablePanel.equals(categoriesPanel)) {
             tablePanel.refreshTable();
-        }
+        }*/
     }
 
     private void prepareButtonBar() {

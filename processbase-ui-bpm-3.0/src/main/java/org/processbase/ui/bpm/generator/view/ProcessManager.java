@@ -1,5 +1,8 @@
 package org.processbase.ui.bpm.generator.view;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -8,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.h2.util.StringUtils;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
@@ -39,6 +43,7 @@ import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.core.template.TablePanel;
 
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
@@ -47,6 +52,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
@@ -56,6 +62,10 @@ public class ProcessManager extends PbPanel {
 	private HashMap<String, Activities.Activity> activityDefinitions;
 	private ActivityInstanceUUID activityInstanceUUID;
 	private BarResource barResource;
+	
+	Binding groovyBinding = null;
+	GroovyShell groovyShell=null;
+	
 	private IProcessManagerActions actions;
 	protected BPMModule bpmModule=ProcessbaseApplication.getCurrent().getBpmModule();
 
@@ -157,12 +167,14 @@ public class ProcessManager extends PbPanel {
 	}
 	
 	public Object evalGroovyExpression(String expression) throws Exception {
-		
+			try{
+				return GroovyUtil.evaluate(expression, groovyBinding);
+			}catch(Exception ex){
 			if(taskInstance==null)
 				return getBpmModule().evaluateGroovyExpression(expression, processDefinitionUUID, groovyContext, false);
 			else 
 				return getBpmModule().evaluateGroovyExpression(expression, taskInstance.getUUID(), groovyContext, false, false);
-		
+			}
 		//return GroovyUtil.evaluate(expression, groovyContext, processDefinitionUUID, true);		
 	}
 	
@@ -221,6 +233,9 @@ public class ProcessManager extends PbPanel {
 				Object value = pvar.getValue();
 				groovyContext.put(pvar.getKey(), value);
 			}		
+	
+		groovyBinding=new Binding(groovyContext);
+		groovyShell = new GroovyShell(groovyBinding);
 		return groovyContext;
 	}
 		
@@ -320,7 +335,7 @@ public class ProcessManager extends PbPanel {
 	}
 
 
-	private void updateView(List<Component> components) {
+	private void updateView(List<Component> components) throws Exception {
 		
 		
 		
@@ -331,7 +346,7 @@ public class ProcessManager extends PbPanel {
 			this.taskPanel.addComponent(c);
 		}
 		else {
-			Accordion accordionLayout=new Accordion();
+			TabSheet accordionLayout=new TabSheet();
 			accordionLayout.setSizeFull();
 			
 			for (Component component : components) {
@@ -446,18 +461,23 @@ public class ProcessManager extends PbPanel {
 		
 		} catch (TaskNotFoundException e) {
 			window.showError(e.getMessage());
+			throw new RuntimeException(e);
 		} catch (IllegalTaskStateException e) {
 			window.showError(e.getMessage());
+			throw new RuntimeException(e);
 		} catch (InstanceNotFoundException e) {
 			window.showError(e.getMessage());
+			throw new RuntimeException(e);
 		} catch (VariableNotFoundException e) {
 			window.showError(e.getMessage());
+			throw new RuntimeException(e);
 		} catch (Exception e) {
 			window.showError(e.getMessage());
+			throw new RuntimeException(e);
 		}
 	}
 	
-	public void finishTask(){
+	public void finishTask() throws Exception{
 		if(taskManager!=null)
 			taskManager.onFinishTask();
 	}

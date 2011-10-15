@@ -458,6 +458,11 @@ public class BPMModule {
         initContext();
         return getQueryRuntimeAPI().getLightTaskList(state);
     }
+  
+    public Collection<LightTaskInstance> getLightTaskList(ProcessInstanceUUID instanceUUID, ActivityState state) throws Exception {
+	        initContext();
+	        return getQueryRuntimeAPI().getLightTaskList(instanceUUID, state);
+	}
 
     public Set<ProcessInstance> getUserInstances() throws Exception {
     	logger.debug("getUserInstances");
