@@ -5,6 +5,7 @@ import groovy.lang.GroovyShell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -240,6 +241,10 @@ public class ProcessManager extends PbPanel {
 	
 		groovyBinding=new Binding(groovyContext);
 		groovyShell = new GroovyShell(groovyBinding);
+		
+		if(modifiedProcessVariables!=null)
+			modifiedProcessVariables.clear();
+		
 		return groovyContext;
 	}
 		
@@ -449,7 +454,20 @@ public class ProcessManager extends PbPanel {
 			getWindow().showInformation(confirmationMessage);
 		}
 		if(taskInstance!=null){
-			getBpmModule().finishTask(taskInstance, true, getProcessVariables(), manager.getActivityVariables(), null);//TODO: ATTACHMENTS now it's null
+			
+			//Speed improvement:Filter out only modified variables, because bonita does un-nessesery calculation on all fields.
+			Map<String, Object> mpv=new HashMap<String, Object>();
+			Map<String, Object> mav=new HashMap<String, Object>();
+			for(String variable:modifiedProcessVariables){
+				if(getProcessVariables().containsKey(variable)){
+					mpv.put(variable, getProcessVariables().get(variable));
+				}
+				if(manager.getActivityVariables().containsKey(variable)){
+					mav.put(variable, manager.getActivityVariables().get(variable));
+				}
+			}
+			
+			getBpmModule().finishTask(taskInstance, true, mpv, mav, null);//TODO: ATTACHMENTS now it's null
 			if(actions!=null)
 				actions.onTaskFinished(taskInstance);
 		}
@@ -501,7 +519,15 @@ public class ProcessManager extends PbPanel {
 		this.window = window;
 	}
 
+	Set<String> modifiedProcessVariables=null;
+	public void registerModifiedVariable(String variable){
+		if(modifiedProcessVariables==null)
+			modifiedProcessVariables=new HashSet<String>();
+		modifiedProcessVariables.add(variable);
+		
+	}
 	public void updateVariableValue(String variable, Object componentValue) {
+		
 		processVariables.put(variable, componentValue);		
 		groovyContext.put(variable, componentValue);
 	}

@@ -492,9 +492,10 @@ public class BPMModule {
     public TaskInstance nextUserTask(ProcessInstanceUUID processInstanceUUID, String currentUserName)  throws Exception {
     	logger.debug("nextUserTask");
         initContext();
-    	Set<ActivityInstance> activities= getQueryRuntimeAPI().getActivityInstances(processInstanceUUID);
-    	Collection<TaskInstance> taskList = getQueryRuntimeAPI().getTaskList(processInstanceUUID, ActivityState.EXECUTING);
-    	for (ActivityInstance instance : activities) {    		
+    	//Set<ActivityInstance> activities= getQueryRuntimeAPI().getActivityInstances(processInstanceUUID);
+    	Set<LightActivityInstance> lightActivities = getQueryRuntimeAPI().getLightActivityInstances(processInstanceUUID);
+    	//Collection<TaskInstance> taskList = getQueryRuntimeAPI().getTaskList(processInstanceUUID, ActivityState.EXECUTING);
+    	for (LightActivityInstance instance : lightActivities) {    		
     		if(instance.getState() == ActivityState.READY 
     				|| instance.getState() == ActivityState.EXECUTING 
 					|| instance.getState()==ActivityState.SUSPENDED)
@@ -514,9 +515,9 @@ public class BPMModule {
     				
     			}
     			else{
-					TaskInstance task=instance.getTask();
-					if(task.getTaskCandidates().contains(currentUserName))
-						return assignAndStartTask(task.getUUID(), currentUserName);
+    				
+					if(getQueryRuntimeAPI().getTaskCandidates(instance.getUUID()).contains(currentUserName))
+						return assignAndStartTask(instance.getUUID(), currentUserName);
 	    			}
 			}
 		}
@@ -545,7 +546,8 @@ public class BPMModule {
 			ActivityNotFoundException {
 		logger.debug("setProcessAndActivityInstanceVariables");
 		getRuntimeAPI().setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
-		getRuntimeAPI().setActivityInstanceVariables(task.getUUID(), aVars);
+		if(aVars.size()>0)
+			getRuntimeAPI().setActivityInstanceVariables(task.getUUID(), aVars);
         /*for (Map.Entry<String, Object> entry : pVars.entrySet()) {
             getRuntimeAPI().setProcessInstanceVariable(task.getProcessInstanceUUID(), entry.getKey(), entry.getValue());
 		}
@@ -570,7 +572,7 @@ public class BPMModule {
 	        }
 	        getRuntimeAPI().addAttachments(attachments);
         }
-        getRuntimeAPI().finishTask(task.getUUID(), b);
+        getRuntimeAPI().finishTask(task.getUUID(), false);
     }
 
     public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, String mimeType, byte[] value) throws Exception {
@@ -1603,22 +1605,16 @@ public class BPMModule {
 		if(processRoles==null)return;
 		initContext();
 		List<Role> roles = getIdentityAPI().getAllRoles();
-		
+		Set<String> existingRoles = new HashSet<String>();
+		for(Role role:roles){
+			existingRoles.add(role.getLabel());
+		}
 		for (String role:processRoles) {
-			boolean found=false;
-			for (Role role2 : roles) {
-				if(role.equalsIgnoreCase(role2.getLabel()))
-				{
-					found =true;
-					break;
-				}				
-							
-			}	
-			if(found==false&& "Initiator".equals(role)==false){
-				
-				getIdentityAPI().addRole(role, role, "AUTO IMPORTED");	
+			if(existingRoles.add(role)){//if no dublicate detected
+				if("Initiator".equals(role)==false){
+					getIdentityAPI().addRole(role, role, "AUTO IMPORTED");	
+				}
 			}
-			found=false;
 		}
 	}
 	

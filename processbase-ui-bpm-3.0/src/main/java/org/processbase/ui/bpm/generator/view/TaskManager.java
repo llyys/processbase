@@ -185,16 +185,16 @@ public class TaskManager
 				for (Action action : taskField.getActions()) {
 					if(action.getVariableType()!=null){
 						if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
+							processManager.registerModifiedVariable(action.getVariable());
 							processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue());
 						}
 						else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
+							processManager.registerModifiedVariable(action.getVariable());
 							updateVariableValue(action.getVariable(), taskField.getComponentValue());
 						}
-						
 					}
 					else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
-						ImmediateUpload upload=(ImmediateUpload) taskField.getComponent();
-						
+						ImmediateUpload upload=(ImmediateUpload) taskField.getComponent();						
 						try {
 							processManager.getBpmModule().addAttachment(processManager.getProcessInstanceUUID(), taskField.getName(), upload.getFileName(), upload.getMimeType(), upload.getFileBody());
 						} catch (Exception e) {
