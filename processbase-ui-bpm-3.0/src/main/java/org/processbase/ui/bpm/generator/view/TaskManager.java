@@ -306,6 +306,7 @@ public class TaskManager
 	
 	private Component RenderPageComponents(Page page) throws Exception {
 		// TODO Auto-generated method stub
+		setLabel(page.getPageLabel());
 		int gridColumns=1;
 		int gridRows=page.getWidgets().getWidgetsAndGroups().size();
 		if(page.getActions()!=null) 
@@ -364,7 +365,7 @@ public class TaskManager
 				// TODO WidgetGroup
 			}
 		}
-	
+		gridLayout.setCaption(getLabel());
 		return gridLayout;
 		
 	}

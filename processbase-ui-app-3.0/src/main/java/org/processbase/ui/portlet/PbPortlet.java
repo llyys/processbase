@@ -108,7 +108,11 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         BPMModule bpmm = new BPMModule(login);
         setBpmModule(bpmm);
         setUserName(login);
-        setSessionAttribute(AUTHENTICATEDUSER, login);
+       // setSessionAttribute(AUTHENTICATEDUSER, login);
+        PortalUser portalUser = new PortalUser(login, login);
+                
+        org.ow2.bonita.facade.identity.User bonitaUser = bpmModule.authUser(portalUser);
+		setSessionAttribute(AUTH_KEY, bonitaUser);
         initUI();        
     }
     
@@ -117,40 +121,27 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     	
         if (!inited) {
             try {
-            	setPortletSession(request.getPortletSession());
-            	
+            	setPortletSession(request.getPortletSession());            	
             	org.ow2.bonita.facade.identity.User bonitaUser =null;
             	String screenName=null;
             	
                 portalUser = PortalUtil.getUser(request);
                 if(portalUser!=null)
                 {           
-                	setSessionAttribute("LiferayUser", portalUser.getScreenName());
-                	if(getSessionAttribute(AUTHENTICATEDUSER)==null)
-                		screenName = portalUser.getScreenName();
-                	else
-                		screenName= getSessionAttribute(AUTHENTICATEDUSER).toString();
-                	
-	                try {
-	                	setBpmModule(new BPMModule(screenName));
-						bonitaUser = getBpmModule().findUserByUserName(screenName);
-						if(bonitaUser==null){
-							screenName= BPMModule.USER_GUEST;			                	
-						}							
-					} catch (Exception e) { //user not found in bonita, make user as guest					
-						screenName= BPMModule.USER_GUEST;		                	
-					}
+                	bonitaUser=new PortalUser(portalUser);                	
                 }
                 else {
-            		screenName= BPMModule.USER_GUEST;
-            		if(getSessionAttribute(AUTHENTICATEDUSER)!=null)
-            			screenName= getSessionAttribute(AUTHENTICATEDUSER).toString();
-                    	
-                    		
-                }
-            	
-			    setUserName(screenName);
-			    setBpmModule(new BPMModule(screenName));	                               
+            		bonitaUser=new PortalUser(screenName, screenName);            				
+                }	                               
+                if(bpmModule==null)
+            		setBpmModule(new BPMModule(bonitaUser.getUsername()));
+            	try {
+					bonitaUser=bpmModule.authUser(bonitaUser);
+					setSessionAttribute(AUTH_KEY, bonitaUser);
+				} catch (Exception e) {
+					logger.error("Unable to authenticate the user", e);
+					e.printStackTrace();
+				}
                 
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));

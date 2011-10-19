@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>	
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -7,8 +8,8 @@
 		<version>3.0</version>
 	</parent>
 
-	<artifactId>processbase-bpm-servlets</artifactId>
 	<packaging>war</packaging>
+	<artifactId>processbase-bpm-servlets</artifactId>
 	<name>Processbase Servlet</name>
 
 	<properties>
@@ -62,86 +63,6 @@
 			<version>${gwt-user.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- <dependency> <groupId>${project.groupId}</groupId> <artifactId>processbase-engine-bam</artifactId> 
-			<version>${project.version}</version> </dependency> -->
-
-		<dependency>
-			<groupId>ee.smartlink.esteid</groupId>
-			<artifactId>esteid-vaadin-component</artifactId>
-			<version>${esteid-vaadin-component.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>		
-		
-		<!-- Estonian x-road dependencies -->
-		<dependency>
-	  		<groupId>ee.webmedia.xtee</groupId>
-	  		<artifactId>xtee-common</artifactId>
-	  		<version>${x-tee.version}</version>
-	  	</dependency>
-	  	<dependency>
-	  		<groupId>ee.webmedia.xtee</groupId>
-	  		<artifactId>xtee-client-transport</artifactId>
-	  		<version>${x-tee.version}</version>
-	  	</dependency>
-		<dependency>
-			<groupId>ee.smartlink.xtee</groupId>
-			<artifactId>xtee-connector</artifactId>
-			<version>1.0</version>
-		</dependency>		
-		<dependency>
-			<groupId>ee.finestmedia.xtee</groupId>
-			<artifactId>xtee-client-adit</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		
-		<!-- Dependencies for digidoc -->
-		<dependency>
-	        <groupId>org.bouncycastle</groupId>
-	        <artifactId>bcprov-jdk15</artifactId>
-	        <version>1.44</version>
-	    </dependency> 
-	    <dependency>
-	        <groupId>org.bouncycastle</groupId>
-	        <artifactId>bctsp-jdk15</artifactId>
-	        <version>1.44</version>
-	     </dependency>
-	     <dependency>
-	       <groupId>xerces</groupId>
-	       <artifactId>xercesImpl</artifactId>
-	       <version>2.9.1</version>
-	     </dependency> 
-	     <dependency>
-	       <groupId>xml-security</groupId>
-	       <artifactId>xmlsec</artifactId>
-	       <version>1.3.0</version>
-	     </dependency>  
-	     <dependency>
-			<groupId>ee.eesti.id</groupId>
-			<artifactId>jdigidoc</artifactId>
-			<version>${jdigidoc.version}</version>
-		</dependency>
-
 	</dependencies>
 
 
@@ -155,7 +76,8 @@
 						<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
 						<warName>SmartBPM</warName>
 						<warSourceDirectory>src/main/webapp</warSourceDirectory>
-						
+						 <!-- <packagingExcludes>WEB-INF/lib/processbase*.jar</packagingExcludes>-->
+						<packagingIncludes>**/*.xml,**/*.properties,**/*.class,WEB-INF/lib/processbase-engine-bam-3.0.jar,WEB-INF/lib/processbase-ui-app-3.0.jar,WEB-INF/lib/processbase-ui-bam-3.0.jar,WEB-INF/lib/processbase-ui-bpm-3.0.jar,WEB-INF/lib/processbase-ui-core-3.0.jar,WEB-INF/lib/processbase-engine-bpm-3.0.jar,VAADIN/**,META-INF/**,scripts/**,iaikPkcs11Wrapper_sig.jar,SignApplet_sig.jar</packagingIncludes>
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
 							utters a warning because of it. This configuration should shut it up! FIXME: 
@@ -180,9 +102,7 @@
 				</execution>
 			  </executions>
 			</plugin>
-
-
-			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
+	<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
 				<version>${gwt-user.version}</version> <configuration> <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
 				<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs> <runTarget>clean</runTarget> 
 				<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp> 

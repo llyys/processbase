@@ -8,13 +8,12 @@
 		<version>3.0</version>
 	</parent>
 	<packaging>war</packaging>
-	<artifactId>processbase-bpm-portlets</artifactId>
-	<url>http://processbase.googlecode.com</url>
+	<artifactId>processbase-bpm-portlets</artifactId>	
 	<name>SmartBPM Portlets</name>
 	
 	<properties>
-		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-		<x-tee.version>2.1.1.32</x-tee.version>
+		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>		
+		
 	</properties>
 	
 	<repositories>
@@ -25,16 +24,57 @@
 		</repository>	
 	</repositories>
 	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bpm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-bam</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-app</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<!-- <dependency> <groupId>${project.groupId}</groupId> <artifactId>processbase-engine-bam</artifactId> 
+			<version>${project.version}</version> </dependency> -->
+		<dependency>
+			<groupId>com.liferay.portal</groupId>
+			<artifactId>portal-impl</artifactId>
+			<version>${liferay.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.liferay.portal</groupId>
+			<artifactId>portal-service</artifactId>
+			<version>${liferay.version}</version>
+		</dependency>
+			
+	</dependencies>
+
+
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
 					<configuration>
-						<webXml>web/WEB-INF/web.xml</webXml>
+						<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
 						<warName>smartBPM-portlet</warName>
-						<warSourceDirectory>web</warSourceDirectory>
+						<warSourceDirectory>src/main/webapp</warSourceDirectory>
+						
+						<!-- <packagingExcludes>WEB-INF/lib/processbase*.jar</packagingExcludes>-->
+						<packagingIncludes>**/*.xml,**/*.properties,**/*.class,WEB-INF/lib/processbase-engine-bam-3.0.jar,WEB-INF/lib/processbase-ui-app-3.0.jar,WEB-INF/lib/processbase-ui-bam-3.0.jar,WEB-INF/lib/processbase-ui-bpm-3.0.jar,WEB-INF/lib/processbase-ui-core-3.0.jar,WEB-INF/lib/processbase-engine-bpm-3.0.jar,VAADIN/**,META-INF/**,scripts/**,iaikPkcs11Wrapper_sig.jar,SignApplet_sig.jar</packagingIncludes>
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
 							utters a warning because of it. This configuration should shut it up! FIXME: 
@@ -42,6 +82,7 @@
 							<packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
 					</configuration>
 				</plugin>
+
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -58,16 +99,59 @@
 				</execution>
 			  </executions>
 			</plugin>
-			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
-				<version>${gwt-user.version}</version> <configuration> -->
-			<!-- if you don't specify any modules, the plugin will find them -->
-			<!--modules> .. </modules -->
-			<!--<webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
+	<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
+				<version>${gwt-user.version}</version> <configuration> <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
+
+
+
 				<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs> <runTarget>clean</runTarget> 
 				<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp> 
 				<noServer>true</noServer> <port>8080</port> <soyc>false</soyc> </configuration> 
 				<executions> <execution> <goals> <goal>resources</goal> <goal>compile</goal> 
 				</goals> </execution> </executions> </plugin> -->
+			<!-- <plugin> <groupId>com.vaadin</groupId> <artifactId>vaadin-maven-plugin</artifactId> 
+				<version>1.0.2</version> <executions> <execution> <configuration> <modules> 
+				<module>org.processbase.vaadin.widgetset.DefaultWidgetSet</module> </modules> 
+				</configuration> <goals> <goal>update-widgetset</goal> </goals> </execution> 
+				</executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<compilerArguments>
+						<endorseddirs>${endorsed.dir}</endorseddirs>
+					</compilerArguments>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${endorsed.dir}</outputDirectory>
+							<silent>true</silent>
+							<artifactItems>
+								<artifactItem>
+									<groupId>javax</groupId>
+									<artifactId>javaee-endorsed-api</artifactId>
+									<version>6.0</version>
+									<type>jar</type>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -90,110 +174,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>integration</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-simple</artifactId>
-		    <version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-log4j12</artifactId>
-		    <version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-ui-app</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-ui-bam</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-ui-bpm</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-ui-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>processbase-engine-bam</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ee.smartlink.esteid</groupId>
-			<artifactId>esteid-vaadin-component</artifactId>
-			<version>${esteid-vaadin-component.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<version>${gwt-user.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<!-- Estonian x-road dependencies -->
-		<dependency>
-			<groupId>ee.webmedia.xtee</groupId>
-			<artifactId>xtee-common</artifactId>
-			<version>${x-tee.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ee.webmedia.xtee</groupId>
-			<artifactId>xtee-client-transport</artifactId>
-			<version>${x-tee.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ee.smartlink.xtee</groupId>
-			<artifactId>xtee-connector</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>ee.finestmedia.xtee</groupId>
-			<artifactId>xtee-client-adit</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-
-		<!-- Dependencies for digidoc -->
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15</artifactId>
-			<version>1.44</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bctsp-jdk15</artifactId>
-			<version>1.44</version>
-		</dependency>
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.9.1</version>
-		</dependency>
-		<dependency>
-			<groupId>xml-security</groupId>
-			<artifactId>xmlsec</artifactId>
-			<version>1.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>ee.eesti.id</groupId>
-			<artifactId>jdigidoc</artifactId>
-			<version>${jdigidoc.version}</version>
-		</dependency>
-	</dependencies>
 </project>

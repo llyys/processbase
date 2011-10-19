@@ -42,6 +42,7 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
 import org.apache.commons.collections.iterators.EntrySetMapIterator;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.LogManager;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
@@ -68,6 +69,7 @@ import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.MetadataNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
+import org.ow2.bonita.facade.exception.RoleAlreadyExistsException;
 import org.ow2.bonita.facade.exception.TaskNotFoundException;
 import org.ow2.bonita.facade.exception.UserAlreadyExistsException;
 import org.ow2.bonita.facade.exception.UserNotFoundException;
@@ -512,10 +514,10 @@ public class BPMModule {
     				
     			}
     			else{
-				TaskInstance task=instance.getTask();
-				if(task.getTaskCandidates().contains(currentUserName))
-					return assignAndStartTask(task.getUUID(), currentUserName);
-    			}
+					TaskInstance task=instance.getTask();
+					if(task.getTaskCandidates().contains(currentUserName))
+						return assignAndStartTask(task.getUUID(), currentUserName);
+	    			}
 			}
 		}
 		return null;
@@ -542,17 +544,23 @@ public class BPMModule {
 			throws InstanceNotFoundException, VariableNotFoundException,
 			ActivityNotFoundException {
 		logger.debug("setProcessAndActivityInstanceVariables");
-        for (Map.Entry<String, Object> entry : pVars.entrySet()) {
+		getRuntimeAPI().setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
+		getRuntimeAPI().setActivityInstanceVariables(task.getUUID(), aVars);
+        /*for (Map.Entry<String, Object> entry : pVars.entrySet()) {
             getRuntimeAPI().setProcessInstanceVariable(task.getProcessInstanceUUID(), entry.getKey(), entry.getValue());
 		}
         for (Map.Entry<String, Object> entry : aVars.entrySet()) {
             getRuntimeAPI().setActivityInstanceVariable(task.getUUID(), entry.getKey(), entry.getValue());
-        }
+        }*/
 	}
 	
     public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars, Map<AttachmentInstance, byte[]> attachments) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
     	logger.debug("finishTask");
         initContext();
+        if(task.isTaskAssigned()==false && task.getTaskCandidates().contains(currentUserUID)){
+        	 getRuntimeAPI().startTask(task.getUUID(), true);
+        	 //assignTask(task.getUUID(), currentUserUID);
+        }
         //runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
         //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         setProcessAndActivityInstanceVariables(task, pVars, aVars);
@@ -795,7 +803,7 @@ public class BPMModule {
         getManagementAPI().deleteProcess(pd.getUUID());
         Rule rule = findRule(pd.getUUID().toString());
         getManagementAPI().deleteRuleByUUID(rule.getUUID());
-        
+        CacheUtil.remove("BAR_RESOURCE", pd.getUUID());//remove elemend from ehcache
         //new bonita 5.5 uses xCMIS and when deleting the process, API does not remove the folder from xCMIS this will fix it.
         execute(new DeleteDocumentCommand(pd.getUUID().toString()));
     }
@@ -1063,6 +1071,7 @@ public class BPMModule {
     	byte[] barContent = Misc.generateJar(ba.getResources());
     	return barContent;
 	}
+    
     public void stopExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
     	logger.debug("stopExecution");
         initContext();
@@ -1154,13 +1163,7 @@ public class BPMModule {
             ActivityInstanceUUID activityUUID, Map<String, Object> context, boolean useActivityScope, boolean propagate)
             throws InstanceNotFoundException, ActivityNotFoundException, GroovyException {
     	 logger.debug("evaluateGroovyExpressions");
-         if (!expressions.isEmpty()) {
-        	/*Map<String, Object> results=new HashMap<String, Object>();
-	           for (Map.Entry<String, String> entry : expressions.entrySet()) {
-	        	   Object result=getRuntimeAPI().evaluateGroovyExpression(entry.getValue(), activityUUID, context, useActivityScope, propagate);
-	               results.put(entry.getKey(), result);
-	           }
-             return results;*/
+         if (!expressions.isEmpty()) {        	
             return getRuntimeAPI().evaluateGroovyExpressions(expressions, activityUUID, context, useActivityScope, propagate);
         } else {
             return null;
@@ -1174,14 +1177,12 @@ public class BPMModule {
                      return getRuntimeAPI().evaluateGroovyExpression(script, processDefinitionUUID, context);
             }
             return null;
-	 //return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
 	}
      
     public Map<String, Object> evaluateGroovyExpressions(Map<String, String> expressions, ProcessDefinitionUUID processDefinitionUUID, Map<String, Object> context, boolean useInitialVariableValues)
             throws InstanceNotFoundException, ProcessNotFoundException, GroovyException {
     	logger.debug("evaluateGroovyExpressions");
     	return getRuntimeAPI().evaluateGroovyExpressions(expressions, processDefinitionUUID, context);
-        //return runtimeAPI.evaluateGroovyExpressions(expressions, processDefinitionUUID, context, useInitialVariableValues);
     }
 
     public void cancelProcessInstance(ProcessInstanceUUID piuuid) throws Exception {
@@ -1552,7 +1553,73 @@ public class BPMModule {
 		return AccessorUtil.getCommandAPI();
 	}
 
-	
+	public User authUser(final User authUser) throws Exception {
+		return CacheUtil.getOrCache("user_auth", authUser.getUsername(), new ICacheDelegate<User>(){
+			public User execute() throws Exception {				
+			
+				initContext();
+				IdentityAPI identityAPI = getIdentityAPI();
+				User user =null;
+				try{
+					user = identityAPI.findUserByUserName(authUser.getUsername());
+					return user;
+				}
+				catch(UserNotFoundException ex){
+					
+					String password=authUser.getPassword();			
+					if(StringUtils.isNullOrEmpty(password))
+						password=RandomStringUtils.randomAlphabetic(8);
+					
+					user=identityAPI.addUser(authUser.getUsername(), password, authUser.getFirstName(), authUser.getLastName(), "", null, null, null);
+					
+					List<Group> groups= identityAPI.getAllGroups();
+					Group group=null;
+					for (Group group1 : groups) {
+						if(group1.getName().equalsIgnoreCase(identityAPI.DEFAULT_GROUP_NAME));
+						{
+							group=group1;
+							break;
+						}
+					}
+					Role role = identityAPI.findRoleByName(identityAPI.USER_ROLE_NAME);
+					if(role!=null && group!=null)
+					{
+						Membership membership = identityAPI.getMembershipForRoleAndGroup(role.getUUID(), group.getUUID());
+						if(membership!=null){
+							List<String> membershipUUIDs=new ArrayList<String>();
+							membershipUUIDs.add(membership.getUUID());
+							identityAPI.addMembershipsToUser(user.getUUID(), membershipUUIDs);
+						}
+					}					
+				}		
+				return user;
+			}
+		});
+	}
 
+
+
+	public void updateUserGroups(List<String> processRoles) throws Exception {
+		if(processRoles==null)return;
+		initContext();
+		List<Role> roles = getIdentityAPI().getAllRoles();
+		
+		for (String role:processRoles) {
+			boolean found=false;
+			for (Role role2 : roles) {
+				if(role.equalsIgnoreCase(role2.getLabel()))
+				{
+					found =true;
+					break;
+				}				
+							
+			}	
+			if(found==false&& "Initiator".equals(role)==false){
+				
+				getIdentityAPI().addRole(role, role, "AUTO IMPORTED");	
+			}
+			found=false;
+		}
+	}
 	
 }

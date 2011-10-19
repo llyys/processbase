@@ -143,14 +143,18 @@ public class ProcessManager extends PbPanel {
 				openTask(taskInstance);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			getWindow().getWindow().showNotification(e.getMessage());
+			getWindow().close();
 			e.printStackTrace();
+			throw new RuntimeException("Problem on process start", e);
+			
 		}
         this.setSizeFull(); 
 	}
 	
 	Label taskLabel;
 	Label taskDescription;
+	private boolean isCanceable=true;
 	
 	public void initManagerVariables() throws Exception {
 		barResource = BarResource.getBarResource(processDefinitionUUID);
@@ -350,7 +354,10 @@ public class ProcessManager extends PbPanel {
 			accordionLayout.setSizeFull();
 			
 			for (Component component : components) {
-				accordionLayout.addTab(component, component.getCaption(), null);
+				String caption = component.getCaption();
+				component.setCaption(null);
+				accordionLayout.addTab(component, caption, null);
+				
 			}
 			this.taskPanel.addComponent(accordionLayout);
 		}
@@ -365,26 +372,33 @@ public class ProcessManager extends PbPanel {
 			}
 		}
 		
-		Button buttonKatkesta = new Button("Katkesta");
-		buttonKatkesta.addListener(new Button.ClickListener() {
-			public void buttonClick(ClickEvent event) {
-				try {
-					if(taskInstance!=null)
-						getBpmModule().cancelProcessInstance(getProcessInstanceUUID());
-					getWindow().close();
-				} catch (Exception e) {
-					getWindow().showError("Unable to cancel the process");
-					throw new RuntimeException(e);
-				}
-			}
-		});
 		Label empty=new Label("");
 		this.buttons.addComponent(empty);
 		this.buttons.setComponentAlignment(empty, Alignment.MIDDLE_RIGHT);
 		buttons.setExpandRatio(empty, 1.0f);
-		
-		this.buttons.addButton(buttonKatkesta);
-		this.buttons.setComponentAlignment(buttonKatkesta, Alignment.MIDDLE_RIGHT);
+		if(taskInstance==null || (taskInstance.isTaskAssigned() && isCanceable)){
+			
+			
+			Button buttonKatkesta = new Button("Katkesta");
+			buttonKatkesta.addListener(new Button.ClickListener() {
+				public void buttonClick(ClickEvent event) {
+					try {
+						if(taskInstance!=null)
+							getBpmModule().cancelProcessInstance(getProcessInstanceUUID());
+						getWindow().close();
+					} catch (Exception e) {
+						getWindow().showError("Unable to cancel the process");
+						throw new RuntimeException(e);
+					}
+				}
+			});
+			this.buttons.addButton(buttonKatkesta);
+			this.buttons.setComponentAlignment(buttonKatkesta, Alignment.MIDDLE_RIGHT);
+			
+			if(taskInstance!=null && taskInstance.isTaskAssigned()==false)
+				isCanceable=false;
+			
+		}
 		//buttonKatkesta.setWidth("100%");
 		
 		Button buttonClose = new Button("Sulge");

@@ -43,6 +43,7 @@ import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -188,12 +189,17 @@ public class TaskList extends TablePanel implements Button.ClickListener {
 
                 ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
-            } else { 
+            } else {
+            	OpenProcessWindow opw=new OpenProcessWindow();
+            	opw.initTask(newTask);
+            	opw.initUI();
+           	 	this.getApplication().getMainWindow().addWindow(opw);
+            	/*
                 BarResource barResource = BarResource.getBarResource(task.getProcessDefinitionUUID());
                 ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
-                if (taskDef != null && !taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
+                if (taskDef != null && !taskDef.isByPassFormsGeneration() ) {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
                     genWindow.setTask(bpmModule.getTaskInstance(task.getUUID()));
                     genWindow.setBarResource(barResource);
@@ -206,7 +212,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
                     bpmModule.startTask(task.getUUID(), true);
                     bpmModule.finishTask(task.getUUID(), true);
                     showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskExecuted"));
-                }
+                }*/
             }
         } catch (Exception ex) {
             //ex.printStackTrace();

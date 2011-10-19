@@ -23,7 +23,7 @@ import java.util.HashMap;
  *
  * @author marat
  */
-public class XMLProcessDefinition {
+public class XMLProcessDefinition { 
 
     private String name;
     private String label;

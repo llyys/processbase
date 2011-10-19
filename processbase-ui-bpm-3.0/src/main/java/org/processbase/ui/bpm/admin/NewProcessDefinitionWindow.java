@@ -43,6 +43,7 @@ import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.BusinessArchiveFactory;
+import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
@@ -142,6 +143,8 @@ public class NewProcessDefinitionWindow extends PbWindow
             		}
     				getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null,membershipUUIDs, entityUUIDs);
             	}            	
+            	BarResource bar=BarResource.getBarResource(businessArchive.getProcessUUID());
+            	getBpmModule().updateUserGroups(bar.getProcessRoles());
             	
                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {

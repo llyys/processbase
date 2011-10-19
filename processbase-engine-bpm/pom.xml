@@ -1,0 +1,88 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.processbase</groupId>
+        <artifactId>processbase</artifactId>
+        <version>3.0</version>
+    </parent>
+    <artifactId>processbase-engine-bpm</artifactId>
+    <packaging>jar</packaging>
+
+    <url>http://processbase.googlecode.com</url>
+    <name>PROCESSBASE Engine BPM</name>
+    <description>BPM Engine add-on</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.bonita</groupId>
+            <artifactId>bonita-server</artifactId>
+            <version>${bonita.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.bonita</groupId>
+            <artifactId>bonita-client</artifactId>
+            <version>${bonita.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-client</artifactId>
+            <version>${liferay.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-service</artifactId>
+            <version>${liferay.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-impl</artifactId>
+            <version>${liferay.version}</version>
+        </dependency>
+        <dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+    </dependencies>
+    <build>
+	    <plugins>
+		   	<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copyFiles</id>
+						<phase>verify</phase>
+						<configuration>
+							<tasks>
+								<copy todir="${tomcat.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
+									<fileset dir="target" includes="processbase-engine-bpm-${project.version}.jar" />
+								</copy>
+								<copy todir="${liferay.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
+									<fileset dir="target" includes="processbase-engine-bpm-${project.version}.jar" />
+								</copy>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+	    </plugins>
+    </build>
+    
+</project>

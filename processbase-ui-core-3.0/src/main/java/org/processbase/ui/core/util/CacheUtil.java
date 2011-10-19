@@ -72,6 +72,13 @@ public class CacheUtil {
 			}
 		}
 		
+		public static void remove(final String cacheName, final Object key) {
+			final Cache cache = CACHE_MANAGER.getCache(cacheName);
+			if (cache != null) {
+				cache.remove(key);
+			}
+		}
+		
 		public static <T extends Object> T getOrCache(final String cacheName, final Object key, ICacheDelegate<T> cmd) throws Exception{
 			T result=null;
 			try {

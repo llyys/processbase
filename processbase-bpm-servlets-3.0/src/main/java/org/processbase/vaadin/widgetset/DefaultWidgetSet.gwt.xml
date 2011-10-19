@@ -4,8 +4,6 @@
     "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
 <module>
     
-      <define-linker class="org.processbase.vaadin.widgetset.SymbolMapTooBig" name="symbolmapsucks"/>
-
     <add-linker name="symbolmapsucks"/>
     
     <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />

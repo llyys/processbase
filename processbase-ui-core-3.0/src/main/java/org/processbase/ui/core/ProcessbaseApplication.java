@@ -52,6 +52,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     static ThreadLocal<ProcessbaseApplication> current = new ThreadLocal<ProcessbaseApplication>();
     public static int LIFERAY_PORTAL = 0;
     public static int STANDALONE = 1;
+    public static String AUTH_KEY="AUTH_KEY";
     protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;

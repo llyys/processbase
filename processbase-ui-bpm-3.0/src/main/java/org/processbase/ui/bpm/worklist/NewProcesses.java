@@ -39,7 +39,7 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
-import org.processbase.ui.bpm.generator.view.NewProcessPanel;
+import org.processbase.ui.bpm.generator.view.NewProcessWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 
@@ -150,7 +150,8 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
                 ProcessbaseApplication.getCurrent().setSessionAttribute("PROCESSINSTANCE", process.getUUID().toString());
                 this.getWindow().open(new ExternalResource(url));
             } else {
-            	 NewProcessPanel ppanel=new NewProcessPanel(process);
+            	 NewProcessWindow ppanel=new NewProcessWindow();
+            	 ppanel.initProcess(process);
             	 ppanel.initUI();
             	 this.getApplication().getMainWindow().addWindow(ppanel);
             	 

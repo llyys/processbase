@@ -12,10 +12,15 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
 		<project.base.dir>C:\dev\processbase-git</project.base.dir>
-		<tomcat.home>C:\dev_env\liferay-portal-6.0.5\tomcat-6.0.26</tomcat.home>
+		
+		<tomcat.home>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32</tomcat.home>
+		<liferay.home>C:\dev_env\liferay-portal-6.0.5\tomcat-6.0.26</liferay.home>
+		
 		<server.deploy.path>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
 		<liferay.deploy.path>C:\dev_env\liferay-portal-6.0.5\deploy</liferay.deploy.path>
+		
 		<container.port>8080</container.port>
 		<bonita.version>5.5.1</bonita.version>
 		<ehcache.version>2.2.0</ehcache.version>
@@ -37,6 +42,7 @@
 		<spring-security.version>3.0.1</spring-security.version>
 		<esteid-vaadin-component.version>0.1.1</esteid-vaadin-component.version>
 		<jdigidoc.version>2.3.99.2</jdigidoc.version>
+		<liferay.version>6.0.5</liferay.version>
 	</properties>
 
 	<repositories>
@@ -78,6 +84,7 @@
 	<modules>
 
 		<module>processbase-ui-core-${project.version}</module>
+		<module>processbase-engine-bpm</module>
 		<module>processbase-engine-bam-${project.version}</module>
 		<module>processbase-ui-app-${project.version}</module>
 		<module>processbase-ui-bam-${project.version}</module>

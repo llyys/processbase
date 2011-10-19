@@ -19,6 +19,7 @@ package org.processbase.ui.bpm.generator;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -26,6 +27,7 @@ import org.processbase.ui.core.bonita.forms.BonitaFormParcer;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
+import org.processbase.ui.core.bonita.process.ProcessDefinition;
 import org.processbase.ui.core.util.CacheUtil;
 import org.processbase.ui.core.util.ICacheDelegate;
 
@@ -42,6 +44,7 @@ public class BarResource implements Serializable {
     private byte[] proc = null;
     private byte[] form = null;
     private byte[] css = null;
+	
 
     
     public static BarResource getBarResource(final ProcessDefinitionUUID puuid) throws Exception {
@@ -55,6 +58,7 @@ public class BarResource implements Serializable {
     
     private BarResource(ProcessDefinitionUUID puuid) throws Exception{
         this.puuid = puuid;
+        byte[] process_def = null;
         resource = ProcessbaseApplication.getCurrent().getBpmModule().getBusinessArchive(this.puuid);
         for (String key : resource.keySet()) {
             if (key.substring(key.length() - 4, key.length()).equals("proc")) {
@@ -63,6 +67,8 @@ public class BarResource implements Serializable {
                 form = resource.get(key);
             } else if (key.equals("forms/resources/application/css/generatedcss.css")) {
                 css = resource.get(key);
+            } else if (key.equals("process-def.xml")){
+            	process_def=resource.get(key);
             }
         } 
         BonitaFormParcer bfb = new BonitaFormParcer(proc);
@@ -74,6 +80,8 @@ public class BarResource implements Serializable {
         String old=new String(form, "UTF-8");
        // String data=String.copyValueOf(old.toCharArray());
         formsDefinition = BonitaFormParcer.createFormsDefinition(old);
+        
+        processDefinition = new ProcessDefinition(process_def);
     }
 
     public org.processbase.ui.bpm.generator.TableStyle getTableStyle(Page page) {
@@ -112,4 +120,12 @@ public class BarResource implements Serializable {
     		this.xmlProcessDefinition=new Hashtable<String, XMLProcessDefinition>();
         this.xmlProcessDefinition.put(name, xmlProcessDefinition);
     }
+    List<String> processRoles=null;
+	private ProcessDefinition processDefinition;
+	public List<String> getProcessRoles() {
+		if(processDefinition!=null);
+		{
+			return processDefinition.getProcesses().get(0).getParticipants();
+		}
+	}
 }

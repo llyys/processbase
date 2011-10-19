@@ -34,6 +34,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.ow2.bonita.facade.identity.User;
 import org.processbase.engine.bam.db.HibernateUtil;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
@@ -65,7 +66,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     private ResourceBundle messages = null;
     private ResourceBundle customMessages = null;
     private String userName = null;
-    private ApplicationContext context;
+   // private ApplicationContext context;
 
 	private UriFragmentUtility uriFragment;
     
@@ -93,7 +94,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             httpSession = applicationContext.getHttpSession();
             ServletContext servletContext = httpSession.getServletContext();
             
-            context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+            //context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
             
             setLocale(applicationContext.getBrowser().getLocale());
             
@@ -108,8 +109,20 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             uriFragment = new UriFragmentUtility();
             mainWindow.addComponent(uriFragment);
             
-            
-            if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null 
+            User authUser=(User) getHttpServletRequest().getSession().getAttribute(AUTH_KEY);
+            if(authUser!=null)
+            {
+            	if(bpmModule==null)
+            	{
+            		BPMModule bpmm = new BPMModule(authUser.getUsername());
+            		setBpmModule(bpmm);
+        		}
+            	authUser=getBpmModule().authUser(authUser); 
+            	setUserName(authUser.getUsername());
+            	mainWindow.initUI();
+            	//return;
+            }
+            else if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null 
             		&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
             {
             	setUserName(BPMModule.USER_GUEST);
@@ -138,7 +151,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             		mainWindow.initUI();
             	}
             	else{
-        			mainWindow.initLogin();
+        			mainWindow.initLogin(); 
         		}
             }
             panelModuleService.addListener(this);

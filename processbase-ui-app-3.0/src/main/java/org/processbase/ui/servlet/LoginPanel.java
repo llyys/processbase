@@ -85,30 +85,18 @@ public class LoginPanel extends GridLayout implements Handler {
 			public void buttonClick(ClickEvent event) {
 				String url="https://aar.smartlink.ee/aar/web.idlogin?loc="+getWindow().getURL().toExternalForm();
 				url=url.replaceFirst("SmartBPM.+", "SmartBPM/auth");
-				//event.getButton().getWindow().executeJavaScript("window.location.href="+url+";");
 				ExternalResource res=new ExternalResource(url);
 				event.getButton().getWindow().open(res);
-				//event.getButton().getWindow().executeJavaScript("alert('meek');"); 
 			}
 		});
         
         Button mobidButton=new Button("MobiilID"); 
-        buttons.addButton(mobidButton);
-       
+        buttons.addButton(mobidButton);       
         mobidButton.addListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				String url="https://aar.smartlink.ee/aar/!web.mobiillogin?id=?loc="+getWindow().getURL().toExternalForm();
-				url=url.replaceFirst("SmartBPM.+", "SmartBPM/auth");
-				ExternalResource res=new ExternalResource(url);
-				event.getButton().getWindow().open(res);
-				//getWindow().executeJavaScript("window.location.href="+url+";");
+				
 			}
 		});
-        
-        //buttons.setComponentAlignment(btnLogin, Alignment.BOTTOM_RIGHT);
-        
-        
-//        btnLogin.addListener(this);
 
         createLogo();
         vlayout.addComponent(logo);
@@ -121,8 +109,9 @@ public class LoginPanel extends GridLayout implements Handler {
         vlayout.addComponent(buttons);
         
         Label version=new Label(org.processbase.ui.core.Version.VERSION);
+        version.setWidth("100%");
         vlayout.addComponent(version);
-        vlayout.setComponentAlignment(version, Alignment.BOTTOM_RIGHT);
+        vlayout.setComponentAlignment(version, Alignment.MIDDLE_RIGHT);
         
         panel.setContent(vlayout);
         panel.addActionHandler(this);
