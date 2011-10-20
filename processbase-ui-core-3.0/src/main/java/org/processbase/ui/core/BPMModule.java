@@ -336,6 +336,9 @@ public class BPMModule {
         initContext();
         User user = getIdentityAPI().findUserByUserName(currentUserUID);
         Set<String> membershipUUIDs = new HashSet<String>();
+        if(groupFilter==null){
+        	return getQueryDefinitionAPI().getLightProcesses(ProcessState.ENABLED);
+        }
         for (Membership membership : user.getMemberships()) {
         	if(groupFilter==null)
         		membershipUUIDs.add(membership.getUUID());
@@ -560,7 +563,9 @@ public class BPMModule {
     	logger.debug("finishTask");
         initContext();
         if(task.isTaskAssigned()==false && task.getTaskCandidates().contains(currentUserUID)){
-        	 getRuntimeAPI().startTask(task.getUUID(), true);
+        	LightTaskInstance lightTaskInstance = getQueryRuntimeAPI().getLightTaskInstance(task.getUUID());
+        	if(lightTaskInstance.getState()!=ActivityState.EXECUTING)
+        		getRuntimeAPI().startTask(task.getUUID(), true);
         	 //assignTask(task.getUUID(), currentUserUID);
         }
         //runtimeAPI.setProcessInstanceVariables(task.getProcessInstanceUUID(), pVars);
@@ -572,10 +577,12 @@ public class BPMModule {
 	        }
 	        getRuntimeAPI().addAttachments(attachments);
         }
-        getRuntimeAPI().finishTask(task.getUUID(), false);
+        getRuntimeAPI().finishTask(task.getUUID(), true);
     }
 
     public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, String mimeType, byte[] value) throws Exception {
+    	if(value.length==0)
+    		return;
     	logger.debug("addAttachment");
         initContext();
         Map<String, String> metadata=new Hashtable<String, String>();

@@ -190,7 +190,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         // Call the default implementation.
         super.terminalError(event);
         LOGGER.error("RuntimeError", event.getThrowable());
-        if("SHOW".equals(Constants.getSetting("SHOW_ERROR_MESSAGES", "HIDE")))
+        if("true".equals(Constants.getSetting("HIDE_ERROR_MESSAGES", "false")))
         	return;
         		
         // Some custom behaviour.

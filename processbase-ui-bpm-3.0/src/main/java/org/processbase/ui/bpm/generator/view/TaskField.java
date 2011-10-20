@@ -219,7 +219,8 @@ public class TaskField {
 			}
 			if (type.equals(WidgetType.FILEUPLOAD)) {
 				//hasAttachments = true;
-				return getUpload((String)value);
+				return getUpload((String)value);					
+				
 			}
 			if (type.equals(WidgetType.FILEDOWNLOAD)) {
 				//hasAttachments = true;
@@ -285,16 +286,19 @@ public class TaskField {
 		return value;
 	}
 	
-	public Object getComponentValue(){
+	public Object getComponentValue(Action action){
 		
 		if(component!=null)
 		{
-			if (component instanceof AbstractField) {
+			if (component instanceof CheckBox) {
+				return ((CheckBox) component).booleanValue();
+			}
+			else if (component instanceof Button) {
+					return action.getExpression();				
+			} else if (component instanceof AbstractField) {
 				return ((AbstractField) component).getValue();
 			} else if (component instanceof GeneratedTable) {
 				return ((GeneratedTable) component).getTableValue();
-			} else if (component instanceof CheckBox) {
-				return ((CheckBox) component).booleanValue();
 			} else {
 				//return action.getExpression();
 			}
@@ -357,11 +361,12 @@ public class TaskField {
 		String processUUID = null;
 		//String fileName = null;
 		boolean hasFile = false;
+		String boundVariable=widget.getVariableBound();
 		ProcessManager processManager = taskManager.getProcessManager();
 		if (processManager.getTaskInstance() != null) {
 			processUUID = processManager.getTaskInstance().getProcessInstanceUUID().toString();
 			try {
-				AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,widget.getVariableBound());
+				AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,boundVariable);
 				fileName=attachment.getFileName();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -372,8 +377,14 @@ public class TaskField {
 				hasFile = true;
 			}		
 		}
+		
+		String expression="";
+		if(widget.getInitialValue()!=null)
+			expression=widget.getInitialValue().getExpression();
+		
+		
 		component = new ImmediateUpload(processUUID, widget.getLabel()
-				, widget.getInitialValue().getExpression(), fileName, hasFile
+				, boundVariable , fileName, hasFile
 				, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
 		return component;
 	}

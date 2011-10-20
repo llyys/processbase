@@ -306,7 +306,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 }
             }                
         }
-        if (bpmModule.isUserAdmin()) {
+        if (bpmModule.isUserAdmin() || "admin".equals(userName)) {
             accessSet.add("bpm");
             accessSet.add("bam");
             accessSet.add("identity");

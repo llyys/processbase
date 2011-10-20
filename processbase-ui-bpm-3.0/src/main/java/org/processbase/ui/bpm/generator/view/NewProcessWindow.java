@@ -3,6 +3,7 @@ package org.processbase.ui.bpm.generator.view;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
@@ -61,7 +62,10 @@ public class NewProcessWindow extends PbWindow{
 			processManager=pm;
 		}
 		else{
-			this.getParent().showNotification("Process completed");
+			if(processManager!=null && processManager.getTaskManager()!=null && StringUtils.isNotBlank(processManager.getTaskManager().getConfirmationMessage()))
+				this.getParent().showNotification(processManager.getTaskManager().getConfirmationMessage());
+			else
+				this.getParent().showNotification("Process completed");
 			this.close();
 			 
 		}

@@ -39,6 +39,7 @@ import org.processbase.ui.core.bonita.forms.WidgetType;
 import org.processbase.ui.core.bonita.forms.Widgets;
 import org.processbase.ui.core.template.ImmediateUpload;
 
+import com.vaadin.data.Validator;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
@@ -184,13 +185,13 @@ public class TaskManager
 			if(taskField.getActions()!=null){
 				for (Action action : taskField.getActions()) {
 					if(action.getVariableType()!=null){
-						if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){
+						if(action.getVariableType().equals(VariableType.PROCESS_VARIABLE)){							
 							processManager.registerModifiedVariable(action.getVariable());
-							processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue());
+							processManager.updateVariableValue(action.getVariable(), taskField.getComponentValue(action));
 						}
 						else if(action.getVariableType().equals(VariableType.ACTIVITY_VARIABLE)){
 							processManager.registerModifiedVariable(action.getVariable());
-							updateVariableValue(action.getVariable(), taskField.getComponentValue());
+							updateVariableValue(action.getVariable(), taskField.getComponentValue(action));
 						}
 					}
 					else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
@@ -239,7 +240,11 @@ public class TaskManager
 					}	
 				}
 			}			
+			try{
 			onFinishTask();
+			}catch(Validator.InvalidValueException e){
+				getProcessManager().getWindow().showError(e.getMessage());
+			}
 		}		
 	}	
 	

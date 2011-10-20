@@ -458,15 +458,16 @@ public class ProcessManager extends PbPanel {
 			//Speed improvement:Filter out only modified variables, because bonita does un-nessesery calculation on all fields.
 			Map<String, Object> mpv=new HashMap<String, Object>();
 			Map<String, Object> mav=new HashMap<String, Object>();
-			for(String variable:modifiedProcessVariables){
-				if(getProcessVariables().containsKey(variable)){
-					mpv.put(variable, getProcessVariables().get(variable));
-				}
-				if(manager.getActivityVariables().containsKey(variable)){
-					mav.put(variable, manager.getActivityVariables().get(variable));
+			if(modifiedProcessVariables!=null){
+				for(String variable:modifiedProcessVariables){
+					if(getProcessVariables().containsKey(variable)){
+						mpv.put(variable, getProcessVariables().get(variable));
+					}
+					if(manager.getActivityVariables().containsKey(variable)){
+						mav.put(variable, manager.getActivityVariables().get(variable));
+					}
 				}
 			}
-			
 			getBpmModule().finishTask(taskInstance, true, mpv, mav, null);//TODO: ATTACHMENTS now it's null
 			if(actions!=null)
 				actions.onTaskFinished(taskInstance);
@@ -546,7 +547,15 @@ public class ProcessManager extends PbPanel {
 			if(nextTask!=null)
 			{
 				openTask(nextTask);
+				return;
 			}
+			
+			//if sub task is an ending task end the current process
+			//there is no more steps show info message
+			if(actions!=null)
+				actions.onFinishProcess(processDefinitionUUID);
+			return;			
+					
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
