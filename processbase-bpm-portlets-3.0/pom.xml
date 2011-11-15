@@ -58,7 +58,24 @@
 			<artifactId>portal-service</artifactId>
 			<version>${liferay.version}</version>
 		</dependency>
-			
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-web-api</artifactId>
+			<version>${javaee-web-api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwt-user.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-dev</artifactId>
+			<version>${gwt-user.version}</version>
+			<scope>provided</scope>
+		</dependency>	
 	</dependencies>
 
 

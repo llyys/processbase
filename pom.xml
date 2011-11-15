@@ -84,6 +84,7 @@
 	<modules>
 
 		<module>processbase-ui-core-${project.version}</module>
+		<module>processbase-raports</module>
 		<module>processbase-engine-bpm</module>
 		<module>processbase-engine-bam-${project.version}</module>
 		<module>processbase-ui-app-${project.version}</module>

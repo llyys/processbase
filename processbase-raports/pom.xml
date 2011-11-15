@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.processbase</groupId>
+		<artifactId>processbase</artifactId>
+		<version>3.0</version>
+	</parent>
+	
+	<artifactId>processbase-raports</artifactId>
+	<name>Processbase raports</name>
+	
+	<prerequisites>
+		<maven>2.2</maven>
+	</prerequisites>
+
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-client</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-model</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>forms-server</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+	</dependencies>  
+	<build>
+		<plugins>
+			<plugin>
+			  <groupId>org.zeroturnaround</groupId>
+			  <artifactId>jrebel-maven-plugin</artifactId>
+			  <executions>
+				<execution>
+				  <id>generate-rebel-xml</id>
+				  <phase>process-resources</phase>
+				  <goals>
+					<goal>generate</goal>
+				  </goals>
+				</execution>
+			  </executions>
+			</plugin>
+			</plugins>
+	</build>
+</project>

@@ -40,6 +40,7 @@ import org.processbase.ui.bpm.panel.IdentityPanel;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.slf4j.Logger;
@@ -78,28 +79,21 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         setMainWindow(mainWindow);
         if(userName!=null)
         {
+        	PbPanel ui=null;
 	        if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")) {
-	            TaskListPanel ui = new TaskListPanel();	            
-	            mainWindow.setContent(ui);
-	            ui.initUI();
+	            ui = new TaskListPanel();
 	        }
 	        else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")) {
-	            BPMConfigurationPanel ui = new BPMConfigurationPanel();
-	            mainWindow.setContent(ui);
-	            ui.initUI(); 
+	            ui = new BPMConfigurationPanel();	         
 	        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")) {
-	            IdentityPanel ui = new IdentityPanel();
-	            mainWindow.setContent(ui);
-	            ui.initUI();
+	            ui = new IdentityPanel();	            
 	        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")) {
-	            BAMConfigurationPanel ui = new BAMConfigurationPanel();
-	            mainWindow.setContent(ui);
-	            ui.initUI();
+	            ui = new BAMConfigurationPanel();	            
 	        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")) {
-	            BPMMonitoringPanel ui = new BPMMonitoringPanel();
-	            mainWindow.setContent(ui);
-	            ui.initUI();
+	            ui = new BPMMonitoringPanel();	            
 	        }
+	        mainWindow.setContent(ui);
+            ui.initUI();
         }
         
     }
@@ -113,51 +107,59 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
                 
         org.ow2.bonita.facade.identity.User bonitaUser = bpmModule.authUser(portalUser);
 		setSessionAttribute(AUTH_KEY, bonitaUser);
-        initUI();        
+        initUI(); 
+              
     }
     
     public void onRequestStart(PortletRequest request, PortletResponse response) {
     	logger.debug("PbPortlet onRequestStart ");
     	
-        if (!inited) {
+        
             try {
-            	setPortletSession(request.getPortletSession());            	
+            	if(inited==false)
+            	{
+            		setPortletSession(request.getPortletSession());
+            		inited=true;
+            	}
+            	            	
             	org.ow2.bonita.facade.identity.User bonitaUser =null;
-            	String screenName=null;
+            	
             	
                 portalUser = PortalUtil.getUser(request);
                 if(portalUser!=null)
                 {           
-                	bonitaUser=new PortalUser(portalUser);                	
+                	bonitaUser=new PortalUser(portalUser);      
+                	setUserName(bonitaUser.getUsername());
                 }
                 else {
-            		bonitaUser=new PortalUser(screenName, screenName);            				
+                	//portal user is null
+                	setUserName(BPMModule.USER_GUEST);
+            		bonitaUser=new PortalUser(userName, userName);            				
                 }	                               
                 if(bpmModule==null)
-            		setBpmModule(new BPMModule(bonitaUser.getUsername()));
-            	try {
+            		setBpmModule(new BPMModule(userName));
+            	
 					bonitaUser=bpmModule.authUser(bonitaUser);
-					setSessionAttribute(AUTH_KEY, bonitaUser);
-				} catch (Exception e) {
-					logger.error("Unable to authenticate the user", e);
-					e.printStackTrace();
-				}
-                
+					setSessionAttribute(AUTH_KEY, bonitaUser);					
+				
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
                 Constants.APP_SERVER="LIFERAY";
                 
                 //setDocumentLibrary(new PortalDocumentLibrary(user));                
-               // initUI();
+                //initUI();
 
             } catch (PortalException e) {
-            	logger.error("onRequestStart", e);
+            	logger.error("portal exception onRequestStart", e);
                 e.printStackTrace();
             } catch (SystemException e) {
-            	logger.error("onRequestStart", e);
+            	logger.error("system exception onRequestStart", e);
                 e.printStackTrace();
-            }
-        }
+            } catch (Exception e) {
+            	logger.error("onRequestStart", e);
+				e.printStackTrace();
+			}
+        
     }
 
     public void onRequestEnd(PortletRequest request, PortletResponse response) {
