@@ -62,6 +62,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private BAMConfigurationPanel bamConfigurationPanel;
     private BPMMonitoringPanel bpmMonitoringPanel;
     private DevelopmentPanel developmentPanel;
+    private RaportListPanel raportListPanel;
     
     private User user;
     private List<Group> userGroups;
@@ -129,9 +130,15 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 tabs.addTab(bpmMonitoringPanel, getPbMessages("bpmMonitoring"), null);
             }
             if (accessSet.contains("development")) {
-                developmentPanel = new DevelopmentPanel();
+            	developmentPanel = new DevelopmentPanel();
+            	tabs.addTab(developmentPanel, getPbMessages("bpmDevelopment"), null);
+            }
+            
+            if (accessSet.contains("raport")) {
+                developmentPanel = new RaportListPanel();
                 tabs.addTab(developmentPanel, getPbMessages("bpmDevelopment"), null);
             }
+            
 
             if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
                 PbPanel first = (PbPanel) tabs.getSelectedTab();

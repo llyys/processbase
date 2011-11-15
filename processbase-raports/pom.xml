@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -9,7 +10,9 @@
 	
 	<artifactId>processbase-raports</artifactId>
 	<name>Processbase raports</name>
-	
+	<properties>
+		<birt.version>2.6.1</birt.version>
+	</properties>
 	<prerequisites>
 		<maven>2.2</maven>
 	</prerequisites>
@@ -35,6 +38,70 @@
 			<artifactId>forms-server</artifactId>
 			<version>${bonita.version}</version>
 		</dependency>
+		
+		<!-- BIRT -->
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>chartengineapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>coreapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>dataadapterapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>dteapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>engineapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>modelapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+		<!--
+			<dependency> <groupId>org.eclipse.birt</groupId>
+			<artifactId>report-engine</artifactId> <type>zip</type>
+			<version>${birt.version}</version> </dependency>
+		-->
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>scriptapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mod4j.org.eclipse.emf</groupId>
+			<artifactId>ecore</artifactId>
+			<version>${emfecore.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-ui-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>  
 	<build>
 		<plugins>
@@ -51,6 +118,22 @@
 				</execution>
 			  </executions>
 			</plugin>
-			</plugins>
+		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
