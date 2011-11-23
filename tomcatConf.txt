@@ -1,0 +1,17 @@
+-Drebel.log=true ${jrebel_args} 
+-Dcatalina.base="C:\dev_env\BOS-5.5.1-Tomcat-6.0.32" 
+-Dcatalina.home="C:\dev_env\BOS-5.5.1-Tomcat-6.0.32" 
+-Dwtp.deploy="C:\dev\workspace\processbase-git" 
+-Djava.endorsed.dirs="C:\dev_env\BOS-5.5.1-Tomcat-6.0.32\endorsed"
+-DBONITA_HOME="c:\dev_env\bonita"
+-Djava.util.logging.config.file="c:\dev_env\bonita\external\logging\logging.properties"
+-Djava.security.auth.login.config="c:\dev_env\bonita\external\security\jaas-tomcat.cfg"
+-Dexo.data.dir="c:\dev_env\bonita\external\xcmis\ext-exo-data" 
+-Dorg.exoplatform.container.standalone.config="c:\dev_env\bonita\external\xcmis\ext-exo-conf\exo-configuration-hsql.xml"
+-Dfile.encoding=UTF-8 
+-Xshare:auto 
+-Xms512m 
+-Xmx1024m 
+-XX:PermSize=256M
+-XX:MaxPermSize=256m 
+-XX:+HeapDumpOnOutOfMemoryError

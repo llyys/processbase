@@ -102,6 +102,25 @@
 				</execution>
 			  </executions>
 			</plugin>
+			<!-- Updates Vaadin widgetset definitions based on project dependencies. -->
+		      <plugin>
+		        <groupId>com.vaadin</groupId>
+		        <artifactId>vaadin-maven-plugin</artifactId>
+		        <version>1.0.1</version>
+		        <executions>
+		          <execution>
+		            <configuration>
+		              <!-- If you don't specify any modules, the plugin will find them. 
+		                <modules>
+		                  <module>com.tnt.vaadin.widgetset.RefresherApplicationWidgetSet</module>
+		                </modules>-->
+		            </configuration>
+		            <goals>
+		              <goal>update-widgetset</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		      </plugin>
 	<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
 				<version>${gwt-user.version}</version> <configuration> <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
 				<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs> <runTarget>clean</runTarget> 

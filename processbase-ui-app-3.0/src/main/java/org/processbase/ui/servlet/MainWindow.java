@@ -37,6 +37,7 @@ import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
 
+import org.processbase.raports.ui.RaportListPanel;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 import org.processbase.ui.bpm.panel.*;
@@ -135,8 +136,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             }
             
             if (accessSet.contains("raport")) {
-                developmentPanel = new RaportListPanel();
-                tabs.addTab(developmentPanel, getPbMessages("bpmDevelopment"), null);
+            	raportListPanel = new RaportListPanel();
+                tabs.addTab(raportListPanel, "Raports", null);
             }
             
 

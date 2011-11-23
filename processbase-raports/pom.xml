@@ -9,9 +9,12 @@
 	</parent>
 	
 	<artifactId>processbase-raports</artifactId>
-	<name>Processbase raports</name>
+	<url>http://processbase.googlecode.com</url>
+	<name>ProcessBase UI App</name>
+	
 	<properties>
 		<birt.version>2.6.1</birt.version>
+		<emfecore.version>2.5.0</emfecore.version>
 	</properties>
 	<prerequisites>
 		<maven>2.2</maven>

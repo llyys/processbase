@@ -116,12 +116,7 @@
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>refresher</artifactId>
 			<version>${vaadin-refresher.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>vaadin-treetable</artifactId>
-			<version>${vaadin-treetable.version}</version>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>invient-charts</artifactId>

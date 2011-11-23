@@ -155,17 +155,23 @@ public class NewProcessDefinitionWindow extends PbWindow
             close();
         }
         catch (org.ow2.bonita.facade.exception.DeploymentException ex){
-        	showError(ex.getLocalizedMessage());
+        	//showError(ex.);
+        	String[] errorLines=ex.getMessage().split("\n");
+        	String errorMsg=errorLines.length>1?errorLines[1]:ex.getMessage();
+        	showError(errorMsg);
+        	 throw new RuntimeException(ex);
         }
         catch (org.ow2.bonita.facade.exception.DocumentAlreadyExistsException ex){
         	showError("Document already exists");
+        	 throw new RuntimeException(ex);
         }
         catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
         }
         finally{
-        	 file.delete();
+        	if(file!=null)
+        		file.delete();
         }
     }
 

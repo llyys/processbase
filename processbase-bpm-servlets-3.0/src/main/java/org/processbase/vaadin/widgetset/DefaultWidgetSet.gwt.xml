@@ -2,18 +2,10 @@
 <!DOCTYPE module PUBLIC
     "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN"
     "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
-<module>
-    
-    <add-linker name="symbolmapsucks"/>
-    
+<module>    
+    <add-linker name="symbolmapsucks"/>    
     <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
-
     <inherits name="com.github.wolfie.refresher.RefresherApplicationWidgetset" />
-
-    <inherits name="com.vaadin.addon.treetable.TreetableWidgetset" />
-
     <inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
-
-	<inherits name="ee.smartlink.esteid.widgetset.EsteidWidgetset"/>
-    
+	<inherits name="ee.smartlink.esteid.widgetset.EsteidWidgetset"/>    
 </module>

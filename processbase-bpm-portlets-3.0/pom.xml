@@ -21,7 +21,8 @@
 			<id>wm</id>
 			<name>WM public Maven repository</name>
 			<url>http://maven2.webmedia.ee</url>
-		</repository>	
+		</repository>
+		
 	</repositories>
 	
 	<dependencies>
@@ -75,7 +76,8 @@
 			<artifactId>gwt-dev</artifactId>
 			<version>${gwt-user.version}</version>
 			<scope>provided</scope>
-		</dependency>	
+		</dependency>
+					
 	</dependencies>
 
 
@@ -191,4 +193,50 @@
 			</plugin>
 		</plugins>
 	</build>
+	<!-- If a new widgetset is added, run 'mvn -Pcompile-widgetset clean package' -->
+	<profiles>
+		<profile>
+			<id>compile-widgetset</id>
+			<build>
+				<plugins>
+					<!-- Compile custom GWT components or widget dependencies with the GWT 
+						compiler -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>2.1.0-1</version>
+						<configuration>
+							<webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<runTarget>vaadin-mvn-addon</runTarget>
+							<soyc>false</soyc>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>com.vaadin</groupId>
+						<artifactId>vaadin-maven-plugin</artifactId>
+						<version>1.0.1</version>
+						<executions>
+							<execution>
+								<configuration>
+								</configuration>
+								<goals>
+									<goal>update-widgetset</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	
 </project>

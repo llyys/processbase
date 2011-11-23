@@ -16,7 +16,7 @@
  */
 package org.processbase.ui.core.template;
 
-import com.vaadin.addon.treetable.TreeTable;
+import com.vaadin.ui.TreeTable;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -26,7 +26,7 @@ import com.vaadin.ui.Window.CloseEvent;
 
 /**
  *
- * @author mgubaidullin
+ * @author mgubaidullin 
  */
 public class TreeTablePanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
 

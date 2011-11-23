@@ -12,11 +12,11 @@
  */
 package org.processbase.bonita.services.impl;
 
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
 import org.ow2.bonita.facade.exception.DocumentAlreadyExistsException;
 import org.ow2.bonita.facade.exception.DocumentNotFoundException;
 import org.ow2.bonita.facade.exception.DocumentationCreationException;
@@ -31,6 +31,8 @@ import org.ow2.bonita.services.Document;
 import org.ow2.bonita.services.DocumentationManager;
 import org.ow2.bonita.services.Folder;
 import org.ow2.bonita.services.impl.DocumentImpl;
+
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 
 /**
  *
@@ -51,14 +53,12 @@ public class LiferayDocumentationManager implements DocumentationManager {
         }
     }
 
-    @Override
     public Folder createFolder(String folderName) throws FolderAlreadyExistsException {
         System.out.println("createFolder1");
 //        System.out.println("folderName = " + folderName);
         return null;
     }
 
-    @Override
     public Folder createFolder(String folderName, String parentFolderId) throws FolderAlreadyExistsException {
         System.out.println("createFolder2");
 //        System.out.println("folderName = " + folderName);
@@ -66,13 +66,11 @@ public class LiferayDocumentationManager implements DocumentationManager {
         return null;
     }
 
-    @Override
     public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
 //        System.out.println("createDocument");
         return createDocument(name, definitionUUID, instanceUUID, "null", "null", new byte[0]);
     }
 
-    @Override
     public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
 //        System.out.println("createDocument2");
 //        System.out.println("name = " + name);
@@ -92,55 +90,46 @@ public class LiferayDocumentationManager implements DocumentationManager {
         return doc;
     }
 
-    @Override
     public Document createDocument(String name, String folderId, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
         System.out.println("createDocument3");
         return null;
     }
 
-    @Override
     public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate) throws DocumentationCreationException, DocumentAlreadyExistsException {
         System.out.println("createDocument4");
         return null;
     }
 
-    @Override
     public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate, String fileName, String mimeType, byte[] content) throws DocumentationCreationException, DocumentAlreadyExistsException {
         System.out.println("createDocument5");
         return null;
     }
 
-    @Override
     public Document getDocument(String documentId) throws DocumentNotFoundException {
         System.out.println("getDocument");
         Document document = null;
         try {
             DLFileEntry file = documentLibrary.getFileEntry(Long.parseLong(documentId));
             ProcessDefinitionUUID pdUUID = new ProcessDefinitionUUID(file.getFolder().getParentFolder().getName());
-            ProcessInstanceUUID piUUID = new ProcessInstanceUUID(file.getFolder().getName());
-            
+                ProcessInstanceUUID piUUID = new ProcessInstanceUUID(file.getFolder().getName());
             document = new DocumentImpl(file.getTitle(), "folderId",
                     "author", new Date(), new Date(), true, true, file.getVersion(), "", file.getDescription(),
                     "mimetype", file.getSize(), pdUUID, piUUID);
             document.setId(String.valueOf(file.getFileEntryId()));
-            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
          return document;
     }
 
-    @Override
     public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
         System.out.println("deleteDocument");
     }
 
-    @Override
     public void deleteFolder(Folder folder) {
         System.out.println("deleteFolder");
     }
 
-    @Override
     public byte[] getContent(Document document) throws DocumentNotFoundException {
 //        System.out.println("getContent");
 //        System.out.println("document.name = " + document.getName());
@@ -154,55 +143,51 @@ public class LiferayDocumentationManager implements DocumentationManager {
         return result;
     }
 
-    @Override
     public List<Folder> getFolders(String folderName) {
         System.out.println("getFolders");
         return null;
     }
 
-    @Override
     public Folder getRootFolder() {
         System.out.println("getRootFolder");
         return null;
     }
 
-    @Override
     public List<Document> getChildrenDocuments(String folderId) {
         System.out.println("getChildrenDocuments");
         return null;
     }
 
-    @Override
     public List<Folder> getChildrenFolder(String folderId) {
         System.out.println("getChildrenFolder");
         return null;
     }
 
-    @Override
+   
     public List<Document> getVersionsOfDocument(String documentId) throws DocumentNotFoundException {
         System.out.println("getVersionsOfDocument");
         return null;
     }
 
-    @Override
+    
     public String getDocumentPath(String documentId) throws DocumentNotFoundException {
         System.out.println("getDocumentPath");
         return null;
     }
 
-    @Override
+    
     public Document createVersion(String documentId, boolean isMajorVersion) throws DocumentationCreationException {
         System.out.println("createVersion");
         return null;
     }
 
-    @Override
+    
     public Document createVersion(String documentId, boolean isMajorVersion, String author, Date versionDate) throws DocumentationCreationException {
         System.out.println("createVersion2");
         return null;
-    } 
+    }
 
-    @Override
+   
     public Document createVersion(String documentId, boolean isMajorVersion, String fileName, String mimeType, byte[] content) throws DocumentationCreationException {
         System.out.println("createVersion3");
 //        System.out.println("documentId = " + documentId);
@@ -230,13 +215,13 @@ public class LiferayDocumentationManager implements DocumentationManager {
         return document;
     }
 
-    @Override
+    
     public Document createVersion(String documentId, boolean isMajorVersion, String author, Date versionDate, String fileName, String mimeType, byte[] content) throws DocumentationCreationException {
         System.out.println("createVersion4");
         return null;
     }
 
-    @Override
+   
     public SearchResult search(DocumentSearchBuilder builder, int fromResult, int maxResults) {
         System.out.println("search");
 ////        File x = new File("builder.xml");
@@ -296,22 +281,22 @@ public class LiferayDocumentationManager implements DocumentationManager {
         }
     }
 
-    @Override
+    
     public void clear() throws DocumentNotFoundException {
         System.out.println("clear");
     }
 
-    @Override
+   
     public void updateDocumentContent(String documentId, String fileName, String mimeType, int size, byte[] content) throws DocumentNotFoundException {
         System.out.println("updateDocumentContent");
     }
 
-    @Override
+    
     public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID, String documentId) throws DocumentNotFoundException {
         System.out.println("attachDocumentTo");
     }
 
-    @Override
+    
     public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID, ProcessInstanceUUID processInstanceUUID, String documentId) throws DocumentNotFoundException {
         System.out.println("attachDocumentTo2");
     }
