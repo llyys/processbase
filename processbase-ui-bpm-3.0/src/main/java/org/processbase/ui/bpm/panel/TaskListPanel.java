@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.User;
@@ -102,8 +104,10 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         roleCombo.setInvalidAllowed(false);
         roleCombo.removeAllItems();
         if(user!=null && user.getMemberships()!=null){
-        	for (Membership membership : user.getMemberships()) {
-        		roleCombo.addItem(membership.getGroup().getLabel());
+        	for (Membership membership : user.getMemberships()) {        		
+        		Group group = membership.getGroup();
+        		if(!IdentityAPI.DEFAULT_GROUP_NAME.equalsIgnoreCase(group.getName()))
+        			roleCombo.addItem(group.getLabel());
 			}
         }
         if(roleCombo.size()>0)

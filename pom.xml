@@ -26,16 +26,20 @@
 		<ehcache.version>2.2.0</ehcache.version>
 
 		<vaadin.version>6.7.2</vaadin.version>
+		<vaadin.plugin.version>1.0.2</vaadin.plugin.version>
 		<vaadin-invient.version>0.8.4</vaadin-invient.version>
 		<vaadin-refresher.version>1.1.0</vaadin-refresher.version>		
 
+		<gwt.version>2.3.0</gwt.version>
+		<gwt.plugin.version>2.3.0</gwt.plugin.version>
+		<gwt-user.version>2.3.0</gwt-user.version>
+		
 		<glassfish.version>3.1</glassfish.version>
 		<junit.version>4.8.1</junit.version>
 		<javaee-web-api.version>6.0</javaee-web-api.version>
 		<javaee-api.version>6.0</javaee-api.version>
 		<gson.version>1.6</gson.version>
-		<jericho-html.version>3.1</jericho-html.version>
-		<gwt-user.version>2.3.0</gwt-user.version>
+		<jericho-html.version>3.1</jericho-html.version>		
 		<log4j.version>1.2.16</log4j.version>
 		<spring.version>3.0.5.RELEASE</spring.version>
 		<spring-security.version>3.0.1</spring-security.version>

@@ -102,37 +102,7 @@
 				</execution>
 			  </executions>
 			</plugin>
-			<!-- Updates Vaadin widgetset definitions based on project dependencies. -->
-		      <plugin>
-		        <groupId>com.vaadin</groupId>
-		        <artifactId>vaadin-maven-plugin</artifactId>
-		        <version>1.0.1</version>
-		        <executions>
-		          <execution>
-		            <configuration>
-		              <!-- If you don't specify any modules, the plugin will find them. 
-		                <modules>
-		                  <module>com.tnt.vaadin.widgetset.RefresherApplicationWidgetSet</module>
-		                </modules>-->
-		            </configuration>
-		            <goals>
-		              <goal>update-widgetset</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		      </plugin>
-	<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>gwt-maven-plugin</artifactId> 
-				<version>${gwt-user.version}</version> <configuration> <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory> 
-				<extraJvmArgs>-Xmx1024M -Xss1024k</extraJvmArgs> <runTarget>clean</runTarget> 
-				<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp> 
-				<noServer>true</noServer> <port>8080</port> <soyc>false</soyc> </configuration> 
-				<executions> <execution> <goals> <goal>resources</goal> <goal>compile</goal> 
-				</goals> </execution> </executions> </plugin> -->
-			<!-- <plugin> <groupId>com.vaadin</groupId> <artifactId>vaadin-maven-plugin</artifactId> 
-				<version>1.0.2</version> <executions> <execution> <configuration> <modules> 
-				<module>org.processbase.vaadin.widgetset.DefaultWidgetSet</module> </modules> 
-				</configuration> <goals> <goal>update-widgetset</goal> </goals> </execution> 
-				</executions> </plugin> -->
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -172,6 +142,7 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<!-- this plugin will copy generated files to server deploy path -->
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>

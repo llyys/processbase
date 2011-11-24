@@ -4,9 +4,85 @@ var estEidLoader = {
   waitForObjectStart: null,
 
   keyString: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-  _cert:"undefined",
-  _hash:"undefined",
- 
+	
+  uTF8Encode: function(string) {
+		string = string.replace(/\x0d\x0a/g, "\x0a");
+		var output = "";
+		for (var n = 0; n < string.length; n++) {
+			var c = string.charCodeAt(n);
+			if (c < 128) {
+				output += String.fromCharCode(c);
+			} else if ((c > 127) && (c < 2048)) {
+				output += String.fromCharCode((c >> 6) | 192);
+				output += String.fromCharCode((c & 63) | 128);
+			} else {
+				output += String.fromCharCode((c >> 12) | 224);
+				output += String.fromCharCode(((c >> 6) & 63) | 128);
+				output += String.fromCharCode((c & 63) | 128);
+			}
+		}
+		return output;
+	},
+	
+	base64Encode: function(input) {
+		var output = "";
+		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+		var i = 0;
+		input = uTF8Encode(input);
+		while (i < input.length) {
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+			output = output + keyString.charAt(enc1) + keyString.charAt(enc2) + keyString.charAt(enc3) + keyString.charAt(enc4);
+		}
+		return output;
+	},
+	base64Decode: function(input) {
+		var output = "";
+		var chr1, chr2, chr3;
+		var enc1, enc2, enc3, enc4;
+		var i = 0;
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+		while (i < input.length) {
+			enc1 = keyString.indexOf(input.charAt(i++));
+			enc2 = keyString.indexOf(input.charAt(i++));
+			enc3 = keyString.indexOf(input.charAt(i++));
+			enc4 = keyString.indexOf(input.charAt(i++));
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+			output = output + String.fromCharCode(chr1);
+			if (enc3 != 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 != 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+		}
+		output = uTF8Decode(output);
+		return output;
+	},
+  /**
+   * Log a message to DOM element with htmlLog
+   *
+   * @param {String} msg a message to log
+   */
+  htmlLog: function(msg) {
+    var e = document.getElementById("htmlLog");
+    if(e) e.innerHTML = "[" + (new Date()) + "] " + msg + "<br />\n" + e.innerHTML;
+    if (window.console != undefined) {
+        console.log(msg);
+    }
+  },
 
   /**
    * Append element to documents "body" tag
@@ -119,7 +195,8 @@ var estEidLoader = {
 
     try {
       e = document.createElement('span');
-      e.innerHTML = '<object style="width: 1px; height: 1px;" id="' + id + '" type="' + mimeType + '" />';
+      e.innerHTML = '<object style="width: 1px; height: 1px;" id="' + id +
+                          '" type="' + mimeType + '" />';
       e = estEidLoader.appendToBody(e);
     } catch(err) {
       estEidLoader.htmlLog(errpfx + err.message);
@@ -137,31 +214,15 @@ var estEidLoader = {
       }
     });
   },
-  
   getCert: function(){
-	  if(estEidLoader._cert!="undefined")
-	  return estEidLoader._cert;
-	  
-	  try{
-		  if(typeof(estEidLoader.card.signCert)!="undefined" 
-			&& typeof(estEidLoader.card.signCert)!="unknown")
-		  {
-			if(estEidLoader._cert=="undefined")
-				estEidLoader._cert= estEidLoader.card.signCert.cert;
-		  }
-	  }
-	  catch(e){
-		estEidLoader._cert="undefined";
-	  }
-	  return estEidLoader._cert;
+	  return estEidLoader.card.signCert.cert;
   },
   getCertBase64: function(){
 	  return estEidLoader.base64Encode(estEidLoader.getCert());
   },
   doSign:function(hash, url, callbacks){
-		if(hash==estEidLoader._hash) return;
-		estEidLoader.htmlLog("Starting sign asychronously");
-		estEidLoader.card.signAsync(hash, url, 
+	  estEidLoader.htmlLog("Starting sign asychronously");
+	  estEidLoader.card.signAsync(hash, url, 
 		{
 			onSuccess:function(hex) {
 				estEidLoader.htmlLog("Sign succeeded:"+hex);
@@ -172,7 +233,7 @@ var estEidLoader = {
 				callbacks.onError(msg);
 			}
 		}
-	);
+	  );
   },
   
   /**
@@ -202,8 +263,6 @@ var estEidLoader = {
           estEidLoader.htmlLog("Using browser plugin: " + e.getVersion());
           estEidLoader.card=document.getElementById(id);
           try {
-				
-		  
         	  if(typeof(callbacks.onCardInserted) != "undefined") 
         		  addEvent(estEidLoader.card, "CardInserted", callbacks.onCardInserted);
         	  
@@ -216,9 +275,7 @@ var estEidLoader = {
         	  if(typeof(callbacks.onSignFailure) != "undefined")
         		  addEvent(estEidLoader.card, "SignFailure", callbacks.onSignFailure);
               
-			  estEidLoader.loadCertAsync(callbacks);
-			  
-			  callbacks.onSuccess(e);
+        	  callbacks.onSuccess(e);
           }
           catch(err) {
         	  callbacks.onFail(err);
@@ -228,19 +285,6 @@ var estEidLoader = {
       },
       onFail: callbacks.onFail
     });
-  },
-  loadCertAsync:function(callback){		
-		var _this = this;
-		if(estEidLoader._cert!="undefined")
-		{
-			callback.onCardReady();
-			return;
-		}
-		estEidLoader.getCert();
-		
-		setTimeout(function() { estEidLoader.loadCertAsync(callback); }, 1000);
-		
-		
   },
   card:null,
   isCardIn:false,
@@ -254,14 +298,14 @@ var estEidLoader = {
   loadPlugin: function(id, callbacks) {
     estEidLoader.createEstEidObject(id, {
       onSuccess: function(e) { 
-    	  //callbacks.pluginReady(estEidLoader.getCertBase64());
-    	  /*//try to read card info
+    	  
+    	  //try to read card info
     	  try{
     		  if(typeof(estEidLoader.card.signCert)=="undefined" || typeof(estEidLoader.card.signCert)=="unknown")
 			  {
 			  	callbacks.onCardRemoved();
 			  	estEidLoader.isCardIn=false;
-			  	 //callbacks.pluginReady(null);
+			  	 callbacks.pluginReady(null);
 			  	 return;
 			  }
     		  estEidLoader.isCardIn=true;  
@@ -280,25 +324,25 @@ var estEidLoader = {
         		  return;
     		  }
     		  
-    	  }*/
-    	  //callbacks.pluginReady(null);
+    	  }
+    	  callbacks.pluginReady(null);
     	  
       },
       onFail: function(e) {
         if(e) estEidLoader.removeFromBody(e);
+
         if(estEidLoader.loadLegacySigner) {
           estEidLoader.loadLegacySigner(id, callbacks);
         } else {
           callbacks.pluginFail('Unable to load EstEid plugin...');
         }
       },
-	  onCardReady:function(reader){
-		callbacks.pluginReady(estEidLoader.getCertBase64());
-	  },
 	  onCardInserted:function(reader){
-		  callbacks.onCardInserted(estEidLoader.getCertBase64());
+		  estEidLoader.isCardIn=true;
+		   callbacks.onCardInserted(estEidLoader.getCertBase64());
 	  },
 	  onCardRemoved:function(reader){
+		  estEidLoader.isCardIn=false;
 		  callbacks.onCardRemoved();
 	  },
 	  onSignSuccess:function(hex){
@@ -329,87 +373,8 @@ var estEidLoader = {
 	    
 	  
 	  return personInfo;
-  },
- uTF8Encode: function(string) {
-		string = string.replace(/\x0d\x0a/g, "\x0a");
-		var output = "";
-		for (var n = 0; n < string.length; n++) {
-			var c = string.charCodeAt(n);
-			if (c < 128) {
-				output += String.fromCharCode(c);
-			} else if ((c > 127) && (c < 2048)) {
-				output += String.fromCharCode((c >> 6) | 192);
-				output += String.fromCharCode((c & 63) | 128);
-			} else {
-				output += String.fromCharCode((c >> 12) | 224);
-				output += String.fromCharCode(((c >> 6) & 63) | 128);
-				output += String.fromCharCode((c & 63) | 128);
-			}
-		}
-		return output;
-	},
-	
-	base64Encode: function(input) {
-		var output = "";
-		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-		var i = 0;
-		input = estEidLoader.uTF8Encode(input);
-		while (i < input.length) {
-			chr1 = input.charCodeAt(i++);
-			chr2 = input.charCodeAt(i++);
-			chr3 = input.charCodeAt(i++);
-			enc1 = chr1 >> 2;
-			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-			enc4 = chr3 & 63;
-			if (isNaN(chr2)) {
-				enc3 = enc4 = 64;
-			} else if (isNaN(chr3)) {
-				enc4 = 64;
-			}
-			output = output + estEidLoader.keyString.charAt(enc1) + estEidLoader.keyString.charAt(enc2) + estEidLoader.keyString.charAt(enc3) + estEidLoader.keyString.charAt(enc4);
-		}
-		return output;
-	},
-	base64Decode: function(input) {
-		var output = "";
-		var chr1, chr2, chr3;
-		var enc1, enc2, enc3, enc4;
-		var i = 0;
-		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-		while (i < input.length) {
-			enc1 = keyString.indexOf(input.charAt(i++));
-			enc2 = keyString.indexOf(input.charAt(i++));
-			enc3 = keyString.indexOf(input.charAt(i++));
-			enc4 = keyString.indexOf(input.charAt(i++));
-			chr1 = (enc1 << 2) | (enc2 >> 4);
-			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-			chr3 = ((enc3 & 3) << 6) | enc4;
-			output = output + String.fromCharCode(chr1);
-			if (enc3 != 64) {
-				output = output + String.fromCharCode(chr2);
-			}
-			if (enc4 != 64) {
-				output = output + String.fromCharCode(chr3);
-			}
-		}
-		output = estEidLoader.uTF8Decode(output);
-		return output;
-	},
-  /**
-   * Log a message to DOM element with htmlLog
-   *
-   * @param {String} msg a message to log
-   */
-  htmlLog: function(msg) {
-    var e = document.getElementById("htmlLog");
-    if(e) e.innerHTML = "[" + (new Date()) + "] " + msg + "<br />\n" + e.innerHTML;
-    if (window.console != undefined) {
-        console.log(msg);
-    }
   }
-  
-  };
+};
 
 function addEvent(obj, name, func)
 {

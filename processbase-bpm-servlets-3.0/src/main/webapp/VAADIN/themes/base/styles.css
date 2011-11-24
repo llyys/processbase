@@ -1,5 +1,5 @@
-.v-theme-version:after {content:"6_6_2";}
-.v-theme-version-6_6_2 {display: none;}
+.v-theme-version:after {content:"6_7_2";}
+.v-theme-version-6_7_2 {display: none;}
 /* Automatically compiled css file from subdirectories. */
 
 .v-absolutelayout-wrapper {
@@ -879,7 +879,7 @@ div.v-app-loading {
 	display: inline-block;
 	zoom: 1;
 }
-.v-menubar .v-menubar-menuitem-caption * {
+.v-menubar .v-menubar-menuitem-caption .v-icon {
 	vertical-align: middle;
 	white-space: nowrap;
 }
@@ -1138,6 +1138,11 @@ div.v-progressindicator-indeterminate-disabled {
 	display: block;
 	white-space: nowrap;
 }
+.v-select-optiongroup .v-icon {
+	vertical-align: middle;
+	white-space: nowrap;
+	margin: 0 2px;	
+}
 .v-ie .v-select-optiongroup .v-select-option {
 	zoom: 1;
 }
@@ -1258,6 +1263,10 @@ div.v-progressindicator-indeterminate-disabled {
 .v-filterselect-status {
 	white-space: nowrap;
 	text-align: center;
+}
+
+.v-filterselect-no-input .v-filterselect-input {
+	cursor: default;
 }
 
 /* Error styles (disabled by default)
@@ -1552,7 +1561,7 @@ div.v-progressindicator-indeterminate-disabled {
 	border-top: none;
 	background: #efefef;
 }
-.v-table-footer table{
+.v-table-footer table {
 	border-spacing: 0;
 	border-collapse: collapse;
 	margin: 0;
@@ -1563,10 +1572,10 @@ div.v-progressindicator-indeterminate-disabled {
 	padding: 0;
 	border-right: 1px solid #aaa;
 }
-.v-table-footer-cell{
+.v-table-footer-cell {
 	cursor: pointer;
 }
-.v-table-footer-container{	
+.v-table-footer-container {	
 	float:right;	
 	padding-right:6px;
 	overflow:hidden;
@@ -1630,10 +1639,15 @@ div.v-progressindicator-indeterminate-disabled {
 }
 .v-table-row,
 .v-table-row-odd {
+    background: #fff;
 	border: 0;
 	margin: 0;
 	padding: 0;
 	cursor: pointer;
+}
+
+.v-table-generated-row {
+	   background: #efefef;
 }
 
 .v-table-body-noselection .v-table-row,
@@ -1676,7 +1690,11 @@ div.v-progressindicator-indeterminate-disabled {
 }
 .v-table-focus-slot-left {
 	border-left: 2px solid #999;
-	margin-right: -2px;
+	float: none;
+	margin-bottom: -1.2em;
+	width: auto;
+	background: transparent;
+	border-right: 1px solid #aaa;
 }
 .v-table-focus-slot-right {
 	border-right: 2px solid #999;
@@ -1996,6 +2014,7 @@ textarea.v-textarea-readonly:focus {
 	border: none;
 }
 
+
 .v-tree {
 	text-align: left; /* Force default alignment */
 	overflow: hidden;
@@ -2009,11 +2028,11 @@ textarea.v-textarea-readonly:focus {
 .v-tree-node-caption:focus {
 	outline: none;
 }
-.v-tree-node-expanded {
-	background-position: -5px -10px;
-}
 div.v-tree-node-leaf {
 	background: transparent;
+}
+.v-tree-node-expanded {
+	background: transparent url(common/img/sprites.png) no-repeat -5px -10px;
 }
 .v-tree-node-caption {
 	margin-left: 1em;
@@ -2114,6 +2133,126 @@ div.v-tree-node-leaf {
 .v-tree .v-tree-node-drag-top,
 .v-tree .v-tree-node-drag-bottom {
 	border-color: rgba(0,109,232,.6);
+}
+
+/* Make item caption height an even number (so that the connector dots overlap nicely) */
+.v-tree-connectors .v-tree-node-caption {
+	padding-top: 1px;
+}
+.v-tree-connectors .v-tree-node {
+	background: transparent url(tree/img/connector-expand.png) no-repeat 2px -52px;
+}
+.v-tree-connectors .v-tree-node-expanded {
+	background: transparent url(tree/img/connector-collapse.png) no-repeat 2px -52px;
+}
+.v-tree-connectors .v-tree-node-last {
+	background: transparent url(tree/img/connector-expand-last.png) no-repeat 2px -52px;
+}
+.v-tree-connectors .v-tree-node-expanded.v-tree-node-last {
+	background: transparent url(tree/img/connector-collapse-last.png) no-repeat 2px -52px;
+}
+.v-tree-connectors .v-tree-node-leaf {
+	background: transparent url(tree/img/connector-leaf.png) repeat-y 2px 50%;
+}
+.v-tree-connectors .v-tree-node-leaf-last {
+	background: transparent url(tree/img/connector-leaf-last.png) repeat-y 2px 50%;
+}
+.v-tree-connectors .v-tree-node-children {
+	background: transparent url(tree/img/connector.png) repeat-y 2px 0;
+}
+.v-tree-connectors .v-tree-node-children-last {
+	background: transparent;
+}
+.v-tree-connectors .v-tree-node-drag-top,
+.v-tree-connectors .v-tree-node-expanded.v-tree-node-drag-top {
+	background-position: 2px -53px;
+}
+.v-tree-connectors .v-tree-node-drag-top.v-tree-node-leaf {
+	background-position: 2px 50%;
+}
+
+/* IE6 */
+.v-ie6 .v-tree-connectors .v-tree-node {
+	background: transparent url(tree/img/connector-expand-ie6.png) no-repeat 2px -52px;
+}
+.v-ie6 .v-tree-connectors .v-tree-node-expanded {
+	background: transparent url(tree/img/connector-collapse-ie6.png) no-repeat 2px -52px;
+}
+.v-ie6 .v-tree-connectors .v-tree-node-last {
+	background: transparent url(tree/img/connector-expand-last-ie6.png) no-repeat 2px -52px;
+}
+.v-ie6 .v-tree-connectors .v-tree-node-last.v-tree-node-expanded {
+	background: transparent url(tree/img/connector-collapse-last-ie6.png) no-repeat 2px -52px;
+}
+
+.v-treetable-treespacer {
+    display: inline-block;
+    background: transparent;
+    height: 10px;
+    /* defines the amount of indent per level */
+    width: 18px;
+}
+.v-ie7 .v-treetable-treespacer{
+	height: 100%; /* #7388 */
+}
+
+.v-treetable-node-closed {
+    background: url(treetable/img/arrow-right.png) right center no-repeat;
+}
+
+.v-ie6 .v-treetable-node-closed {
+	background-image: url(treetable/img/arrow-right.gif); 
+} 
+
+.v-treetable-node-open {
+    background: url(treetable/img/arrow-down.png) right center no-repeat;
+}
+
+.v-ie6 .v-treetable-node-open {
+	background-image: url(treetable/img/arrow-down.gif); 
+} 
+
+.v-treetable .v-checkbox {
+	display: inline-block;
+	padding-bottom: 4px;
+}
+
+.v-treetable .v-table-row .v-table-cell-content,
+.v-treetable .v-table-row-odd .v-table-cell-content {
+    position: relative;
+    z-index: 10;
+}
+
+.v-treetable .v-table-body .v-table-table .v-table-row-animating {
+	zoom:1;
+	z-index:1;
+}
+
+.v-treetable .v-table-body .v-table-table .v-table-row-animating,
+.v-treetable .v-table-body .v-table-table .v-table-row-animating .v-table-cell-content {
+    background:transparent;
+}
+
+.v-treetable-animation-clone {
+	border-spacing: 0;
+	zoom:1;
+}
+
+div.v-treetable-animation-clone-wrapper {
+	position: absolute;
+    z-index: 2;
+    background-color:#fff;
+}
+
+div.v-treetable-animation-clone-wrapper table.v-treetable-animation-clone {
+    background-color:#fff;
+}
+
+div table.v-treetable-animation-clone tr.v-table-row,
+div table.v-treetable-animation-clone tr.v-table-row-odd,
+div table.v-treetable-animation-clone tr.v-table-row td.v-table-cell-content,
+div table.v-treetable-animation-clone tr.v-table-row-odd td.v-table-cell-content {
+	visibility: visible;
 }
 
 .v-upload {

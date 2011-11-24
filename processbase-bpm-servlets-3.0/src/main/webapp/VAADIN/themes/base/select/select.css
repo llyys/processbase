@@ -5,6 +5,11 @@
 	display: block;
 	white-space: nowrap;
 }
+.v-select-optiongroup .v-icon {
+	vertical-align: middle;
+	white-space: nowrap;
+	margin: 0 2px;	
+}
 .v-ie .v-select-optiongroup .v-select-option {
 	zoom: 1;
 }
@@ -125,6 +130,10 @@
 .v-filterselect-status {
 	white-space: nowrap;
 	text-align: center;
+}
+
+.v-filterselect-no-input .v-filterselect-input {
+	cursor: default;
 }
 
 /* Error styles (disabled by default)
