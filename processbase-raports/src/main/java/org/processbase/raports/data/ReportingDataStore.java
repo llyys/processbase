@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -13,7 +14,18 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.bonitasoft.console.client.ItemUpdates;
+import org.bonitasoft.console.client.ReportFilter;
+import org.bonitasoft.console.client.SimpleFilter;
+import org.bonitasoft.console.client.exception.ConsoleException;
+import org.bonitasoft.console.client.reporting.ReportScope;
+import org.bonitasoft.console.client.reporting.ReportUUID;
+import org.bonitasoft.console.client.reporting.exception.ReportNotFoundException;
+import org.bonitasoft.console.client.users.UserProfile;
+import org.bonitasoft.console.security.client.privileges.RuleType;
+import org.bonitasoft.console.security.server.accessor.PreferencesProperties;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.identity.User;
 import org.ow2.bonita.util.AccessorUtil;
@@ -178,7 +190,7 @@ public class ReportingDataStore {
 	        }
 	    }
 
-	    public ReportItem getItem(String anItemUUID, ServletContext aServletContext) throws Exception {
+	    public ReportItem getItem(String anItemUUID, ReportUUID reportUUID, SimpleFilter aFilter, ServletContext aServletContext) throws Exception {
 	        // Check for a provided report
 	        final File theProvidedReportsFolder = getProvidedReportDir(aServletContext);
 	        File theIndexFile = new File(theProvidedReportsFolder, anItemUUID + File.separator + INDEX_FILENAME);
@@ -203,7 +215,7 @@ public class ReportingDataStore {
 	            final String theReportTypeStr = theProperties.getProperty(TYPE_KEY);
 	            final String theReportScopeStr = theProperties.getProperty(SCOPE_KEY);
 	            final String theReportType = theReportTypeStr;
-	            final String theReportScope = theReportScopeStr;
+	            final ReportScope theReportScope = ReportScope.valueOf(theReportScopeStr);
 	            final String theReportInputParameters = theProperties.getProperty(PARAMETER_LIST_KEY);
 	            final ReportItem theReportItem = new ReportItem(theID, theFilename, theDescription, theReportType, theReportScope, editable);
 	            if (theReportInputParameters != null) {
@@ -225,25 +237,32 @@ public class ReportingDataStore {
 	     * @param aServletContext
 	     * @param aAnItemFilter
 	     * @throws ConsoleException
+	     * @throws ReportException 
 	     */
-	   /* public ItemUpdates<ReportItem> getItems(UserProfile aUserProfile, ReportFilter anItemFilter, ServletContext aServletContext) throws ConsoleException {
+	    public ItemUpdates<ReportItem> getItems(UserProfile aUserProfile, ReportFilter anItemFilter, ServletContext aServletContext) throws ConsoleException, ReportException {
 
 	        File theReportDir = getProvidedReportDir(aServletContext);
 	        final List<ReportItem> theReportItemList = new ArrayList<ReportItem>();
 	        listReportsFromDirectory(theReportDir, theReportItemList, false);
-	        Collections.sort(theReportItemList);
+	        //Collections.sort(theReportItemList);
 	        final ItemUpdates<ReportItem> theResult = filterReportsBasedOnFilter(theReportItemList, anItemFilter, aUserProfile);
 	        return theResult;
-	    }*/
+	    }
 
-	    /**
+	    private void listReportsFromDirectory(File theReportDir,
+				List<ReportItem> theReportItemList, boolean b) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/**
 	     * @param aResult
 	     * @param aUserProfile
 	     * @param aAnItemFilter
 	     * @return
 	     * @throws ConsoleException
 	     */
-	    /*protected ItemUpdates<ReportItem> filterReportsBasedOnFilter(List<ReportItem> aReportList, ReportFilter anItemFilter, UserProfile aUserProfile) throws ConsoleException {
+	    protected ItemUpdates<ReportItem> filterReportsBasedOnFilter(List<ReportItem> aReportList, ReportFilter anItemFilter, UserProfile aUserProfile) throws ConsoleException {
 	        if (anItemFilter == null) {
 	            throw new ConsoleException("Invalid report filter!", null);
 	        }
@@ -270,9 +289,9 @@ public class ReportingDataStore {
 	                        if (anItemFilter.getScope() == null || anItemFilter.getScope() == ReportScope.ALL || theReportItem.getScope() == anItemFilter.getScope()) {
 	                            theManageableListOfReports.add(theReportItem);
 	                        } else {
-	                            if (LOGGER.isLoggable(Level.FINE)) {
-	                                LOGGER.log(Level.FINE, "Report filtered due to scope conflict");
-	                            }
+	                            
+	                                LOGGER.debug("Report filtered due to scope conflict");
+	                            
 	                        }
 	                    }
 	                }
@@ -302,7 +321,7 @@ public class ReportingDataStore {
 	            }
 	            return new ItemUpdates<ReportItem>(theReadableListOfReports.subList(anItemFilter.getStartingIndex(), theUpperBound), theReadableListOfReports.size());
 	        }
-	    }*/
+	    }
 
 	    
 	    public List<ReportItem> listReportsFromDirectory(File aReportDir,  boolean editable) throws ReportException {
@@ -319,8 +338,10 @@ public class ReportingDataStore {
 	                                            * .endsWith("rptdesign"))
 	                                            */) {
 	                    theIndexFile = new File(theChild, INDEX_FILENAME);
+	                    
 	                    if (theIndexFile.exists()) {
 	                        theReport = loadReportItemFromFile(theIndexFile, editable);
+	                        theReport.setReportPath(theChild);
 	                        aReportItemList.add(theReport);
 	                    }
 	                }
@@ -340,15 +361,22 @@ public class ReportingDataStore {
 	     * @throws ConsoleException
 	     * @throws ReportNotFoundException
 	     */
-	   /* public List<ReportItem> getItems(UserProfile aUserProfile, List<ReportUUID> anItemSelection, SimpleFilter aFilter, ServletContext aServletContext) throws ConsoleException, ReportNotFoundException {
+	   public List<ReportItem> getItems(UserProfile aUserProfile, List<ReportUUID> anItemSelection, SimpleFilter aFilter, ServletContext aServletContext) throws ConsoleException, ReportNotFoundException {
 	        List<ReportItem> theResult = new ArrayList<ReportItem>();
 	        for (ReportUUID theReportUUID : anItemSelection) {
 	            theResult.add(getItem(aUserProfile, theReportUUID, aFilter, aServletContext));
 	        }
 	        return theResult;
-	    }*/
+	    }
 
-	    public File getReportFile(String anItemUUID, ServletContext aServletContext) throws ReportException {
+	    private ReportItem getItem(UserProfile aUserProfile,
+				ReportUUID theReportUUID, SimpleFilter aFilter,
+				ServletContext aServletContext) throws ReportNotFoundException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public File getReportFile(String anItemUUID, ServletContext aServletContext) throws ReportException {
 	        // Check for a provided report
 	        final File theProvidedReportsFolder = getProvidedReportDir(aServletContext);
 	        File theIndexFile = new File(theProvidedReportsFolder, anItemUUID + File.separator + INDEX_FILENAME);
@@ -365,14 +393,12 @@ public class ReportingDataStore {
 	            throw new ReportException("Report not found " + anItemUUID);
 	        }
 	    }
-/*
+
 	    // Monitoring settings
 	    public List<ReportItem> listDesignToDisplayInMonitoringView(UserProfile aUserProfile, SimpleFilter aFilter, ServletContext aServletContext) throws ReportNotFoundException, ConsoleException {
 
 	        String theListInString = PreferencesProperties.getInstance().getProperty(DESIGN_LIST_FOR_ADMIN);
-	        if (LOGGER.isLoggable(Level.FINE)) {
-	            LOGGER.fine("Reading property (" + DESIGN_LIST_FOR_ADMIN + ") : " + theListInString);
-	        }
+	        LOGGER.debug("Reading property (" + DESIGN_LIST_FOR_ADMIN + ") : " + theListInString);
 	        List<ReportItem> theResult = new ArrayList<ReportItem>();
 	        if (theListInString == null || theListInString.length() == 0) {
 	            return theResult;
@@ -386,20 +412,17 @@ public class ReportingDataStore {
 	            } catch (ReportNotFoundException e) {
 	                // Report has been deleted.
 	                // Remove report from the list.
-	                if (LOGGER.isLoggable(Level.WARNING)) {
-	                    LOGGER.log(Level.WARNING, "Report '" + theReportId + "' has not been found while it is referenced to be displayed in Monitoring view. The report will be ignored.");
-	                }
+	            	LOGGER.error("Report '" + theReportId + "' has not been found while it is referenced to be displayed in Monitoring view. The report will be ignored.", e);
+	                
 	            }
 	        }
 	        return theResult;
 	    }
-*//*
+
 	    public void setDesignToDisplayInMonitoringView(List<ReportUUID> aNewList) throws IOException {
 	        if (aNewList == null || aNewList.isEmpty()) {
 	            PreferencesProperties.getInstance().removeProperty(DESIGN_LIST_FOR_ADMIN);
-	            if (LOGGER.isLoggable(Level.INFO)) {
-	                LOGGER.info("Property removed: " + DESIGN_LIST_FOR_ADMIN);
-	            }
+	            LOGGER.info("Property removed: " + DESIGN_LIST_FOR_ADMIN);
 	            return;
 	        }
 
@@ -410,9 +433,9 @@ public class ReportingDataStore {
 	        }
 	        String theNewValue = theListInString.substring(0, theListInString.lastIndexOf(REPORT_UUID_SEPARATOR));
 	        PreferencesProperties.getInstance().setProperty(DESIGN_LIST_FOR_ADMIN, theNewValue);
-	        if (LOGGER.isLoggable(Level.INFO)) {
-	            LOGGER.info("Property updated (" + DESIGN_LIST_FOR_ADMIN + ") : " + theNewValue);
-	        }
+	        
+	        LOGGER.info("Property updated (" + DESIGN_LIST_FOR_ADMIN + ") : " + theNewValue);
+	        
 	    }
-*/
+
 }

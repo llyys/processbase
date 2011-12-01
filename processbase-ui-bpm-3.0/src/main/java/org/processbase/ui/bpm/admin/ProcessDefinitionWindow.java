@@ -71,7 +71,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
     
     private TabSheet tabSheet = new TabSheet();
     private DescriptionPanel descPanel=new DescriptionPanel();
-    private CustomUiPanel uiPanel=new CustomUiPanel();
+   // private CustomUiPanel uiPanel=new CustomUiPanel();
     private ProcessAccessPanel accessPanel=new ProcessAccessPanel();
    // private LegislationPanel legislationPanel=new LegislationPanel();
     
@@ -94,13 +94,13 @@ public class ProcessDefinitionWindow extends PbWindow implements
             descPanel.setParentWindow(this);
             descPanel.initUI();
             tabSheet.addTab(descPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("tabDescription"), null);
-            
+            /*
             uiPanel.setProcessDefinition(processDefinition);
             uiPanel.setParentWindow(this);
             uiPanel.initUI();
             uiPanel.onActivate(false);
             tabSheet.addTab(uiPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("tabCustomUI"), null);
-
+             */
             accessPanel.setProcessDefinition(processDefinition);
             accessPanel.setParentWindow(this);
             accessPanel.initUI();

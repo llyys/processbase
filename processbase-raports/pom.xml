@@ -10,7 +10,7 @@
 	
 	<artifactId>processbase-raports</artifactId>
 	<url>http://processbase.googlecode.com</url>
-	<name>ProcessBase UI App</name>
+	<name>ProcessBase Reports</name>
 	
 	<properties>
 		<birt.version>2.6.1</birt.version>
@@ -41,54 +41,69 @@
 			<artifactId>forms-server</artifactId>
 			<version>${bonita.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-server</artifactId>
+			<version>${bonita.version}</version> 
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-model</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-server</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
 		
-		<!-- BIRT -->
+		<!-- BIRT 
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>chartengineapi</artifactId>
+			<artifactId>chart.engine.api</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>report.engine.api</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>core.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>coreapi</artifactId>
+			<artifactId>data.adapter.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>dataadapterapi</artifactId>
+			<artifactId>data.engine.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 
+		
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>dteapi</artifactId>
+			<artifactId>report.model.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.birt</groupId>
-			<artifactId>engineapi</artifactId>
-			<version>${birt.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.birt</groupId>
-			<artifactId>modelapi</artifactId>
-			<version>${birt.version}</version>
-		</dependency>
+		-->
 		<!--
 			<dependency> <groupId>org.eclipse.birt</groupId>
 			<artifactId>report-engine</artifactId> <type>zip</type>
 			<version>${birt.version}</version> </dependency>
-		-->
+		
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>scriptapi</artifactId>
+			<artifactId>script.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
-
+-->
 		<dependency>
 			<groupId>org.mod4j.org.eclipse.emf</groupId>
 			<artifactId>ecore</artifactId>
@@ -123,20 +138,11 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
+	<repositories>		
 		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
+			<id>codehaus</id>
+			<name>codehaus</name>
+			<url>http://snapshots.repository.codehaus.org</url>		
 		</repository>
 	</repositories>
 </project>

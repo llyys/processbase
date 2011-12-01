@@ -28,6 +28,7 @@ import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.process.ProcessDefinition;
+import org.processbase.ui.core.bonita.process.ProcessParticipant;
 import org.processbase.ui.core.util.CacheUtil;
 import org.processbase.ui.core.util.ICacheDelegate;
 
@@ -122,10 +123,18 @@ public class BarResource implements Serializable {
     }
     List<String> processRoles=null;
 	private ProcessDefinition processDefinition;
-	public List<String> getProcessRoles() {
+	public List<ProcessParticipant> getProcessRoles() {
 		if(processDefinition!=null);
 		{
 			return processDefinition.getProcesses().get(0).getParticipants();
 		}
 	}
+	List<String> processGroups=null;
+	public List<ProcessParticipant> getProcessGroups() {
+		if(processDefinition!=null);
+		{
+			return processDefinition.getProcesses().get(0).getParticipants();
+		}
+	}
+	
 }

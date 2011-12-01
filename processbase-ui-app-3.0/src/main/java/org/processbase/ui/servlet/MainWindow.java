@@ -319,6 +319,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             accessSet.add("bam");
             accessSet.add("identity");
             accessSet.add("monitoring");
+            accessSet.add("raport");
             accessSet.add("development");            
         }
         accessSet.add("tasklist");

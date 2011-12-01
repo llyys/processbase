@@ -2,8 +2,12 @@ package org.processbase.raports.birt.generator;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,11 +15,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import javax.security.auth.login.Configuration;
+
 import org.eclipse.birt.core.exception.BirtException;
 import org.eclipse.birt.core.framework.Platform;
+import org.eclipse.birt.core.framework.URLClassLoader;
 import org.eclipse.birt.report.engine.api.EngineConfig;
+import org.eclipse.birt.report.engine.api.EngineConstants;
 import org.eclipse.birt.report.engine.api.EngineException;
 import org.eclipse.birt.report.engine.api.HTMLRenderOption;
+import org.eclipse.birt.report.engine.api.HTMLServerImageHandler;
 import org.eclipse.birt.report.engine.api.IPageHandler;
 import org.eclipse.birt.report.engine.api.IReportDocumentInfo;
 import org.eclipse.birt.report.engine.api.IReportEngine;
@@ -24,6 +33,8 @@ import org.eclipse.birt.report.engine.api.IReportRunnable;
 import org.eclipse.birt.report.engine.api.IRunAndRenderTask;
 import org.eclipse.birt.report.model.api.IDesignEngine;
 import org.eclipse.birt.report.model.api.IDesignEngineFactory;
+import org.processbase.raports.birt.BirtEngine;
+import org.processbase.ui.core.Constants;
 
 @SuppressWarnings("unchecked")
 public class ReportHandler {
@@ -96,14 +107,12 @@ public class ReportHandler {
             workFolder = "C:/TEMP/";
             
             //create the global design engine
-            initPlatform();
-            reportEngine = createReportEngine();
+            initPlatform();           
     }
 
 
 	// constants, for BIRT home and output file location
 	private static String OUTPUT_FILE_LOCATION = "C:/TEMP/";
-	private static String BIRT_HOME = "D:/temp/birt-runtime-2_5_2/ReportEngine";
 	private static String REPORT_FOLDER = "reports/";
 	protected static Logger log = Logger.getLogger(ReportHandler.class.getName());
 
@@ -127,7 +136,7 @@ public class ReportHandler {
 	IReportEngineFactory reportFactory; // create a new report engine factory
 	IDesignEngineFactory designFactory; // create a new design engine factory
 
-	IReportEngine reportEngine; // only 1 report engine per instance. This is
+	private static IReportEngine reportEngine; // only 1 report engine per instance. This is
 								// thread safe
 	IDesignEngine designEngine;
 
@@ -144,18 +153,14 @@ public class ReportHandler {
 
 	// for random file names
 	Random rand;
+	private EngineConfig config;
 
 	/**
 	 * Create the report engine prerequisite: set BIRT_HOME
 	 */
-	public IReportEngine createReportEngine() {
-		// create a new report engine
-		EngineConfig engineConfig = new EngineConfig();
-		engineConfig.setBIRTHome(BIRT_HOME);
-		engineConfig.setLogger(log);
-
-		return reportFactory.createReportEngine(engineConfig);
-	}
+	
+	
+	
 	
 	/**
 	 * This method will take in a map of report parameters and execute the
@@ -166,23 +171,43 @@ public class ReportHandler {
 	 * @param params
 	 * @return String result
 	 */
-	public String executeHTMLReport(String reportName, Map params) {
-		// IReportEngine reportEngine = createReportEngine();
+	public String executeHTMLReport(ReportItem reportItem, Map params) {
+		 
 
 		try {
+			if (BirtEngine.getInstance().isBirtEnabled()) {
 			// create the open report object and the render task
-			IReportRunnable runnable = openReportDesign(reportEngine, REPORT_FOLDER + reportName);
-			IRunAndRenderTask task = reportEngine
-					.createRunAndRenderTask(runnable);
-
+			File reportDesignFile = new File(reportItem.getRealPath().getAbsolutePath(),reportItem.getFilename());
+			
+			IReportRunnable design;
+	            // Open report design
+	        design = reportEngine.openReportDesign(reportDesignFile.getAbsolutePath());
+	        
+			IRunAndRenderTask task = reportEngine.createRunAndRenderTask(design);
+			
+			ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+			if (contextClassLoader != null && !contextClassLoader.equals(Platform.getContextClassLoader())) {
+				 Platform.setContextClassLoader(contextClassLoader);
+				 task.getAppContext().put(EngineConstants.APPCONTEXT_CLASSLOADER_KEY, contextClassLoader);
+			}
+			
 			// Set rendering options - such as file or stream output,
 			// output format, whether it is embedded, etc
+			
 			HTMLRenderOption options = new HTMLRenderOption();
 			options.setImageDirectory(imageDirectory);
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(); // used instead of a temporary file
 																		
 			options.setOutputStream(bos);
-			options.setOutputFormat(HTMLRenderOption.HTML);
+			//options.setOutputFormat(HTMLRenderOption.HTML);
+			options.setOutputFormat(HTMLRenderOption.OUTPUT_FORMAT_HTML);
+			/*options.setImageHandler(new HTMLServerImageHandler());
+			
+            options.setBaseImageURL(aRequest.getContextPath() + "/images");
+            options.setImageDirectory(aServletContext.getRealPath("/images"));
+            options.setLayoutPreference(HTMLRenderOption.LAYOUT_PREFERENCE_AUTO);
+            options.setEmbeddable(true);
+            */
 			task.setRenderOption(options);
 
 			// set the parameters and run the report
@@ -198,15 +223,20 @@ public class ReportHandler {
 
 			// reportEngine.destroy();
 			return toReturn;
+			}
+			else{
+				return "Birt is deactivated";
+			}
 		} catch (EngineException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-
-		return null;
 	}
 
 	/**
@@ -215,8 +245,7 @@ public class ReportHandler {
 	 * @param reportName
 	 * @return IReportRunnable
 	 */
-	public IReportRunnable openReportDesign(IReportEngine engine,
-			String reportName) {
+	public IReportRunnable openReportDesign(IReportEngine engine, String reportName) {
 		try {
 			IReportRunnable design = engine.openReportDesign(reportName);
 
@@ -232,18 +261,37 @@ public class ReportHandler {
 	 * Initialize the platform prerequisite: set BIRT_HOME
 	 */
 	public void initPlatform() {
-		EngineConfig config = new EngineConfig();
-		config.setBIRTHome(BIRT_HOME);
+		if(reportEngine!=null) return;
+		config = new EngineConfig();
+		File birtHome=new File(System.getProperty("BIRT_HOME"));
+		//config.setBIRTHome(birtHome.getAbsolutePath());
+		
+		List<URL> urls=new ArrayList<URL>();
+		File libs=new File(birtHome.getAbsolutePath(), "plugins");		
+		for (File lib : libs.listFiles()) {
+			try {
+				if(lib.isFile())
+					urls.add(lib.toURI().toURL());
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+		URL[] a = urls.toArray(new URL[0]);
+		URLClassLoader birtLoader=new URLClassLoader(a, Thread.currentThread().getContextClassLoader());
+		
+		config.getAppContext().put(EngineConstants.APPCONTEXT_CLASSLOADER_KEY, birtLoader);
+		
 		try {
 			Platform.startup(config);
 		} catch (BirtException e) {
 			e.printStackTrace();
 		}
 		// create a new report engine factory
-		reportFactory = (IReportEngineFactory) Platform
-				.createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
-		designFactory = (IDesignEngineFactory) Platform
-				.createFactoryObject(IDesignEngineFactory.EXTENSION_DESIGN_ENGINE_FACTORY);
+		reportFactory = (IReportEngineFactory) Platform.createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
+		designFactory = (IDesignEngineFactory) Platform.createFactoryObject(IDesignEngineFactory.EXTENSION_DESIGN_ENGINE_FACTORY);
+		
+		reportEngine = reportFactory.createReportEngine(config);
 	}
 
 	/**

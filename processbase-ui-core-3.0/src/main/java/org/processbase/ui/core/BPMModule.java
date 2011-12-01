@@ -116,6 +116,7 @@ import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.processbase.commands.documents.DeleteDocumentCommand;
 import org.processbase.engine.bam.command.DeleteMetaDim;
 import org.processbase.ui.core.bonita.diagram.Diagram;
+import org.processbase.ui.core.bonita.process.ProcessParticipant;
 import org.processbase.ui.core.util.CacheUtil;
 import org.processbase.ui.core.util.ICacheDelegate;
 
@@ -1608,7 +1609,8 @@ public class BPMModule {
 
 
 
-	public void updateUserGroups(List<String> processRoles) throws Exception {
+	public void updateUserGroups(List<ProcessParticipant> processRoles) throws Exception {
+		//TODO: Vaja lisada juurde grupi ja initiaatori importimise kontrollid.
 		if(processRoles==null)return;
 		initContext();
 		List<Role> roles = getIdentityAPI().getAllRoles();
@@ -1616,10 +1618,10 @@ public class BPMModule {
 		for(Role role:roles){
 			existingRoles.add(role.getLabel());
 		}
-		for (String role:processRoles) {
-			if(existingRoles.add(role)){//if no dublicate detected
+		for (ProcessParticipant role:processRoles) {
+			if(existingRoles.add(role.getName())){//if no dublicate detected
 				if("Initiator".equals(role)==false){
-					getIdentityAPI().addRole(role, role, "AUTO IMPORTED");	
+					getIdentityAPI().addRole(role.getName(), role.getLabel(), "AUTO IMPORTED");	
 				}
 			}
 		}

@@ -158,12 +158,7 @@ public class TaskList extends TablePanel implements Button.ClickListener {
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightTaskInstance task = (LightTaskInstance) ((TableLinkButton) event.getButton()).getTableValue();
-//                LightTaskInstance newTask = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
-//                if (newTask == null || newTask.getState().equals(ActivityState.FINISHED) || newTask.getState().equals(ActivityState.ABORTED)) {
-//                    table.removeItem(task);
-//                } else {
-                    openTaskPage(task);
-//                }
+                openTaskPage(task);
 
             } catch (Exception ex) {
                 ex.printStackTrace();

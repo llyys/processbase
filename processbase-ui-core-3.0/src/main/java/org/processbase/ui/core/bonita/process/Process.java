@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 public class Process implements Serializable {
 	public Process(Node processNode){
 		name=processNode.getAttributes().getNamedItem("name").getTextContent();
-		this.participants=new ArrayList<String>();
+		this.participants=new ArrayList<ProcessParticipant>();
 		NodeList nodes = processNode.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
@@ -19,7 +19,9 @@ public class Process implements Serializable {
 				for (int j = 0; j < participantNodes.getLength(); j++) {
 					Node participant=participantNodes.item(j);
 					if("participant".equalsIgnoreCase(participant.getNodeName())){
-						participants.add(participant.getAttributes().getNamedItem("name").getTextContent());
+						ProcessParticipant part=new ProcessParticipant(participant);
+						//participants.add(participant.getAttributes().getNamedItem("name").getTextContent());
+						participants.add(part);
 					}
 				}
 			}
@@ -45,13 +47,13 @@ public class Process implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public List<String> getParticipants() {
+	public List<ProcessParticipant> getParticipants() {
 		return participants;
 	}
-	public void setParticipants(List<String> participants) {
+	public void setParticipants(List<ProcessParticipant> participants) {
 		this.participants = participants;
 	}
 	String description;
 	String type;
-	List<String> participants;
+	List<ProcessParticipant> participants;
 }

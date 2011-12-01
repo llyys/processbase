@@ -1,11 +1,16 @@
 package org.processbase.raports.birt.generator;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bonitasoft.console.client.BonitaUUID;
+import org.bonitasoft.console.client.Item;
+import org.bonitasoft.console.client.reporting.ReportScope;
 import org.eclipse.birt.report.engine.api.IReportDocumentInfo;
+import org.processbase.ui.core.Constants;
 
-public class ReportItem {
+public class ReportItem implements Item{
 
 	private IReportDocumentInfo docInfo;
     private int lastCheckpoint;
@@ -25,7 +30,7 @@ public class ReportItem {
 	public String getReportType() {
 		return reportType;
 	}
-	public String getScope() {
+	public ReportScope getScope() {
 		return scope;
 	}
 	public boolean isEditable() {
@@ -34,12 +39,13 @@ public class ReportItem {
 	private final String filename;
 	private final String description;
 	private final String reportType;
-	private final String scope;
+	private final ReportScope scope;
 	private final boolean editable;
 	private Set<String> myConfigurationElements;
+	private File reportPath;
     
     public ReportItem(String reportId, String theFilename, String theDescription,
-			String theReportType, String theReportScope, boolean editable) {
+			String theReportType, ReportScope theReportScope, boolean editable) {
 				this.reportId = reportId;
 		// TODO Auto-generated constructor stub
 				this.filename = theFilename;
@@ -47,6 +53,7 @@ public class ReportItem {
 				this.reportType = theReportType;
 				this.scope = theReportScope;
 				this.editable = editable;
+				myConfigurationElements= new HashSet<String>();
 	}
 	public String getReportName() {
             return reportName;
@@ -90,6 +97,21 @@ public class ReportItem {
             myConfigurationElements.addAll(theNewConfiguration);
         }
     }
+	public File getRealPath() {
+		return reportPath;
+	}
+	public void setReportPath(File folder) {
+		reportPath=folder;
+		
+	}
+	public BonitaUUID getUUID() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public void updateItem(Item aSource) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 }
