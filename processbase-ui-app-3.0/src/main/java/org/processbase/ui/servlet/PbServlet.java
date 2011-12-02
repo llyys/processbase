@@ -22,9 +22,11 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
+import com.vaadin.terminal.gwt.server.ApplicationServlet;
 import com.vaadin.ui.Window;
 
 import org.processbase.ui.core.BPMModule;
@@ -33,7 +35,7 @@ import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
-public class PbServlet extends AbstractApplicationServlet {
+public class PbServlet extends ApplicationServlet {
 
 //    @Inject
 //    private PbApplication application;
@@ -47,8 +49,8 @@ public class PbServlet extends AbstractApplicationServlet {
             HttpServletRequest request) throws ServletException, IOException {
         page.write("<script type=\"text/javascript\">\n");
         page.write("//<![CDATA[\n");
-        page.write("document.write(\"<script language='javascript' src='.VAADIN/scripts/jquery-1.6.2.min.js'><\\/script>\");\n");
-        page.write("document.write(\"<script language='javascript' src='.VAADIN/scripts/highcharts.js'><\\/script>\");\n");
+        page.write("document.write(\"<script language='javascript' src='SmartBPM/VAADIN/scripts/jquery-1.6.2.min.js'><\\/script>\");\n");
+        page.write("document.write(\"<script language='javascript' src='SmartBPM/VAADIN/scripts/highcharts.js'><\\/script>\");\n");
         page.write("//]]>\n</script>\n");
         super.writeAjaxPageHtmlVaadinScripts(window, themeName, application,
                 page, appUrl, themeUri, appId, request);
@@ -61,8 +63,6 @@ public class PbServlet extends AbstractApplicationServlet {
     }
     
     
-    
-
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
     	if(panelModuleService==null)
@@ -81,7 +81,5 @@ public class PbServlet extends AbstractApplicationServlet {
         
 		return pbApplication;
     }
-    
-    
     
 }

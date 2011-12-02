@@ -91,7 +91,9 @@ public class RaportListPanel extends PbPanelModule implements Button.ClickListen
 		
 		PbWindow reportWindow=new PbWindow(ri.getReportId());
 		RaportViewer panel=new RaportViewer(ri);
-		
+		reportWindow.setWidth("800px");
+		reportWindow.setHeight("900px");
+		reportWindow.center();
 		reportWindow.setContent(panel);
 		panel.initUI();
 		

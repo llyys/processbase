@@ -8,6 +8,7 @@ import org.eclipse.birt.core.framework.PlatformFileContext;
 import org.eclipse.birt.core.exception.BirtException;
 import org.eclipse.birt.data.engine.api.DataEngine;
 import org.eclipse.birt.report.engine.api.*;
+import org.processbase.raports.util.HTMLServerEmbeddedImageHandler;
 import org.apache.log4j.Logger;
 
 import com.vaadin.Application;
@@ -22,20 +23,20 @@ public class BirtEngineFactory {
     public static synchronized IReportEngine init() {
        
         	
-        	//HTMLServerImageHandler imageHandler = new HTMLServerImageHandler();
+    	HTMLServerEmbeddedImageHandler imageHandler = new HTMLServerEmbeddedImageHandler();
     		//imageHandler.
     		//HTMLActionHandler actionHandler = new GrailsHTMLActionHandler(baseURL, defaultFormat)
     		HTMLRenderOption renderOption = new HTMLRenderOption();
-            //renderOption.setImageHandler(imageHandler);
+            renderOption.setImageHandler(imageHandler);
     		
-    		renderOption.setImageHandler(new HTMLServerImageHandler());
+    		//renderOption.setImageHandler(new HTMLServerImageHandler());
     		String catalinaHome=System.getProperty( "catalina.home");
     		
-    		renderOption.setBaseImageURL(".VAADIN/raport");
+    		/*renderOption.setBaseImageURL("/SmartBPM/VAADIN/raport");
     		File imgFolder=new File(catalinaHome+"\\webapps\\SmartBPM\\VAADIN\\raport");
     		if(imgFolder.exists()==false)
     			imgFolder.mkdir();
-    		renderOption.setImageDirectory(imgFolder.getAbsolutePath());
+    		renderOption.setImageDirectory(imgFolder.getAbsolutePath());*/
     		renderOption.setLayoutPreference(HTMLRenderOption.LAYOUT_PREFERENCE_AUTO);
     		renderOption.setEmbeddable(true);
             
@@ -55,8 +56,8 @@ public class BirtEngineFactory {
             {
             	engineConfig.setLogConfig(catalinaHome+"\\logs", Level.ALL);
             	engineConfig.setLogFile("birt.log");
-            	engineConfig.setLogRollingSize(10);
-            	engineConfig.setLogMaxBackupIndex(10);
+            	engineConfig.setLogRollingSize(1);
+            	engineConfig.setLogMaxBackupIndex(1);
             	        	
             }
             

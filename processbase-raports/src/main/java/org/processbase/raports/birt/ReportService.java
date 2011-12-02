@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -81,29 +82,33 @@ public class ReportService {
             //iterate over each parameter definition, updating as appropriate
             //from the supplied ReportAttributes object
             HashMap paramMap = new HashMap();
-           
+            Iterator iter = paramDefs.iterator();
         	for (int i = 0; i < paramDefs.size(); i++) {
-        		IParameterDefnBase it=(IParameterDefnBase) paramDefs.iterator().next();            
+        		IParameterDefnBase it=(IParameterDefnBase) iter.next();            
                 String paramName = it.getName();
                 Object paramVal=null;
                 if (params.containsKey(paramName)) {
-                    switch (it.getParameterType()) {
+                    Object p = params.get(paramName);
+					switch (it.getParameterType()) {
                         case IScalarParameterDefn.TYPE_BOOLEAN:
-                            paramVal = DataTypeUtil.toBoolean(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toBoolean(p); break;
                         case IScalarParameterDefn.TYPE_DATE:
-                            paramVal = DataTypeUtil.toSqlDate(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toSqlDate(p); break;
                         case IScalarParameterDefn.TYPE_TIME:
-                            paramVal = DataTypeUtil.toSqlTime(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toSqlTime(p); break;
                         case IScalarParameterDefn.TYPE_DATE_TIME:
-                            paramVal = DataTypeUtil.toDate(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toDate(p); break;
                         case IScalarParameterDefn.TYPE_DECIMAL:
-                            paramVal = DataTypeUtil.toBigDecimal(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toBigDecimal(p); break;
                         case IScalarParameterDefn.TYPE_FLOAT:
-                            paramVal = DataTypeUtil.toDouble(params.get(paramName)); break;
+                            paramVal = DataTypeUtil.toDouble(p); break;                        
                         case IScalarParameterDefn.TYPE_STRING:
-                            paramVal = DataTypeUtil.toString(params.get(paramName)); break;
-                        case IScalarParameterDefn.TYPE_INTEGER:
-                            paramVal = DataTypeUtil.toInteger(params.get(paramName)); break;
+                        	 paramVal = DataTypeUtil.toString(p); break;
+                        case IScalarParameterDefn.TYPE_ANY:
+                            paramVal = p; break;
+                        case IScalarParameterDefn.TYPE_INTEGER:                        
+                        	paramVal = DataTypeUtil.toInteger(p); break;
+                        
                     }
                 }
                 if (paramVal != null) 
