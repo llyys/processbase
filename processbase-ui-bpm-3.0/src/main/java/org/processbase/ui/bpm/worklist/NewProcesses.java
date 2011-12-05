@@ -61,8 +61,8 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
         treeTable.setColumnExpandRatio("processName", 1);
         treeTable.addContainerProperty("processDescription", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
         treeTable.setColumnExpandRatio("processDescription", 1);
-        treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
-        treeTable.setVisibleColumns(new Object[]{"category", "processName", "processDescription", "version"});
+        //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
+        treeTable.setVisibleColumns(new Object[]{"category", "processName", "processDescription"/*, "version"*/});
     }
 
     @Override
@@ -116,7 +116,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
             TableLinkButton teb = new TableLinkButton(item.getProcessDef().getLabel() != null ? item.getProcessDef().getLabel() : item.getProcessDef().getName(), item.getProcessDef().getDescription(), null, item.getProcessDef(), this, Constants.ACTION_OPEN);
             woItem.getItemProperty("processName").setValue(teb);
             woItem.getItemProperty("processDescription").setValue(item.getProcessDef().getDescription());
-            woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
+           // woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
         }
     }
 

@@ -26,7 +26,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
 
-public class RaportListPanel extends PbPanelModule implements Button.ClickListener{
+public class RaportModule extends PbPanelModule implements Button.ClickListener{
 
 	 protected Table table = new Table();
 	

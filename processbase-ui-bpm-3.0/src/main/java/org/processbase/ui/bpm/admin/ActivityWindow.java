@@ -17,6 +17,8 @@
 package org.processbase.ui.bpm.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property.ConversionException;
+import com.vaadin.data.Property.ReadOnlyException;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -184,36 +186,41 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
                 field.setValue(dfd.getInitialValue());
             }
         } else {
-            if (dfd.getDataTypeClassName().equals("java.lang.Long")) {
-                field = new TextField(dfd.getLabel());
-                if (value != null) {
-                    field.setValue(new Long(value.toString()));
-                }
+            try {
+				if (dfd.getDataTypeClassName().equals("java.lang.Long")) {
+				    field = new TextField(dfd.getLabel());
+				    if (value != null) {
+				        field.setValue(new Long(value.toString()));
+				    }
 //                    field.addValidator(new DoubleValidator("Š—Š½Š°Ń‡ŠµŠ½ŠøŠµ Š´Š¾Š»Š¶Š½Š¾ Š±Ń‹Ń‚Ń� Ń†ŠøŃ„Ń€Š¾Š²Ń‹Š¼"));
-            } else if (dfd.getDataTypeClassName().equals("java.lang.Double")) {
-                field = new TextField(dfd.getLabel());
-                if (value != null) {
-                    field.setValue(new Double(value.toString()));
-                }
+				} else if (dfd.getDataTypeClassName().equals("java.lang.Double")) {
+				    field = new TextField(dfd.getLabel());
+				    if (value != null) {
+				        field.setValue(new Double(value.toString()));
+				    }
 //                    field.addValidator(new DoubleValidator("Š—Š½Š°Ń‡ŠµŠ½ŠøŠµ Š´Š¾Š»Š¶Š½Š¾ Š±Ń‹Ń‚Ń� Ń†ŠøŃ„Ń€Š¾Š²Ń‹Š¼"));
-            } else if (dfd.getDataTypeClassName().equals("java.util.Date")) {
-                field = new PopupDateField(dfd.getLabel());
-                if (value != null && value instanceof java.util.Date) {
-                    field.setValue(value);
-                } else {
-                    field.setValue(new java.util.Date());
-                }
-                ((PopupDateField) field).setResolution(PopupDateField.RESOLUTION_DAY);
-            } else if (dfd.getDataTypeClassName().equals("java.lang.String")) {
-                field = new TextField(dfd.getLabel());
-                field.setValue(value != null ? value.toString() : "");
-            } else if (dfd.getDataTypeClassName().equals("java.lang.Boolean")) {
-                field = new CheckBox(dfd.getLabel());
-                field.setValue(value != null ? value : Boolean.FALSE);
-            } else {
-                field = new TextField(dfd.getLabel());
-                field.setValue(value != null ? value.toString() : "");
-            }
+				} else if (dfd.getDataTypeClassName().equals("java.util.Date")) {
+				    field = new PopupDateField(dfd.getLabel());
+				    if (value != null && value instanceof java.util.Date) {
+				        field.setValue(value);
+				    } else {
+				        field.setValue(new java.util.Date());
+				    }
+				    ((PopupDateField) field).setResolution(PopupDateField.RESOLUTION_DAY);
+				} else if (dfd.getDataTypeClassName().equals("java.lang.String")) {
+				    field = new TextField(dfd.getLabel());
+				    field.setValue(value != null ? value.toString() : "");
+				} else if (dfd.getDataTypeClassName().equals("java.lang.Boolean")) {
+				    field = new CheckBox(dfd.getLabel());
+				    field.setValue(value != null ? value : Boolean.FALSE);
+				} else {
+				    field = new TextField(dfd.getLabel());
+				    field.setValue(value != null ? value.toString() : "");
+				}
+			} catch (Exception e) {
+				 field = new TextField(dfd.getLabel());
+				 field.setValue(value != null ? value.toString() : "");
+			}
         }
         field.setDescription(dfd.getDescription() != null ? dfd.getDescription() : "");
 

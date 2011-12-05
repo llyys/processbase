@@ -60,7 +60,7 @@ public class IdentityPanel extends PbPanelModule
     private Button rolesBtn = null;
     private Button groupsBtn = null;
     private Button metadataBtn = null;
-    private Button syncBtn = null;
+   // private Button syncBtn = null;
     private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 
     public void initUI() {
@@ -145,7 +145,7 @@ public class IdentityPanel extends PbPanelModule
 
         // prepare sync button
 
-        syncBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtn"), this);
+       /* syncBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtn"), this);
         syncBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtnDescription"));
         buttonBar.addComponent(syncBtn, 7);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
@@ -153,7 +153,7 @@ public class IdentityPanel extends PbPanelModule
             syncBtn.setVisible(true);
         } else {
             syncBtn.setVisible(false);
-        }
+        }*/
 
         buttonBar.setWidth("100%");
     }
@@ -164,8 +164,8 @@ public class IdentityPanel extends PbPanelModule
             ((TablePanel) getComponent(1)).refreshTable();
         } else if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TreeTablePanel)) {
             ((TreeTablePanel) getComponent(1)).refreshTable();
-        } else if (event.getButton().equals(syncBtn)) {
-            synchronizeIdentity();
+       /* } else if (event.getButton().equals(syncBtn)) {
+            synchronizeIdentity();*/
         } else if (event.getButton().equals(btnAdd)) {
             addIdentity();
         } else {
@@ -179,7 +179,7 @@ public class IdentityPanel extends PbPanelModule
                 ((TreeTablePanel) getComponent(1)).refreshTable();
             }
             if (!event.getButton().equals(usersBtn)) {
-                syncBtn.setVisible(false);
+           //     syncBtn.setVisible(false);
             }
         }
     }
@@ -194,11 +194,11 @@ public class IdentityPanel extends PbPanelModule
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         metadataBtn.setEnabled(true);
         btnAdd.setVisible(true);
-        if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
+        /*if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {
             syncBtn.setVisible(true);
         } else {
             syncBtn.setVisible(false);
-        }
+        }*/
     }
 
     public void windowClose(CloseEvent e) {
