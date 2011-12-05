@@ -23,6 +23,7 @@ import com.vaadin.ui.Window;
 import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -56,7 +57,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         
         
         table.addContainerProperty("deployedBy", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedBy"), null, null);
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        //table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
         table.addContainerProperty("deployedDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
@@ -66,14 +67,14 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public void refreshTable() {
         try {
             table.removeAllItems();
-            Set<ProcessDefinition> pds = ProcessbaseApplication.getCurrent().getBpmModule().getProcesses();
+            Set<ProcessDefinition> pds = ProcessbaseApplication.getCurrent().getBpmModule().getProcesses(ProcessState.ENABLED);
             for (ProcessDefinition pd : pds) {
                 Item woItem = table.addItem(pd);
                 TableLinkButton teb = new TableLinkButton(pd.getLabel() != null ? pd.getLabel() : pd.getName(), pd.getDescription(), null, pd, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("version").setValue(pd.getVersion());
                 woItem.getItemProperty("deployedBy").setValue(pd.getDeployedBy());
-                woItem.getItemProperty("state").setValue(pd.getState());
+                //woItem.getItemProperty("state").setValue(pd.getState());
                 woItem.getItemProperty("deployedDate").setValue(pd.getDeployedDate());
             }
             table.setSortContainerPropertyId("name");
@@ -94,8 +95,10 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 try {
                     ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
                     ProcessDefinition processDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getProcessDefinition(pd);
+                    
                     ProcessDefinitionWindow processDefinitionWindow = new ProcessDefinitionWindow(processDefinition);
-                    processDefinitionWindow.addListener((Window.CloseListener) this);
+                    //processDefinitionWindow.addListener((Window.CloseListener) this);
+                    
                     getApplication().getMainWindow().addWindow(processDefinitionWindow);
                     processDefinitionWindow.initUI();
                 } catch (Exception ex) {

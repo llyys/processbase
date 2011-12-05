@@ -3,6 +3,7 @@ package org.processbase.raports.ui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.birt.report.engine.api.HTMLRenderOption;
 import org.eclipse.birt.report.model.metadata.DateTimePropertyType;
+import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
@@ -23,6 +25,7 @@ import org.processbase.ui.core.template.PbPanel;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -34,6 +37,7 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.PopupDateField;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -48,6 +52,9 @@ public class RaportViewer extends PbPanel {
 	private PopupDateField datetimeEnd=null;
 	private ComboBox processesUUIDs=null;
 	private ComboBox activityUUIDs=null;
+	private ComboBox activityType=null;
+	private ProgressIndicator indicator = null;
+        
 	
 	public RaportViewer(ReportItem reportItem) {
 		this.reportItem = reportItem;
@@ -57,11 +64,13 @@ public class RaportViewer extends PbPanel {
 		
 		addComponent(pForm);
 		
-		
+		indicator=new ProgressIndicator(new Float(0.3));
 		raportControl.setWidth("100%");
 		raportControl.setContentMode(Label.CONTENT_XHTML);
 		
-		
+		addComponent(indicator);
+		setComponentAlignment(indicator, Alignment.MIDDLE_CENTER);
+		indicator.setVisible(false);
 		addComponent(raportControl);
 		setMargin(true);		
 	}
@@ -112,6 +121,15 @@ public class RaportViewer extends PbPanel {
 					datetime.setResolution(PopupDateField.RESOLUTION_DAY);
 					component=datetimeEnd=datetime;
 				}
+				else if(element.equals("ActivityType")){
+					ActivityDefinition.Type[] values=ActivityDefinition.Type.values();
+					int i = 0;  
+					List<String>  result = new ArrayList<String>(values.length);  
+				    for (ActivityDefinition.Type value: values) {  
+				        result.add(value.name());  
+				    }  
+					component=activityType = new ComboBox(element, result);
+				}
 				else if(element.equals("ActivityUUID")){
 					component=activityUUIDs = new ComboBox(element);
 				}
@@ -135,7 +153,7 @@ public class RaportViewer extends PbPanel {
 				if(component==null)					 
 				layout.addComponent(new TextField(element));					
 			}
-			
+			//we add items specially here, beacause here we can order elements (StartDate before EndDate etc) 
 			if(timeUnit!=null)
 				layout.addComponent(timeUnit);
 			
@@ -147,6 +165,9 @@ public class RaportViewer extends PbPanel {
 			
 			if(processesUUIDs!=null)
 				layout.addComponent(processesUUIDs);
+			
+			if(activityType!=null)
+				layout.addComponent(activityType);
 			
 			if(activityUUIDs!=null)
 			{
@@ -181,18 +202,25 @@ public class RaportViewer extends PbPanel {
 					
 					try {
 						
+						indicator.setVisible(true);
 						Map params=new HashMap();
 						
 						if(timeUnit!=null) 
 							params.put("TimeUnit", timeUnit.getValue());						
 						if(datetimeStart!=null) 
-							params.put("StartDate", datetimeStart.getValue());
+							params.put("StartDate", Long.toString(((Date)datetimeStart.getValue()).getTime()));
 						if(datetimeEnd!=null) 
-							params.put("EndDate", datetimeEnd.getValue());
+							params.put("EndDate", Long.toString(((Date)datetimeEnd.getValue()).getTime()));
 						if(processesUUIDs!=null) 
 							params.put("ProcessUUID", processesUUIDs.getValue());
+						if(activityType!=null){
+							params.put("ActivityType", activityType.getValue());
+						}
+						if(activityUUIDs!=null) 
+							params.put("ActivityUUID", activityUUIDs.getValue());
 						
 						String result=reportService.runAndRender(reportItem, params, new HTMLRenderOption());
+						indicator.setVisible(false);
 						raportControl.setValue(result);
 						
 					} catch (Exception e) {

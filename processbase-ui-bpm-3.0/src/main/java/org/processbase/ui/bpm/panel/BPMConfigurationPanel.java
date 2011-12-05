@@ -22,6 +22,7 @@ import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Locale;
 import org.processbase.ui.bpm.admin.ActivityInstancesPanel;
+import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
 import com.vaadin.ui.Alignment;
@@ -52,11 +53,13 @@ public class BPMConfigurationPanel extends PbPanelModule
 
     private ButtonBar buttonBar = new ButtonBar();
     private ProcessDefinitionsPanel processDefinitionsPanel;
+    private DisabledProcessDefinitionsPanel disabledProcessDefinitionsPanel;
     private CategoriesPanel categoriesPanel;
     private ProcessInstancesPanel processInstancesPanel;
     private ActivityInstancesPanel activityInstancesPanel;
     private Button refreshBtn = null;
     private Button btnAdd = null;
+    private Button disabledProcessDefinitionBtn = null;
     private Button processDefinitionBtn = null;
     private Button processInstancesBtn = null;
     private Button activityInstancesBtn = null;
@@ -79,10 +82,12 @@ public class BPMConfigurationPanel extends PbPanelModule
         addComponent(processDefinitionsPanel, 1);
         setExpandRatio(processDefinitionsPanel, 1);
         processDefinitionsPanel.initUI();
-                
         processDefinitionsPanel.refreshTable();
 
-
+        disabledProcessDefinitionsPanel=new DisabledProcessDefinitionsPanel();
+        disabledProcessDefinitionsPanel.setBpmConfigurationPanel(this);
+        panels.put(disabledProcessDefinitionBtn, disabledProcessDefinitionsPanel);
+        
         processInstancesPanel = new ProcessInstancesPanel();
         processInstancesPanel.setBpmConfigurationPanel(this);        
         panels.put(processInstancesBtn, processInstancesPanel);
@@ -113,35 +118,42 @@ public class BPMConfigurationPanel extends PbPanelModule
 
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
+        int btnCnt=0;
         // prepare categoriesBtn button
         categoriesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtn"), this);
         categoriesBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(categoriesBtn, 0);
+        buttonBar.addComponent(categoriesBtn, btnCnt++);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
         processDefinitionBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
-        buttonBar.addComponent(processDefinitionBtn, 1);
+        buttonBar.addComponent(processDefinitionBtn, btnCnt++);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskListBtn button
         processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(processInstancesBtn, 2);
+        buttonBar.addComponent(processInstancesBtn, btnCnt++);
         buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
+        
+        //Process repository button
+        disabledProcessDefinitionBtn=new Button(ProcessbaseApplication.getString("disabledProcesses", "Protsesside hoidla"), this);
+        disabledProcessDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
+        buttonBar.addComponent(disabledProcessDefinitionBtn, btnCnt++);
+        buttonBar.setComponentAlignment(disabledProcessDefinitionBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myTaskArchiveBtn button
         activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(activityInstancesBtn, 3);
+        buttonBar.addComponent(activityInstancesBtn, btnCnt++);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
 
         // add expand label
         Label expandLabel = new Label("");
-        buttonBar.addComponent(expandLabel, 4);
+        buttonBar.addComponent(expandLabel, btnCnt++);
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare processesComboBox
@@ -149,18 +161,18 @@ public class BPMConfigurationPanel extends PbPanelModule
         processesComboBox.setWidth("250px");
         processesComboBox.setInputPrompt(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
         processesComboBox.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
-        buttonBar.addComponent(processesComboBox, 5);
+        buttonBar.addComponent(processesComboBox, btnCnt++);
         buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
         processesComboBox.setVisible(false);
 
         // prepare refresh button
         refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
-        buttonBar.addComponent(refreshBtn, 6);
+        buttonBar.addComponent(refreshBtn, btnCnt++);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
         btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
-        buttonBar.addComponent(btnAdd, 7);
+        buttonBar.addComponent(btnAdd, btnCnt++);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
     }
@@ -203,13 +215,21 @@ public class BPMConfigurationPanel extends PbPanelModule
     private void activateButtons() {
         processDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
         processDefinitionBtn.setEnabled(true);
+        
+        disabledProcessDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
+        disabledProcessDefinitionBtn.setEnabled(true);
+        
         processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         processInstancesBtn.setEnabled(true);
+        
         activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
         activityInstancesBtn.setEnabled(true);
+        
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         categoriesBtn.setEnabled(true);
+        
         btnAdd.setVisible(true);
+        
         processesComboBox.setVisible(true);
     }
 
