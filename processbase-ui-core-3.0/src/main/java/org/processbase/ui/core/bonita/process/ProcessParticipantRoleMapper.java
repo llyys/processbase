@@ -23,9 +23,11 @@ public class ProcessParticipantRoleMapper{
 					this.parameters= new HashMap<String, String>();
 					for (int j = 0; j < paramNodes.getLength(); j++) {
 						Node paramNode = paramNodes.item(j);
-						String paramName=paramNode.getAttributes().getNamedItem("name").getTextContent();
-						String paramValue=paramNode.getTextContent();
-						this.parameters.put(paramName, paramValue);
+						if(paramNode.getAttributes()!=null){
+							String paramName=paramNode.getAttributes().getNamedItem("name").getTextContent();
+							String paramValue=paramNode.getTextContent();
+							this.parameters.put(paramName, paramValue);
+						}
 					}
 				}
 			}

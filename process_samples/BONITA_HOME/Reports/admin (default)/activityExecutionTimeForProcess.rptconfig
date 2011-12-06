@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.22" id="1">
+    <list-property name="configVars">
+        <structure>
+            <property name="name">__isdisplay__ProcessUUID_26_0</property>
+            <property name="value">123</property>
+        </structure>
+        <structure>
+            <property name="name">__isdisplay__StartDate_27_1</property>
+            <property name="value">123</property>
+        </structure>
+        <structure>
+            <property name="name">__isdisplay__EndDate_28_2</property>
+            <property name="value">312</property>
+        </structure>
+        <structure>
+            <property name="name">__isdisplay__TimeUnit_29_3</property>
+            <property name="value">321</property>
+        </structure>
+        <structure>
+            <property name="name">TimeUnit_29_4</property>
+            <property name="value">321</property>
+        </structure>
+        <structure>
+            <property name="name">TimeUnit_29_type_</property>
+            <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">EndDate_28_5</property>
+            <property name="value">312</property>
+        </structure>
+        <structure>
+            <property name="name">EndDate_28_type_</property>
+            <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">StartDate_27_6</property>
+            <property name="value">123</property>
+        </structure>
+        <structure>
+            <property name="name">StartDate_27_type_</property>
+            <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">ProcessUUID_26_7</property>
+            <property name="value">123</property>
+        </structure>
+        <structure>
+            <property name="name">ProcessUUID_26_type_</property>
+            <property name="value">string</property>
+        </structure>
+    </list-property>
+</report>

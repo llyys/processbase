@@ -1,0 +1,1 @@
+update your current %BONITA_HOME% folder width these files and settings

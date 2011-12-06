@@ -44,6 +44,7 @@ import javax.security.auth.login.LoginContext;
 import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.LogManager;
+import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
@@ -84,6 +85,7 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.services.DocumentationManager;
 import org.ow2.bonita.services.Folder;
+import org.ow2.bonita.services.LargeDataRepository;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.identity.Group;
@@ -1081,7 +1083,7 @@ public class BPMModule {
     	byte[] barContent = Misc.generateJar(ba.getResources());
     	return barContent;
 	}
-    
+   
     public void stopExecution(ProcessInstanceUUID piUUID, String stepName) throws Exception {
     	logger.debug("stopExecution");
         initContext();
@@ -1626,5 +1628,32 @@ public class BPMModule {
 			}
 		}
 	}
+	
+	 public byte[] getLargeDataRepositoryAttachment(final ProcessDefinitionUUID processDefinitionUUID, final String attachmentName){
+		 try {
+			 byte[] result=execute(new Command<byte[]>() {
+
+				@Override
+				public byte[] execute(Environment environment) throws Exception {
+					
+					List<String> attachmentCategories = Misc.getAttachmentCategories(processDefinitionUUID);
+					final LargeDataRepository ldr = EnvTool.getLargeDataRepository();
+					Set<String> keys = ldr.getKeys(attachmentCategories);
+					 
+					if(keys!=null && keys.contains(attachmentName)) {
+						byte[] data = ldr.getData(byte[].class,attachmentCategories, attachmentName);
+						return data;
+					}
+				   	return null;
+				}
+			});
+			 return result;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+   	    	   
+   }
 	
 }

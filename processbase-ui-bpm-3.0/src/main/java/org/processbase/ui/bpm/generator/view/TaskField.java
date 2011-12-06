@@ -11,7 +11,6 @@ import org.ow2.bonita.facade.runtime.Document;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
-import org.processbase.ui.bpm.generator.GeneratedTable;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.AvailableValues;
@@ -20,6 +19,7 @@ import org.processbase.ui.core.bonita.forms.ValuesList;
 import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
+import org.processbase.ui.core.bonita.process.GeneratedTable;
 import org.processbase.ui.core.template.ByteArraySource;
 import org.processbase.ui.core.template.ImmediateUpload;
 

@@ -1,0 +1,7 @@
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.chart.engine_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.chart.engine.source_3.7.1.v20110905.jar -DartifactId=chart.engine.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.core_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.core.source_3.7.1.v20110905.jar -DartifactId=core.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.report.data.adapter_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.report.data.adapter.source_3.7.1.v20110905.jar -DartifactId=data.adapter.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.data_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.data.source_3.7.1.v20110905.jar -DartifactId=data.engine.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.report.engine_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.report.engine.source_3.7.1.v20110905.jar -DartifactId=report.engine.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+mvn install:install-file -Dfile=plugins/org.eclipse.birt.report.model_3.7.1.v20110905.jar -Dsources=plugins/org.eclipse.birt.report.model.source_3.7.1.v20110905.jar -DartifactId=report.model.api -DgroupId=org.eclipse.birt -Dversion=3.7.1 -Dpackaging=jar
+

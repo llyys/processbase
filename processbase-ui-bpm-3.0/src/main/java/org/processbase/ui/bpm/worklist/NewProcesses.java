@@ -32,7 +32,6 @@ import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -42,6 +41,7 @@ import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.bpm.generator.view.NewProcessWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
+import org.processbase.ui.core.bonita.process.BarResource;
 
 /**
  *

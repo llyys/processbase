@@ -34,7 +34,6 @@ import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
-import org.processbase.ui.bpm.generator.BarResource;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
@@ -46,6 +45,7 @@ import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
+import org.processbase.ui.core.bonita.process.BarResource;
 
 /**
  *
