@@ -46,6 +46,8 @@ import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
@@ -55,6 +57,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 public class FileDocumentManager implements DocumentationManager{
+	private static final String NAME = "Name";
 	private static final String DOCUMENT_ID = "ID";
 	private static ResourceBundle  mimeProperties=null;
 	private static final String DOCUMENT = "document";
@@ -102,30 +105,43 @@ public class FileDocumentManager implements DocumentationManager{
 
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
 		try {
-			GridFS gfs = new GridFS(db, DOCUMENTS);
-			GridFSInputFile file = gfs.createFile(fileContent);
-			file.setFilename(fileName);
-			file.setContentType(contentMimeType);
 			
-			file.getMetaData().put("Name", name);
-			file.getMetaData().put(PROCESS_DEFINITION_UUID, definitionUUID.toString());
-			file.getMetaData().put(PROCESS_INSTANCE_UUID, instanceUUID.toString());
+			GridFS gfs = new GridFS(db, DOCUMENTS);
+			if(fileContent==null)
+				fileContent=new byte[0];
+			
+			BasicDBObject doc = new BasicDBObject();
+			DBCollection table = db.getCollection(DOCUMENTS);
+			GridFSInputFile file = gfs.createFile(fileContent);
+			
+			//file.setFilename(fileName==null?"empty.txt":fileName);
+			//file.setContentType(contentMimeType==null?"text/plain":contentMimeType);
+			
+			doc.put("Lenght", fileContent.length);
+			doc.put(NAME, name);
+			
+			if(definitionUUID!=null)
+				doc.put(PROCESS_DEFINITION_UUID, definitionUUID.toString());
+			if(instanceUUID!=null)
+				doc.put(PROCESS_INSTANCE_UUID, instanceUUID.toString());
 			
 			//file.getMetaData().put(AUTHOR, instanceUUID.toString());
 			
 			String instance = instanceUUID != null ? instanceUUID.toString() : "DEFINITION_LEVEL_DOCUMENT";
 			String folderId=definitionUUID.toString()+"/"+instance;
 			
-			Document document = new DocumentImpl(name, "folder", "author", new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent.length, definitionUUID, instanceUUID);
-			String id=definitionUUID.toString()+instance+name;
-			file.validate();
-			
-			String documentId = file.getId().toString();
-			document.setId(documentId);
-			file.getMetaData().put(DOCUMENT_ID, id);
-			file.getMetaData().put(DOCUMENT, instanceUUID);
-			
+			Document document = new DocumentImpl(name, null, "admin", new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent.length, definitionUUID, instanceUUID);
+			doc.put("Document", document);
 			file.save();
+			doc.put("DocumentID", file.getId());
+			table.insert(doc);
+			
+			//String documentId = file.getId().toString();
+			//document.setId(documentId);
+			//file.getMetaData().put(DOCUMENT_ID, id);
+			//file.getMetaData().put(DOCUMENT, instanceUUID);
+			
+			
 			return document;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -154,6 +170,8 @@ public class FileDocumentManager implements DocumentationManager{
 		   Document document = null;
 		   try {
 			   GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
+			   DBCollection table = db.getCollection(DOCUMENTS);
+			   
 			   GridFSDBFile doc = gfsPhoto.findOne(documentId);
 			   return (Document) doc.get(DOCUMENT);			   
 	        } catch (Exception ex) {
@@ -166,12 +184,12 @@ public class FileDocumentManager implements DocumentationManager{
 		Document document = null;
 		try {
 			GridFS gfs = new GridFS(db, DOCUMENTS);
-			
+			DBCollection table = db.getCollection(DOCUMENTS);
 
-			List<GridFSDBFile> gdocs = (List<GridFSDBFile>) gfs.find(query);
+			DBCursor gdocs =  table.find(query);
 			List<Document> docs=new ArrayList<Document>();
-			for (GridFSDBFile f : gdocs) {
-				Document doc=(Document) f.getMetaData().get(DOCUMENT);
+			for (DBObject f : gdocs) {
+				Document doc=(Document) f.get(DOCUMENT);
 				docs.add(doc);
 			}			   
 		} catch (Exception ex) {
@@ -193,7 +211,20 @@ public class FileDocumentManager implements DocumentationManager{
 	public byte[] getContent(Document document) throws DocumentNotFoundException {
 		// TODO Auto-generated method stub
 		 GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
-		 GridFSDBFile doc = gfsPhoto.findOne(document.getId());
+		 BasicDBObject query=new  BasicDBObject();
+         if (document.getName() != null)             	 
+             query.put(NAME, document.getName());
+         
+         if(document.getProcessInstanceUUID() != null)
+         {
+         	query.put(PROCESS_INSTANCE_UUID, document.getProcessInstanceUUID().toString());         	
+         }
+                     
+         if(document.getProcessDefinitionUUID() != null){
+         	query.put(PROCESS_DEFINITION_UUID, document.getProcessDefinitionUUID().toString());        	
+         	
+         }
+		 GridFSDBFile doc = gfsPhoto.findOne(query);
 		 ByteArrayOutputStream out=new ByteArrayOutputStream();
 		try {
 			doc.writeTo(out);
@@ -331,10 +362,15 @@ public class FileDocumentManager implements DocumentationManager{
 				//BarResource resource=BarResource.getBarResource(processDefinitionUUID);
             	AttachmentInstnce attachemnt=getLargeDataRepositoryAttachment(processDefinitionUUID, attachmentName);
             	if(attachemnt!=null){
-            		String fileType=attachemnt.getAttachmentDefinition().getFileName().substring(attachemnt.getAttachmentDefinition().getFileName().lastIndexOf('.')+1);
-            		String mimeType=mimeProperties.getString(fileType);
-            		Document doc = createDocument(attachemnt.getAttachmentDefinition().getName(), 
-            				processDefinitionUUID, processInstanceUUID, attachemnt.getAttachmentDefinition().getFileName(), mimeType, attachemnt.getData());
+            		String fileType=null;
+            		String mimeType=null;
+            		AttachmentDefinition attachmentDefinition = attachemnt.getAttachmentDefinition();
+					if(attachmentDefinition.getFileName()!=null){
+	            		fileType=attachmentDefinition.getFileName().substring(attachmentDefinition.getFileName().lastIndexOf('.')+1);
+	            		mimeType=mimeProperties.getString(fileType);
+            		}
+            		Document doc = createDocument(attachmentDefinition.getName(), 
+            				processDefinitionUUID, processInstanceUUID, attachmentDefinition.getFileName(), mimeType, attachemnt.getData());
             		
             		files.add(doc);
             	}
