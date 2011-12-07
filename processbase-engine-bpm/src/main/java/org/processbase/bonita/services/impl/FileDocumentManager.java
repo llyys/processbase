@@ -37,6 +37,7 @@ import org.ow2.bonita.services.impl.AuthAwareCookieManager;
 import org.ow2.bonita.services.impl.DocumentImpl;
 import org.ow2.bonita.util.EnvTool;
 import org.ow2.bonita.util.Misc;
+import org.ow2.bonita.util.xml.XStreamUtil;
 import org.processbase.bonita.services.impl.filedocument.FileDocument;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.process.BarResource;
@@ -55,8 +56,11 @@ import com.mongodb.ObjectId;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
+import com.thoughtworks.xstream.XStream;
 
 public class FileDocumentManager implements DocumentationManager{
+	private static final String LENGHT = "Lenght";
+	private static final String FILE_ID = "FileId";
 	private static final String NAME = "Name";
 	private static final String DOCUMENT_ID = "ID";
 	private static ResourceBundle  mimeProperties=null;
@@ -88,59 +92,49 @@ public class FileDocumentManager implements DocumentationManager{
 			 
 		 }
 	}
-	public Folder createFolder(String folderName) throws FolderAlreadyExistsException {
-		 System.out.println("createFolder1");
-		return null;
-	}
-
-	public Folder createFolder(String folderName, String parentFolderId) throws FolderAlreadyExistsException {
-		System.out.println("createFolder2");
-//      System.out.println("folderName = " + folderName);
-      return null;
-	}
-
-	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		return createDocument(name, definitionUUID, instanceUUID, "null", "null", new byte[0]);
-	}
-
+	
+	
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
 		try {
 			
-			GridFS gfs = new GridFS(db, DOCUMENTS);
+			GridFS gfs = new GridFS(db, "FILE_TABLE"); 
 			if(fileContent==null)
 				fileContent=new byte[0];
 			
 			BasicDBObject doc = new BasicDBObject();
 			DBCollection table = db.getCollection(DOCUMENTS);
-			GridFSInputFile file = gfs.createFile(fileContent);
 			
-			//file.setFilename(fileName==null?"empty.txt":fileName);
-			//file.setContentType(contentMimeType==null?"text/plain":contentMimeType);
-			
-			doc.put("Lenght", fileContent.length);
+			doc.put(LENGHT, fileContent.length);
 			doc.put(NAME, name);
 			
 			if(definitionUUID!=null)
 				doc.put(PROCESS_DEFINITION_UUID, definitionUUID.toString());
-			if(instanceUUID!=null)
-				doc.put(PROCESS_INSTANCE_UUID, instanceUUID.toString());
-			
-			//file.getMetaData().put(AUTHOR, instanceUUID.toString());
+				
 			
 			String instance = instanceUUID != null ? instanceUUID.toString() : "DEFINITION_LEVEL_DOCUMENT";
+			doc.put(PROCESS_INSTANCE_UUID, instance);
+			
 			String folderId=definitionUUID.toString()+"/"+instance;
 			
 			Document document = new DocumentImpl(name, null, "admin", new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent.length, definitionUUID, instanceUUID);
-			doc.put("Document", document);
-			file.save();
-			doc.put("DocumentID", file.getId());
+			
+			
+			if(fileContent!=null && fileContent.length>0){
+				GridFSInputFile file = gfs.createFile(fileContent);
+				file.setFilename(fileName);
+				file.setContentType(contentMimeType);
+				file.save();
+				doc.put(FILE_ID, file.getId());
+			}
+			
 			table.insert(doc);
+
+			ObjectId id = (ObjectId)doc.get( "_id" );
+			document.setId(id.toString());
 			
-			//String documentId = file.getId().toString();
-			//document.setId(documentId);
-			//file.getMetaData().put(DOCUMENT_ID, id);
-			//file.getMetaData().put(DOCUMENT, instanceUUID);
+			doc.put(DOCUMENT, document.toString());
 			
+			table.save(doc);
 			
 			return document;
         } catch (Exception ex) {
@@ -148,6 +142,202 @@ public class FileDocumentManager implements DocumentationManager{
         }
 		return null;
 	        
+	}
+
+
+
+	public Document getDocument(String documentId) throws DocumentNotFoundException {
+		   System.out.println("getDocument");
+		   Document document = null;
+		   try {
+			   GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
+			   DBCollection table = db.getCollection(DOCUMENTS);
+			   
+			   DBObject doc = table.findOne(documentId);
+			   DocumentImpl document1 = DeserializeDocument(doc);
+			   
+			   
+			return (Document) document1;			   
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+	         return null;
+	}
+
+
+	/**
+	 * @param doc
+	 * @return
+	 */
+	private DocumentImpl DeserializeDocument(DBObject doc) {
+		String documentXML = (String) doc.get(DOCUMENT);
+		   XStream xstream = XStreamUtil.getDefaultXstream();
+		   
+		   DocumentImpl document1=new DocumentImpl((String) doc.get(NAME));
+		   document1=(DocumentImpl)xstream.fromXML(documentXML, (Object)document1);
+		return document1;
+	}
+	
+	public List<Document> getDocuments(DBObject query) throws DocumentNotFoundException {
+		System.out.println("getDocument");
+		Document document = null;
+		List<Document> docs=new ArrayList<Document>();
+		try {
+			
+			DBCollection table = db.getCollection(DOCUMENTS);
+
+			DBCursor gdocs = table.find(query);
+			
+			
+			while (gdocs.hasNext()) {
+				DBObject f = gdocs.next();				
+				Document doc = DeserializeDocument(f);
+				docs.add(doc);
+			}			   
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return docs;
+	}
+
+
+	public byte[] getContent(Document document) throws DocumentNotFoundException {
+		// TODO Auto-generated method stub
+		 
+		 DBCollection table = db.getCollection(DOCUMENTS);
+		 String id = document.getId();
+		 ObjectId oid=new ObjectId(id);
+		
+		 DBObject dbObject = table.findOne(oid);
+		 
+		 Object docId = dbObject.get(FILE_ID);
+		 if(docId==null)
+			 return null;
+         GridFS gfsPhoto = new GridFS(db, "FILE_TABLE");
+         
+		 GridFSDBFile doc = gfsPhoto.findOne((ObjectId) docId);
+		 
+		 ByteArrayOutputStream out=new ByteArrayOutputStream();
+		try {
+			doc.writeTo(out);
+			return out.toByteArray();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
+	public SearchResult search(DocumentSearchBuilder builder, int fromResult, int maxResults) {
+	
+		HashMap<DocumentIndex, DocumentCriterion> crits = new HashMap<DocumentIndex, DocumentCriterion>();
+        for (Object o : builder.getQuery()) {
+            if (o instanceof String) {
+            } 
+            else if (o instanceof DocumentCriterion) {
+                DocumentCriterion dc = (DocumentCriterion) o;
+                crits.put(dc.getField(), dc);
+            }
+        }
+        ProcessInstanceUUID processInstanceUUID=null;
+        ProcessDefinitionUUID processDefinitionUUID=null;
+        
+        String procDefString = crits.containsKey(DocumentIndex.PROCESS_DEFINITION_UUID) ? crits.get(DocumentIndex.PROCESS_DEFINITION_UUID).getValue().toString() : null;
+        String procInstString = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : "DEFINITION_LEVEL_DOCUMENT";
+        
+        String attachmentName = crits.containsKey(DocumentIndex.NAME) ? crits.get(DocumentIndex.NAME).getValue().toString() : null;
+
+        List<Document> files = new ArrayList<Document>();
+        try {
+        	BasicDBObject query=new  BasicDBObject();
+            if (attachmentName != null)             	 
+                query.put(NAME, attachmentName);
+            
+            if(procInstString != null)
+            {
+            	query.put(PROCESS_INSTANCE_UUID, procInstString);
+            	processInstanceUUID = new ProcessInstanceUUID(procInstString);
+            }                        
+            if(procDefString != null){
+            	query.put(PROCESS_DEFINITION_UUID, procDefString);
+            	processDefinitionUUID= new ProcessDefinitionUUID(procDefString);            	
+            }
+            
+            files = getDocuments(query);
+            if(files.size()==0 && attachmentName!=null){
+            	//try load attachments from processdefinition and initialize.
+            	//this happens when document repository does not have documents in it but 
+            	
+            	files=new ArrayList<Document>();
+				//BarResource resource=BarResource.getBarResource(processDefinitionUUID);
+            	
+            	AttachmentInstnce attachemnt=getLargeDataRepositoryAttachment(processDefinitionUUID, attachmentName);
+            	
+            	if(attachemnt!=null){
+            		String fileType=null;
+            		String mimeType=null;
+            		AttachmentDefinition attachmentDefinition = attachemnt.getAttachmentDefinition();
+					if(attachmentDefinition.getFileName()!=null){
+	            		fileType=attachmentDefinition.getFileName().substring(attachmentDefinition.getFileName().lastIndexOf('.')+1);
+	            		mimeType=mimeProperties.getString(fileType);
+            		}
+            		Document doc = createDocument(attachmentDefinition.getName(), 
+            				processDefinitionUUID, processInstanceUUID, attachmentDefinition.getFileName(), mimeType, attachemnt.getData());
+            		
+            		files.add(doc);
+            	}
+            }
+            if (!files.isEmpty()) {
+            	return new SearchResult(files, files.size());
+            }
+
+            return new SearchResult(files, 0);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+		return null;        
+	}
+	
+	private AttachmentInstnce getLargeDataRepositoryAttachment(ProcessDefinitionUUID processDefinitionUUID, String attachmentName) {
+		
+		List<String> attachmentCategories = Misc.getBusinessArchiveCategories(processDefinitionUUID);
+		final LargeDataRepository ldr = EnvTool.getLargeDataRepository();
+		
+		try {
+			InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
+			AttachmentDefinition attachmentdef = process.getAttachment(attachmentName);
+			AttachmentInstnce attachment=new AttachmentInstnce();
+			attachment.setAttachmentDefinition(attachmentdef);
+			
+			if(attachmentdef.getFilePath()!=null){
+				byte[] data = ldr.getData(byte[].class,attachmentCategories, attachmentdef.getFilePath());
+				attachment.setData(data);
+			}
+			return attachment;						
+			
+		} catch (ProcessNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	   	return null;			
+	}
+	
+	public Folder createFolder(String folderName) throws FolderAlreadyExistsException {
+	
+		System.out.println("createFolder1");
+		return null;
+	}
+
+	public Folder createFolder(String folderName, String parentFolderId) throws FolderAlreadyExistsException {
+		System.out.println("createFolder2");
+//     System.out.println("folderName = " + folderName);
+     return null;
+	}
+
+	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
+		return createDocument(name, definitionUUID, instanceUUID, "null", "null", new byte[0]);
 	}
 
 	public Document createDocument(String name, String folderId, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
@@ -164,78 +354,6 @@ public class FileDocumentManager implements DocumentationManager{
 		 System.out.println("createDocument5");
 		return null;
 	}
-
-	public Document getDocument(String documentId) throws DocumentNotFoundException {
-		   System.out.println("getDocument");
-		   Document document = null;
-		   try {
-			   GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
-			   DBCollection table = db.getCollection(DOCUMENTS);
-			   
-			   GridFSDBFile doc = gfsPhoto.findOne(documentId);
-			   return (Document) doc.get(DOCUMENT);			   
-	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	        }
-	         return null;
-	}
-	public List<Document> getDocuments(DBObject query) throws DocumentNotFoundException {
-		System.out.println("getDocument");
-		Document document = null;
-		try {
-			GridFS gfs = new GridFS(db, DOCUMENTS);
-			DBCollection table = db.getCollection(DOCUMENTS);
-
-			DBCursor gdocs =  table.find(query);
-			List<Document> docs=new ArrayList<Document>();
-			for (DBObject f : gdocs) {
-				Document doc=(Document) f.get(DOCUMENT);
-				docs.add(doc);
-			}			   
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-
-	public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void deleteFolder(Folder folder) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public byte[] getContent(Document document) throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		 GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
-		 BasicDBObject query=new  BasicDBObject();
-         if (document.getName() != null)             	 
-             query.put(NAME, document.getName());
-         
-         if(document.getProcessInstanceUUID() != null)
-         {
-         	query.put(PROCESS_INSTANCE_UUID, document.getProcessInstanceUUID().toString());         	
-         }
-                     
-         if(document.getProcessDefinitionUUID() != null){
-         	query.put(PROCESS_DEFINITION_UUID, document.getProcessDefinitionUUID().toString());        	
-         	
-         }
-		 GridFSDBFile doc = gfsPhoto.findOne(query);
-		 ByteArrayOutputStream out=new ByteArrayOutputStream();
-		try {
-			doc.writeTo(out);
-			return out.toByteArray();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	public List<Folder> getFolders(String folderName) {
 		// TODO Auto-generated method stub
 		return null;
@@ -320,95 +438,16 @@ public class FileDocumentManager implements DocumentationManager{
 		// TODO Auto-generated method stub
 		
 	}
-	
-	public SearchResult search(DocumentSearchBuilder builder, int fromResult, int maxResults) {
-	
-		HashMap<DocumentIndex, DocumentCriterion> crits = new HashMap<DocumentIndex, DocumentCriterion>();
-        for (Object o : builder.getQuery()) {
-            if (o instanceof String) {
-            } 
-            else if (o instanceof DocumentCriterion) {
-                DocumentCriterion dc = (DocumentCriterion) o;
-                crits.put(dc.getField(), dc);
-            }
-        }
-        ProcessInstanceUUID processInstanceUUID=null;
-        ProcessDefinitionUUID processDefinitionUUID=null;
-        String procDefString = crits.containsKey(DocumentIndex.PROCESS_DEFINITION_UUID) ? crits.get(DocumentIndex.PROCESS_DEFINITION_UUID).getValue().toString() : null;
-        String procInstString = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : null;
-        String attachmentName = crits.containsKey(DocumentIndex.NAME) ? crits.get(DocumentIndex.NAME).getValue().toString() : null;
 
-        List<Document> files = new ArrayList<Document>();
-        try {
-        	BasicDBObject query=new  BasicDBObject();
-            if (attachmentName != null)             	 
-                query.put(DOCUMENT_ID, attachmentName);
-            
-            if(procInstString != null)
-            {
-            	query.put(PROCESS_INSTANCE_UUID, procInstString);
-            	processInstanceUUID = new ProcessInstanceUUID(procInstString);
-            }
-                        
-            if(procDefString != null){
-            	query.put(PROCESS_DEFINITION_UUID, procDefString);
-            	processDefinitionUUID= new ProcessDefinitionUUID(procDefString);
-            	
-            }
-            files = getDocuments(query);
-            if(files==null && attachmentName!=null){//try load attachments from processdefinition and initialize.
-            	//this happens when document repository does not have documents in it but 
-            	files=new ArrayList<Document>();
-				//BarResource resource=BarResource.getBarResource(processDefinitionUUID);
-            	AttachmentInstnce attachemnt=getLargeDataRepositoryAttachment(processDefinitionUUID, attachmentName);
-            	if(attachemnt!=null){
-            		String fileType=null;
-            		String mimeType=null;
-            		AttachmentDefinition attachmentDefinition = attachemnt.getAttachmentDefinition();
-					if(attachmentDefinition.getFileName()!=null){
-	            		fileType=attachmentDefinition.getFileName().substring(attachmentDefinition.getFileName().lastIndexOf('.')+1);
-	            		mimeType=mimeProperties.getString(fileType);
-            		}
-            		Document doc = createDocument(attachmentDefinition.getName(), 
-            				processDefinitionUUID, processInstanceUUID, attachmentDefinition.getFileName(), mimeType, attachemnt.getData());
-            		
-            		files.add(doc);
-            	}
-            }
-            if (!files.isEmpty()) {
-            	return new SearchResult(files, files.size());
-            }
+	public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
 
-            return new SearchResult(files, 0);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-		return null;        
-	}
-	
-	private AttachmentInstnce getLargeDataRepositoryAttachment(ProcessDefinitionUUID processDefinitionUUID, String attachmentName) {
-		List<String> attachmentCategories = Misc.getBusinessArchiveCategories(processDefinitionUUID);
-		final LargeDataRepository ldr = EnvTool.getLargeDataRepository();
-		try {
-			InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
-			AttachmentDefinition attachmentdef = process.getAttachment(attachmentName);
-			AttachmentInstnce attachment=new AttachmentInstnce();
-			attachment.setAttachmentDefinition(attachmentdef);
-			if(attachmentdef.getFilePath()!=null){
-				byte[] data = ldr.getData(byte[].class,attachmentCategories, attachmentdef.getFilePath());
-				attachment.setData(data);
-				
-			}
-			return attachment;
-			//process.getParticipants()			
-			
-		} catch (ProcessNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	   	return null;			
-	}
-	
+	public void deleteFolder(Folder folder) {
+		// TODO Auto-generated method stub
+		
+	}	
 	private class AttachmentInstnce {
 		
 		private byte[] _data;

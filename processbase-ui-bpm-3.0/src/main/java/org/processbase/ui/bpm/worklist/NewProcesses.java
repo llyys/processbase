@@ -16,12 +16,16 @@
  */
 package org.processbase.ui.bpm.worklist;
 
+import com.liferay.portal.kernel.dao.search.ButtonSearchEntry;
 import com.vaadin.data.Item;
 import com.vaadin.terminal.ExternalResource;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.BaseTheme;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,13 +60,13 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("category", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
-        treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
-        treeTable.setColumnExpandRatio("processName", 1);
+        treeTable.addContainerProperty("category", AbstractComponent.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
+        //treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
+        //treeTable.setColumnExpandRatio("processName", 1);
         treeTable.addContainerProperty("processDescription", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
         treeTable.setColumnExpandRatio("processDescription", 1);
         //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
-        treeTable.setVisibleColumns(new Object[]{"category", "processName", "processDescription"/*, "version"*/});
+        treeTable.setVisibleColumns(new Object[]{"category", "processDescription"/*, "version"*/});
     }
 
     @Override
@@ -109,12 +113,16 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
         if (parent == null) {
             treeTable.setChildrenAllowed(item, true);
             treeTable.setCollapsed(item, false);
-            woItem.getItemProperty("category").setValue(new Label(item.getCategory().getName()));
+            
+            Button tableLinkButton = new Button(item.getCategory().getName());
+            tableLinkButton.setStyleName(BaseTheme.BUTTON_LINK);
+
+			woItem.getItemProperty("category").setValue(tableLinkButton);
         } else {
             treeTable.setChildrenAllowed(item, false);
             treeTable.setParent(item, parent);
             TableLinkButton teb = new TableLinkButton(item.getProcessDef().getLabel() != null ? item.getProcessDef().getLabel() : item.getProcessDef().getName(), item.getProcessDef().getDescription(), null, item.getProcessDef(), this, Constants.ACTION_OPEN);
-            woItem.getItemProperty("processName").setValue(teb);
+            woItem.getItemProperty("category").setValue(teb);
             woItem.getItemProperty("processDescription").setValue(item.getProcessDef().getDescription());
            // woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
         }
