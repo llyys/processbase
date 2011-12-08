@@ -6,8 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
-import org.ow2.bonita.facade.runtime.AttachmentInstance;
-import org.ow2.bonita.facade.runtime.Document;
+import org.ow2.bonita.services.Document;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
@@ -324,15 +323,16 @@ public class TaskField {
 				public void buttonClick(ClickEvent event) {
 					
 					//Widget w = getWidgets(event.getButton());
-					byte[] bytes;
+					byte[] bytes; 
 					try {
 						ProcessManager processManager = taskManager.getProcessManager();
 						String processUUID = processManager.getProcessInstanceUUID().toString();
 						String fileName = widget.getVariableBound();
 						BPMModule bpmModule = processManager.getBpmModule();
-						AttachmentInstance attachment = bpmModule.getAttachment(processUUID,widget.getVariableBound());
-						Document document = bpmModule.getDocument(attachment.getUUID());
-						bytes = bpmModule.getAttachmentBytes(attachment);
+						//AttachmentInstance attachment = bpmModule.getAttachment(processUUID,widget.getVariableBound());
+						Document document = bpmModule.getDocument(processManager.getProcessInstanceUUID(),widget.getVariableBound());
+						//Document document = bpmModule.getDocument(attachment.getUUID());
+						bytes = bpmModule.getDocumentBytes(document);
 						ByteArraySource bas = new ByteArraySource(bytes);
 
 						StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), processManager.getApplication());
@@ -366,8 +366,10 @@ public class TaskField {
 		if (processManager.getTaskInstance() != null) {
 			processUUID = processManager.getTaskInstance().getProcessInstanceUUID().toString();
 			try {
-				AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,boundVariable);
-				fileName=attachment.getFileName();
+				//AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,boundVariable);
+				Document document=processManager.getBpmModule().getDocument(processManager.getTaskInstance().getProcessInstanceUUID(), boundVariable);
+				//fileName=attachment.getFileName();
+				fileName=document.getContentFileName();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

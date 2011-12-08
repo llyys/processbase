@@ -36,8 +36,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ResourceBundle;
 
+
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
-import org.ow2.bonita.facade.runtime.Document;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.services.Document;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 
@@ -135,12 +137,16 @@ public class ImmediateUpload extends VerticalLayout
                 deleteBtn.setVisible(false);
             } else if (event.getButton().equals(downloadBtn)) {
             	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-				AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
+            	//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
+				//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
 				
-				//Document document = bpmModule.getDocument(attachment.getUUID());
-                ByteArraySource bas = new ByteArraySource(ProcessbaseApplication.getCurrent().getFileBody(processUUID, attachmentName));
+				Document document = bpmModule.getDocument(new ProcessInstanceUUID(processUUID), attachmentName);
+				
+                byte[] bytes = bpmModule.getDocumentBytes(document);
+                
+				ByteArraySource bas = new ByteArraySource(bytes);
                 if(bas!=null && bas.byteArray.length!=0){
-	                StreamResource streamResource = new StreamResource(bas, attachment.getFileName(), getApplication());
+	                StreamResource streamResource = new StreamResource(bas, document.getContentFileName(), getApplication());
 	                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
 	                getWindow().getWindow().open(streamResource, "_blank");
                 }

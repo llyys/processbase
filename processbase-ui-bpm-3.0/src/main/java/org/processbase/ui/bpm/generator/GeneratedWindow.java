@@ -70,8 +70,8 @@ import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.TaskNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.AttachmentInstance;
-import org.ow2.bonita.facade.runtime.Document;
+
+import org.ow2.bonita.services.Document;
 import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
@@ -125,9 +125,9 @@ public class GeneratedWindow extends HumanTaskWindow implements
 	private ArrayList<GridLayout> pages = new ArrayList<GridLayout>();
 	private int currentPage = 0;
 	private boolean hasAttachments = false;
-	private List<AttachmentInstance> attachmentInstances = null;
+	//private List<AttachmentInstance> attachmentInstances = null;
 	private ArrayList<InitialAttachment> initialAttachments = new ArrayList<InitialAttachment>();
-	private Map<AttachmentInstance, byte[]> attachments = new HashMap<AttachmentInstance, byte[]>();
+	private Map<Document, byte[]> attachments = new HashMap<Document, byte[]>();
 	private Map<String, Object> groovyScripts = new HashMap<String, Object>();
 	private Map<String, String> attachmentFileNames = new HashMap<String, String>();
 
@@ -482,12 +482,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 								.getProcessInstanceUUID().toString();
 						String fileName = attachmentFileNames.get(w
 								.getInitialValue().getExpression());
-						AttachmentInstance attachment = getBpmModule()
-								.getAttachment(processUUID,
+						Document document = getBpmModule()
+								.getDocument(new ProcessInstanceUUID(processUUID),
 										w.getVariableBound());
-						Document document = getBpmModule().getDocument(
-								attachment.getUUID());
-						bytes = getBpmModule().getAttachmentBytes(attachment);
+						
+						bytes = getBpmModule().getDocumentBytes(document);
 						ByteArraySource bas = new ByteArraySource(bytes);
 
 						StreamResource streamResource = new StreamResource(bas,
@@ -924,7 +923,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 					if (widget.getType().equals(WidgetType.FILEUPLOAD)
 							&& ((ImmediateUpload) comp).isNeedToSave()) {
 						ImmediateUpload ui = (ImmediateUpload) comp;
-						getBpmModule().addAttachment(processUUID,
+						getBpmModule().addDocument(new ProcessInstanceUUID(processUUID),
 								widget.getVariableBound(), ui.getFileName(),
 								ui.getMimeType(), ui.getFileBody());
 						// ProcessbaseApplication.getCurrent().saveFile(processUUID,

@@ -65,6 +65,7 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.DeploymentException;
+import org.ow2.bonita.facade.exception.DocumentationCreationException;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.MetadataNotFoundException;
@@ -83,6 +84,8 @@ import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.DocumentUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.search.DocumentSearchBuilder;
+import org.ow2.bonita.services.Document;
 import org.ow2.bonita.services.DocumentationManager;
 import org.ow2.bonita.services.Folder;
 import org.ow2.bonita.services.LargeDataRepository;
@@ -93,6 +96,7 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.impl.SearchResult;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.facade.runtime.Category;
@@ -111,6 +115,7 @@ import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.ow2.bonita.util.Command;
+import org.ow2.bonita.util.DocumentService;
 import org.ow2.bonita.util.EnvTool;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.Misc;
@@ -562,7 +567,7 @@ public class BPMModule {
         }*/
 	}
 	
-    public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars, Map<AttachmentInstance, byte[]> attachments) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
+    public void finishTask(TaskInstance task, boolean b, Map<String, Object> pVars, Map<String, Object> aVars, Map<Document, byte[]> attachments) throws TaskNotFoundException, IllegalTaskStateException, InstanceNotFoundException, VariableNotFoundException, Exception {
     	logger.debug("finishTask");
         initContext();
         if(task.isTaskAssigned()==false && task.getTaskCandidates().contains(currentUserUID)){
@@ -575,14 +580,20 @@ public class BPMModule {
         //runtimeAPI.setActivityInstanceVariables(task.getUUID(), aVars);
         setProcessAndActivityInstanceVariables(task, pVars, aVars);
         if(attachments!=null){
-	        for (AttachmentInstance a : attachments.keySet()) {
-	        	logger.debug(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+	        for (Document a : attachments.keySet()) {
+	        	//logger.debug(a.getProcessInstanceUUID() + " " + a.getName() + " " + a.getFileName() + " " + attachments.get(a).length);
+	        	byte[] content = attachments.get(a);
+				getRuntimeAPI().addDocumentVersion(new DocumentUUID(a.getId()), true, a.getContentFileName(), a.getContentMimeType(), content);
 	        }
-	        getRuntimeAPI().addAttachments(attachments);
         }
         getRuntimeAPI().finishTask(task.getUUID(), true);
     }
-
+    
+    public void addDocument(ProcessInstanceUUID processInstanceUUID, String document_name, String fileName, String mimeType, byte[] fileBody) throws Exception {
+    	initContext();
+    	getRuntimeAPI().createDocument(document_name, processInstanceUUID, fileName, mimeType, fileBody);
+	}
+/*
     public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, String mimeType, byte[] value) throws Exception {
     	if(value.length==0)
     		return;
@@ -599,16 +610,42 @@ public class BPMModule {
     	initContext();
     	AttachmentInstance attachmentInstance = getQueryRuntimeAPI().getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
     	return getQueryRuntimeAPI().getAttachmentValue(attachmentInstance);
-    }
+    }*/
     
-    public AttachmentInstance getAttachment(String processUUID, String name) throws Exception {
+    public Document getDocument(final ProcessInstanceUUID processUUID, final String name) throws Exception {
     	logger.debug("getAttachmentValue");
         initContext();
-        AttachmentInstance attachmentInstance = getQueryRuntimeAPI().getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
-        return attachmentInstance;
+        
+        try {
+        	Document result=execute(new Command<Document>() {
+
+				@Override
+				public Document execute(Environment environment) throws Exception {
+					DocumentationManager manager = EnvTool.getDocumentationManager();
+					SearchResult documents = DocumentService.getDocuments(manager, processUUID, name);
+					Document document = documents.getDocuments().get(0);
+										
+				   	return document;
+				}
+			});
+			 return result;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+        /*AttachmentInstance attachmentInstance = getQueryRuntimeAPI().getLastAttachment(new ProcessInstanceUUID(processUUID), name, new Date());
+        return attachmentInstance;*/
         //return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
     }
     
+    public byte[] getDocumentBytes(final Document document) throws Exception {
+    	logger.debug("getDocumentBytes");
+    	if(document==null) return null;
+    	initContext();
+    	return getQueryRuntimeAPI().getDocumentContent(new DocumentUUID(document.getId()));        
+    }
+    /*
     public byte[] getAttachmentBytes(AttachmentInstance attachmentInstance) throws Exception {
     	logger.debug("getAttachmentValue");
         initContext();
@@ -620,7 +657,7 @@ public class BPMModule {
         initContext();
         return new ArrayList<AttachmentInstance>(getQueryRuntimeAPI().getLastAttachments(instanceUUID, regex));
     }
-
+*/
     public org.ow2.bonita.facade.runtime.Document getDocument(DocumentUUID docId) throws Exception 
     {
     	initContext();
@@ -1655,5 +1692,9 @@ public class BPMModule {
 		return null;
    	    	   
    }
+
+
+
+	
 	
 }

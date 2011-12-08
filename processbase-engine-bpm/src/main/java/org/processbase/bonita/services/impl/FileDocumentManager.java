@@ -153,7 +153,9 @@ public class FileDocumentManager implements DocumentationManager{
 			   GridFS gfsPhoto = new GridFS(db, DOCUMENTS);
 			   DBCollection table = db.getCollection(DOCUMENTS);
 			   
-			   DBObject doc = table.findOne(documentId);
+			   DBObject doc = table.findOne(new ObjectId(documentId));
+			   if(doc==null)
+				   return null;
 			   DocumentImpl document1 = DeserializeDocument(doc);
 			   
 			   
@@ -307,6 +309,7 @@ public class FileDocumentManager implements DocumentationManager{
 		
 		try {
 			InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
+			
 			AttachmentDefinition attachmentdef = process.getAttachment(attachmentName);
 			AttachmentInstnce attachment=new AttachmentInstnce();
 			attachment.setAttachmentDefinition(attachmentdef);
