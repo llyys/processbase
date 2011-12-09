@@ -48,8 +48,8 @@ public class RaportModule extends PbPanelModule implements Button.ClickListener{
         this.setMargin(true);
         table.addStyleName("striped");
         
-        table.addContainerProperty("name", Component.class, null, ProcessbaseApplication.getString("Raport", "Raport"), null, null);
-        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getString("Description", "Kirjeldus"), null, null);
+        table.addContainerProperty("name", Component.class, null, ProcessbaseApplication.getString("raports", "Raport"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getString("description", "Description"), null, null);
         addComponent(table);
         refreshTable();
 	}

@@ -66,6 +66,7 @@ public class BPMConfigurationPanel extends PbPanelModule
     private Button categoriesBtn = null;
     private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
     private ComboBox processesComboBox = null;
+	private Button legislationsBtn;
 
    
     public void initUI() {
@@ -151,6 +152,13 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.addComponent(activityInstancesBtn, btnCnt++);
         buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
 
+        
+        legislationsBtn = new Button(ProcessbaseApplication.getString("legislationsBtn", "Legislations"), this);
+        legislationsBtn.setStyleName(Reindeer.BUTTON_LINK);
+        buttonBar.addComponent(legislationsBtn, btnCnt++);
+        buttonBar.setComponentAlignment(legislationsBtn, Alignment.MIDDLE_LEFT);
+
+        
         // add expand label
         Label expandLabel = new Label("");
         buttonBar.addComponent(expandLabel, btnCnt++);
@@ -198,6 +206,7 @@ public class BPMConfigurationPanel extends PbPanelModule
                 getApplication().getMainWindow().addWindow(npdw);
                 npdw.initUI();
             }
+          
         } else {
             activateButtons();
             event.getButton().setStyleName("special");

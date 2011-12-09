@@ -944,10 +944,13 @@ public class GeneratedWindow extends HumanTaskWindow implements
 				// if (ProcessbaseApplication.getCurrent().getApplicationType()
 				// == ProcessbaseApplication.STANDALONE) {
 
-				ProcessInstance pi = getBpmModule().getProcessInstance(
-						taskInstance.getProcessInstanceUUID());
-
-				Set<String> names = new HashSet<String>();
+				/*ProcessInstance pi = getBpmModule().getProcessInstance(
+						taskInstance.getProcessInstanceUUID());*/
+				List<Document> documents= bpmModule.getProcessInstanceDocuments(taskInstance.getProcessInstanceUUID());
+				for (Document d : documents) {
+					attachmentFileNames.put(d.getName(), d.getContentFileName());
+				}
+				/*Set<String> names = new HashSet<String>();
 				for (AttachmentInstance ai : pi.getAttachments()) {
 					names.add(ai.getName());
 				}
@@ -956,7 +959,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 
 				for (AttachmentInstance ai : attachmentInstances) {
 					attachmentFileNames.put(ai.getName(), ai.getFileName());
-				}
+				}*/
 				/*
 				 * } else if
 				 * (ProcessbaseApplication.getCurrent().getApplicationType() ==

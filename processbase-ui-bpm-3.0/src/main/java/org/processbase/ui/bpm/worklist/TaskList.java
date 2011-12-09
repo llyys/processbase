@@ -22,6 +22,7 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -29,6 +30,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import org.caliburn.application.event.IHandle;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
@@ -43,6 +45,8 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.process.BarResource;
@@ -51,34 +55,43 @@ import org.processbase.ui.core.bonita.process.BarResource;
  *
  * @author mgubaidullin
  */
-public class TaskList extends TablePanel implements Button.ClickListener {
+public class TaskList extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent> {
 
     public TaskList() {
         super();
     }
-    private boolean isInitialized=false;
+    
+	private Button processesBtn;
     @Override
     public void initUI() {
-    	if(isInitialized) return;
+    	if(isInitialized()) return;
         super.initUI();
         table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
         table.addContainerProperty("accepted", ThemeResource.class, null);
         table.setItemIconPropertyId("accepted");
         table.setColumnWidth("accepted", 30);
+        
         table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
         table.addContainerProperty("taskName", Label.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 1);
+        
         table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         table.setColumnWidth("lastUpdate", 110);
+        
         table.addContainerProperty("expectedEndDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionExpectedEndDate"), null, null);
         table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
         table.setColumnWidth("expectedEndDate", 110);
+        
         table.setVisibleColumns(new Object[]{"processName", "taskName", "lastUpdate", "expectedEndDate"});
     }
 
     @Override
     public void refreshTable() {
+    	if(!isInitialized())
+    		initUI();
+    	
         table.removeAllItems();
         try {
             Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.READY);
@@ -188,61 +201,31 @@ public class TaskList extends TablePanel implements Button.ClickListener {
             	OpenProcessWindow opw=new OpenProcessWindow();
             	opw.initTask(newTask);
             	opw.initUI();
-           	 	this.getApplication().getMainWindow().addWindow(opw);
-            	/*
-                BarResource barResource = BarResource.getBarResource(task.getProcessDefinitionUUID());
-                ProcessDefinition processDefinition = bpmModule.getProcessDefinition(task.getProcessDefinitionUUID());
-                XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
-                XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
-                if (taskDef != null && !taskDef.isByPassFormsGeneration() ) {
-                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
-                    genWindow.setTask(bpmModule.getTaskInstance(task.getUUID()));
-                    genWindow.setBarResource(barResource);
-                    genWindow.setXMLProcessDefinition(xmlProcess);
-                    genWindow.setTaskList(this);
-                    
-                    this.getApplication().getMainWindow().addWindow(genWindow);
-                    genWindow.initUI();
-                } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
-                    bpmModule.startTask(task.getUUID(), true);
-                    bpmModule.finishTask(task.getUUID(), true);
-                    showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskExecuted"));
-                }*/
+           	 	this.getApplication().getMainWindow().addWindow(opw);            	
             }
         } catch (Exception ex) {
             //ex.printStackTrace();
             //showError(ex.getMessage());
             throw new RuntimeException(ex);
         }
-//        try {
-//            String url = ProcessbaseApplication.getCurrent().getBpmModule().getProcessMetaData(task.getProcessDefinitionUUID()).get(task.getActivityDefinitionUUID().toString());
-//            if (url != null && !url.isEmpty() && url.length() > 0) {
-//                ProcessbaseApplication.getCurrent().removeSessionAttribute("PROCESSINSTANCE");
-//                ProcessbaseApplication.getCurrent().removeSessionAttribute("TASKINSTANCE");
-//
-//                ProcessbaseApplication.getCurrent().setSessionAttribute("TASKINSTANCE", task.getUUID().toString());
-//                this.getWindow().open(new ExternalResource(url));
-//            } else {
-//                XMLProcessDefinition xmlProcess = ProcessbaseApplication.getCurrent().getBpmModule().getXMLProcessDefinition(task.getProcessDefinitionUUID());
-//                XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
-//                if (taskDef != null && !taskDef.isByPassFormsGeneration() && taskDef.getForms().size() > 0) {
-//
-//                    GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
-//                    genWindow.setTask(ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID()));
-//                    genWindow.setXMLProcess(xmlProcess);
-//                    this.getApplication().getMainWindow().addWindow(genWindow);
-//                    genWindow.initUI();
-//                } else if (taskDef != null && taskDef.isByPassFormsGeneration()) {
-//                    ProcessbaseApplication.getCurrent().getBpmModule().startTask(task.getUUID(), true);
-//                    ProcessbaseApplication.getCurrent().getBpmModule().finishTask(task.getUUID(), true);
-//                    showImportantInformation(ProcessbaseApplication.getCurrent().getMessages().getString("taskExecuted"));
-//                } else {
-//                    showError(ProcessbaseApplication.getCurrent().getMessages().getString("ERROR_UI_NOT_DEFINED"));
-//                }
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            showError(ex.getMessage());
-//        }
     }
+
+	public void Handle(TaskListEvent message) {
+		if(this.processesBtn==message.getButton())
+		{
+			refreshTable();
+		}
+		else if(message.getActionType()==ActionType.REFRESH){
+			refreshTable();			
+		}
+		else {
+			this.processesBtn.setEnabled(true);
+			this.processesBtn.setStyleName(Reindeer.BUTTON_LINK);
+		}
+	}
+
+	public void setButton(Button myTaskBtn) {
+		this.processesBtn = myTaskBtn;
+		
+	}
 }

@@ -34,6 +34,7 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
 
     public TablePanel() {
         super();
+     
     }
 
     @Override

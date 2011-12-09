@@ -37,8 +37,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.caliburn.application.event.IEventAggregator;
+import org.caliburn.application.event.IHandle;
+import org.caliburn.application.event.imp.DefaultEventAggregator;
 import org.ow2.bonita.connector.core.configuration.Configuration;
 import org.ow2.bonita.facade.identity.User;
+
 import org.processbase.ui.osgi.PbPanelModuleService;
 
 
@@ -96,14 +100,15 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     
     public abstract Map<String, String> getFileList(String processUUID) throws Exception;
 
-    public abstract byte[] getFileBody(String processUUID, String name) throws Exception;
+   // public abstract byte[] getFileBody(String processUUID, String name) throws Exception;
 
     public abstract PbPanelModuleService getPanelModuleService();
-
+    private IEventAggregator events=null;
     @Override
     public void init() {
     	
         setCurrent(this);
+        events= new DefaultEventAggregator(); 
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
@@ -149,6 +154,11 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         if (getCurrent() == null) {
             current.set(application);
         }
+    }
+    
+    public static void Publish(Object message) { 
+    	
+        getCurrent().events.Publish(message);
     }
 
     /**
@@ -238,5 +248,9 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
 	public HttpServletResponse getHttpServletResponse() {
 		return httpServletResponse;
+	}
+
+	public static void Register(Object handler) {
+		getCurrent().events.Subscribe(handler);		
 	}
 }

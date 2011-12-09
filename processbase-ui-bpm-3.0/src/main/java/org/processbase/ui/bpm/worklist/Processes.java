@@ -20,10 +20,16 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
+
 import java.util.Date;
 import java.util.Set;
+
+import org.caliburn.application.event.IHandle;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
@@ -31,13 +37,15 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 
 /**
- *
+ * Returns all instances started by the logged user
  * @author mgubaidullin
  */
-public class Processes extends TablePanel implements Button.ClickListener {
+public class Processes extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent>{
     
 
-    public Processes() {
+    private Button processesBtn;
+
+	public Processes() {
         super();
     }
 
@@ -60,6 +68,9 @@ public class Processes extends TablePanel implements Button.ClickListener {
 
     @Override
     public void refreshTable() {
+    	if(!isInitialized())
+    		initUI();
+    	
         table.removeAllItems();
         try {
             Set<LightProcessInstance> processInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLightUserInstances();
@@ -111,4 +122,24 @@ public class Processes extends TablePanel implements Button.ClickListener {
             }
         }
     }
+
+	public void Handle(TaskListEvent message) {
+		if(this.processesBtn==message.getButton())
+		{
+			refreshTable();
+		}
+		else if(message.getActionType()==ActionType.REFRESH){
+			refreshTable();			
+		}
+		else {
+			this.processesBtn.setEnabled(true);
+			this.processesBtn.setStyleName(Reindeer.BUTTON_LINK);
+		}
+	}
+
+	public void setButton(Button processesBtn) {
+		this.processesBtn = processesBtn;
+		// TODO Auto-generated method stub
+		
+	}
 }

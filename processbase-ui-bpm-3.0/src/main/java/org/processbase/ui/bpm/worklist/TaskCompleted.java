@@ -23,11 +23,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.caliburn.application.event.IHandle;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.CollectionHelper;
 import org.processbase.ui.core.CollectionHelper.GroupKey;
@@ -49,7 +51,7 @@ import com.vaadin.ui.Label;
  *
  * @author mgubaidullin
  */
-public class TaskCompleted extends TreeTablePanel {
+public class TaskCompleted extends TreeTablePanel implements IHandle<TaskListEvent> {
 
     public TaskCompleted() {
         super();
@@ -214,4 +216,12 @@ public class TaskCompleted extends TreeTablePanel {
 			return process;
 		} 
     }
+
+
+
+	public void Handle(TaskListEvent message) {
+		if(isVisible()){
+			refreshTable();
+		}
+	}
 }

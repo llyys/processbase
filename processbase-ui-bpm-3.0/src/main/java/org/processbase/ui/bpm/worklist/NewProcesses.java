@@ -26,11 +26,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.Reindeer;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.caliburn.application.event.IHandle;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.identity.Group;
@@ -43,6 +46,9 @@ import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
 import org.processbase.ui.bpm.generator.GeneratedWindow;
 import org.processbase.ui.bpm.generator.view.NewProcessWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.panel.events.TogglePanelEvent;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.process.BarResource;
@@ -51,7 +57,7 @@ import org.processbase.ui.core.bonita.process.BarResource;
  *
  * @author mgubaidullin
  */
-public class NewProcesses extends TreeTablePanel implements Button.ClickListener {
+public class NewProcesses extends TreeTablePanel implements Button.ClickListener , IHandle<TaskListEvent>{
 
     public NewProcesses() {
         super();
@@ -71,6 +77,8 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
 
     @Override
     public void refreshTable() {
+    	if(!isInitialized())
+    		initUI();
     	if(treeTable==null) return;
         treeTable.removeAllItems();
         try {
@@ -184,9 +192,30 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
         }
     }
     Group group;
+	private Button processesBtn;
 	public void setUserCurrentGroup(Group group) {
 		this.group=group;
 		refreshTable();
+		
+	}
+	
+	public void Handle(TaskListEvent message) {
+		if(this.processesBtn==message.getButton())
+		{
+			refreshTable();
+		}
+		else if(message.getActionType()==ActionType.REFRESH){
+			refreshTable();			
+		}
+		else {
+			this.processesBtn.setEnabled(true);
+			this.processesBtn.setStyleName(Reindeer.BUTTON_LINK);
+		}
+	}
+
+	public void setButton(Button processesBtn) {
+		this.processesBtn = processesBtn;
+		// TODO Auto-generated method stub
 		
 	}
 }

@@ -468,8 +468,14 @@ public class BPMModule {
 
     public Collection<LightTaskInstance> getLightTaskList(ActivityState state) throws Exception {
     	logger.debug("getLightTaskList");
+    	initContext();
+    	return getQueryRuntimeAPI().getLightTaskList(state);
+    }
+
+    public Collection<LightTaskInstance> getUserLightTaskList(String userId, ActivityState state) throws Exception {
+    	logger.debug("getLightTaskList");
         initContext();
-        return getQueryRuntimeAPI().getLightTaskList(state);
+        return getQueryRuntimeAPI().getLightTaskList(userId, state);
     }
   
     public Collection<LightTaskInstance> getLightTaskList(ProcessInstanceUUID instanceUUID, ActivityState state) throws Exception {
@@ -638,6 +644,28 @@ public class BPMModule {
         return attachmentInstance;*/
         //return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
     }
+    
+    public List<Document> getProcessInstanceDocuments(final ProcessInstanceUUID processInstanceUUID) throws Exception {
+    	initContext();
+        
+        try {
+        	List<Document> result=execute(new Command<List<Document>>() {
+
+				@Override
+				public List<Document> execute(Environment environment) throws Exception {
+					DocumentationManager manager = EnvTool.getDocumentationManager();
+					SearchResult documents = DocumentService.getDocuments(manager, processInstanceUUID);
+					return documents.getDocuments();
+										
+				}
+			});
+			 return result;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
     
     public byte[] getDocumentBytes(final Document document) throws Exception {
     	logger.debug("getDocumentBytes");
@@ -1692,6 +1720,10 @@ public class BPMModule {
 		return null;
    	    	   
    }
+
+
+
+	
 
 
 

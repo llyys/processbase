@@ -243,9 +243,9 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public byte[] getFileBody(String processUUID, String name) throws Exception {
-        return bpmModule.getAttachmentValue(processUUID, name);
-    }
+    /*public byte[] getFileBody(String processUUID, String name) throws Exception {
+        return bpmModule.getDo(processUUID, name);
+    }*/
 
     public void moduleRegistered(PbPanelModuleService source, PbPanelModule module) {
         System.out.println("module registered PbApplication - " + module.getName());

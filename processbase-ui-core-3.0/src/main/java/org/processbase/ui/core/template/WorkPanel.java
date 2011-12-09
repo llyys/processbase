@@ -76,6 +76,16 @@ public class WorkPanel extends VerticalLayout {
         this.initialized = initialized;
     }
 
+	public void Show() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void Hide() {
+		// TODO Auto-generated method stub
+		
+	}
+
     
     
 }

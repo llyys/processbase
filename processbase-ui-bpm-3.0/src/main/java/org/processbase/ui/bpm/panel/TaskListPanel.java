@@ -20,15 +20,20 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.caliburn.application.event.IEventAggregator;
+import org.caliburn.application.event.imp.DefaultEventAggregator;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.User;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.bpm.worklist.NewProcesses;
 import org.processbase.ui.bpm.worklist.Processes;
 import org.processbase.ui.bpm.worklist.TaskCompleted;
 import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
@@ -42,6 +47,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -51,214 +57,146 @@ import com.vaadin.ui.themes.Reindeer;
 public class TaskListPanel extends PbPanelModule implements Button.ClickListener {
 
     private ButtonBar buttonBar = new ButtonBar();
-    private TaskList taskListPanel;
+    private TaskList pnlTaskList;
     //private TaskCompleted taskCompletedPanel; 
-    private Processes processesPanel; 
-    private NewProcesses newProcessesPanel;
+    private Processes pnlRoleProcesses; 
+    private NewProcesses pnlNewProcesses;
     private Button refreshBtn = null;
-    private Button myTaskListBtn = null;
+    private Button btnTaskList = null;
     //private Button myTaskCompletedBtn = null;
-    private Button myProcessesBtn = null;
-    private Button myNewProcessesBtn = null;
-    private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
+    private Button btnRoleProcesses = null;
+    private Button btnNewProcess = null;
+    
 	private com.vaadin.ui.ComboBox roleCombo;
+	private Button myTaskBtn;
+	private IEventAggregator events;
+	private Button btnUserTaskList;
+	private UserTaskList pnlUserTaskList;
 
     public void initUI(){
-        panels.clear();
-        removeAllComponents();
-        setMargin(false);    
-  
+        setMargin(true);
        
+        pnlNewProcesses = new NewProcesses();
         
-
-       
-       // myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
-        newProcessesPanel = new NewProcesses();
         if(ProcessbaseApplication.getCurrent().getUserName()==BPMModule.USER_GUEST)
         {
-        	addComponent(newProcessesPanel, 0);
-        	setExpandRatio(newProcessesPanel, 1);
-        	newProcessesPanel.initUI();
-        	newProcessesPanel.refreshTable();        	
+        	addComponent(pnlNewProcesses, 0);
+        	setExpandRatio(pnlNewProcesses, 1);
+        	pnlNewProcesses.initUI();
+        	pnlNewProcesses.refreshTable();        	
         	return;
         }
         
-       
-        
         addComponent(buttonBar);
+        buttonBar.setWidth("100%");
+//Teenuste nimekiri
         
-        taskListPanel = new TaskList();
-        prepareButtonBar();
-        panels.put(myTaskListBtn, taskListPanel);
-        addComponent(taskListPanel, 1);
-        setExpandRatio(taskListPanel, 1);
-        taskListPanel.initUI();
-        taskListPanel.refreshTable();
+                
+        btnNewProcess = new Button(ProcessbaseApplication.getString("myNewProcessesBtn"), this);
+        btnNewProcess.setStyleName(Reindeer.BUTTON_LINK);
+        btnNewProcess.setData(pnlNewProcesses);
+        btnNewProcess.setEnabled(false);//make active
+        btnNewProcess.setStyleName("special");
         
+        buttonBar.addComponent(btnNewProcess);
+        buttonBar.setComponentAlignment(btnNewProcess, Alignment.MIDDLE_LEFT);
         
+        pnlNewProcesses.setButton(btnNewProcess);        
+        addComponent(pnlNewProcesses, 1);
+        setExpandRatio(pnlNewProcesses, 1);      
+        pnlNewProcesses.initUI();
+    	pnlNewProcesses.refreshTable();
+    	
+//Menetluste nimekiri
         
-        User user=ProcessbaseApplication.getCurrent().getCurrentUser();
-        roleCombo = new com.vaadin.ui.ComboBox();
-        roleCombo.setInputPrompt("Select group");
-        roleCombo.setNullSelectionAllowed(false);
-        roleCombo.setInvalidAllowed(false);
-        roleCombo.removeAllItems();
-        if(user!=null && user.getMemberships()!=null){
-        	for (Membership membership : user.getMemberships()) {        		
-        		Group group = membership.getGroup();
-        		if(!IdentityAPI.DEFAULT_GROUP_NAME.equalsIgnoreCase(group.getName()))
-        			roleCombo.addItem(group.getLabel());
-			}
-        }
-        if(roleCombo.size()>0)
-        {
-        	
-        	ProfileMetadata currentProfileMetadata=null;
-			for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-	            if (profileMetadata.getName().equals("CURRENT_GROUP")) {
-	            	currentProfileMetadata=profileMetadata;
-	            	break;
-	            }
-	        }
-			if(currentProfileMetadata!=null)
-			{
-				String mt= user.getMetadata().get(currentProfileMetadata.getName());
-				String userMetadataValue = ProcessbaseApplication.getCurrent().getBpmModule().getUserMetadataValue(user, currentProfileMetadata.getName());
-				roleCombo.select(userMetadataValue);
-			}
-			
-        	
-        }
+    	btnTaskList = new Button(ProcessbaseApplication.getString("myTaskListBtn"), this);
+    	btnTaskList.setStyleName(Reindeer.BUTTON_LINK);
+    	pnlTaskList = new TaskList();
+        pnlTaskList.setButton(btnTaskList);
         
-        buttonBar.addComponent(roleCombo);
-    	roleCombo.setImmediate(true);
-    	roleCombo.addListener(new com.vaadin.data.Property.ValueChangeListener() {
-			
-			public void valueChange(ValueChangeEvent event) {
-				Property property = event.getProperty();
-				getWindow().showNotification("Selected role:"+property);	
-				
-				try {
-					User currentUser = ProcessbaseApplication.getCurrent().getCurrentUser();
-					ProcessbaseApplication.getCurrent().getBpmModule().updateUserMetadata(currentUser, "CURRENT_GROUP", property.toString());
-					for (Membership membership : currentUser.getMemberships()) {
-		        		if(membership.getGroup().getLabel().equals(property.toString()))
-		        			{
-		        				newProcessesPanel.setUserCurrentGroup(membership.getGroup());
-		        				return;
-		        			}
-					}
-					
-				} catch (Exception e) {
-					
-					throw new RuntimeException("Error on updating user metadata",e );
-				}
+                
+        btnTaskList.setData(pnlTaskList);
+        btnTaskList.setEnabled(true);        
+        buttonBar.addComponent(btnTaskList);
+        buttonBar.setComponentAlignment(btnTaskList, Alignment.MIDDLE_LEFT);
+
+//kasutajale suunatud menetlused
+        
+        btnUserTaskList = new Button(ProcessbaseApplication.getString("userTaskListBtn"), this);
+        btnUserTaskList.setStyleName(Reindeer.BUTTON_LINK);
+        
+        pnlUserTaskList = new UserTaskList();
+        pnlUserTaskList.setButton(btnUserTaskList);
+        buttonBar.addComponent(btnUserTaskList);
+        buttonBar.setComponentAlignment(btnUserTaskList, Alignment.MIDDLE_LEFT);
+        
+// Kasutaja rollile suuantud menetlused
+        
+        btnRoleProcesses = new Button(ProcessbaseApplication.getString("myProcessesBtn"), this);
+        buttonBar.addComponent(btnRoleProcesses);
+        buttonBar.setComponentAlignment(btnRoleProcesses, Alignment.MIDDLE_LEFT);
+        btnRoleProcesses.setStyleName(Reindeer.BUTTON_LINK);
+        btnRoleProcesses.setEnabled(true);
+        
+        pnlRoleProcesses=new Processes();        
+        pnlRoleProcesses.setButton(btnRoleProcesses);
+        btnRoleProcesses.setData(pnlRoleProcesses);        
+                
+/*
+// Minu taskid
+        myTaskBtn = new Button(ProcessbaseApplication.getString("myTaskBtn", "My task"), this);
+        myTaskBtn.setStyleName(Reindeer.BUTTON_LINK);
+        buttonBar.addComponent(myTaskBtn);
+        myTaskBtn.setData("myTaskBtn");        
+        buttonBar.setComponentAlignment(myTaskBtn, Alignment.MIDDLE_LEFT);
+*/
+        
+// prepare refresh button
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"));        
+        buttonBar.addComponent(refreshBtn); 
+        buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);        
+        buttonBar.setExpandRatio(refreshBtn, 1);
+        
+        //Register event agrigator
+        events = new DefaultEventAggregator();
+        
+        events.Subscribe(pnlRoleProcesses);
+        events.Subscribe(pnlNewProcesses);
+        events.Subscribe(pnlUserTaskList);
+        events.Subscribe(pnlTaskList);
+        
+        refreshBtn.addListener(new Button.ClickListener() {			
+			public void buttonClick(ClickEvent event) {
+				TaskListEvent message = new TaskListEvent();
+				message.setButton(event.getButton());
+				message.setActionType(ActionType.REFRESH);
+				events.Publish(message);
 			}
 		});
-        roleCombo.setVisible(false);
-       /* taskCompletedPanel = new TaskCompleted();
-        panels.put(myTaskCompletedBtn, taskCompletedPanel);
-*/
-        processesPanel = new Processes();
-        panels.put(myProcessesBtn, processesPanel);
-        panels.put(myNewProcessesBtn, newProcessesPanel);
-        //setCurrentPanel(taskListPanel);
+        
+                
     }
 
-    private void setCurrentPanel(WorkPanel workPanel) {
-        replaceComponent(getComponent(1), workPanel);
-        setExpandRatio(workPanel, 1);
-        if (!workPanel.isInitialized()){
-                workPanel.initUI();
-            }
-        if (workPanel instanceof TablePanel){
-            ((TablePanel)workPanel).refreshTable();
-        } else if (workPanel instanceof TreeTablePanel){
-            ((TreeTablePanel)workPanel).refreshTable();
-        }
-        //workPanel.initUI();
-    }
-
-    private void prepareButtonBar() {
-        buttonBar.removeAllComponents();
-        // prepare myNewProcessesBtn button
-        myNewProcessesBtn = new Button(ProcessbaseApplication.getString("myNewProcessesBtn"), this);
-        myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(myNewProcessesBtn, 0);
-        buttonBar.setComponentAlignment(myNewProcessesBtn, Alignment.MIDDLE_LEFT);
-
-        // prepare myTaskListBtn button
-        myTaskListBtn = new Button(ProcessbaseApplication.getString("myTaskListBtn"), this);
-        myTaskListBtn.setStyleName("special");
-        myTaskListBtn.setEnabled(false);
-        buttonBar.addComponent(myTaskListBtn, 1);
-        buttonBar.setComponentAlignment(myTaskListBtn, Alignment.MIDDLE_LEFT);
-
-        // prepare myProcessesBtn button
-        myProcessesBtn = new Button(ProcessbaseApplication.getString("myProcessesBtn"), this);
-        myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(myProcessesBtn, 2);
-        buttonBar.setComponentAlignment(myProcessesBtn, Alignment.MIDDLE_LEFT);
-
-        // prepare myTaskCompletedBtn button
-       /* myTaskCompletedBtn = new Button(ProcessbaseApplication.getString("myTaskCompletedBtn"), this);
-        myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(myTaskCompletedBtn, 3);
-        buttonBar.setComponentAlignment(myTaskCompletedBtn, Alignment.MIDDLE_LEFT);
-*/
-        // prepare help button
-        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
-        buttonBar.addComponent(refreshBtn, 3); 
-        buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
-        buttonBar.setExpandRatio(refreshBtn, 1);
-        buttonBar.setWidth("100%");
-    }
-
+   
     public void buttonClick(ClickEvent event) {
-        WorkPanel panel = panels.get(event.getButton());
-        if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TablePanel)) {
-            ((TablePanel) getComponent(1)).refreshTable();
-        } else if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TreeTablePanel)) {
-            ((TreeTablePanel) getComponent(1)).refreshTable();
-        } else {
-            activateButtons();
-            event.getButton().setStyleName("special");
-            event.getButton().setEnabled(false);
-            setCurrentPanel(panel);
-        }
-        roleCombo.setVisible(false);
-        if (!myTaskListBtn.isEnabled()) {
-            myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn") + " (" + taskListPanel.rowCount + ")");
-        } else if (!myProcessesBtn.isEnabled()) {
-            myProcessesBtn.setCaption(ProcessbaseApplication.getString("myProcessesBtn") + " (" + processesPanel.rowCount + ")");
-        }
-        /*else if (!myTaskCompletedBtn.isEnabled()) {
-            myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn") + " (" + taskCompletedPanel.rowCount + ")");
-        } */
-        else if (!myNewProcessesBtn.isEnabled()) {
-        	roleCombo.setVisible(roleCombo.size()>0);
-            myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
-        }
+    	
+    	Button button = event.getButton();
+		Component component = (Component)button.getData();
+		
+		replaceComponent(getComponent(1), component);
+    	setExpandRatio(component, 1);
+    	
+    	button.setEnabled(false);//button that is clicked will be disabled now
+    	button.setStyleName("special");
+    	TaskListEvent message = new TaskListEvent();
+		message.setButton(event.getButton());
+		message.setActionType(ActionType.TOGGLE_PANEL);
+		message.setParentContainer(this);
+		
+		events.Publish(message);    	
     }
 
-    private void activateButtons() {
-        myProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        myProcessesBtn.setEnabled(true);
-        myProcessesBtn.setCaption(ProcessbaseApplication.getString("myProcessesBtn"));
-
-        myTaskListBtn.setStyleName(Reindeer.BUTTON_LINK);
-        myTaskListBtn.setEnabled(true);
-        myTaskListBtn.setCaption(ProcessbaseApplication.getString("myTaskListBtn"));
-
-       /* myTaskCompletedBtn.setStyleName(Reindeer.BUTTON_LINK);
-        myTaskCompletedBtn.setEnabled(true);
-        myTaskCompletedBtn.setCaption(ProcessbaseApplication.getString("myTaskCompletedBtn"));
-*/
-        myNewProcessesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        myNewProcessesBtn.setEnabled(true);
-        myNewProcessesBtn.setCaption(ProcessbaseApplication.getString("myNewProcessesBtn"));
-    }
-
+    
     @Override
     public String getTitle(Locale locale) {
         ResourceBundle rb = ResourceBundle.getBundle("MessagesBundle", locale);
