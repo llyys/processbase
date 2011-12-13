@@ -1,0 +1,8 @@
+{modules:[
+	{name:"bpmTasklist", panel:"org.processbase.ui.bpm.panel.TaskListPanel", roles:["guest", "tasklist", "admin"]},
+	{name:"bpmAdmin", panel:"org.processbase.ui.bpm.panel.BPMConfigurationPanel", roles:["admin", "admin"]},
+	{name:"bpmIdentity", panel:"org.processbase.ui.bpm.panel.IdentityPanel", roles:["identity", "admin"]},	
+	{name:"bpmMonitoring", panel:"org.processbase.ui.bam.panel.BPMMonitoringPanel", roles:["monitoring", "admin"]},
+	{name:"raport", panel:"org.processbase.raports.ui.RaportModule", roles:["raport", "admin"]},
+	{name:"legislations", panel:"ee.kovmen.ui.legislation.LegislationsModule", roles:["legislation", "admin"]}
+]}
