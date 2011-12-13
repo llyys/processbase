@@ -7,6 +7,7 @@
 		<artifactId>processbase</artifactId>
 		<version>3.0</version>
 	</parent>
+	<packaging>jar</packaging>
 	
 	<artifactId>process-legislations</artifactId>
 	<url>http://processbase.googlecode.com</url>
@@ -15,7 +16,10 @@
 	<prerequisites>
 		<maven>2.2</maven>
 	</prerequisites>
-
+  <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -39,9 +43,36 @@
 			<artifactId>processbase-ui-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-annotations</artifactId>
+			<version>3.5.6-Final</version>
+		</dependency>
 	</dependencies>  
 	<build>
 		<plugins>
+		<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copyFiles</id>
+						<phase>verify</phase>
+						<configuration>
+							<tasks>
+								<copy todir="${tomcat.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
+									<fileset dir="target" includes="process-legislations-${project.version}.jar" />
+								</copy>
+								<copy todir="${liferay.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
+									<fileset dir="target" includes="process-legislations-${project.version}.jar" />
+								</copy>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 			  <groupId>org.zeroturnaround</groupId>
 			  <artifactId>jrebel-maven-plugin</artifactId>

@@ -10,10 +10,11 @@ import java.util.Locale;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.raports.birt.generator.ReportItem;
 import org.processbase.raports.data.ReportingDataStore;
+
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.osgi.PbPanelModule;
@@ -26,8 +27,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
 
-public class RaportModule extends PbPanelModule implements Button.ClickListener{
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+public class RaportModule extends PbPanelModule implements IPbTable,  Button.ClickListener{
+private static Logger log=Logger.getLogger(RaportModule.class.getName());
 	 protected Table table = new Table();
 	
 	@Override
@@ -88,7 +92,7 @@ public class RaportModule extends PbPanelModule implements Button.ClickListener{
 	}
 	
 	private void OpenRaportWindow(ReportItem ri){
-		
+		log.fine("Open raport window");
 		PbWindow reportWindow=new PbWindow(ri.getReportId());
 		RaportViewer panel=new RaportViewer(ri);
 		reportWindow.setWidth("800px");

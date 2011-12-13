@@ -2,7 +2,11 @@
 <display>
     <category name="SmartBPM">
         <portlet id="ConsolePortlet" />
+        <portlet id="UserTaskList" />
+        <portlet id="Processes" />
+        <portlet id="NewProcesses" />        
         <portlet id="AdminPortlet" />
+        <portlet id="Raports" />
         <portlet id="IdentityPortlet" />
         <portlet id="MonitoringPortlet" />
         <portlet id="BAMPortlet" />

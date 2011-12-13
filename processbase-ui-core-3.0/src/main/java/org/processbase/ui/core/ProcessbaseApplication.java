@@ -229,13 +229,13 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
     	this.httpServletRequest = request;
     	this.httpServletResponse=response;
-		LOGGER.debug("[Start of request");
+	/*	LOGGER.debug("[Start of request");
 		LOGGER.debug(" Query string: " + request.getQueryString());
-		LOGGER.debug(" Path: " + request.getPathInfo());
+		LOGGER.debug(" Path: " + request.getPathInfo());*/
 	}
 
 	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-		LOGGER.debug(" End of request]");
+		//LOGGER.debug(" End of request]");
 		this.httpServletResponse=response;
 		this.httpServletRequest=null;		
 	}

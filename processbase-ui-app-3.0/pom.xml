@@ -129,6 +129,7 @@
 			<artifactId>vaadin</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
+		
 
 	</dependencies>
 	<build>

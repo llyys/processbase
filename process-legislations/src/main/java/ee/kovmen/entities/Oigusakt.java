@@ -9,7 +9,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 import org.hibernate.annotations.Entity;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Table(name = "Oigusakt")
 @Entity
 public class Oigusakt implements Serializable{
 	 @Id
@@ -23,6 +27,7 @@ public class Oigusakt implements Serializable{
     private void setId(Long id) {
         this.id = id;
     }
+    @Column(name = "name")
 	private String name;
 	public String getName() {
 		return name;
@@ -48,7 +53,9 @@ public class Oigusakt implements Serializable{
 	public void setTeenused(Set<Teenus> teenused) {
 		this.teenused = teenused;
 	}
+	 @Column(name = "descritpion")
 	private String description;
+	 @Column(name = "url")
 	private String url;
 	
 	@ManyToMany

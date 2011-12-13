@@ -19,6 +19,8 @@ package org.processbase.ui.bam.panel;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
+import java.util.Locale;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -31,12 +33,13 @@ import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.DashboardPanel;
 import org.processbase.ui.core.template.PbPanel;
+import org.processbase.ui.osgi.PbPanelModule;
 
 /** 
  *
  * @author mgubaidullin
  */
-public class BPMMonitoringPanel extends PbPanel
+public class BPMMonitoringPanel extends PbPanelModule
         implements Button.ClickListener, Window.CloseListener {
 
     private ButtonBar buttonBar = new ButtonBar();
@@ -138,4 +141,10 @@ public class BPMMonitoringPanel extends PbPanel
     public void windowClose(CloseEvent e) {
         ((DashboardPanel) getComponent(1)).refresh();
     }
+
+	@Override
+	public String getTitle(Locale locale) {
+		// TODO Auto-generated method stub
+		return "Monitoring";
+	}
 }

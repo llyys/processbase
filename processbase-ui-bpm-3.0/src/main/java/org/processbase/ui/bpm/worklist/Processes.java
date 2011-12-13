@@ -32,15 +32,18 @@ import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 
 /**
  * Returns all instances started by the logged user
+
+
  * @author mgubaidullin
  */
-public class Processes extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent>{
+public class Processes extends TablePanel implements IPbTable,  Button.ClickListener, IHandle<TaskListEvent>{
     
 
     private Button processesBtn;

@@ -16,14 +16,20 @@
  */
 package org.processbase.ui.servlet;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
 import com.vaadin.terminal.gwt.server.ApplicationServlet;
@@ -32,6 +38,7 @@ import com.vaadin.ui.Window;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.util.SpringContextHelper;
+import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
@@ -41,7 +48,7 @@ public class PbServlet extends ApplicationServlet {
 //    private PbApplication application;
     //@Resource(mappedName = "org.processbase.ui.osgi.PbPanelModuleService")
     PbPanelModuleService panelModuleService;
-
+    
     @Override
     protected void writeAjaxPageHtmlVaadinScripts(Window window,
             String themeName, Application application, BufferedWriter page,
@@ -62,23 +69,84 @@ public class PbServlet extends ApplicationServlet {
         return PbApplication.class;
     }
     
+    private void InipPanelModuleService(PbPanelModuleService moduleService){
+    	 BufferedReader reader = null;
+    	 try {
+             File file = null;
+             Map<String, String> map = new HashMap<String, String>();
+             file=new File(Constants.getBonitaHomeDir()+"/processbase.modules");//global configuration can be accessed %BONITA_HOME%\processbase3.properties
+             
+             if (file.exists()) {
+            	 
+            	  reader = new BufferedReader(new FileReader(file));
+            	  PbModules modules=new Gson().fromJson(reader, PbModules.class);
+            	  for (PbModule module : modules.getModules()) {
+            		  Class<?> class1 = Class.forName(module.getPanel());
+            		  
+            		  PbPanelModule panelModule = (PbPanelModule) class1.newInstance();
+            		  moduleService.registerModule(panelModule);
+            		  
+            		  panelModule.setRoles(module.getRoles());
+            	  }
+            	  /*String line;
+            	  while ((line = reader.readLine()) != null)
+            	  {
+            	    if (line.trim().length()==0) continue;
+            	    if (line.charAt(0)=='#') continue;//this is a comment
+            	    // assumption here is that proper lines are like "String : http://xxx.yyy.zzz/foo/bar",
+            	    // and the ":" is the delimiter
+            	    int delimPosition = line.indexOf(":");
+            	    String key = line.substring(0, delimPosition-1).trim();
+            	    String value = line.substring(delimPosition+1).trim();
+            	    
+            	    try{
+            	    	Class<?> class1 = Class.forName(value);
+						if(class1!=null){
+	            	    	Object module=class1.newInstance();
+	            	    	PbPanelModule panelModule = (PbPanelModule) module;
+							moduleService.registerModule(panelModule);
+            	    	}            	    	
+            	    }
+            	    catch(Exception e){
+            	    	
+            	    }
+            	    
+            	  }*/            	    
+             }
+         } catch (Exception ex) { 
+             ex.printStackTrace();
+         }
+         finally{
+        	 if(reader!=null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+         }
+    }
     
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
     	if(panelModuleService==null)
     		panelModuleService=new PbPanelModuleServiceImpl();
     	
+    	
+    	
     	String configFilename=getServletContext().getRealPath("/")+getApplicationProperty("log4jConfigLocation");
     	
     	if(Constants.getBonitaHomeDir()!=null)
     		configFilename=Constants.getBonitaHomeDir()+"/log4j.xml";
     	
-    	org.apache.log4j.xml.DOMConfigurator.configure(configFilename);    	
+//    	org.apache.log4j.xml.DOMConfigurator.configure(configFilename);    	
     	
     	
         PbApplication pbApplication = new PbApplication(panelModuleService);
-        pbApplication.onRequestStart(request, null);
+        panelModuleService.addListener(pbApplication);
         
+        pbApplication.onRequestStart(request, null);
+        InipPanelModuleService(panelModuleService);
 		return pbApplication;
     }
     

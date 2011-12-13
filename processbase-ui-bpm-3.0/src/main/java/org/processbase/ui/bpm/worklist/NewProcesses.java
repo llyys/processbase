@@ -41,6 +41,7 @@ import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
@@ -57,7 +58,7 @@ import org.processbase.ui.core.bonita.process.BarResource;
  *
  * @author mgubaidullin
  */
-public class NewProcesses extends TreeTablePanel implements Button.ClickListener , IHandle<TaskListEvent>{
+public class NewProcesses extends TreeTablePanel implements IPbTable, Button.ClickListener , IHandle<TaskListEvent>{
 
     public NewProcesses() {
         super();
@@ -65,6 +66,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
 
     @Override
     public void initUI() {
+    	
         super.initUI();
         treeTable.addContainerProperty("category", AbstractComponent.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
         //treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
@@ -73,6 +75,7 @@ public class NewProcesses extends TreeTablePanel implements Button.ClickListener
         treeTable.setColumnExpandRatio("processDescription", 1);
         //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
         treeTable.setVisibleColumns(new Object[]{"category", "processDescription"/*, "version"*/});
+        
     }
 
     @Override

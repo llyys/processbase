@@ -126,6 +126,8 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         btnUserTaskList.setStyleName(Reindeer.BUTTON_LINK);
         
         pnlUserTaskList = new UserTaskList();
+        
+        btnUserTaskList.setData(pnlUserTaskList);
         pnlUserTaskList.setButton(btnUserTaskList);
         buttonBar.addComponent(btnUserTaskList);
         buttonBar.setComponentAlignment(btnUserTaskList, Alignment.MIDDLE_LEFT);
@@ -183,7 +185,8 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
     	Button button = event.getButton();
 		Component component = (Component)button.getData();
 		
-		replaceComponent(getComponent(1), component);
+		Component component2 = getComponent(1);
+		replaceComponent(component2, component);
     	setExpandRatio(component, 1);
     	
     	button.setEnabled(false);//button that is clicked will be disabled now

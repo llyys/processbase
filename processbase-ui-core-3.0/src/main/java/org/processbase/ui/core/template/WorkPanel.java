@@ -27,7 +27,7 @@ import com.vaadin.ui.Window.CloseEvent;
  *
  * @author mgubaidullin
  */
-public class WorkPanel extends VerticalLayout {
+public class WorkPanel extends PbPanel {
 
     protected HorizontalLayout horizontalLayout = new HorizontalLayout();
     private boolean initialized = false;

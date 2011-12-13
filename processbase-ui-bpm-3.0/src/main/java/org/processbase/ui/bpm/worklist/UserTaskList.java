@@ -15,6 +15,7 @@ import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -36,7 +37,7 @@ import com.vaadin.ui.themes.Reindeer;
  * @author lauri
  *
  */
-public class UserTaskList extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent> {
+public class UserTaskList extends TablePanel implements IPbTable, Button.ClickListener, IHandle<TaskListEvent> {
 
 		private Button menuBtn;
 		private void InitMenuButton(){

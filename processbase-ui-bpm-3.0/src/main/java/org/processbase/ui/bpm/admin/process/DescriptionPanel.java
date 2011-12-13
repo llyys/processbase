@@ -1,6 +1,7 @@
 package org.processbase.ui.bpm.admin.process;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.processbase.ui.bpm.admin.ProcessDefinitionWindow;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -21,6 +22,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
+
+import java.util.regex.Pattern; 
+import java.util.regex.Matcher; 
+
 /**
 *
 * @author llyys
@@ -146,6 +151,9 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 	                            try {
 	                                processbase.getBpmModule().deleteProcess(processDefinition);
 	                                mainWindow.showInformation(processbase.getPbMessages().getString("executedSuccessfully"));
+	                            } catch (org.ow2.bonita.facade.exception.UndeletableInstanceException ex){
+	                            		mainWindow.showError("Menetlust "+ex.getProcessInstanceUUID() +" ei saa kustutada, sest see on seotud aktiivse "+ ex.getParentInstanceUUID()+" menetlusega");
+	                            	
 	                            } catch (Exception ex) {
 	                                ex.printStackTrace();
 	                                throw new RuntimeException(ex);

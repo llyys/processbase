@@ -14,7 +14,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import ee.kovmen.data.LegislationData;
 import ee.kovmen.entities.Oigusakt;
 
-public class LegislationsMainPanel  extends TablePanel implements Button.ClickListener{
+public class LegislationsTableView  extends TablePanel implements Button.ClickListener{
 	@Override
     public void initUI() {
 		if(isInitialized())
@@ -28,7 +28,7 @@ public class LegislationsMainPanel  extends TablePanel implements Button.ClickLi
 	        
 	        table.addContainerProperty("url", String.class, null, "Viide", null, null);
 	        table.setImmediate(true);
-	        
+	        setMargin(true);
         
     }
 	

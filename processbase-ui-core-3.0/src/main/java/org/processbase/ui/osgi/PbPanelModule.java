@@ -28,6 +28,8 @@ public abstract class PbPanelModule extends PbPanel {
     public PbPanelModule() {
 
     } 
+    
+    private String[] roles;
 
     public String getName(){
         return this.getClass().getCanonicalName();
@@ -44,4 +46,12 @@ public abstract class PbPanelModule extends PbPanel {
     protected void unsetModuleService(PbPanelModuleService service) {
         service.unregisterModule(this);
     }
+
+	public void setRoles(String[] roles) {
+		this.roles = roles;
+	}
+
+	public String[] getRoles() {
+		return roles;
+	}
 }

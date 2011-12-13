@@ -22,15 +22,18 @@ import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
@@ -68,7 +71,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private User user;
     private List<Group> userGroups;
     private Group activeGroup;
-    private HashSet<String> accessSet;
+    private List<String> accessSet;
 
     public MainWindow() {
         super(ProcessbaseApplication.getString("appName","BPMS"));
@@ -99,7 +102,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             String userName = ProcessbaseApplication.getCurrent().getUserName();
             prepareTabs();
             mainLayout.addComponent(getHeader());
-            if (accessSet.contains("tasklist")) {
+            /*if (accessSet.contains("tasklist")) {
             	consolePanel = new TaskListPanel();
             	
             	if(accessSet.size()==1){
@@ -140,7 +143,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 tabs.addTab(raportListPanel, "Raports", null);
             }
             
-
+*/
             if (tabs.getSelectedTab() != null && tabs.getSelectedTab() instanceof PbPanel) {
                 PbPanel first = (PbPanel) tabs.getSelectedTab();
                 first.initUI();
@@ -289,7 +292,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     }
 
     private void defineAccess() throws Exception {
-        accessSet = new HashSet<String>();
+        accessSet = new ArrayList<String>();
         String userName = ProcessbaseApplication.getCurrent().getUserName();
         BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
         
@@ -315,12 +318,13 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             }                
         }
         if (bpmModule.isUserAdmin() || "admin".equals(userName)) {
-            accessSet.add("bpm");
+        	accessSet.add("admin");
+            /*accessSet.add("bpm");
             accessSet.add("bam");
             accessSet.add("identity");
             accessSet.add("monitoring");
             accessSet.add("raport");
-            accessSet.add("development");            
+            accessSet.add("development");*/            
         }
         accessSet.add("tasklist");
     }
@@ -339,14 +343,20 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             }
         }
         PbPanelModuleService pms = ((PbApplication) getApplication()).getPanelModuleService();
-        for (String name : tabList.values()) {
-            System.out.println("moduleName = " + name);
-            PbPanelModule pm = pms.getModules().get(name);
+        for (Entry<String, PbPanelModule> pm : pms.getModules().entrySet()) {
+            System.out.println("moduleName = " + pm.getKey());
+            
             if (pm != null) {
                 try {
-                tabs.addTab(pm, pm.getTitle(locale), null);
+	                PbPanelModule panel = pm.getValue();
+	                if(CollectionUtils.containsAny(Arrays.asList(panel.getRoles()), accessSet)){
+	                	tabs.addTab(panel, panel.getTitle(locale), null);
+	                }
+	                else{
+	                	System.out.println("No rights for module = " + pm.getKey());
+	                }
                 } catch (Exception ex){
-                    System.out.println("Exception with pm = " + pm.getName());
+                    System.out.println("Exception with pm = " + pm.getKey());
                     ex.printStackTrace();
                     throw new RuntimeException(ex);
                 }

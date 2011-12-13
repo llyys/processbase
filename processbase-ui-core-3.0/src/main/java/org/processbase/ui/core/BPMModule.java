@@ -159,6 +159,7 @@ public class BPMModule {
     public BPMModule(String currentUserUID) {
         if (!Constants.LOADED) {
             Constants.loadConstants();
+            AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
         }
         this.currentUserUID = currentUserUID;
         try {
@@ -166,6 +167,7 @@ public class BPMModule {
         } catch (Exception ex) {
 			logger.error("constructor", ex);
             //Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+			
         }
         //APIAccessor apiAccessor = AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
 		/*runtimeAPI = AccessorUtil.getRuntimeAPI();

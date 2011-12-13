@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.caliburn.application.event.Command;
 import org.caliburn.application.event.IEventAggregator;
 import org.caliburn.application.event.IHandle;
@@ -15,7 +15,7 @@ import org.caliburn.application.event.IHandle;
  *
  */
 public class DefaultEventAggregator implements IEventAggregator{
-	static Logger Log = LogManager.getLogger(DefaultEventAggregator.class);
+	static Logger Log = Logger.getLogger(DefaultEventAggregator.class.getName());
 	List<Handler> handlers = new ArrayList<Handler>();
 
 	@Override 

@@ -25,23 +25,37 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
 import com.vaadin.terminal.gwt.server.PortletRequestListener;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletSession;
 import javax.servlet.http.Cookie;
 
+import org.caliburn.application.event.imp.DefaultEventAggregator;
+import org.processbase.raports.ui.RaportModule;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.worklist.NewProcesses;
+import org.processbase.ui.bpm.worklist.Processes;
+import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,20 +94,69 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         if(userName!=null)
         {
         	PbPanel ui=null;
-	        if (config.getInitParameter("ui").equalsIgnoreCase("ConsolePanel")) {
+	        String initParameter = config.getInitParameter("ui");
+			if (initParameter.equalsIgnoreCase("ConsolePanel")) {
 	            ui = new TaskListPanel();
 	        }
-	        else if (config.getInitParameter("ui").equalsIgnoreCase("AdminPanel")) {
+			else if (initParameter.equalsIgnoreCase("NewProcesses")) {
+				ui = (PbPanel) new NewProcesses();	         
+			}
+			else if (initParameter.equalsIgnoreCase("UserTaskList")) {
+				ui = (PbPanel) new UserTaskList();	         
+			}
+			else if (initParameter.equalsIgnoreCase("Processes")) {
+				ui = (PbPanel) new Processes();	         
+			}
+			else if (initParameter.equalsIgnoreCase("UserTaskList")) {
+	            ui = (PbPanel) new UserTaskList();	         
+	        }
+			else if (initParameter.equalsIgnoreCase("Raports")) {
+	            ui = (PbPanel) new RaportModule();	         
+	        }
+	        else if (initParameter.equalsIgnoreCase("AdminPanel")) {
 	            ui = new BPMConfigurationPanel();	         
-	        } else if (config.getInitParameter("ui").equalsIgnoreCase("IdentityPanel")) {
+	        } else if (initParameter.equalsIgnoreCase("IdentityPanel")) {
 	            ui = new IdentityPanel();	            
-	        } else if (config.getInitParameter("ui").equalsIgnoreCase("BAMPanel")) {
+	        } else if (initParameter.equalsIgnoreCase("BAMPanel")) {
 	            ui = new BAMConfigurationPanel();	            
-	        } else if (config.getInitParameter("ui").equalsIgnoreCase("MonitoringPanel")) {
+	        } else if (initParameter.equalsIgnoreCase("MonitoringPanel")) {
 	            ui = new BPMMonitoringPanel();	            
 	        }
-	        mainWindow.setContent(ui);
-            ui.initUI();
+	        
+            
+            if(ui instanceof IPbTable){
+            	
+            	//final DefaultEventAggregator e = new DefaultEventAggregator();
+            	VerticalLayout bpPanel=new VerticalLayout();
+            	
+            	Button refresh=new Button("Uuenda", new Button.ClickListener() {
+					public void buttonClick(ClickEvent event) {
+						/*TaskListEvent message = new TaskListEvent();
+						message.setButton(event.getButton());
+						message.setActionType(ActionType.REFRESH);
+						e.Publish(message);*/
+						//((IPbTable)ui).refreshTable();
+						((IPbTable)event.getButton().getData()).refreshTable();
+					}
+				});
+            	refresh.setData(ui);
+            	bpPanel.addComponent(refresh);
+            	
+            	bpPanel.setComponentAlignment(refresh, Alignment.MIDDLE_RIGHT);
+            	bpPanel.addComponent(ui);
+            	
+            	//e.Subscribe(ui);
+            	mainWindow.setContent(bpPanel);
+            	
+            	bpPanel.setExpandRatio(ui, 1);
+            	ui.initUI();
+            	((IPbTable)ui).refreshTable();
+            }
+            else{
+            	 mainWindow.setContent(ui);
+                 ui.initUI();
+            }
+           
         }
         
     }

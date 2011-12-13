@@ -22,7 +22,7 @@ public class BirtEngineFactory {
 
     public static synchronized IReportEngine init() {
        
-        	
+        	log.info("Initializing reportEngine");
     	HTMLServerEmbeddedImageHandler imageHandler = new HTMLServerEmbeddedImageHandler();
     		//imageHandler.
     		//HTMLActionHandler actionHandler = new GrailsHTMLActionHandler(baseURL, defaultFormat)
@@ -61,6 +61,7 @@ public class BirtEngineFactory {
             	        	
             }
             
+            log.debug("Engine config:"+engineConfig.toString());
             
 			System.setProperty( "RUN_UNDER_ECLIPSE", "false" ); 
 			//Platform.startup(config);

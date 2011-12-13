@@ -6,10 +6,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
+
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.caliburn.application.event.imp.DefaultEventAggregator;
 import org.eclipse.birt.core.data.DataTypeUtil;
 import org.eclipse.birt.core.exception.BirtException;
 import org.eclipse.birt.core.framework.PlatformFileContext;
@@ -23,7 +27,7 @@ public class ReportService {
 
 	private String defaultFormat = "inline";
 	private boolean svgEnabled = false;
-	
+	static Logger log = Logger.getLogger(ReportService.class.getName());
 	/**
 	 * Run and render a document using the given report parameters and render options
 	 * @param reportItem
@@ -33,14 +37,19 @@ public class ReportService {
 	 * @throws Exception
 	 */
 	public String runAndRender(ReportItem reportItem, Map parameters, HTMLRenderOption renderOptions) throws Exception {
-        /*log.trace "Function: runAndRender(${reportName}, ${parameters}, ${renderOptions})"
-        def reportFileName = reportHome + File.separator + reportName + REPORT_EXT
-        log.debug "Parameters are ${parameters}"*/
-        // def engine = BirtEngineFactory.engine
+        log.fine("Function: runAndRender("+reportItem.getReportName()+",  "+renderOptions+")");
+        
         IReportEngine engine = BirtEngineFactory.getEngine();
-			
+        if(engine==null)
+        	throw new RuntimeException("Raprot engine was not initialized ");
+        
+		String raportFile = reportItem.getRealPath().getAbsolutePath()+File.separator+reportItem.getFilename();
+		log.info("Open raport:"+raportFile);
+		if(new File(raportFile).exists()==false){
+			throw new RuntimeException("Raport design file "+raportFile+" does not exist or is not accessible!");
+		}
         //Open report design
-        IReportRunnable design = engine.openReportDesign(reportItem.getRealPath().getAbsolutePath()+File.separator+reportItem.getFilename());
+        IReportRunnable design = engine.openReportDesign(raportFile);
         //create task to run and render report
         IRunAndRenderTask task = engine.createRunAndRenderTask(design);
 		//task.locale=locale?:getLocale()

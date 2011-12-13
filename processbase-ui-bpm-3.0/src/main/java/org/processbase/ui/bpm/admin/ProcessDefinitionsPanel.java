@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -101,6 +102,15 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                     
                     getApplication().getMainWindow().addWindow(processDefinitionWindow);
                     processDefinitionWindow.initUI();
+                } catch (ProcessNotFoundException ex) {
+                	showError("Protsessi kirjeldused "+ex.getProcessUUID()+" on süsteemist eemaldatud, palun uuendage nimekiri");
+                	try {
+						ProcessbaseApplication.getCurrent().getBpmModule().archiveProcessDefinitions(ex.getProcessUUID());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						throw new RuntimeException(ex);
+					}
+                	
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
