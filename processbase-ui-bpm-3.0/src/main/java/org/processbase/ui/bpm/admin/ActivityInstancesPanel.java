@@ -30,6 +30,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableExecButtonBar;
 import org.processbase.ui.core.template.TableLinkButton;
@@ -39,7 +40,7 @@ import org.processbase.ui.core.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener {
+public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener,IPbTable {
 
     private ProcessDefinitionUUID filter = null;
 	private BPMConfigurationPanel bpmConfigurationPanel;

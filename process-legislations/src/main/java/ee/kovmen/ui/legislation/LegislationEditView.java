@@ -1,59 +1,46 @@
 package ee.kovmen.ui.legislation;
 
 
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
+
+import org.caliburn.viewmodels.ViewModelBinder;
 import org.processbase.ui.core.template.WorkPanel;
 
+import ee.kovmen.data.LegislationData;
 import ee.kovmen.entities.Oigusakt;
 
-public class LegislationEditView  extends WorkPanel {
+public class LegislationEditView  extends WorkPanel implements ClickListener {
 	
 	private final Oigusakt data;
-	private boolean isEditMode=true;
-	private TextField txtNimi;
-	private TextField txtUrl;
-	private TextField txtComment;
-	
+	private ViewModelBinder<Oigusakt> binder;
 	public LegislationEditView(Oigusakt data){
-		if(data==null){
-			data=new Oigusakt();
-			isEditMode= false;//set mode to create
-		}
 		this.data = data;
-		
 	}
 	
 	@Override 
 	public void initUI(){
 		FormLayout form=new FormLayout();
 		addComponent(form);
+		form.setMargin(true);
 		
-		txtNimi = new TextField("Nimi", data.getName());
-		form.addComponent(txtNimi);
+		binder = new ViewModelBinder<Oigusakt>(form, data);		
+		binder.addComponent(new TextField("Nimi"), "name");
+		binder.addComponent(new TextField("URL"), "url");
+		binder.addComponent(new TextArea("Kirjeldus"), "description");
 		
-		txtUrl = new TextField("URL", data.getUrl());
-		form.addComponent(txtUrl);
-		
-		txtComment = new TextField("Comment", data.getDescription());
-		form.addComponent(txtComment);
-		
-		form.addComponent(new Button("Salvesta", new Button.ClickListener() {
-			
-			public void buttonClick(ClickEvent event) {
-				if(isEditMode){
-					
-				}
-				else {
-					Oigusakt akt=new Oigusakt();
-					akt.setDescription((String)txtComment.getValue());
-				}
-			}
-		}));
-	
+		form.addComponent(new Button("Salvesta", this));
 		super.initUI();
+	}
+
+	public void buttonClick(ClickEvent event) {
+		LegislationData.getCurrent().SaveLegislation(binder.getBean());
+		
 	}
 
 }

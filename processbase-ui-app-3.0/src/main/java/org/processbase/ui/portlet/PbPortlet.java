@@ -41,6 +41,11 @@ import org.processbase.raports.ui.RaportModule;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 
+import org.processbase.ui.bpm.admin.ActivityInstancesPanel;
+import org.processbase.ui.bpm.admin.CategoriesPanel;
+import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
+import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
+import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
@@ -113,9 +118,28 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 			else if (initParameter.equalsIgnoreCase("Raports")) {
 	            ui = (PbPanel) new RaportModule();	         
 	        }
-	        else if (initParameter.equalsIgnoreCase("AdminPanel")) {
+			
+			else if (initParameter.equalsIgnoreCase("AdminPanel")) {
 	            ui = new BPMConfigurationPanel();	         
-	        } else if (initParameter.equalsIgnoreCase("IdentityPanel")) {
+	        }
+			
+			else if (initParameter.equalsIgnoreCase("AdminProcessDefinitions")) {
+	            ui = new ProcessDefinitionsPanel();	         
+	        }
+			else if (initParameter.equalsIgnoreCase("AdminDisabledProcessDefinitions")) {
+				ui = new DisabledProcessDefinitionsPanel();	         
+			}
+			else if (initParameter.equalsIgnoreCase("AdminProcessInstancesPanel")) {
+				ui = new ProcessInstancesPanel();	         
+			}
+			else if (initParameter.equalsIgnoreCase("AdminActivityInstancesPanel")) {
+				ui = new ActivityInstancesPanel();	         
+			}
+			else if (initParameter.equalsIgnoreCase("AdminCategoriesPanel")) {
+				ui = new CategoriesPanel();	         
+			}
+			
+			else if (initParameter.equalsIgnoreCase("IdentityPanel")) {
 	            ui = new IdentityPanel();	            
 	        } else if (initParameter.equalsIgnoreCase("BAMPanel")) {
 	            ui = new BAMConfigurationPanel();	            
@@ -130,17 +154,13 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             	VerticalLayout bpPanel=new VerticalLayout();
             	
             	Button refresh=new Button("Uuenda", new Button.ClickListener() {
-					public void buttonClick(ClickEvent event) {
-						/*TaskListEvent message = new TaskListEvent();
-						message.setButton(event.getButton());
-						message.setActionType(ActionType.REFRESH);
-						e.Publish(message);*/
-						//((IPbTable)ui).refreshTable();
+					public void buttonClick(ClickEvent event) {					
 						((IPbTable)event.getButton().getData()).refreshTable();
 					}
 				});
             	refresh.setData(ui);
             	bpPanel.addComponent(refresh);
+            	bpPanel.setMargin(true, true, false, false);
             	
             	bpPanel.setComponentAlignment(refresh, Alignment.MIDDLE_RIGHT);
             	bpPanel.addComponent(ui);

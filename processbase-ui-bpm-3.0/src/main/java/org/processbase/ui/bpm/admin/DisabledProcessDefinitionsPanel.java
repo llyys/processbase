@@ -7,12 +7,15 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 
 import com.vaadin.data.Item;
 
-public class DisabledProcessDefinitionsPanel extends ProcessDefinitionsPanel {
+public class DisabledProcessDefinitionsPanel extends ProcessDefinitionsPanel
+implements IPbTable
+{
 	 @Override
 	    public void initUI() {
 	        super.initUI();

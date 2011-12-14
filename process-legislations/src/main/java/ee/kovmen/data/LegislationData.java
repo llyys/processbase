@@ -3,14 +3,17 @@ package ee.kovmen.data;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.engine.Mapping;
 import org.hibernate.mapping.Set;
 import org.ow2.bonita.util.BonitaConstants;
 
@@ -19,6 +22,7 @@ import ee.kovmen.entities.Teenus;
 
 public class LegislationData {
 	private static SessionFactory sessionFactory;
+	private static AnnotationConfiguration configure;
 	
 	
 	public static SessionFactory getSessionFactory() {
@@ -36,17 +40,23 @@ public class LegislationData {
             fis.close();
            
             
-            AnnotationConfiguration configuration=new AnnotationConfiguration()
-            .addPackage("ee.kovmen.entities") 
-            .addAnnotatedClass(Oigusakt.class)
-            .addAnnotatedClass(Teenus.class)
-            .mergeProperties(properties)
-            .configure();
+            AnnotationConfiguration configuration=new AnnotationConfiguration();
+            /*configuration.addPackage("ee.kovmen.entities");
+            configuration.addAnnotatedClass(Oigusakt.class);
+            configuration.addAnnotatedClass(Teenus.class);
+            */
+            configure = configuration.configure();
+            /*
+            for (Entry<Object, Object> p : properties.entrySet()) {
+				configure.setProperty(p.getKey().toString(), p.getValue().toString());
+			}
+            */
+            
        	
            
-           sessionFactory = configuration.buildSessionFactory();
+           sessionFactory = configure.buildSessionFactory();
            
-       } catch (Throwable ex) {
+       } catch (Exception ex) {
            // Make sure you log the exception, as it might be swallowed
            System.err.println("Initial SessionFactory creation failed." + ex);
            throw new ExceptionInInitializerError(ex);
@@ -73,6 +83,17 @@ public class LegislationData {
 		return getSession()
 		.createCriteria(Oigusakt.class)
 		.list();
+		
+	}
+	
+	public void SaveLegislation(Oigusakt akt) {
+		try {
+			Transaction transaction = getSession().beginTransaction();
+			getSession().saveOrUpdate(akt);
+			transaction.commit();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		
 	}
 

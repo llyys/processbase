@@ -6,9 +6,14 @@ import org.processbase.ui.osgi.PbPanelModule;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Window.CloseListener;
+
+import ee.kovmen.entities.Oigusakt;
 
 public class LegislationsModule extends PbPanelModule{
 
@@ -23,7 +28,21 @@ public class LegislationsModule extends PbPanelModule{
 		final LegislationsTableView table=new LegislationsTableView();
 		Button btnAddNew = new Button("Lisa", new Button.ClickListener() {			
 			public void buttonClick(ClickEvent event) {				
+				LegislationEditView view = new LegislationEditView(new Oigusakt());
+				Window wnd=new Window("Lisa uus õigusakt");
+				wnd.addComponent(view);
+				wnd.addListener(new CloseListener() {					
+					public void windowClose(CloseEvent e) {
+						table.refreshTable();
+					}
+				});
 				
+				wnd.setWidth("300px");
+				view.setSizeFull();
+				view.setMargin(true);
+				view.initUI();
+				wnd.setModal(true);
+				getApplication().getMainWindow().addWindow(wnd);
 			}
 		});
 		
