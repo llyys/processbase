@@ -20,7 +20,7 @@ public class LegislationsModule extends PbPanelModule{
 	@Override
 	public String getTitle(Locale locale) {
 		// TODO Auto-generated method stub
-		return "Õigusaktid";
+		return "Ã•igusaktid";
 	}
 
 	@Override
@@ -28,21 +28,15 @@ public class LegislationsModule extends PbPanelModule{
 		final LegislationsTableView table=new LegislationsTableView();
 		Button btnAddNew = new Button("Lisa", new Button.ClickListener() {			
 			public void buttonClick(ClickEvent event) {				
-				LegislationEditView view = new LegislationEditView(new Oigusakt());
-				Window wnd=new Window("Lisa uus õigusakt");
-				wnd.addComponent(view);
-				wnd.addListener(new CloseListener() {					
+				LegislationEditView view = new LegislationEditView(null);
+				view.addListener(new CloseListener() {					
 					public void windowClose(CloseEvent e) {
 						table.refreshTable();
 					}
-				});
-				
-				wnd.setWidth("300px");
-				view.setSizeFull();
-				view.setMargin(true);
-				view.initUI();
-				wnd.setModal(true);
-				getApplication().getMainWindow().addWindow(wnd);
+				});				
+				view.setWidth("300px");
+				view.initUI();				
+				getApplication().getMainWindow().addWindow(view);
 			}
 		});
 		

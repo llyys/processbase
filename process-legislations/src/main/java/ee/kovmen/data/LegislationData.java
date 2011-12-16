@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,13 +18,15 @@ import org.hibernate.engine.Mapping;
 import org.hibernate.mapping.Set;
 import org.ow2.bonita.util.BonitaConstants;
 
+import ee.kovmen.entities.KovLegislation;
 import ee.kovmen.entities.Oigusakt;
 import ee.kovmen.entities.Teenus;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class LegislationData {
 	private static SessionFactory sessionFactory;
 	private static AnnotationConfiguration configure;
-	
+	private HibernateTemplate hibernateTemplate; 
 	
 	public static SessionFactory getSessionFactory() {
         if (sessionFactory!=null) return sessionFactory;
@@ -34,7 +37,7 @@ public class LegislationData {
             Properties properties = null;
 			 
             if(properties==null)
-            	properties=new Properties();
+            	properties=new Properties(); 
             
             properties.load(fis);
             fis.close();
@@ -56,6 +59,7 @@ public class LegislationData {
            
            sessionFactory = configure.buildSessionFactory();
            
+           
        } catch (Exception ex) {
            // Make sure you log the exception, as it might be swallowed
            System.err.println("Initial SessionFactory creation failed." + ex);
@@ -65,8 +69,21 @@ public class LegislationData {
     }
 	
 	public Session getSession(){
-		return getSessionFactory().openSession();
+		Session session = getSessionFactory().getCurrentSession();
+		if(!session.isOpen())
+			session=getSessionFactory().openSession();
+		return session;
 	}
+	
+	public HibernateTemplate getHibernate(){
+		if(hibernateTemplate==null)
+			hibernateTemplate=new HibernateTemplate(getSessionFactory());
+		
+		return hibernateTemplate;
+	}
+	
+	
+	
 	
 	private LegislationData(){
 		
@@ -79,20 +96,55 @@ public class LegislationData {
 		return instance;
 	}
 
-	public List<Oigusakt> findAllLegislations() {
-		return getSession()
-		.createCriteria(Oigusakt.class)
+	public List<KovLegislation> findAllLegislations() {
+		Session session = getSession();
+		Transaction tx = session.beginTransaction();
+		List list = session
+		.createCriteria(KovLegislation.class)
 		.list();
+		tx.commit();
+		return list;
 		
 	}
 	
-	public void SaveLegislation(Oigusakt akt) {
+	public void DeleteLegislation(KovLegislation akt){
+		Session sess=getSession();
+		Transaction tx=null;
 		try {
-			Transaction transaction = getSession().beginTransaction();
-			getSession().saveOrUpdate(akt);
-			transaction.commit();
+			tx = sess.beginTransaction();
+			akt=(KovLegislation) sess.get(KovLegislation.class, akt.getId());
+			
+			sess.delete(akt);			
+			tx.commit();
 		} catch (Exception e) {
+			 tx.rollback();
 			throw new RuntimeException(e);
+		}
+		finally{
+			if(sess.isOpen())
+				sess.close();
+		}
+	}
+	
+	public void SaveLegislation(KovLegislation akt) {
+		Session sess=getSession();
+		Transaction tx=null;
+		try {
+			
+			tx = sess.beginTransaction();
+			if(akt.getId()==null)
+				sess.save(akt);
+			else
+				sess.update(akt);
+			
+			tx.commit();
+		} catch (Exception e) {
+			 tx.rollback();
+			throw new RuntimeException(e);
+		}
+		finally{
+			if(sess.isOpen())
+				sess.close();
 		}
 		
 	}

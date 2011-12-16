@@ -23,6 +23,7 @@ import com.vaadin.data.util.MethodPropertyDescriptor;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.VaadinPropertyDescriptor;
 import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Field;
@@ -58,7 +59,9 @@ public class ViewModelBinder<BT> {
 		//viewComponents.put(propertyName, component);
 		container.addComponent(component);
 		fields.put(propertyName, component);
-		
+		if(component instanceof AbstractTextField){
+			((AbstractTextField)component).setNullRepresentation("");
+		}
 		Property property=this.model.getItemProperty(propertyName);
 		if(property!=null)
 			component.setPropertyDataSource(property);
@@ -71,5 +74,19 @@ public class ViewModelBinder<BT> {
 			entry.getValue().commit();
 		}
 		return model.getBean();
+	}
+
+
+	/**
+	 * use this method if component is in another container, for instance in another horizontal layout
+	 * @param component
+	 * @param propertyName
+	 */
+	public void registerComponent(Field component, String propertyName) {
+		
+		fields.put(propertyName, component);		
+		Property property=this.model.getItemProperty(propertyName);
+		if(property!=null)
+			component.setPropertyDataSource(property);
 	}
 }

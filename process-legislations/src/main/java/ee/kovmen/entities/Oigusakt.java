@@ -16,6 +16,7 @@ import javax.persistence.*;
 public class Oigusakt implements Serializable{
 	 
 	@Id 	 
+	@GeneratedValue(strategy=javax.persistence.GenerationType.AUTO) 
 	private Long id;
 	
 	@Column(name = "name")
@@ -26,6 +27,11 @@ public class Oigusakt implements Serializable{
 	
 	@Column(name = "url")
 	private String url;
+	
+	
+	@Column(name = "type")
+	private String type;
+	
 	
 	@ManyToMany()
 	@JoinTable(name = "OIGUSAKTI_TEENUSED")
