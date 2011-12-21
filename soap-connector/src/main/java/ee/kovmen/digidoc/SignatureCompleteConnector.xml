@@ -1,0 +1,45 @@
+<connector>
+  <connectorId>SignatureCompleteConnector</connectorId>
+	<version>5.0</version>
+  <categories>
+    <category>
+      <name>DigiDoc</name>
+    </category>
+  </categories>
+ <inputs>
+    <setter>
+      <setterName>setAllkiri</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setFile</setterName>
+      <required></required>
+      <parameters>
+        <attachment/>
+      </parameters>
+    </setter>
+  </inputs>
+  <outputs/>
+  <pages>
+    <page>
+      <pageId>Finish</pageId>
+      <widgets>
+        <text>
+          <labelId>allkiri</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>file</labelId>
+          <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+      </widgets>
+    </page>
+  </pages>
+</connector>

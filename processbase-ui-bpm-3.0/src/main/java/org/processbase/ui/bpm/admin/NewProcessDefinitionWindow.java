@@ -144,7 +144,7 @@ public class NewProcessDefinitionWindow extends PbWindow
     				getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null,membershipUUIDs, entityUUIDs);
             	}            	
             	BarResource bar=BarResource.getBarResource(businessArchive.getProcessUUID());
-            	getBpmModule().updateUserGroups(bar.getProcessRoles());
+            	getBpmModule().updateUserGroups(businessArchive.getProcessUUID());
             	
                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
             } else if (this.fileType.equals(FILE_JAR)) {

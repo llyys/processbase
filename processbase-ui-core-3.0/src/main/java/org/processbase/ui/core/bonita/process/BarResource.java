@@ -48,12 +48,12 @@ public class BarResource implements Serializable {
 
     
     public static BarResource getBarResource(final ProcessDefinitionUUID puuid) throws Exception {
-    	return CacheUtil.getOrCache("BAR_RESOURCE", puuid, new ICacheDelegate<BarResource>() {
+    	/*return CacheUtil.getOrCache("BAR_RESOURCE", puuid, new ICacheDelegate<BarResource>() {
 			public BarResource execute() throws Exception {
-				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub*/
 				return new BarResource(puuid);
-			}
-		});
+			/*}
+		});*/
     }
     
     private BarResource(ProcessDefinitionUUID puuid) throws Exception{

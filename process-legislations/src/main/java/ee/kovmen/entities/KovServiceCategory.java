@@ -25,7 +25,11 @@ public class KovServiceCategory  implements Serializable{
 	@Column
 	String name;
 	
-	@OneToMany
+	@Column
+	private
+	Boolean displayed;
+	
+	@OneToMany(mappedBy = "category")
 	Set<KovLegislation> legislations;
 
 	public Long getId() {
@@ -56,6 +60,14 @@ public class KovServiceCategory  implements Serializable{
 	@Override
 	public String toString(){
 		return name;		
+	}
+
+	public void setDisplayed(Boolean displayed) {
+		this.displayed = displayed;
+	}
+
+	public Boolean getDisplayed() {
+		return displayed;
 	}
 
 	

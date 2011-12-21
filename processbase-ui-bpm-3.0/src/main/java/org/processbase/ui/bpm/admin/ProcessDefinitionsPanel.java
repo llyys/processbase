@@ -25,6 +25,7 @@ import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
+import org.ow2.bonita.facade.privilege.Rule;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -51,7 +52,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        
+        table.setSortDisabled(false);
         table.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
         
@@ -65,6 +66,8 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
     }
+    
+    
 
     @Override
     public void refreshTable() {
@@ -73,9 +76,12 @@ public class ProcessDefinitionsPanel extends TablePanel implements
             Set<ProcessDefinition> pds = ProcessbaseApplication.getCurrent().getBpmModule().getProcesses(ProcessState.ENABLED);
             for (ProcessDefinition pd : pds) {
                 Item woItem = table.addItem(pd);
+                
                 TableLinkButton teb = new TableLinkButton(pd.getLabel() != null ? pd.getLabel() : pd.getName(), pd.getDescription(), null, pd, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
+                
                 woItem.getItemProperty("version").setValue(pd.getVersion());
+                
                 woItem.getItemProperty("deployedBy").setValue(pd.getDeployedBy());
                 //woItem.getItemProperty("state").setValue(pd.getState());
                 woItem.getItemProperty("deployedDate").setValue(pd.getDeployedDate());
@@ -105,7 +111,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                     getApplication().getMainWindow().addWindow(processDefinitionWindow);
                     processDefinitionWindow.initUI();
                 } catch (ProcessNotFoundException ex) {
-                	showError("Protsessi kirjeldused "+ex.getProcessUUID()+" on süsteemist eemaldatud, palun uuendage nimekiri");
+                	showError("Protsessi kirjeldused "+ex.getProcessUUID()+" on sï¿½steemist eemaldatud, palun uuendage nimekiri");
                 	try {
 						ProcessbaseApplication.getCurrent().getBpmModule().archiveProcessDefinitions(ex.getProcessUUID());
 					} catch (Exception e) {

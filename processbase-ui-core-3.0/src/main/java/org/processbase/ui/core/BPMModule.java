@@ -56,6 +56,7 @@ import org.ow2.bonita.facade.QueryRuntimeAPI;
 import org.ow2.bonita.facade.RepairAPI;
 import org.ow2.bonita.facade.RuntimeAPI;
 import org.ow2.bonita.facade.WebAPI;
+import org.ow2.bonita.facade.def.InternalProcessDefinition;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition.Type;
@@ -96,6 +97,7 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.impl.FacadeUtil;
 import org.ow2.bonita.facade.impl.SearchResult;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
@@ -346,9 +348,9 @@ public class BPMModule {
         initContext();
         User user = getIdentityAPI().findUserByUserName(currentUserUID);
         Set<String> membershipUUIDs = new HashSet<String>();
-        if(groupFilter==null){
+       /* if(groupFilter==null){
         	return getQueryDefinitionAPI().getLightProcesses(ProcessState.ENABLED);
-        }
+        }*/
         for (Membership membership : user.getMemberships()) {
         	if(groupFilter==null)
         		membershipUUIDs.add(membership.getUUID());
@@ -1678,22 +1680,48 @@ public class BPMModule {
 
 
 
-	public void updateUserGroups(List<ProcessParticipant> processRoles) throws Exception {
+	public void updateUserGroups(final ProcessDefinitionUUID processDefinitionUUID) throws Exception {
 		//TODO: Vaja lisada juurde grupi ja initiaatori importimise kontrollid.
-		if(processRoles==null)return;
+		 Object result=execute(new Command<Object>() {
+
+				@Override
+				public Object execute(Environment environment) throws Exception {
+					InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
+					List<Role> roles = getIdentityAPI().getAllRoles();
+					Set<String> existingRoles = new HashSet<String>();
+					for(Role role:roles){
+						existingRoles.add(role.getLabel());
+					}
+					
+					if(process!=null)
+					{
+						for (ParticipantDefinition participant : process.getParticipants()) {
+							if(existingRoles.add(participant.getName())){//if no dublicate detected
+								if("Initiator".equals(participant.getName())==false){
+									getIdentityAPI().addRole(participant.getName(), participant.getLabel(), "AUTO IMPORTED");	
+								}
+							}				
+						}			
+					}
+					return null;
+				}
+				
+		 });
+		
+		/*if(processDefinitionUUID==null)return;
 		initContext();
 		List<Role> roles = getIdentityAPI().getAllRoles();
 		Set<String> existingRoles = new HashSet<String>();
 		for(Role role:roles){
 			existingRoles.add(role.getLabel());
 		}
-		for (ProcessParticipant role:processRoles) {
+		for (ProcessParticipant role:processDefinitionUUID) {
 			if(existingRoles.add(role.getName())){//if no dublicate detected
 				if("Initiator".equals(role)==false){
 					getIdentityAPI().addRole(role.getName(), role.getLabel(), "AUTO IMPORTED");	
 				}
 			}
-		}
+		}*/
 	}
 	
 	 public byte[] getLargeDataRepositoryAttachment(final ProcessDefinitionUUID processDefinitionUUID, final String attachmentName){
@@ -1722,6 +1750,10 @@ public class BPMModule {
 		return null;
    	    	   
    }
+
+
+
+	
 
 
 

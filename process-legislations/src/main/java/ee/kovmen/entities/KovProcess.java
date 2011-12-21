@@ -2,29 +2,35 @@ package ee.kovmen.entities;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="kov_process")
+@Table(name="bn_proc_def")
 public class KovProcess {
 	@Id
 	@GeneratedValue(strategy=javax.persistence.GenerationType.AUTO)
+	@Column(name="DBID_")
 	Long id;
 	
-	@Column
+	@Column(name="LABEL_OR_NAME_")
 	String name;
 	
-	@Column
+	@Column(name="DESCRIPTION_")
 	String description;
-	
-	@ManyToMany
-	private	Set<KovLegislation> legislations;
 
+	@Column(name="VERSION_")
+	private	String version;
+
+	@Column(name="STATE_")
+	private	String state;
+	
 	public Long getId() {
 		return id;
 	}
@@ -49,12 +55,24 @@ public class KovProcess {
 		this.description = description;
 	}
 
-	public Set<KovLegislation> getLegislations() {
-		return legislations;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
-	public void setLegislations(Set<KovLegislation> legislations) {
-		this.legislations = legislations;
+	public String getVersion() {
+		return version;
 	}
-	
+	@Override
+	public String toString(){
+		return this.name+ " "+this.version;
+		
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getState() {
+		return state;
+	}
 }

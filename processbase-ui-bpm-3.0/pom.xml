@@ -58,9 +58,9 @@
 			<version>2.3</version>
 		</dependency>
 		<dependency>
-			<groupId>ee.smartlink.esteid</groupId>
-			<artifactId>esteid-vaadin-component</artifactId>
-			<version>${esteid-vaadin-component.version}</version>
+			<groupId>ee.smartlink</groupId>
+			<artifactId>EstEid</artifactId>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>

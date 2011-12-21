@@ -25,7 +25,7 @@ import com.vaadin.ui.themes.BaseTheme;
  *
  * @author mgubaidullin
  */
-public class TableLinkButton extends Button {
+public class TableLinkButton extends Button implements Comparable<TableLinkButton> {
 
     private Object tableValue = null;
     private String action = null;
@@ -83,6 +83,12 @@ public class TableLinkButton extends Button {
     public void setAction(String action) {
         this.action = action;
     }
+
+	@Override
+	public int compareTo(TableLinkButton o) {
+		// TODO Auto-generated method stub
+		return o.getCaption().toLowerCase().compareTo(this.getCaption().toLowerCase());
+	}
 
     
 }

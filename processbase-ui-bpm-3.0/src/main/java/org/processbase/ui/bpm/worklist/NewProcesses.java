@@ -120,7 +120,7 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
 
     private void addTableRow(CategoryAndProcessDefinition item, CategoryAndProcessDefinition parent) throws InstanceNotFoundException, Exception {
 
-        Item woItem = treeTable.addItem(item);
+    	Item woItem = treeTable.addItem(item);
         if (parent == null) {
             treeTable.setChildrenAllowed(item, true);
             treeTable.setCollapsed(item, false);

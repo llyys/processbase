@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.ow2.bonita.facade.def.InternalProcessDefinition;
 import org.ow2.bonita.facade.def.element.AttachmentDefinition;
 import org.ow2.bonita.facade.def.element.impl.AttachmentDefinitionImpl;
@@ -114,9 +115,9 @@ public class FileDocumentManager implements DocumentationManager{
 			String instance = instanceUUID != null ? instanceUUID.toString() : "DEFINITION_LEVEL_DOCUMENT";
 			doc.put(PROCESS_INSTANCE_UUID, instance);
 			
-			String folderId=definitionUUID.toString()+"/"+instance;
+			//String folderId=definitionUUID.toString()+"/"+instance;
 			
-			Document document = new DocumentImpl(name, null, "admin", new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent.length, definitionUUID, instanceUUID);
+			Document document = new DocumentImpl(name, null, EnvTool.getUserId(), new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent.length, definitionUUID, instanceUUID);
 			
 			
 			if(fileContent!=null && fileContent.length>0){
@@ -139,8 +140,8 @@ public class FileDocumentManager implements DocumentationManager{
 			return document;
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new DocumentationCreationException("Can't connect to MongoDB, is MonboDB started?", ex);
         }
-		return null;
 	        
 	}
 
@@ -206,11 +207,7 @@ public class FileDocumentManager implements DocumentationManager{
 	public byte[] getContent(Document document) throws DocumentNotFoundException {
 		// TODO Auto-generated method stub
 		 
-		 DBCollection table = db.getCollection(DOCUMENTS);
-		 String id = document.getId();
-		 ObjectId oid=new ObjectId(id);
-		
-		 DBObject dbObject = table.findOne(oid);
+		 DBObject dbObject = getDocumentFromMongoDB(document);
 		 
 		 Object docId = dbObject.get(FILE_ID);
 		 if(docId==null)
@@ -228,6 +225,16 @@ public class FileDocumentManager implements DocumentationManager{
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+
+	private DBObject getDocumentFromMongoDB(Document document) {
+		DBCollection table = db.getCollection(DOCUMENTS);
+		 String id = document.getId();
+		 ObjectId oid=new ObjectId(id);
+		
+		 DBObject dbObject = table.findOne(oid);
+		return dbObject;
 	}
 
 	
@@ -303,7 +310,8 @@ public class FileDocumentManager implements DocumentationManager{
 	}
 	
 	private AttachmentInstnce getLargeDataRepositoryAttachment(ProcessDefinitionUUID processDefinitionUUID, String attachmentName) {
-		
+		if(processDefinitionUUID==null)
+			return null;
 		List<String> attachmentCategories = Misc.getBusinessArchiveCategories(processDefinitionUUID);
 		final LargeDataRepository ldr = EnvTool.getLargeDataRepository();
 		
@@ -328,15 +336,11 @@ public class FileDocumentManager implements DocumentationManager{
 	}
 	
 	public Folder createFolder(String folderName) throws FolderAlreadyExistsException {
-	
-		System.out.println("createFolder1");
-		return null;
+		throw new NotImplementedException("createFolder1");
 	}
 
 	public Folder createFolder(String folderName, String parentFolderId) throws FolderAlreadyExistsException {
-		System.out.println("createFolder2");
-//     System.out.println("folderName = " + folderName);
-     return null;
+		throw new NotImplementedException("createDocument2");
 	}
 
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
@@ -344,76 +348,102 @@ public class FileDocumentManager implements DocumentationManager{
 	}
 
 	public Document createDocument(String name, String folderId, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		System.out.println("createDocument3");
-		return null;
+		throw new NotImplementedException("createDocument3");
 	}
 
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		System.out.println("createDocument4");
-		return null;
+		throw new NotImplementedException("createDocument4");
 	}
 
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate, String fileName, String mimeType, byte[] content) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		 System.out.println("createDocument5");
-		return null;
+		throw new NotImplementedException("createDocument5");
 	}
 	public List<Folder> getFolders(String folderName) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("getFolders");
 	}
 
 	public Folder getRootFolder() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("getRootFolder");
 	}
 
 	public List<Document> getChildrenDocuments(String folderId) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("getChildrenDocuments");
 	}
 
 	public List<Folder> getChildrenFolder(String folderId) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("cetChildrenFolder");
 	}
 
 	public List<Document> getVersionsOfDocument(String documentId)
 			throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		List<Document> docs=new ArrayList<Document>();
+		Document document = new DocumentImpl(documentId);
+		document.setId(documentId);
+		 DBObject dbObject = getDocumentFromMongoDB(document);
+		 if(dbObject==null)
+			 return docs;
+		 Document doc = DeserializeDocument(dbObject);
+		 docs.add(doc);
+		return docs;
 	}
 
 	public String getDocumentPath(String documentId)
 			throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("getDocumentPath");
 	}
 
 	public Document createVersion(String documentId, boolean isMajorVersion)
 			throws DocumentationCreationException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("create version4");
 	}
 
 	public Document createVersion(String documentId, boolean isMajorVersion,
 			String author, Date versionDate)
 			throws DocumentationCreationException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("create version3");
 	}
 
 	public Document createVersion(String documentId, boolean isMajorVersion,
 			String fileName, String mimeType, byte[] content)
 			throws DocumentationCreationException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		GridFS gfs = new GridFS(db, "FILE_TABLE");
+		DBCollection table = db.getCollection(DOCUMENTS);		   
+		
+		DBObject doc = table.findOne(new ObjectId(documentId));
+		DocumentImpl impl = DeserializeDocument(doc);
+		DocumentImpl impl2 = new DocumentImpl(impl.getName(), impl.getParentFolderId(), impl.getAuthor(), impl.getCreationDate(), new Date(), true, true, "1", "1", fileName, mimeType, content.length, impl.getProcessDefinitionUUID(), impl.getProcessInstanceUUID());
+		impl2.setId(documentId);
+		
+		//doc.put(NAME, fileName);
+		doc.put(LENGHT, content.length);
+		doc.put(DOCUMENT, impl2.toString());
+		
+		if(content!=null && content.length>0){
+			GridFSInputFile file = gfs.createFile(content);
+			file.setFilename(fileName);
+			file.setContentType(mimeType);
+			
+			DBObject metaData = file.getMetaData();			              	 
+			metaData.put(PROCESS_INSTANCE_UUID, impl.getProcessInstanceUUID().toString());
+            metaData.put(PROCESS_DEFINITION_UUID, impl.getProcessDefinitionUUID().toString());	            
+            metaData.put(DOCUMENT, impl2.toString());
+	            
+			file.save();
+			doc.put(FILE_ID, file.getId());
+		}
+		
+		table.save(doc);
+		return impl2;
 	}
 
 	public Document createVersion(String documentId, boolean isMajorVersion,
 			String author, Date versionDate, String fileName, String mimeType,
 			byte[] content) throws DocumentationCreationException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("creteVersion");
+		
 	}
 
 	
@@ -426,30 +456,44 @@ public class FileDocumentManager implements DocumentationManager{
 			String mimeType, int size, byte[] content)
 			throws DocumentNotFoundException {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("updateDocumentContent");
 	}
 
 	public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID,
 			String documentId) throws DocumentNotFoundException {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("attachDocumentTo");
 	}
 
 	public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID,
 			ProcessInstanceUUID processInstanceUUID, String documentId)
 			throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
+		
+		Document document = new DocumentImpl(documentId);
+		document.setId(documentId);
+		DBObject dbObject = getDocumentFromMongoDB(document);
+		DocumentImpl impl = DeserializeDocument(dbObject);
+		byte[] fileContent = getContent(impl);
+		try {
+			createDocument(impl.getName(), processDefinitionUUID, processInstanceUUID, impl.getContentFileName(), impl.getContentMimeType(), fileContent );
+		} catch (DocumentAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentationCreationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
 	public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("deleteDocument");
 	}
 
 	public void deleteFolder(Folder folder) {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("deleteFolder");
 	}	
 	private class AttachmentInstnce {
 		

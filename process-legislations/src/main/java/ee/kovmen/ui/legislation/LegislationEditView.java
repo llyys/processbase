@@ -1,6 +1,9 @@
 package ee.kovmen.ui.legislation;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
@@ -14,6 +17,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -37,34 +41,40 @@ public class LegislationEditView extends PbWindow{
 	private final KovLegislation data;
 	private ViewModelBinder<KovLegislation> binder;
 	private ComboBox combo;
+	private boolean is_new=false;
 	public LegislationEditView(KovLegislation data){
 		this.data = data;
 	}
 	
 	
 	public void initUI(){
+		
+		List<String> liigid = Arrays.asList(new String[] {
+	            "Riik", "Omavalitsus"});
+		
 		setModal(true);
 		FormLayout form=new FormLayout();
 		addComponent(form);
-		BeanItemContainer<KovServiceCategory> teenused=new BeanItemContainer(KovServiceCategory.class, LegislationData.getCurrent().getHibernate().loadAll(KovServiceCategory.class));
 		
+		String cap=isNew()?"Lisa uus ":"";
+		setCaption(cap+"'"+data.getCategory().getName()+"' õigusakt");
 		
-		combo = new ComboBox("Teenuse katekooria", teenused);
-		combo.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
-		combo.setItemCaptionPropertyId("name");
-		combo.setNewItemsAllowed(false);
-		combo.setImmediate(true);		
-		combo.setTextInputAllowed(false);
+		OptionGroup citySelect = new OptionGroup("Tüüp", liigid);		
+		binder = new ViewModelBinder<KovLegislation>(form, data==null?new KovLegislation():data);
+		binder.addComponent(citySelect, "type");
+		TextField component = new TextField("Õigusakt");
+		component.setWidth("100%");
+		binder.addComponent(component, "name");
+		TextField component2 = new TextField("Viide");
+		component2.setWidth("100%");
+		binder.addComponent(component2, "url");
 		
-		form.addComponent(combo);
+		TextArea component3 = new TextArea("Kirjeldus");
+		component3.setWidth("100%");
+		binder.addComponent(component3, "description");
+		 
 		
-		binder = new ViewModelBinder<KovLegislation>(form, data==null?new KovLegislation():data);		
-		binder.addComponent(new TextField("Õigusakt"), "name");
-		binder.addComponent(new TextField("Viide"), "url");
-		binder.addComponent(new TextArea("Tüüp"), "description");
-		binder.registerComponent(combo, "category"); 
-		
-		if(data==null){
+		if(isNew()){
 			form.addComponent(new Button("Lisa uus", new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
 					LegislationData.getCurrent().getHibernate().save(binder.getBean());
@@ -111,6 +121,16 @@ public class LegislationEditView extends PbWindow{
                         }
                     }
                 });
+	}
+
+
+	public void setIsNew(boolean is_new) {
+		this.is_new = is_new;
+	}
+
+
+	public boolean isNew() {
+		return is_new;
 	}
 
 

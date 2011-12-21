@@ -148,7 +148,9 @@ public class ImmediateUpload extends VerticalLayout
                 if(bas!=null && bas.byteArray.length!=0){
 	                StreamResource streamResource = new StreamResource(bas, document.getContentFileName(), getApplication());
 	                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-	                getWindow().getWindow().open(streamResource, "_blank");
+	                streamResource.getStream().setParameter("Content-Disposition",
+	                        "attachment; filename="+attachmentName);
+	                event.getButton().getWindow().open(streamResource);
                 }
                 else
                 	getWindow().showNotification("File " + attachmentName + "is empty");

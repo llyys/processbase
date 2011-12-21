@@ -1,0 +1,39 @@
+<connector>
+  <connectorId>Soap</connectorId>
+  <version>5.0</version>
+  <categories>
+    <category>
+      <name>Other</name>
+    </category>
+  </categories>
+  <inputs>
+    <setter>
+      <setterName>setScript</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+  </inputs>
+  <outputs>
+    <getter>
+      <name>result</name>
+      <metadata/>
+    </getter>
+  </outputs>
+  <pages>
+    <page>
+      <pageId>Query</pageId>
+      <widgets>
+        <textarea>
+          <labelId>script</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <rows>60</rows>
+          <columns>80</columns>
+          <maxChar>2000</maxChar>
+          <maxCharPerRow>80</maxCharPerRow>
+        </textarea>
+      </widgets>
+    </page>
+  </pages>
+</connector>

@@ -327,6 +327,7 @@ public class ProcessManager extends PbPanel {
 	{
 		this.taskInstance=taskInstance;
 		
+		
 		if(!activityDefinitions.containsKey(taskInstance.getActivityName()))
 			return;//activity not found quitting
 		
