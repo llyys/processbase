@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.core.bonita.process;
 
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -75,7 +76,7 @@ public class BarResource implements Serializable {
         xmlProcessDefinition = bfb.getProcess();
 //        formsDefinition = BonitaFormParcer.createFormsDefinition(new String(form, "UTF-8")); //If bar resource already is in UTF-8 encoding this caused a double encoding and thus resource was not available
         if(form==null)
-        	throw new Exception("No form definitions found from process!");
+        	throw new FileNotFoundException(ProcessbaseApplication.getString("noFormDefinitionsFoundFromProcess", "No form definitions found from process!"));
         
         String old=new String(form, "UTF-8");
        // String data=String.copyValueOf(old.toCharArray());

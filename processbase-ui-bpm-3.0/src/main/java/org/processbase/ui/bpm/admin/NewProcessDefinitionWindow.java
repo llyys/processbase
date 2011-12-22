@@ -182,7 +182,8 @@ public class NewProcessDefinitionWindow extends PbWindow
     public void uploadFailed(FailedEvent event) {
         showError(event.getReason().getMessage());
     }
-
+    
+   
     public OutputStream receiveUpload(
             String filename, String MIMEType) {
         this.originalFilename = filename;

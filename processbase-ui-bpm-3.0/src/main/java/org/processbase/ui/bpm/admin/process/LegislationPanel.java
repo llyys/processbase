@@ -1,5 +1,7 @@
 package org.processbase.ui.bpm.admin.process;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
@@ -7,6 +9,8 @@ import org.processbase.ui.bpm.admin.ProcessDefinitionWindow;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ITabsheetPanel;
+import org.processbase.ui.core.template.LazyLoadingLayout;
+import org.processbase.ui.core.template.LazyLoadingLayout.LazyLoader;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbTableFieldFactory;
 import org.processbase.ui.core.template.PbWindow;
@@ -22,108 +26,36 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Runo;
 
-public class LegislationPanel extends PbPanel implements ITabsheetPanel {
+public class LegislationPanel extends PbPanel implements ITabsheetPanel, LazyLoader {
 	private Table tableLegislations = new Table();
 	private Button addBtn=null;
 	private Button saveBtn=null;
 	 @Override
 	 public void initUI() {
-	   
+		 if(super.isInitialized())
+			 return;
+	   super.setInitialized(true);
 	   setSpacing(true);
-       
-       addBtn = new Button(ProcessbaseApplication.getString("btnAdd")
-				, new Button.ClickListener() {
-					public void buttonClick(ClickEvent event) {
-						try {
-							addLegislationRow(null);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							showError(e.getMessage());
-							e.printStackTrace();
-						}
-					}					
-				});
-		
-		addBtn.setStyleName(Runo.BUTTON_SMALL);
-		addComponent(addBtn);
-		setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
-       
-		saveBtn = new Button(ProcessbaseApplication.getString("btnSave")
-				, new Button.ClickListener() {
-					public void buttonClick(ClickEvent event) {
-						/*try {
-							addLegislationRow(null);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							showError(e.getMessage());
-							e.printStackTrace();
-						}*/
-					}					
-				});
-		
-		
-	   tableLegislations.addContainerProperty("name", Component.class, null, "Õigusakti nimetus", null, null);
-	   tableLegislations.setColumnWidth("name", 300);
-       tableLegislations.addContainerProperty("url", Component.class, null, "Õigusakti aadress", null, null);
-       
-       tableLegislations.addContainerProperty("actions",Component.class,null,ProcessbaseApplication.getString("tableCaptionActions"), null, null);
-       tableLegislations.setColumnWidth("actions", 50);
-       
+       setMargin(true);
+	   tableLegislations.addContainerProperty("name", String.class, null, "Resursi nimetus", null, null);
+	   
        tableLegislations.setWidth("100%");
-       tableLegislations.setPageLength(10);
+              
        
-       
-       tableLegislations.setTableFieldFactory(new PbTableFieldFactory());
-       
-       tableLegislations.setEditable(true);
-       tableLegislations.setImmediate(true);
+       tableLegislations.setEditable(false);
+       tableLegislations.setImmediate(false);
        addComponent(tableLegislations);
+       tableLegislations.setPageLength(11);
        setSizeFull();
        refreshTable();
 	 }
 	 
 	 public void onActivate(boolean isActive) {		 
-		 
+		 if(isActive && !isInitialized())
+			 initUI();
 	 }
 	 
 	  
-	 private void addLegislationRow(Legislation row) {
-		 try {
-			 String uuid = UUID.randomUUID().toString();
-				Legislation legislation = new Legislation();
-				Item woItem = tableLegislations.addItem(legislation);
-				
-				TextField urlField = new TextField();
-				urlField.setInputPrompt("Sisestage õigusaktile viitav URL");
-				urlField.setWidth("100%");
-				urlField.setNullRepresentation("");
-
-				TextField nameField = new TextField();
-				nameField.setInputPrompt("Sisestage õigusakti nimetus");
-				nameField.setWidth("100%");
-				nameField.setNullRepresentation("");
-				
-				woItem.getItemProperty("url").setValue(urlField);
-				woItem.getItemProperty("name").setValue(nameField);
-				
-				TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", uuid, 
-						new Button.ClickListener() {
-							public void buttonClick(ClickEvent event) {
-								/*TableLinkButton tlb = (TableLinkButton) event .getButton();
-								String uuid = (String) tlb.getTableValue();
-								tableMembership.removeItem(uuid);
-								if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
-									deletedMembership.add(uuid);
-								}*/
-							}
-						}, Constants.ACTION_DELETE);
-				woItem.getItemProperty("actions").setValue(tlb);
-				
-		} catch (Exception e) {
-			showError(e.getMessage());
-		}
-		
-	}
 	 
 	private void showError(String message) {			
 		 ((PbWindow) getWindow()).showError(message);
@@ -136,12 +68,21 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 	
 	@Override
 	public String getCaption(){
-		return ProcessbaseApplication.getString("processLegislationInfo");		
+		return ProcessbaseApplication.getString("processResoucses", "Process resources");		
 	}
 	
 	public void refreshTable()
 	{
-		tableLegislations.removeAllItems();
+		try {
+			Map<String, byte[]> businessArchive = ProcessbaseApplication.getCurrent().getBpmModule().getBusinessArchive(this.processDefinition.getUUID());
+			for (Entry<String, byte[]> element : businessArchive.entrySet()) {
+				Item addItem = tableLegislations.addItem(element.getKey());
+				addItem.getItemProperty("name").setValue(element.getKey());
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			
 		} catch (Exception e) {
@@ -188,5 +129,16 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel {
 		}
 	}
 	private ProcessDefinitionWindow parentWindow;
+	
+	public String getLazyLoadingMessage() {
+		// TODO Auto-generated method stub
+		return "Loen protsessi definitsioone";
+	}
+
+	public Component lazyLoad(LazyLoadingLayout layout) {
+		// TODO Auto-generated method stub
+		initUI();
+		return this;
+	}
 	
 }

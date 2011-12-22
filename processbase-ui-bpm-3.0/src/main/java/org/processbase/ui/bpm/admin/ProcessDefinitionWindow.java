@@ -30,6 +30,7 @@ import org.processbase.ui.bpm.admin.process.ProcessAccessPanel;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ITabsheetPanel;
+import org.processbase.ui.core.template.LazyLoadingLayout;
 import org.processbase.ui.core.template.PbWindow;
 
 import com.vaadin.ui.Alignment;
@@ -73,7 +74,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private DescriptionPanel descPanel=new DescriptionPanel();
    // private CustomUiPanel uiPanel=new CustomUiPanel();
     private ProcessAccessPanel accessPanel=new ProcessAccessPanel();
-   // private LegislationPanel legislationPanel=new LegislationPanel();
+    private LegislationPanel legislationPanel=new LegislationPanel();
     
     public ProcessDefinitionWindow(ProcessDefinition processDefinition) {
         super(processDefinition.getLabel());
@@ -107,13 +108,14 @@ public class ProcessDefinitionWindow extends PbWindow implements
             accessPanel.onActivate(false);
             tabSheet.addTab(accessPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("processAccess"), null);
             
-            /*
             legislationPanel.setProcessDefinition(processDefinition);
             legislationPanel.setParentWindow(this);
-            legislationPanel.initUI();
-            legislationPanel.onActivate(false);
+            
+            /*legislationPanel.initUI();
+            legislationPanel.onActivate(false);*/
+            
             tabSheet.addTab(legislationPanel, legislationPanel.getCaption(), null);
-*/
+
             tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
             tabSheet.setSizeFull();
             tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);

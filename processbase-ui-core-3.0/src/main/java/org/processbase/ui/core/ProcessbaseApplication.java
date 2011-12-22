@@ -43,6 +43,7 @@ import org.caliburn.application.event.imp.DefaultEventAggregator;
 import org.ow2.bonita.connector.core.configuration.Configuration;
 import org.ow2.bonita.facade.identity.User;
 
+import org.processbase.ui.core.template.LazyLoadingLayout;
 import org.processbase.ui.osgi.PbPanelModuleService;
 
 
@@ -253,4 +254,57 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 	public static void Register(Object handler) {
 		getCurrent().events.Subscribe(handler);		
 	}
+	/**
+     * Creates and starts a new thread. This method must be used instead of <code>new
+     * Thread(...)</code> construction when starting server threads if you wish to access toolkit UI
+     * data, i18n and be able to get the current application instance.
+     *
+     * @param task Runnable task to execute in a separate thread
+     * @return instance of the created and started thread.
+     */
+    public Thread invokeLater ( Runnable task )
+    {
+        Thread thread = new Thread ( new TPTRunnable ( this, task ) );
+        thread.start ();
+        return thread;
+    }
+	public void invokeLater(LazyLoadingLayout lazyLoadingLayout) {
+		
+	}
+	private class TPTRunnable implements Runnable
+    {
+
+        private ProcessbaseApplication application;
+        private Runnable actualTask;
+
+        public TPTRunnable ( ProcessbaseApplication app, Runnable task )
+        {
+            application = app;
+            actualTask = task;
+        }
+
+        public void run ()
+        {
+            try
+            {
+                application.current.set ( application );
+                actualTask.run ();
+            }
+            catch ( Throwable err )
+            {
+                //todo: rework possible thread body exceptions handling ?
+                err.printStackTrace ();
+            }
+            finally
+            {
+                if ( current != null )
+                {
+                	current.remove ();
+                }
+
+                application = null;
+                actualTask = null;
+            }
+        }
+    }
 }

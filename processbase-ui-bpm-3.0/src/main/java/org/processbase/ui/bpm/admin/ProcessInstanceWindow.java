@@ -16,6 +16,8 @@
  */
 package org.processbase.ui.bpm.admin;
 
+import java.io.FileNotFoundException;
+
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -58,12 +60,12 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
     public void initUI() {
         try {
             setContent(layout);
-            ByteArraySource bas = new ByteArraySource(ProcessbaseApplication.getCurrent().getBpmModule().getProcessDiagramm(process));
+            byte[] processDiagramm = ProcessbaseApplication.getCurrent().getBpmModule().getProcessDiagramm(process);
+			ByteArraySource bas = new ByteArraySource(processDiagramm);
             StreamResource imageResource = new StreamResource(bas, "processInstance.png", this.getApplication());
             imageResource.setCacheTime(1000);
             processImage = new Embedded("", imageResource);
-//            imageLayout.setWidth("100%");
-//            imageLayout.setHeight("500px");
+
             imageLayout.setSizeUndefined();
             imageLayout.addComponent(processImage);
             imageLayout.setStyleName(Reindeer.LAYOUT_WHITE);
@@ -111,7 +113,12 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             setHeight("95%");
             setModal(true);
             setResizable(false);
-        } catch (Exception ex) {
+        } catch(FileNotFoundException ex){
+        	getParent().showNotification(ex.getMessage());        	
+        	close();
+        	
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
             throw new RuntimeException(ex);

@@ -18,6 +18,7 @@ package org.processbase.ui.core;
 
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
@@ -884,9 +885,9 @@ public class BPMModule {
         getManagementAPI().deleteProcess(pd.getUUID());
         Rule rule = findRule(pd.getUUID().toString());
         getManagementAPI().deleteRuleByUUID(rule.getUUID());
-        CacheUtil.remove("BAR_RESOURCE", pd.getUUID());//remove elemend from ehcache
+        //CacheUtil.remove("BAR_RESOURCE", pd.getUUID());//remove elemend from ehcache
         //new bonita 5.5 uses xCMIS and when deleting the process, API does not remove the folder from xCMIS this will fix it.
-        execute(new DeleteDocumentCommand(pd.getUUID().toString()));
+       // execute(new DeleteDocumentCommand(pd.getUUID().toString()));
     }
 
     public void deleteAllProcessInstances(ProcessDefinition pd) throws Exception {
@@ -1083,6 +1084,8 @@ public class BPMModule {
     	logger.debug("getProcessDiagramm");
         Map<String, byte[]> resource = getBusinessArchive(pi.getProcessDefinitionUUID());
         byte[] img = getProcessDiagramm(pi.getProcessDefinitionUUID());
+        if(img==null)
+        	throw new FileNotFoundException("Protsessi kirjelduse fail puudub serverist");
         byte[] proc = null;
         for (String key : resource.keySet()) {
             if (key.substring(key.length() - 4, key.length()).equals("proc")) {
@@ -1750,6 +1753,10 @@ public class BPMModule {
 		return null;
    	    	   
    }
+
+
+
+	
 
 
 

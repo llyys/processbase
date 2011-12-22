@@ -28,6 +28,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -188,7 +189,9 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
                      showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
                  }*/
             }
-        } catch (Exception ex) {
+        }catch (FileNotFoundException ex){ 
+        	showError(ex.getMessage());
+        }catch (Exception ex) {
             ex.printStackTrace();
             showError(ex.getMessage());
             throw new RuntimeException(ex);
