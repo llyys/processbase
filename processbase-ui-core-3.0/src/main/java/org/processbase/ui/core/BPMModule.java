@@ -68,6 +68,7 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.DeploymentException;
 import org.ow2.bonita.facade.exception.DocumentationCreationException;
+import org.ow2.bonita.facade.exception.GroupNotFoundException;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.MetadataNotFoundException;
@@ -90,6 +91,7 @@ import org.ow2.bonita.search.DocumentSearchBuilder;
 import org.ow2.bonita.services.Document;
 import org.ow2.bonita.services.DocumentationManager;
 import org.ow2.bonita.services.Folder;
+import org.ow2.bonita.services.IdentityService;
 import org.ow2.bonita.services.LargeDataRepository;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.facade.exception.UndeletableInstanceException;
@@ -98,6 +100,7 @@ import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.identity.impl.MembershipImpl;
 import org.ow2.bonita.facade.impl.FacadeUtil;
 import org.ow2.bonita.facade.impl.SearchResult;
 import org.ow2.bonita.facade.privilege.Rule;
@@ -1691,19 +1694,68 @@ public class BPMModule {
 				public Object execute(Environment environment) throws Exception {
 					InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
 					List<Role> roles = getIdentityAPI().getAllRoles();
-					Set<String> existingRoles = new HashSet<String>();
+					List<Group> groups = getIdentityAPI().getAllGroups();
+					IdentityService identityService = EnvTool.getIdentityService();
+					
+					Map<String, Role> existingRoles = new HashMap<String, Role>();					
+					Map<String, Group> groupMap=new HashMap<String, Group>();
+					
 					for(Role role:roles){
-						existingRoles.add(role.getLabel());
+						existingRoles.put(role.getName(), role);
+					}
+					for(Group group:groups){
+						groupMap.put(group.getName(), group);						
 					}
 					
 					if(process!=null)
 					{
+						
 						for (ParticipantDefinition participant : process.getParticipants()) {
-							if(existingRoles.add(participant.getName())){//if no dublicate detected
-								if("Initiator".equals(participant.getName())==false){
-									getIdentityAPI().addRole(participant.getName(), participant.getLabel(), "AUTO IMPORTED");	
+							CustomRoleMapper rm=new CustomRoleMapper();
+							for(Entry<String, Object[]> entry: participant.getRoleMapper().getParameters().entrySet()){
+								if(entry.getKey().equals("setGroupPath")){
+									rm.setGroupPath((String)entry.getValue()[0]);
 								}
-							}				
+								if(entry.getKey().equals("setRoleName")){
+									rm.setRoleName((String)entry.getValue()[0]);
+								}								
+							}
+							String[] groups2 = rm.getGroups();
+							for (int i = 1; i < groups2.length; i++) {
+								String groupLabel=groups2[i];
+								if(groupMap.containsKey(groupLabel)==false){
+									Group parentGroup=null;
+									
+									//g = getIdentityAPI().getGroupByUUID(i==1?getIdentityAPI().DEFAULT_GROUP_NAME:groups2[i-1]);
+									parentGroup=groupMap.get(i==1?getIdentityAPI().DEFAULT_GROUP_NAME:groups2[i-1]);
+									
+									Group newGroup=getIdentityAPI().addGroup(groupLabel, groupLabel, "AUTO IMPORTED" , parentGroup.getUUID());
+									groupMap.put(newGroup.getLabel(), newGroup);
+									rm.setNewMembership(true);
+									rm.setGroup(newGroup);
+								}
+							}
+													
+							
+							if(existingRoles.containsKey(participant.getName())==false){//if no dublicate detected.
+								if("Initiator".equals(participant.getName())==false){
+									rm.setRole(getIdentityAPI().addRole(participant.getName(), participant.getLabel(), "AUTO IMPORTED:"+participant.getDescription()));
+									rm.setNewMembership(true);
+									existingRoles.put(rm.getRole().getName(), rm.getRole());
+								}
+							}
+							else{
+								rm.setRole(existingRoles.get(participant.getName()));
+							}
+							/*
+							if(rm.isNewMembership()){								
+								MembershipImpl m = new MembershipImpl();
+								m.setGroup(rm.getGroup());
+								m.setRole(rm.getRole());
+								identityService.addMembership(m);
+								
+							}*/
+							
 						}			
 					}
 					return null;

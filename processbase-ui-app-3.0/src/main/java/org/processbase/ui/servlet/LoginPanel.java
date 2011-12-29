@@ -24,6 +24,7 @@ import java.util.Locale;
 import javax.servlet.http.Cookie;
 
 import org.hibernate.annotations.common.Version;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 
@@ -90,11 +91,16 @@ public class LoginPanel extends GridLayout implements Handler {
 			}
 		});
         
-        Button mobidButton=new Button("MobiilID"); 
+        Button mobidButton=new Button("Anonymous"); 
         buttons.addButton(mobidButton);       
         mobidButton.addListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				
+				try {
+					((PbApplication)getApplication()).authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					getWindow().showNotification(e.getMessage());
+				}
 			}
 		});
 

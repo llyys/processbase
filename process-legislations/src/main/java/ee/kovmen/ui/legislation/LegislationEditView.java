@@ -78,6 +78,7 @@ public class LegislationEditView extends PbWindow{
 			form.addComponent(new Button("Lisa uus", new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
 					LegislationData.getCurrent().getHibernate().save(binder.getBean());
+					close();
 				}
 			}));
 		}
@@ -88,6 +89,7 @@ public class LegislationEditView extends PbWindow{
 			hl.addComponent(new Button("Kustuta", new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
 					DeleteTask();
+					close();
 				}
 			}));
 			hl.addComponent(new Button("Muuda", new ClickListener() {			

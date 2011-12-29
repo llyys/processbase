@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -74,6 +75,8 @@ public class RaportViewer extends PbPanel {
 		addComponent(raportControl);
 		setMargin(true);		
 	}
+	
+	Map<String, TextField> unmappedElements=new HashMap<String, TextField>();
 
 	@Override
 	public void initUI() {
@@ -151,7 +154,11 @@ public class RaportViewer extends PbPanel {
 					
 				}
 				if(component==null)					 
-				layout.addComponent(new TextField(element));					
+				{
+					TextField field = new TextField(element);
+					layout.addComponent(field);				
+					unmappedElements.put(element, field);
+				}
 			}
 			//we add items specially here, beacause here we can order elements (StartDate before EndDate etc) 
 			if(timeUnit!=null)
@@ -218,6 +225,12 @@ public class RaportViewer extends PbPanel {
 						}
 						if(activityUUIDs!=null) 
 							params.put("ActivityUUID", activityUUIDs.getValue());
+						
+						if(unmappedElements.size()>0){
+							for (Entry<String, TextField> elem: unmappedElements.entrySet()) {
+								params.put(elem.getKey(), elem.getValue().getValue());
+							}
+						}
 						
 						String result=reportService.runAndRender(reportItem, params, new HTMLRenderOption());
 						indicator.setVisible(false);

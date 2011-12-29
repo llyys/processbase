@@ -23,10 +23,12 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Embedded;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 import org.ow2.bonita.light.LightProcessInstance;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ByteArraySource;
@@ -50,7 +52,8 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
     private VerticalSplitPanel layout = new VerticalSplitPanel();
     private VerticalLayout imageLayout = new VerticalLayout();
     private boolean managed = false;
-
+    private TabSheet tabSheet = new TabSheet();
+    
     public ProcessInstanceWindow(LightProcessInstance process, boolean managed) {
         super(null);
         this.process = process;
@@ -59,8 +62,20 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
 
     public void initUI() {
         try {
-            setContent(layout);
-            byte[] processDiagramm = ProcessbaseApplication.getCurrent().getBpmModule().getProcessDiagramm(process);
+        	setContent(tabSheet);
+        	tabSheet.addTab(layout, "Process");
+        	tabSheet.setSizeFull();
+        	
+        	
+        	
+            
+            BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+            
+            ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(process.getProcessInstanceUUID()));
+            variablesPanel.initUI();
+            tabSheet.addTab(variablesPanel, "Variables");
+            
+			byte[] processDiagramm = bpmModule.getProcessDiagramm(process);
 			ByteArraySource bas = new ByteArraySource(processDiagramm);
             StreamResource imageResource = new StreamResource(bas, "processInstance.png", this.getApplication());
             imageResource.setCacheTime(1000);

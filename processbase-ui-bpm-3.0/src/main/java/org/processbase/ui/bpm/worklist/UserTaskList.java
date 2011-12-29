@@ -3,11 +3,13 @@ package org.processbase.ui.bpm.worklist;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import org.caliburn.application.event.IHandle;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
 import org.processbase.ui.bpm.panel.events.TaskListEvent;
@@ -79,10 +81,15 @@ public class UserTaskList extends TablePanel implements IPbTable, Button.ClickLi
 	    		initUI();
 	        table.removeAllItems();
 	        try {
-	            Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(ProcessbaseApplication.getCurrent().getCurrentUser().getUUID(), ActivityState.READY);
-	            
+	           //Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(ProcessbaseApplication.getCurrent().getCurrentUser().getUUID(), null);
+	        	//Set<LightProcessInstance> processInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLightUserInstances();
+	           Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.READY);
+	            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.EXECUTING));
+	            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.SUSPENDED));
 	            for (LightTaskInstance task : tasks) {
-	                addTableRow(task, null);
+	            	if(task.isTaskAssigned()  
+	            			&& task.getTaskUser().equals(ProcessbaseApplication.getCurrent().getCurrentUser().getUsername()))
+	            		addTableRow(task, null);
 	            }
 	            this.rowCount = tasks.size();
 	        } catch (Exception ex) {

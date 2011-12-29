@@ -74,8 +74,11 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 	private UserTaskList pnlUserTaskList;
 
     public void initUI(){
+    	if(isInitialized())
+    		return;
         setMargin(true);
-       
+        
+       setInitialized(true);
         pnlNewProcesses = new NewProcesses();
         
         if(ProcessbaseApplication.getCurrent().getUserName()==BPMModule.USER_GUEST)
