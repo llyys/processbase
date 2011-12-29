@@ -27,6 +27,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+
+import org.ow2.bonita.facade.exception.InstanceNotFoundException;
+import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -53,14 +57,29 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
     private VerticalLayout imageLayout = new VerticalLayout();
     private boolean managed = false;
     private TabSheet tabSheet = new TabSheet();
+	private ProcessInstanceUUID processInstanceUUID;
     
     public ProcessInstanceWindow(LightProcessInstance process, boolean managed) {
         super(null);
         this.process = process;
+        this.processInstanceUUID=process.getProcessInstanceUUID();
         this.managed = managed;
     }
 
-    public void initUI() {
+    
+
+	public ProcessInstanceWindow(ProcessInstanceUUID processInstanceUUID, boolean managed2) {
+		BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+		try {
+			 this.processInstanceUUID=processInstanceUUID;
+			this.process = bpmModule.getLightProcessInstance(this.processInstanceUUID);
+		} catch (InstanceNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void initUI() {
         try {
         	setContent(tabSheet);
         	tabSheet.addTab(layout, "Process");
@@ -71,7 +90,8 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             
             BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
             
-            ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(process.getProcessInstanceUUID()));
+            processInstanceUUID = process.getProcessInstanceUUID();
+			ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(processInstanceUUID));
             variablesPanel.initUI();
             tabSheet.addTab(variablesPanel, "Variables");
             
@@ -112,7 +132,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             layout.setStyleName(Reindeer.SPLITPANEL_SMALL);
             layout.addComponent(imageLayout);
 
-            activitiesPanel = new ActivitiesPanel(process.getProcessInstanceUUID());
+            activitiesPanel = new ActivitiesPanel(processInstanceUUID);
             layout.addComponent(activitiesPanel);
             activitiesPanel.initUI();
             activitiesPanel.refreshTable();

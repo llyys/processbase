@@ -1808,6 +1808,14 @@ public class BPMModule {
 
 
 
+	public LightProcessInstance getLightProcessInstance(
+			ProcessInstanceUUID processInstanceUUID) throws InstanceNotFoundException {
+		return getQueryRuntimeAPI().getProcessInstance(processInstanceUUID);
+		
+	}
+
+
+
 	
 
 

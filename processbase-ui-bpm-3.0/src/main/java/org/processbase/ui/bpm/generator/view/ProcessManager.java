@@ -28,6 +28,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyUtil;
+import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.Activities;
@@ -404,6 +405,28 @@ public class ProcessManager extends PbPanel {
 			if(taskInstance!=null && taskInstance.isTaskAssigned()==false)
 				isCanceable=false;
 			
+			
+			
+		}
+		//if user is admin role, show the debug window, to see current process executing phase and process variables
+		if(getBpmModule().isUserAdmin())
+		{
+			Button btn = new Button("Debug");
+			btn.addListener(new Button.ClickListener() {
+				public void buttonClick(ClickEvent event) {
+					try {
+						ProcessInstanceWindow processInstance=new ProcessInstanceWindow(processInstanceUUID, true);
+						getApplication().getMainWindow().addWindow(processInstance);
+						processInstance.initUI();
+						
+					} catch (Exception e) {
+						getWindow().showError("Unable to debug the process");
+						throw new RuntimeException(e);
+					}
+				}
+			});
+			this.buttons.addButton(btn);
+			this.buttons.setComponentAlignment(btn, Alignment.MIDDLE_RIGHT);
 		}
 		//buttonKatkesta.setWidth("100%");
 		
