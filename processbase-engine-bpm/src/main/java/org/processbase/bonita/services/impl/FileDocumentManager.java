@@ -97,12 +97,17 @@ public class FileDocumentManager implements DocumentationManager{
 	
 	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
 		try {
-			
+			boolean isNew=false;
 			GridFS gfs = new GridFS(db, "FILE_TABLE"); 
 			if(fileContent==null)
 				fileContent=new byte[0];
 			
-			BasicDBObject doc = new BasicDBObject();
+			BasicDBObject doc = (BasicDBObject) tryFindDockument(definitionUUID, instanceUUID, name);
+			if(doc==null)
+				{
+					isNew=true;
+					doc=new BasicDBObject();
+				}
 			DBCollection table = db.getCollection(DOCUMENTS);
 			
 			doc.put(LENGHT, fileContent.length);
@@ -235,6 +240,27 @@ public class FileDocumentManager implements DocumentationManager{
 		
 		 DBObject dbObject = table.findOne(oid);
 		return dbObject;
+	}
+	
+	private DBObject tryFindDockument(ProcessDefinitionUUID processDefinitionUUID, ProcessInstanceUUID processInstanceUUID, String documentName){
+		BasicDBObject query=new  BasicDBObject();
+        if (documentName != null)             	 
+            query.put(NAME, documentName);
+    
+        if(processInstanceUUID == null)
+        	processInstanceUUID=new ProcessInstanceUUID("DEFINITION_LEVEL_DOCUMENT");
+        
+    	query.put(PROCESS_INSTANCE_UUID, processInstanceUUID.toString());
+    	processInstanceUUID = new ProcessInstanceUUID(processInstanceUUID.toString());
+                                
+        if(processDefinitionUUID != null){
+        	query.put(PROCESS_DEFINITION_UUID, processDefinitionUUID.toString());
+        	processDefinitionUUID= new ProcessDefinitionUUID(processDefinitionUUID.toString());            	
+        }
+        DBCollection table = db.getCollection(DOCUMENTS);
+
+		return table.findOne(query);
+		
 	}
 
 	

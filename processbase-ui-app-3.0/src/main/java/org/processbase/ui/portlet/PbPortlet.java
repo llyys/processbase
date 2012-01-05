@@ -204,7 +204,9 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             		setPortletSession(request.getPortletSession());
             		inited=true;
             	}
-            	            	
+            	else{
+            		return;	
+            	}       	
             	org.ow2.bonita.facade.identity.User bonitaUser =null;
             	
             	
@@ -221,7 +223,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
                 }	                               
                 if(bpmModule==null)
             		setBpmModule(new BPMModule(userName));
-            	
+                	bpmModule.checkUserCredentials(BPMModule.USER_GUEST, BPMModule.USER_GUEST);
 					bonitaUser=bpmModule.authUser(bonitaUser);
 					setSessionAttribute(AUTH_KEY, bonitaUser);					
 				
@@ -302,6 +304,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
     }
 
     public ResourceBundle getPbMessages() {
+    	if(messages==null)
+    		messages =ResourceBundle.getBundle("MessagesBundle", getLocale());
         return messages;
     }
 

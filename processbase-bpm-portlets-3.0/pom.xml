@@ -46,9 +46,21 @@
 			<artifactId>processbase-ui-app</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
-		<!-- <dependency> <groupId>${project.groupId}</groupId> <artifactId>processbase-engine-bam</artifactId> 
-			<version>${project.version}</version> </dependency> -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processbase-raports</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>process-legislations</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ee.smartlink</groupId>
+	  		<artifactId>EstEid</artifactId>	  
+	  		<version>1.2</version>	  		
+		</dependency>
 		<dependency>
 			<groupId>com.liferay.portal</groupId>
 			<artifactId>portal-impl</artifactId>
@@ -93,7 +105,7 @@
 						<warSourceDirectory>src/main/webapp</warSourceDirectory>
 						
 						<!-- <packagingExcludes>WEB-INF/lib/processbase*.jar</packagingExcludes>-->
-						<packagingIncludes>**/*.xml,**/*.properties,**/*.class,WEB-INF/lib/processbase-raports-3.0.jar,WEB-INF/lib/processbase-engine-bam-3.0.jar,WEB-INF/lib/processbase-ui-app-3.0.jar,WEB-INF/lib/processbase-ui-bam-3.0.jar,WEB-INF/lib/processbase-ui-bpm-3.0.jar,WEB-INF/lib/processbase-ui-core-3.0.jar,WEB-INF/lib/processbase-engine-bpm-3.0.jar,VAADIN/**,META-INF/**,scripts/**,iaikPkcs11Wrapper_sig.jar,SignApplet_sig.jar</packagingIncludes>
+						<packagingIncludes>**/*.xml,**/*.properties,**/*.class,WEB-INF/lib/process-legislations-3.0.jar,WEB-INF/lib/processbase-engine-bpm-3.0.jar,WEB-INF/lib/processbase-raports-3.0.jar,WEB-INF/lib/processbase-engine-bam-3.0.jar,WEB-INF/lib/processbase-ui-app-3.0.jar,WEB-INF/lib/processbase-ui-bam-3.0.jar,WEB-INF/lib/processbase-ui-bpm-3.0.jar,WEB-INF/lib/processbase-ui-core-3.0.jar,WEB-INF/lib/processbase-engine-bpm-3.0.jar,VAADIN/**,META-INF/**,scripts/**,iaikPkcs11Wrapper_sig.jar,SignApplet_sig.jar</packagingIncludes>
 						<!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes> 
 							Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven 
 							utters a warning because of it. This configuration should shut it up! FIXME: 

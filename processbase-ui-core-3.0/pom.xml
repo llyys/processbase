@@ -112,16 +112,7 @@
 			<artifactId>vaadin</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>refresher</artifactId>
-			<version>${vaadin-refresher.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>invient-charts</artifactId>
-			<version>${vaadin-invient.version}</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.glassfish.security</groupId>
 			<artifactId>security</artifactId>

@@ -28,6 +28,7 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
+import com.vaadin.ui.Upload.FinishedListener;
 import com.vaadin.ui.Upload.StartedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
@@ -224,6 +225,10 @@ public class ImmediateUpload extends VerticalLayout
 
 	public Upload getUploadComponent() {
 		return upload;
+	}
+
+	public void addListener(FinishedListener finishedListener) {
+		upload.addListener(finishedListener);
 	}
 
 

@@ -18,7 +18,9 @@ package org.processbase.ui.core;
 
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
+import com.vaadin.terminal.DownloadStream;
 import com.vaadin.terminal.Terminal;
+import com.vaadin.terminal.URIHandler;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -28,6 +30,7 @@ import com.vaadin.ui.Window.Notification;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -117,6 +120,9 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         if (getContext() != null) {
             getContext().addTransactionListener(this);
         }
+        
+        
+        getMainWindow().addURIHandler(new ParameterizedResource()); 
     }
 
     public abstract void initUI();

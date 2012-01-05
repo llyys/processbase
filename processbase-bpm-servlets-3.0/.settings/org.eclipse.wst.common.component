@@ -26,6 +26,9 @@
         <dependent-module archiveName="process-legislations-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/process-legislations/process-legislations">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="EstEid-1.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/EstEid/EstEid">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="processbase-bpm-servlets"/>
         <property name="java-output-path" value="/processbase-bpm-servlets/build/classes"/>
     </wb-module>

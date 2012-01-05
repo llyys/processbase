@@ -12,7 +12,7 @@ import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.AvailableValues;
+import org.processbase.ui.core.bonita.forms.AvailableValues; 
 import org.processbase.ui.core.bonita.forms.SelectMode;
 import org.processbase.ui.core.bonita.forms.ValuesList;
 import org.processbase.ui.core.bonita.forms.Widget;
@@ -24,14 +24,17 @@ import org.processbase.ui.core.template.ImmediateUpload;
 
 import com.vaadin.data.Validator.EmptyValueException;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.UserError;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.OptionGroup;
@@ -39,7 +42,9 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Upload;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -257,7 +262,12 @@ public class TaskField {
 			String expression = widget.getInitialValue().getExpression();
 			
 			if(GroovyExpression.isGroovyExpression(expression))
-				value = taskManager.evalGroovyExpression(expression);
+				try {
+					value = taskManager.evalGroovyExpression(expression);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					throw new Exception(expression, e);
+				}
 			else
 				return expression;
 
@@ -309,47 +319,60 @@ public class TaskField {
 	}
 	
 	private Component getDownload(String fileName) {
-
-		Button b = new Button(getName());
-		b.setStyleName(Reindeer.BUTTON_LINK);
-
-		// if there is no attached document then this button should be disabled
-		// mode.
-		if (fileName == null)
-			b.setEnabled(false);
-		else {
-			b.addListener(new Button.ClickListener() {
-
-				public void buttonClick(ClickEvent event) {
-					
-					//Widget w = getWidgets(event.getButton());
-					byte[] bytes; 
-					try {
-						ProcessManager processManager = taskManager.getProcessManager();
-						String processUUID = processManager.getProcessInstanceUUID().toString();
-						String fileName = widget.getVariableBound();
-						BPMModule bpmModule = processManager.getBpmModule();
-						//AttachmentInstance attachment = bpmModule.getAttachment(processUUID,widget.getVariableBound());
-						Document document = bpmModule.getDocument(processManager.getProcessInstanceUUID(),widget.getVariableBound());
-						//Document document = bpmModule.getDocument(attachment.getUUID());
-						bytes = bpmModule.getDocumentBytes(document);
-						ByteArraySource bas = new ByteArraySource(bytes);
-
-						StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), processManager.getApplication());
-						streamResource.setCacheTime(50000); // no cache (<=0)
-															// does not work
-															// with IE8
-						streamResource.setMIMEType("application/octet-stream");
-						processManager.getWindow().open(streamResource, "_blank");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			});
-		}
-		return b;
 		
+		ProcessManager processManager = taskManager.getProcessManager();
+		String processUUID = processManager.getProcessInstanceUUID().toString();
+		String fileVariable = widget.getVariableBound();
+		
+		if(ProcessbaseApplication.getCurrent().getApplicationType()==ProcessbaseApplication.LIFERAY_PORTAL){
+			//in liferay we cannot use simple link to download the file
+			Button b = new Button(getName());
+			b.setStyleName(Reindeer.BUTTON_LINK);
+			// if there is no attached document then this button should be disabled
+			// mode.
+			if (fileName == null)
+				b.setEnabled(false);
+			else {
+				b.addListener(new Button.ClickListener() {
+					public void buttonClick(ClickEvent event) {
+
+						//Widget w = getWidgets(event.getButton());
+						byte[] bytes; 
+						try {
+							ProcessManager processManager = taskManager.getProcessManager();
+							String processUUID = processManager.getProcessInstanceUUID().toString();
+							String fileName = widget.getVariableBound();
+							BPMModule bpmModule = processManager.getBpmModule();
+							//AttachmentInstance attachment = bpmModule.getAttachment(processUUID,widget.getVariableBound());
+							Document document = bpmModule.getDocument(processManager.getProcessInstanceUUID(),widget.getVariableBound());
+							//Document document = bpmModule.getDocument(attachment.getUUID());
+							bytes = bpmModule.getDocumentBytes(document);
+							ByteArraySource bas = new ByteArraySource(bytes);
+
+							StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), processManager.getApplication());
+							streamResource.setCacheTime(50000); // no cache (<=0)
+																// does not work
+																// with IE8
+							streamResource.setMIMEType(document.getContentMimeType());
+							processManager.getWindow().open(streamResource, "_blank");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+			return b;
+
+		}
+		else{
+			WebApplicationContext ctx = (WebApplicationContext) processManager.getWindow().getApplication().getContext();
+			String path = ctx.getHttpSession().getServletContext().getContextPath();
+	        Link link = new Link(getName(), new ExternalResource(path + "/process_file?download="+processUUID+"&file="+fileVariable));
+	        return link;
+		}
+       
+        
 	}
 	
 	public String getName() {
@@ -357,12 +380,12 @@ public class TaskField {
 	}
 	
 	private ImmediateUpload getUpload(String fileName) {
-		ImmediateUpload component = null;
+		
 		String processUUID = null;
 		//String fileName = null;
 		boolean hasFile = false;
-		String boundVariable=widget.getVariableBound();
-		ProcessManager processManager = taskManager.getProcessManager();
+		final String boundVariable=widget.getVariableBound();
+		final ProcessManager processManager = taskManager.getProcessManager();
 		if (processManager.getTaskInstance() != null) {
 			processUUID = processManager.getTaskInstance().getProcessInstanceUUID().toString();
 			try {
@@ -385,9 +408,22 @@ public class TaskField {
 			expression=widget.getInitialValue().getExpression();
 		
 		
-		component = new ImmediateUpload(processUUID, widget.getLabel()
+		final ImmediateUpload component = new ImmediateUpload(processUUID, widget.getLabel()
 				, boundVariable , fileName, hasFile
 				, widget.isReadonly(), ProcessbaseApplication.getCurrent().getPbMessages());
+		component.addListener(new Upload.FinishedListener(){
+
+			public void uploadFinished(FinishedEvent event) {
+				try {
+					processManager.getBpmModule().addDocument(processManager.getTaskInstance().getProcessInstanceUUID(), widget.getVariableBound(), event.getFilename(), event.getMIMEType(), component.getFileBody());
+				} catch (Exception e) {					
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
+				
+			}
+			
+		});
 		return component;
 	}
 	

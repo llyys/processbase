@@ -4,7 +4,7 @@
   <groupId>org.processbase</groupId>
   <artifactId>soap-connector</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <name>soap-connector</name>
   <url>http://maven.apache.org</url>
   <dependencies>
@@ -17,6 +17,11 @@
 			<groupId>ee.eesti.id</groupId>
 			<artifactId>jdigidoc</artifactId>
 			<version>2.3.99.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
 		</dependency>
   </dependencies>
 </project>

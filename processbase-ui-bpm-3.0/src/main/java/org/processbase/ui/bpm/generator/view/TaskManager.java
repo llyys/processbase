@@ -194,7 +194,7 @@ public class TaskManager
 							updateVariableValue(action.getVariable(), taskField.getComponentValue(action));
 						}
 					}
-					else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
+					/*else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
 						ImmediateUpload upload=(ImmediateUpload) taskField.getComponent();						
 						try {
 							if(upload.isNeedToSave())
@@ -203,7 +203,7 @@ public class TaskManager
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-					}
+					}*/
 				}
 			}
 		}
