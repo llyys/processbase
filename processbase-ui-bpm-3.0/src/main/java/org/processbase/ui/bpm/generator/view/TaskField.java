@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.text.html.parser.ContentModel;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.services.Document;
@@ -120,135 +122,140 @@ public class TaskField {
 	}
 	
 	private Component initComponent() throws Exception {
-		Object value = null;
-		DataFieldDefinition dfd = null;
-		Collection options = null;
-		
-			value=updateComponentValue();
-			String label=widget.getLabel(); 
-			if(label==null)
-				label="";
-			if(value!=null && value instanceof Component){//if this is a vaadin component
-				return (Component) value;
-			}
-			WidgetType type = widget.getType();
-			if (type.equals(WidgetType.MESSAGE)) {
-				String escaped = StringEscapeUtils.unescapeHtml(value.toString());
-				Label component = new Label(escaped);
-				component.setWidth("100%");
-				component.setContentMode(Label.CONTENT_XHTML);
-				return component;
-			}
-			if (type.equals(WidgetType.TEXT)) {
-				String val = value == null ? "" : value.toString();
-				String escaped = StringEscapeUtils.unescapeHtml(val.toString());
-				String content = label + "<br/>" + escaped;
-				if("".equals(label))
-					content=escaped;
-				Label component = new Label(content);
-				component.setWidth("100%");
-				component.setContentMode(Label.CONTENT_XHTML);
-				return component;				
-			}
+		try {
+			Object value = null;
+			DataFieldDefinition dfd = null;
+			Collection options = null;
 			
-			if (type.equals(WidgetType.HIDDEN)) {
-				TextField component = new TextField(label);
-				component.setNullRepresentation("");
-				component.setValue(value);
-				component.setVisible(false);
-				return component;				
-			}
-			if (type.equals(WidgetType.TEXTBOX)) {
-				TextField component = new TextField(label);
-				component.setNullRepresentation("");
-				component.setValue(value);
-				return component;
-			}
-			if (type.equals(WidgetType.DATE)) {
-				PopupDateField component = new PopupDateField(label);
-				component.setResolution(PopupDateField.RESOLUTION_DAY);
-				return component;
-			}
-			if (type.equals(WidgetType.TEXTAREA)) {
-				TextArea component = new TextArea(label);
-				component.setNullRepresentation("");
-				return component;
-			}
-			if (type.equals(WidgetType.RICH_TEXTAREA)) {
-				RichTextArea component = new RichTextArea(label);
-				component.setNullRepresentation("");
-				return component;
-			}
-			
-			if (type.equals(WidgetType.PASSWORD)) {
-				TextField component = new TextField(label);
-				component.setNullRepresentation("");				
-				return component;
-			}
-
-			if (type.equals(WidgetType.LISTBOX_SIMPLE)) {
-				NativeSelect component = new NativeSelect(label, (Collection)value);
-				return component;
-			}
-			if (type.equals(WidgetType.SUGGESTBOX)) {
-				ComboBox component = new ComboBox(label, (Collection)value);
-				component.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
-				return component;
-			}
-			if (type.equals(WidgetType.RADIOBUTTON_GROUP)) {
-				OptionGroup component = new OptionGroup(label, (Collection)value);
-				if (widget.getSelectMode() != null
-						&& widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
-					component.setMultiSelect(true);
+				value=updateComponentValue();
+				String label=widget.getLabel(); 
+				if(label==null)
+					label="";
+				if(value!=null && value instanceof Component){//if this is a vaadin component
+					return (Component) value;
 				}
-				return component;
-			}
-			if (type.equals(WidgetType.LISTBOX_MULTIPLE)) {
-				ListSelect component = new ListSelect(label, (Collection)value);
-				component.setMultiSelect(true);
-				return component;
-			}
-			if (type.equals(WidgetType.CHECKBOX)) {
-				return new CheckBox(label);				
-			}
-			if (type.equals(WidgetType.EDITABLE_GRID)) {
-				//c = new GeneratedTable(widget, value, groovyScripts);
-			}
-			if (type.equals(WidgetType.CHECKBOX_GROUP)) {
-				OptionGroup component = new OptionGroup(label, (Collection)value);
-				if (widget.getSelectMode() != null && widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
-					component.setMultiSelect(true);
+				WidgetType type = widget.getType();
+				if (type.equals(WidgetType.MESSAGE)) {
+					String escaped = StringEscapeUtils.unescapeHtml(value.toString());
+					Label component = new Label(escaped);
+					component.setWidth("100%");
+					component.setContentMode(Label.CONTENT_XHTML);
+					return component;
 				}
-				return component;
-			}
-			if (type.equals(WidgetType.FILEUPLOAD)) {
-				//hasAttachments = true;
-				return getUpload((String)value);					
+				if (type.equals(WidgetType.TEXT)) {
+					String val = value == null ? "" : value.toString();
+					String escaped = StringEscapeUtils.unescapeHtml(val.toString());
+					String content = label + "<br/>" + escaped;
+					if("".equals(label))
+						content=escaped;
+					Label component = new Label(content);
+					component.setWidth("100%");
+					component.setContentMode(Label.CONTENT_XHTML);
+					return component;				
+				}
 				
-			}
-			if (type.equals(WidgetType.FILEDOWNLOAD)) {
-				//hasAttachments = true;
-				return getDownload((String)value);
-			}
-			if (type.equals(WidgetType.BUTTON_SUBMIT)/* || widget.getType().equals(WidgetType.BUTTON_NEXT) || widget.getType().equals(WidgetType.BUTTON_PREVIOUS)*/) {
-				Button component = new Button(label);
-				//component.addListener((Button.ClickListener) this);
-				if (widget.isLabelButton()) {
-					component.setStyleName(Reindeer.BUTTON_LINK);
+				if (type.equals(WidgetType.HIDDEN)) {
+					TextField component = new TextField(label);
+					component.setNullRepresentation("");
+					component.setValue(value);
+					component.setVisible(false);
+					return component;				
 				}
-				component.setData(this);
-				component.addListener(new Button.ClickListener() {					
-					public void buttonClick(ClickEvent event) {
-						TaskField that=(TaskField) event.getButton().getData();
-						try {
-							taskManager.onTaskFieldButtonClick(that, event);
-						} catch (Exception e) {
-							throw new RuntimeException("Task field button click", e);							
-						}
+				if (type.equals(WidgetType.TEXTBOX)) {
+					TextField component = new TextField(label);
+					component.setNullRepresentation("");
+					component.setValue(value);
+					return component;
+				}
+				if (type.equals(WidgetType.DATE)) {
+					PopupDateField component = new PopupDateField(label);
+					component.setResolution(PopupDateField.RESOLUTION_DAY);
+					return component;
+				}
+				if (type.equals(WidgetType.TEXTAREA)) {
+					TextArea component = new TextArea(label);
+					component.setNullRepresentation("");
+					return component;
+				}
+				if (type.equals(WidgetType.RICH_TEXTAREA)) {
+					RichTextArea component = new RichTextArea(label);
+					component.setNullRepresentation("");
+					return component;
+				}
+				
+				if (type.equals(WidgetType.PASSWORD)) {
+					TextField component = new TextField(label);
+					component.setNullRepresentation("");				
+					return component;
+				}
+
+				if (type.equals(WidgetType.LISTBOX_SIMPLE)) {
+					NativeSelect component = new NativeSelect(label, (Collection)value);
+					return component;
+				}
+				if (type.equals(WidgetType.SUGGESTBOX)) {
+					ComboBox component = new ComboBox(label, (Collection)value);
+					component.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
+					return component;
+				}
+				if (type.equals(WidgetType.RADIOBUTTON_GROUP)) {
+					OptionGroup component = new OptionGroup(label, (Collection)value);
+					if (widget.getSelectMode() != null
+							&& widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
+						component.setMultiSelect(true);
 					}
-				});
-				return component;
-			}			
+					return component;
+				}
+				if (type.equals(WidgetType.LISTBOX_MULTIPLE)) {
+					ListSelect component = new ListSelect(label, (Collection)value);
+					component.setMultiSelect(true);
+					return component;
+				}
+				if (type.equals(WidgetType.CHECKBOX)) {
+					return new CheckBox(label);				
+				}
+				if (type.equals(WidgetType.EDITABLE_GRID)) {
+					//c = new GeneratedTable(widget, value, groovyScripts);
+				}
+				if (type.equals(WidgetType.CHECKBOX_GROUP)) {
+					OptionGroup component = new OptionGroup(label, (Collection)value);
+					if (widget.getSelectMode() != null && widget.getSelectMode().equals(SelectMode.MULTIPLE)) {
+						component.setMultiSelect(true);
+					}
+					return component;
+				}
+				if (type.equals(WidgetType.FILEUPLOAD)) {
+					//hasAttachments = true;
+					return getUpload((String)value);					
+					
+				}
+				if (type.equals(WidgetType.FILEDOWNLOAD)) {
+					//hasAttachments = true;
+					return getDownload((String)value);
+				}
+				if (type.equals(WidgetType.BUTTON_SUBMIT)/* || widget.getType().equals(WidgetType.BUTTON_NEXT) || widget.getType().equals(WidgetType.BUTTON_PREVIOUS)*/) {
+					Button component = new Button(label);
+					//component.addListener((Button.ClickListener) this);
+					if (widget.isLabelButton()) {
+						component.setStyleName(Reindeer.BUTTON_LINK);
+					}
+					component.setData(this);
+					component.addListener(new Button.ClickListener() {					
+						public void buttonClick(ClickEvent event) {
+							TaskField that=(TaskField) event.getButton().getData();
+							try {
+								taskManager.onTaskFieldButtonClick(that, event);
+							} catch (Exception e) {
+								throw new RuntimeException("Task field button click", e);							
+							}
+						}
+					});
+					return component;
+				}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return new Label("Error:"+widget.getLabel()+" - "+e.getMessage(), Label.CONTENT_XHTML);
+		}			
 			
 		
 		return new Label("");

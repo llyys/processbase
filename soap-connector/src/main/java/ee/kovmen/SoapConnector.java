@@ -150,6 +150,13 @@ public class SoapConnector extends ProcessConnector {
 
 	    
 	    private static Properties props = null;
+	    
+	    public static String getConfigValue(String key, String defaultValue){
+	    	if(getConfig()==null || !getConfig().containsKey(key))
+	    		return defaultValue;
+	    	return (String) getConfig().get(key);
+	    }
+	    
 	    public static Properties getConfig(){
 	    	if (props == null) {
 

@@ -4,10 +4,42 @@
   <groupId>org.processbase</groupId>
   <artifactId>soap-connector</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <name>soap-connector</name>
   <url>http://maven.apache.org</url>
+  <repositories>
+	<repository>
+		<id>wm</id>
+		<name>WM public Maven repository</name>
+		<url>http://maven2.webmedia.ee</url>
+	</repository>
+  </repositories>
+  <build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>testng</artifactId>
+					<version>1.2</version>
+					<configuration>
+						<configuration>
+							<properties>
+								<maven.testng.suitexml.name>${basedir}/src/test/resources/testng.xml</maven.testng.suitexml.name>
+							</properties>
+						</configuration>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+  </build>
+  
   <dependencies>
+  		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.1.1</version>
+			<scope>test</scope>
+		</dependency>
   		<dependency>
 			<groupId>org.ow2.bonita</groupId>
 			<artifactId>bonita-server</artifactId>
@@ -23,5 +55,18 @@
 			<artifactId>itext</artifactId>
 			<version>2.1.7</version>
 		</dependency>
+		<!-- DVK -->
+		<dependency>
+			<groupId>ee.webmedia.xtee</groupId>
+			<artifactId>xtee-client-dhl</artifactId>
+			<version>2.1.1.43</version>			
+		</dependency>
+		<!-- Adit -->
+		<dependency>
+			<groupId>ee.finestmedia.xtee</groupId>
+			<artifactId>xtee-client-adit</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		
   </dependencies>
 </project>

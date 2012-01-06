@@ -44,9 +44,7 @@ public class NewProcessWindow extends PbWindow{
 	 * @throws Exception 
 	 */
 	
-	public void addComponent(ee.smartlink.esteid.EstEidComponent digidoc){
-		super.addComponent(digidoc);
-	}
+	
 	public void initProcess(LightProcessDefinition process) throws Exception {
 		processManager=new ProcessManager(process, null);
 	}
