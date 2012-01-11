@@ -8,6 +8,8 @@
 /processbase-ui-core-3.0/target
 /processbase-bpm-servlets-3.0/target
 /processbase-raports/target
+/soap-connector/target
+/soap-connector/test-output
 /esteid
 /processbase-cmis/target
 .project
