@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.enterprise.context.SessionScoped;
 
@@ -69,6 +70,8 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
    // private ApplicationContext context;
 
 	private UriFragmentUtility uriFragment;
+
+	private String currentDomain;
     
 //    int type = STANDALONE;
 
@@ -121,39 +124,44 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
             	setUserName(authUser.getUsername());
             	mainWindow.initUI();
             	//return;
-            }
-            else if(getHttpServletRequest().getParameter(BPMModule.USER_GUEST)!=null 
-            		&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
-            {
-            	setUserName(BPMModule.USER_GUEST);
-            	LOGGER.debug("log in as "+BPMModule.USER_GUEST);
-            	authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false);   
-            	setUserName(BPMModule.USER_GUEST);
-            	mainWindow.initUI();
-            }
-            else
-            {
-            	
-            	Cookie cookie=null;
-            	for (Cookie c : getCookies()) {
-					if("username".equals(c.getName())){
-						cookie=c;
-						break;
+            } else {
+				HttpServletRequest servletRequest = getHttpServletRequest();
+				if(servletRequest.getParameter(BPMModule.USER_GUEST)!=null 
+						&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
+				{
+					setUserName(BPMModule.USER_GUEST);
+					String domain=servletRequest.getParameter("domain");
+					if(domain==null)
+						domain=Constants.BONITA_DOMAIN;
+					LOGGER.debug("log in as "+BPMModule.USER_GUEST);
+					authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false, domain);   
+					setUserName(BPMModule.USER_GUEST);
+					mainWindow.initUI();
+				}
+				else
+				{
+					
+					Cookie cookie=null;
+					for (Cookie c : getCookies()) {
+						if("username".equals(c.getName())){
+							cookie=c;
+							break;
+						}
+					}
+					
+					if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
+					{
+						String userName2 = cookie.getValue();
+						setUserName(userName2);
+						BPMModule bpmm = new BPMModule(userName2);
+						setBpmModule(bpmm);
+						mainWindow.initUI();
+					}
+					else{
+						mainWindow.initLogin(); 
 					}
 				}
-            	
-				if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
-            	{
-					String userName2 = cookie.getValue();
-            		setUserName(userName2);
-            		BPMModule bpmm = new BPMModule(userName2);
-            		setBpmModule(bpmm);
-            		mainWindow.initUI();
-            	}
-            	else{
-        			mainWindow.initLogin(); 
-        		}
-            }
+			}
             
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -173,9 +181,9 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         super.close();
     }
 
-    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
-    	
-        BPMModule bpmm = new BPMModule(login);
+    public void authenticate(String login, String password, boolean rememberMe, String domainName) throws Exception {
+    	this.currentDomain=domainName;
+        BPMModule bpmm = new BPMModule(login, domainName);
         
         if (bpmm.checkUserCredentials(login, password)) {
             setUserName(login);
@@ -281,5 +289,11 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 	public UriFragmentUtility getUriFragmentUtility() {
 		return uriFragment;
 	}
+
+public void setCurrentDomain(String currentDomain) {
+	this.currentDomain = currentDomain;
+	
+	
+}
 
 }

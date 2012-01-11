@@ -159,6 +159,7 @@ public class BPMModule {
     private final CommandAPI commandAPI;*/
     //final APIAccessor apiAccessor=null; 
     private String currentUserUID;
+    private String currentDomain;
 	final static Logger logger = Logger.getLogger(BPMModule.class);
 	//private DocumentationManager documentatinManager;
 
@@ -188,6 +189,22 @@ public class BPMModule {
         
     }
     
+    public BPMModule(String currentUserUID, String currentDomain) {
+    	if (!Constants.LOADED) {
+            Constants.loadConstants();
+            AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
+        }
+    	this.currentDomain=currentDomain;
+        this.currentUserUID = currentUserUID;
+        try {
+            initContext();
+        } catch (Exception ex) {
+			logger.error("constructor", ex);
+            //Logger.getLogger(BPMModule.class.getName()).log(Level.SEVERE, ex.getMessage());
+			
+        }
+    }
+    
     
     
     private Class tryClass(String name)
@@ -214,7 +231,10 @@ public class BPMModule {
     	}
 		return null;
     }
-
+    public void setCurrentDomain(String currentDomain) {
+		this.currentDomain=currentDomain;
+		
+	}
 
     public void initContext() throws Exception {
     	if (Constants.APP_SERVER.startsWith("GLASSFISH")) {
@@ -301,7 +321,11 @@ public class BPMModule {
     		
 
     	}
-        DomainOwner.setDomain(Constants.BONITA_DOMAIN);
+    	if(currentDomain==null)
+    		DomainOwner.setDomain(Constants.BONITA_DOMAIN);
+    	else
+    		DomainOwner.setDomain(currentDomain);
+    		
         UserOwner.setUser(currentUserUID);
     }
     
@@ -1778,7 +1802,16 @@ public class BPMModule {
 			}
 		}*/
 	}
-	
+	public Group findGroupByPath(String path)
+	{
+		String[] split = path.split("/");
+		
+		List<String> pathList=new ArrayList<String>();
+		for (String p : split) {
+			pathList.add(p);
+		}
+		return getIdentityAPI().getGroupUsingPath(pathList);
+	}
 	 public byte[] getLargeDataRepositoryAttachment(final ProcessDefinitionUUID processDefinitionUUID, final String attachmentName){
 		 try {
 			 byte[] result=execute(new Command<byte[]>() {
@@ -1813,6 +1846,10 @@ public class BPMModule {
 		return getQueryRuntimeAPI().getProcessInstance(processInstanceUUID);
 		
 	}
+
+
+
+	
 
 
 

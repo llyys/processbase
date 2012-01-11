@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 	<portlet>
 		<portlet-name>ConsolePortlet</portlet-name>
-		<display-name>ConsolePortlet</display-name>
+		<display-name>Ylesannete nimekiri</display-name>
 		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
 		<init-param>
 			<name>application</name>
@@ -23,7 +23,7 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>ConsolePortlet</title>
+			<title>Ylesannete nimekiri</title>
 			<short-title>ConsolePortlet</short-title>
 		</portlet-info>
 	</portlet>
@@ -48,13 +48,13 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>UserTaskList</title>
-			<short-title>UserTaskList</short-title>
+			<title>Kasutajale suunatud menetlustegevused.</title>
+			<short-title>Kasutajale suunatud menetlustegevused.</short-title>
 		</portlet-info>
 	</portlet>
 	<portlet>
-		<portlet-name>Processes</portlet-name>
-		<display-name>Processes</display-name>
+		<portlet-name>UserCaseList</portlet-name>
+		<display-name>UserCaseList</display-name>
 		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
 		<init-param>
 			<name>application</name>
@@ -62,7 +62,7 @@
 		</init-param>
 		<init-param>
 			<name>ui</name>
-			<value>Processes</value>
+			<value>UserCaseList</value>
 		</init-param>
 		<init-param>
 			<name>widgetset</name>
@@ -73,10 +73,61 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Processes</title>
-			<short-title>Processes</short-title>
+			<title>Kasutaja poolt algatatud ja talle suunatud menetlused.</title>
+			<short-title>Kasutaja poolt algatatud ja talle suunatud menetlused.</short-title>
 		</portlet-info>
 	</portlet>
+	<portlet>
+		<portlet-name>CandidateTaskList</portlet-name>
+		<display-name>CandidateTaskList</display-name>
+		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>org.processbase.ui.portlet.PbPortlet</value>
+		</init-param>
+		<init-param>
+			<name>ui</name>
+			<value>CandidateTaskList</value>
+		</init-param>
+		<init-param>
+			<name>widgetset</name>
+			<value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</title>
+			<short-title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</short-title>
+		</portlet-info>
+	</portlet>
+	<portlet>
+		<portlet-name>CandidateCaseList</portlet-name>
+		<display-name>CandidateCaseList</display-name>
+		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>org.processbase.ui.portlet.PbPortlet</value>
+		</init-param>
+		<init-param>
+			<name>ui</name>
+			<value>CandidateCaseList</value>
+		</init-param>
+		<init-param>
+			<name>widgetset</name>
+			<value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</title>
+			<short-title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</short-title>
+		</portlet-info>
+	</portlet>
+	
 	<portlet>
 		<portlet-name>NewProcesses</portlet-name>
 		<display-name>NewProcesses</display-name>
@@ -125,6 +176,56 @@
 		<portlet-info>
 			<title>AdminPortlet</title>
 			<short-title>AdminPortlet</short-title>
+		</portlet-info>
+	</portlet> 
+	<portlet>
+		<portlet-name>AdminTaskList</portlet-name>
+		<display-name>AdminTaskList</display-name>
+		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>org.processbase.ui.portlet.PbPortlet</value>
+		</init-param>
+		<init-param>
+			<name>ui</name>
+			<value>AdminTaskList</value>
+		</init-param>
+		<init-param>
+			<name>widgetset</name>
+			<value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>AdminTaskList</title>
+			<short-title>AdminTaskList</short-title>
+		</portlet-info>
+	</portlet>
+	<portlet>
+		<portlet-name>AdminCaseList</portlet-name>
+		<display-name>AdminCaseList</display-name>
+		<portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
+		<init-param>
+			<name>application</name>
+			<value>org.processbase.ui.portlet.PbPortlet</value>
+		</init-param>
+		<init-param>
+			<name>ui</name>
+			<value>AdminCaseList</value>
+		</init-param>
+		<init-param>
+			<name>widgetset</name>
+			<value>org.processbase.vaadin.widgetset.DefaultWidgetSet</value>
+		</init-param>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>AdminCaseList</title>
+			<short-title>AdminCaseList</short-title>
 		</portlet-info>
 	</portlet>
 	 <portlet>

@@ -1,0 +1,97 @@
+<connector>
+  <connectorId>DvkConnector</connectorId>
+  <version>5.0</version>
+  <categories>
+    <category>
+      <name>XTee</name>
+    </category>
+  </categories>
+  <inputs>
+    <setter>
+      <setterName>setFile</setterName>
+      <required></required>
+      <parameters>
+        <attachment/>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setRecipentCompanyName</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setRecipentCompanyRegNo</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setSaatjaNimi</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setSaatjaIsikukood</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setSaatjaEmail</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+  </inputs>
+  <outputs/>
+  <pages>
+    <page>
+      <pageId>DocumentParameters</pageId>
+      <widgets>
+        <text>
+          <labelId>document</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>company</labelId>
+          <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>companycode</labelId>
+          <setter reference="/connector/inputs/setter[3]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>saatjaNimi</labelId>
+          <setter reference="/connector/inputs/setter[4]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>saatjaIsikukood</labelId>
+          <setter reference="/connector/inputs/setter[5]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>saatjaEmail</labelId>
+          <setter reference="/connector/inputs/setter[6]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+      </widgets>
+    </page>
+  </pages>
+</connector>

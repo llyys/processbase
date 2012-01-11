@@ -18,6 +18,7 @@ package org.processbase.ui.portlet;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
 import java.util.Map;
@@ -41,18 +42,20 @@ import org.processbase.raports.ui.RaportModule;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
 
-import org.processbase.ui.bpm.admin.ActivityInstancesPanel;
+import org.processbase.ui.bpm.admin.AdminCaseList;
 import org.processbase.ui.bpm.admin.CategoriesPanel;
 import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
-import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
+import org.processbase.ui.bpm.admin.AdminTaskList;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
 import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.worklist.CandidateCaseList;
+import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.bpm.worklist.NewProcesses;
-import org.processbase.ui.bpm.worklist.Processes;
+import org.processbase.ui.bpm.worklist.UserCaseList;
 import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
@@ -109,12 +112,15 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 			else if (initParameter.equalsIgnoreCase("UserTaskList")) {
 				ui = (PbPanel) new UserTaskList();	         
 			}
-			else if (initParameter.equalsIgnoreCase("Processes")) {
-				ui = (PbPanel) new Processes();	         
+			else if (initParameter.equalsIgnoreCase("UserCaseList")) {
+				ui = (PbPanel) new UserCaseList();	         
 			}
-			else if (initParameter.equalsIgnoreCase("UserTaskList")) {
-	            ui = (PbPanel) new UserTaskList();	         
+			else if (initParameter.equalsIgnoreCase("CandidateTaskList")) {
+	            ui = (PbPanel) new CandidateTaskList();	         
 	        }
+			else if (initParameter.equalsIgnoreCase("CandidateCaseList")) {
+				ui = (PbPanel) new CandidateCaseList();	         
+			}
 			else if (initParameter.equalsIgnoreCase("Raports")) {
 	            ui = (PbPanel) new RaportModule();	         
 	        }
@@ -129,11 +135,11 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 			else if (initParameter.equalsIgnoreCase("AdminDisabledProcessDefinitions")) {
 				ui = new DisabledProcessDefinitionsPanel();	         
 			}
-			else if (initParameter.equalsIgnoreCase("AdminProcessInstancesPanel")) {
-				ui = new ProcessInstancesPanel();	         
+			else if (initParameter.equalsIgnoreCase("AdminTaskList")) {
+				ui = new AdminTaskList();	         
 			}
-			else if (initParameter.equalsIgnoreCase("AdminActivityInstancesPanel")) {
-				ui = new ActivityInstancesPanel();	         
+			else if (initParameter.equalsIgnoreCase("AdminCaseList")) {
+				ui = new AdminCaseList();	         
 			}
 			else if (initParameter.equalsIgnoreCase("AdminCategoriesPanel")) {
 				ui = new CategoriesPanel();	         
@@ -181,8 +187,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         
     }
 
-    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
-        BPMModule bpmm = new BPMModule(login);
+    public void authenticate(String login, String password, boolean rememberMe, String domainName) throws Exception {
+        BPMModule bpmm = new BPMModule(login, domainName);
         setBpmModule(bpmm);
         setUserName(login);
        // setSessionAttribute(AUTHENTICATEDUSER, login);
@@ -209,6 +215,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             	}       	
             	org.ow2.bonita.facade.identity.User bonitaUser =null;
             	
+            	Company company=PortalUtil.getCompany(request);
             	
                 portalUser = PortalUtil.getUser(request);
                 if(portalUser!=null)
@@ -222,7 +229,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             		bonitaUser=new PortalUser(userName, userName);            				
                 }	                               
                 if(bpmModule==null)
-            		setBpmModule(new BPMModule(userName));
+                	
+            		setBpmModule(new BPMModule(userName, getDomain(company)));
                 	bpmModule.checkUserCredentials(BPMModule.USER_GUEST, BPMModule.USER_GUEST);
 					bonitaUser=bpmModule.authUser(bonitaUser);
 					setSessionAttribute(AUTH_KEY, bonitaUser);					
@@ -246,6 +254,20 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 			}
         
     }
+
+	/**
+	 * @param company
+	 * @return
+	 * @throws PortalException
+	 * @throws SystemException
+	 */
+	private String getDomain(Company company) throws PortalException,
+			SystemException {
+		String domain= company==null?Constants.BONITA_DOMAIN: company.getName();
+		if(domain.equalsIgnoreCase("liferay"))
+			return Constants.BONITA_DOMAIN;
+		return domain;
+	}
 
     public void onRequestEnd(PortletRequest request, PortletResponse response) {
     }

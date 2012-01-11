@@ -12,12 +12,24 @@
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
     </portlet>
-    <portlet>
-        <portlet-name>Processes</portlet-name>
+	<portlet>
+        <portlet-name>UserCaseList</portlet-name>
         <instanceable>true</instanceable>
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
-    </portlet>
+    </portlet> 
+	<portlet>
+        <portlet-name>CandidateTaskList</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>   
+	<portlet>
+        <portlet-name>CandidateCaseList</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>   
     <portlet>
         <portlet-name>NewProcesses</portlet-name>
         <instanceable>true</instanceable>
@@ -26,6 +38,18 @@
     </portlet>
     <portlet>
         <portlet-name>AdminPortlet</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
+	<portlet>
+        <portlet-name>AdminTaskList</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
+	<portlet>
+        <portlet-name>AdminCaseList</portlet-name>
         <instanceable>true</instanceable>
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>

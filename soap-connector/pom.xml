@@ -4,7 +4,7 @@
   <groupId>org.processbase</groupId>
   <artifactId>soap-connector</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <name>soap-connector</name>
   <url>http://maven.apache.org</url>
   <repositories>
@@ -60,6 +60,11 @@
 			<groupId>ee.webmedia.xtee</groupId>
 			<artifactId>xtee-client-dhl</artifactId>
 			<version>2.1.1.43</version>			
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-oxm</artifactId>
+			<version>1.5.9</version>
 		</dependency>
 		<!-- Adit -->
 		<dependency>

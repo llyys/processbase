@@ -40,12 +40,12 @@ import org.processbase.ui.core.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class ActivityInstancesPanel extends TablePanel implements Button.ClickListener,IPbTable {
+public class AdminCaseList extends TablePanel implements Button.ClickListener,IPbTable {
 
     private ProcessDefinitionUUID filter = null;
 	private BPMConfigurationPanel bpmConfigurationPanel;
 
-    public ActivityInstancesPanel() {
+    public AdminCaseList() {
         super();
     }
 
@@ -106,7 +106,7 @@ public class ActivityInstancesPanel extends TablePanel implements Button.ClickLi
             table.setSortAscending(false);
             table.sort();
         } catch (Exception ex) {
-            Logger.getLogger(ActivityInstancesPanel.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(AdminCaseList.class.getName()).log(Level.SEVERE, ex.getMessage());
             showError(ex.toString());
         }
     }

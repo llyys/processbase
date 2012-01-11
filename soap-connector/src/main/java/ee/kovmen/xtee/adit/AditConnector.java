@@ -38,7 +38,7 @@ public abstract class AditConnector extends ProcessConnector{
 		service.setConsumer(xteeConsumer);
 		service.setSecurityServer(SoapConnector.getConfigValue("turvaserver_dvk", "http://10.100.113.109:80/cgi-bin/consumer_proxy"));
 		service.setInstitution(SoapConnector.getConfigValue("asutus", "10648908"));
-		service.setSystem("Kovmen");
+		service.setSystem("KOVMEN");
 		
 		return service;
 	}

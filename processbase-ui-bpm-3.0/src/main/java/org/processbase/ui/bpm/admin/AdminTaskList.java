@@ -14,22 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.ui.bpm.worklist;
+package org.processbase.ui.bpm.admin;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
-
 import java.util.Date;
 import java.util.Set;
-
-import org.caliburn.application.event.IHandle;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessInstance;
-import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
-import org.processbase.ui.bpm.panel.events.TaskListEvent;
-import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
@@ -38,72 +32,65 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 
 /**
- * Returns all instances started by the logged user
-
-
+ *
  * @author mgubaidullin
  */
-public class Processes extends TablePanel implements IPbTable,  Button.ClickListener, IHandle<TaskListEvent>{
-    
+public class AdminTaskList extends TablePanel implements Button.ClickListener, IPbTable {
 
-    private Button processesBtn;
+    private ProcessDefinitionUUID filter = null;
+	private BPMConfigurationPanel bpmConfigurationPanel;
 
-	public Processes() {
+    public AdminTaskList() {
         super();
     }
 
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
-        table.setColumnWidth("state", 90);
         table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessName"), null, null);
-        table.setColumnExpandRatio("name", 1);        
+        table.setColumnExpandRatio("name", 1);
         table.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
+        table.addContainerProperty("startedDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionStartedDate"), null, null);
+        table.addGeneratedColumn("startedDate", new PbColumnGenerator());
+        table.setColumnWidth("startedDate", 100);
         table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
-        table.setColumnWidth("lastUpdate", 110);
-        
-        table.setVisibleColumns(new Object[]{"name", "version", "lastUpdate", "state"});
-        
+        table.setColumnWidth("lastUpdate", 100);
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        table.setColumnWidth("state", 90);
+        table.setVisibleColumns(new Object[]{"name", "version", "startedDate", "lastUpdate", "state"});
+
     }
 
     @Override
     public void refreshTable() {
-    	if(!isInitialized())
-    		initUI();
-    	
-        table.removeAllItems();
         try {
-            Set<LightProcessInstance> processInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLightUserInstances();
-            for (LightProcessInstance process : processInstances) {
-                Item woItem = table.addItem(process);
-                String pdUUID = process.getProcessDefinitionUUID().toString();
-                TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0] + "  #" + process.getNb(), null, null, process, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("name").setValue(teb);
-                woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
-                woItem.getItemProperty("lastUpdate").setValue(process.getLastUpdate());
-                Property stateColumn = woItem.getItemProperty("state");
-				stateColumn.setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(process.getInstanceState().toString()));
-				
-                
+            table.removeAllItems();
+            Set<LightProcessInstance> pis = null;
+            if (filter != null){
+                pis = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessInstances(filter);
+            } else {
+                pis = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessInstances();
             }
-             this.rowCount = processInstances.size();
+            for (LightProcessInstance pi : pis) {
+                Item woItem = table.addItem(pi);
+                String pdUUID = pi.getProcessDefinitionUUID().toString();
+                TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0] + "  #" + pi.getNb(), null, null, pi, this, Constants.ACTION_OPEN);
+                woItem.getItemProperty("name").setValue(teb);
+                woItem.getItemProperty("startedDate").setValue(pi.getStartedDate());
+                woItem.getItemProperty("version").setValue(pdUUID.split("--")[1]);
+                woItem.getItemProperty("lastUpdate").setValue(pi.getLastUpdate());
+                woItem.getItemProperty("state").setValue(pi.getInstanceState());
+            }
+            table.setSortContainerPropertyId("name");
+            table.setSortAscending(false);
+            table.sort();
         } catch (Exception ex) {
             ex.printStackTrace();
+            showError(ex.getMessage());
             throw new RuntimeException(ex);
         }
-        table.setSortContainerPropertyId("lastUpdate");
-        table.setSortAscending(false);
-        table.sort();
-
-    }
-
-    @Override
-    public TableLinkButton getExecBtn(String description, String iconName, Object t, String action) {
-        TableLinkButton execBtn = new TableLinkButton(description, iconName, t, this, action);
-        return execBtn;
     }
 
     @Override
@@ -126,23 +113,16 @@ public class Processes extends TablePanel implements IPbTable,  Button.ClickList
         }
     }
 
-	public void Handle(TaskListEvent message) {
-		if(this.processesBtn==message.getButton())
-		{
-			refreshTable();
-		}
-		else if(message.getActionType()==ActionType.REFRESH){
-			refreshTable();			
-		}
-		else {
-			this.processesBtn.setEnabled(true);
-			this.processesBtn.setStyleName(Reindeer.BUTTON_LINK);
-		}
-	}
+    public void setFilter(ProcessDefinitionUUID filter) {
+        this.filter = filter;
+    }
 
-	public void setButton(Button processesBtn) {
-		this.processesBtn = processesBtn;
+	public void setBpmConfigurationPanel(
+			BPMConfigurationPanel bpmConfigurationPanel) {
+				this.bpmConfigurationPanel = bpmConfigurationPanel;
 		// TODO Auto-generated method stub
 		
 	}
+
+    
 }

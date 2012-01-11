@@ -31,6 +31,8 @@ public class Process {
     private int width = 0;
     private int height = 0;
     private HashMap<String, Step> steps = new HashMap<String, Step>();
+	private String laneName;
+	private String laneId;
 
     public Process(String name) {
         this.name = name;
@@ -95,4 +97,27 @@ public class Process {
     public void setY(int y) {
         this.y = y;
     }
+
+	public void setLane(String laneId, String laneName) {
+		this.setLaneId(laneId);
+		this.setLaneName(laneName);
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLaneId(String laneId) {
+		this.laneId = laneId;
+	}
+
+	public String getLaneId() {
+		return laneId;
+	}
+
+	public void setLaneName(String laneName) {
+		this.laneName = laneName;
+	}
+
+	public String getLaneName() {
+		return laneName;
+	}
 }

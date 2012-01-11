@@ -8,6 +8,7 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
@@ -19,12 +20,19 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Runo;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
 
 import org.hibernate.annotations.common.Version;
+import org.ow2.bonita.facade.BonitaSecurityContext;
+import org.ow2.bonita.util.BonitaConstants;
 import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 
@@ -46,6 +54,7 @@ public class LoginPanel extends GridLayout implements Handler {
     private Locale locale = null;
     private Embedded logo = null;
     private CheckBox cbRememberMe=null;
+	private ComboBox comboDomain;
 
     public LoginPanel() {
         super(3, 2);
@@ -69,7 +78,19 @@ public class LoginPanel extends GridLayout implements Handler {
         password.setCaption(((PbApplication)getApplication()).getPbMessages().getString("password"));
         password.setWidth("100%");
         form.addComponent(password);
-
+        List<String> domains=new ArrayList<String>();
+        File serverDir=new File(BonitaConstants.getBonitaHomeFolder(), "server");
+        for (File f : serverDir.listFiles()) {
+			if(f.isDirectory()){
+				domains.add(f.getName());
+			}
+		}
+        if(domains.size()>1){
+	        comboDomain = new ComboBox("Domeen", domains);
+	        comboDomain.setNullSelectionAllowed(false);
+	        comboDomain.setValue(Constants.BONITA_DOMAIN);
+	        form.addComponent(comboDomain);
+        }
         cbRememberMe=new CheckBox(ProcessbaseApplication.getString("rememberMe", "Remember me"));
         form.addComponent(cbRememberMe);
         
@@ -96,7 +117,7 @@ public class LoginPanel extends GridLayout implements Handler {
         mobidButton.addListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				try {
-					((PbApplication)getApplication()).authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false);
+					((PbApplication)getApplication()).authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false, getDomain());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					getWindow().showNotification(e.getMessage());
@@ -143,7 +164,13 @@ public class LoginPanel extends GridLayout implements Handler {
         try {
             username.commit();
             password.commit();
-            ((PbApplication)getApplication()).authenticate(username.getValue().toString(), password.getValue().toString(), cbRememberMe.booleanValue());
+            //
+            PbApplication pbApplication = (PbApplication)getApplication();
+            if(comboDomain!=null)
+            {
+            	pbApplication.setCurrentDomain((String)comboDomain.getValue());
+            }
+			pbApplication.authenticate(username.getValue().toString(), password.getValue().toString(), cbRememberMe.booleanValue(), getDomain());
            
         } catch (Exception ex) {
              ex.printStackTrace();
@@ -151,4 +178,8 @@ public class LoginPanel extends GridLayout implements Handler {
             //throw new RuntimeException(ex);
         }
     }
+
+	private String getDomain() {
+		return comboDomain!=null?(String)comboDomain.getValue():Constants.BONITA_DOMAIN;
+	}
 }

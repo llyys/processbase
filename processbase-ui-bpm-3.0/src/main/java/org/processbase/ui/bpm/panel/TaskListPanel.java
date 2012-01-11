@@ -30,9 +30,9 @@ import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.bpm.worklist.NewProcesses;
-import org.processbase.ui.bpm.worklist.Processes;
+import org.processbase.ui.bpm.worklist.UserCaseList;
 import org.processbase.ui.bpm.worklist.TaskCompleted;
-import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -57,9 +57,9 @@ import com.vaadin.ui.themes.Reindeer;
 public class TaskListPanel extends PbPanelModule implements Button.ClickListener {
 
     private ButtonBar buttonBar = new ButtonBar();
-    private TaskList pnlTaskList;
+    private CandidateTaskList pnlTaskList;
     //private TaskCompleted taskCompletedPanel; 
-    private Processes pnlRoleProcesses; 
+    private UserCaseList pnlRoleProcesses; 
     private NewProcesses pnlNewProcesses;
     private Button refreshBtn = null;
     private Button btnTaskList = null;
@@ -114,7 +114,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         
     	btnTaskList = new Button(ProcessbaseApplication.getString("myTaskListBtn"), this);
     	btnTaskList.setStyleName(Reindeer.BUTTON_LINK);
-    	pnlTaskList = new TaskList();
+    	pnlTaskList = new CandidateTaskList();
         pnlTaskList.setButton(btnTaskList);
         
                 
@@ -143,7 +143,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         btnRoleProcesses.setStyleName(Reindeer.BUTTON_LINK);
         btnRoleProcesses.setEnabled(true);
         
-        pnlRoleProcesses=new Processes();        
+        pnlRoleProcesses=new UserCaseList();        
         pnlRoleProcesses.setButton(btnRoleProcesses);
         btnRoleProcesses.setData(pnlRoleProcesses);        
                 

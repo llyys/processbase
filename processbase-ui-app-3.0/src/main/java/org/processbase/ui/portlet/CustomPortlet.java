@@ -165,7 +165,7 @@ public class CustomPortlet extends ProcessbaseApplication
             portletSession.setAttribute("PROCESSBASE_PORTLET_CREATED", "PROCESSBASE_PORTLET_CREATED", PortletSession.PORTLET_SCOPE);
         }
     }
-    public void authenticate(String login, String password, boolean rememberMe) throws Exception {
+    public void authenticate(String login, String password, boolean rememberMe, String currentDomain) throws Exception {
                 
     }
     @Override

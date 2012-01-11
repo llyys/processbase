@@ -21,10 +21,10 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Locale;
-import org.processbase.ui.bpm.admin.ActivityInstancesPanel;
+import org.processbase.ui.bpm.admin.AdminCaseList;
 import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
-import org.processbase.ui.bpm.admin.ProcessInstancesPanel;
+import org.processbase.ui.bpm.admin.AdminTaskList;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -55,8 +55,8 @@ public class BPMConfigurationPanel extends PbPanelModule
     private ProcessDefinitionsPanel processDefinitionsPanel;
     private DisabledProcessDefinitionsPanel disabledProcessDefinitionsPanel;
     private CategoriesPanel categoriesPanel;
-    private ProcessInstancesPanel processInstancesPanel;
-    private ActivityInstancesPanel activityInstancesPanel;
+    private AdminTaskList processInstancesPanel;
+    private AdminCaseList activityInstancesPanel;
     private Button refreshBtn = null;
     private Button btnAdd = null;
     private Button disabledProcessDefinitionBtn = null;
@@ -89,11 +89,11 @@ public class BPMConfigurationPanel extends PbPanelModule
         disabledProcessDefinitionsPanel.setBpmConfigurationPanel(this);
         panels.put(disabledProcessDefinitionBtn, disabledProcessDefinitionsPanel);
         
-        processInstancesPanel = new ProcessInstancesPanel();
+        processInstancesPanel = new AdminTaskList();
         processInstancesPanel.setBpmConfigurationPanel(this);        
         panels.put(processInstancesBtn, processInstancesPanel);
 
-        activityInstancesPanel = new ActivityInstancesPanel();
+        activityInstancesPanel = new AdminCaseList();
         activityInstancesPanel.setBpmConfigurationPanel(this);
         panels.put(activityInstancesBtn, activityInstancesPanel);
 

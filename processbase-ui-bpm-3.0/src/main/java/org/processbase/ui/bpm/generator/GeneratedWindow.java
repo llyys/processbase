@@ -79,7 +79,7 @@ import org.ow2.bonita.light.LightTaskInstance;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
-import org.processbase.ui.bpm.worklist.TaskList;
+import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
@@ -645,7 +645,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return component;
 	}
 
-	private TaskList taskList;
+	private CandidateTaskList taskList;
 
 	private Widget clickedButtonWidtet;
 
@@ -745,7 +745,7 @@ public class GeneratedWindow extends HumanTaskWindow implements
 			if (taskList != null)
 				taskList.refreshTable();
 			showMessage(
-					"Protsess edastatud, palun vaadake antud protsessi edasist kulgu tööülesannete nimekirjast",
+					"Protsess edastatud, palun vaadake antud protsessi edasist kulgu tï¿½ï¿½ï¿½lesannete nimekirjast",
 					Notification.TYPE_HUMANIZED_MESSAGE);
 			close();
 		}
@@ -1178,11 +1178,11 @@ public class GeneratedWindow extends HumanTaskWindow implements
 		return null;
 	}
 
-	public void setTaskList(TaskList taskList) {
+	public void setTaskList(CandidateTaskList taskList) {
 		this.taskList = taskList;
 	}
 
-	public TaskList getTaskList() {
+	public CandidateTaskList getTaskList() {
 		return taskList;
 	}
 

@@ -30,6 +30,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -41,7 +42,7 @@ public class Diagram {
 
     BufferedImage processImage = null;
     InputStream processXML;
-    private static HashMap<String, BufferedImage> images = new HashMap<String, BufferedImage>();
+    private static HashMap<String, BufferedImage> images =null;
     private HashMap<String, Process> processes = new HashMap<String, Process>();
     private Set<LightActivityInstance> activityInstances;
 
@@ -50,13 +51,17 @@ public class Diagram {
             this.activityInstances = getLastActivities(activityInstances);
             this.processXML = new ByteArrayInputStream(xmlBytes);
             this.processImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            images.put("READY", ImageIO.read(getClass().getResource("/resources/ready.png")));
-            images.put("EXECUTING", ImageIO.read(getClass().getResource("/resources/executing.png")));
-            images.put("FINISHED", ImageIO.read(getClass().getResource("/resources/finished.png")));
-            images.put("SUSPENDED", ImageIO.read(getClass().getResource("/resources/suspended.png")));
-            images.put("INITIAL", ImageIO.read(getClass().getResource("/resources/initial.png")));
-            images.put("ABORTED", ImageIO.read(getClass().getResource("/resources/aborted.png")));
-            images.put("CANCELLED", ImageIO.read(getClass().getResource("/resources/cancelled.png")));
+            if(images!=null)
+            	return;
+            
+            images= new HashMap<String, BufferedImage>();
+            images.put("READY", ImageIO.read(getClass().getResource("/icons/start.png")));
+            images.put("EXECUTING", ImageIO.read(getClass().getResource("/icons/document.png")));
+            images.put("FINISHED", ImageIO.read(getClass().getResource("/icons/accept.png")));
+            images.put("SUSPENDED", ImageIO.read(getClass().getResource("/icons/pause.png")));
+            images.put("INITIAL", ImageIO.read(getClass().getResource("/icons/start.png")));
+            images.put("ABORTED", ImageIO.read(getClass().getResource("/icons/document-delete.png")));
+            images.put("CANCELLED", ImageIO.read(getClass().getResource("/icons/cancel.png")));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -70,24 +75,33 @@ public class Diagram {
         parceProcesses();
         for (String pkey : processes.keySet()) {
             Process process = processes.get(pkey);
-            //int coefficientX = processImage.getWidth() * 100 / (process.getWidth() + 20);
-            //int coefficientY = processImage.getHeight() * 100 / (process.getHeight() + 20);
+            
+            float processWidth = (float)process.getWidth();
+			float coefficientX = (1-processWidth/processImage.getWidth());
+			
+            int processHeigh = process.getHeight();
+            float coefficientY = (1-processHeigh/processImage.getHeight());
+			
             // well there is a bug in bonita software. Rendered image and task positions are totally off. But when process designer minimizes the diagram into right propotions then positions are ok.
-
+            if(process.getWidth()==0 || coefficientX==0)
+            	coefficientX=1.0F;
+            if(process.getHeight()==0 || coefficientY==0)
+            	coefficientY=1.0F;
 
             for (String skey : process.getSteps().keySet()) {
                 Step step = process.getSteps().get(skey);
                 String stepState = getStepState(step.getName());
 				if (stepState != null) {
                     BufferedImage ind = Diagram.getImage(stepState);
-                    if (step.getType().equals("process:Task") || step.getType().equals("process:Activity")) {
-                        int x = step.getX()+20;// * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2 + 20;
-						int y = step.getY()+4;// * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2 + 4;
+                    String type = step.getType();
+					if (type.equals("process:Task") || type.equals("process:Activity") || type.equals("process:SubProcess")) {
+                        int x = (int) ((step.getX() * coefficientX)  + ((step.getWidth() * coefficientX) / 2));
+						int y = (int) ((step.getY() * coefficientY ) + ((step.getHeight() * coefficientY ) / 2));
 						processImage.createGraphics().drawImage(ind,x,y,null);
                     } else {
                         //System.out.println(" DEBUG: " + step.getName() + (step.getX() * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2) + " " + (step.getY() * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2));
-                        int x = step.getX();// * coefficientX / 100 + (step.getWidth() * coefficientX / 100) / 2;
-						int y = step.getY();// * coefficientY / 100 + (step.getHeight() * coefficientY / 100) / 2;
+                        int x = (int) (step.getX() * coefficientX);
+						int y = (int) (step.getY() * coefficientY);
 						processImage.createGraphics().drawImage(ind,x,y,null);
                     }
                 }
@@ -103,6 +117,7 @@ public class Diagram {
     private void parceProcesses() {
         int diagrammY = 40;
         try {
+        	
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(processXML);
@@ -110,50 +125,163 @@ public class Diagram {
             Node mainProcess = doc.getElementsByTagName("process:MainProcess").item(0);
             NodeList processNodes = mainProcess.getChildNodes();
             for (int i = 0; i < processNodes.getLength(); i++) {
-                if (processNodes.item(i).getNodeName().equals("elements")) {
-                    Node processNode = processNodes.item(i);
-                    Process process = new Process(processNode.getAttributes().getNamedItem("name").getNodeValue());
-                    parceSteps(process, processNode.getChildNodes());
-                    processes.put(processNode.getAttributes().getNamedItem("xmi:id").getNodeValue(), process);
+            	Node processNode = processNodes.item(i);
+                String node = processNode.getNodeName();
+                String nodeType=getNodeAttribute(processNode, "xmi:type");
+				if ("process:Pool".equals(nodeType)) {
+                   
+                    
+                    String nodeName = getNodeAttribute(processNode, "name");
+                    String nodeId = getNodeAttribute(processNode, "xmi:id");
+					
+                    Process process=new Process(nodeName);
+                    parceSteps(process, processNode.getChildNodes());                    
+					processes.put(nodeId, process);
                 }
             }
+            
             Node mainDiagramm = doc.getElementsByTagName("notation:Diagram").item(0);
-            NodeList diagramms = mainDiagramm.getChildNodes();
-            for (int i = 0; i < diagramms.getLength(); i++) {
-                if (diagramms.item(i).getNodeName().equals("children")) {
-                    Node diagramm = diagramms.item(i);
-                    NodeList diagramm2 = diagramm.getChildNodes();
-                    for (int x = 0; x < diagramm2.getLength(); x++) {
-                        if (diagramm2.item(x).getNodeName().equals("layoutConstraint")) {
-                            Node processSize = diagramm2.item(x);
-                            Process process = processes.get(diagramm.getAttributes().getNamedItem("element").getNodeValue());
-                            process.setY(diagrammY);
-                            String w = processSize.getAttributes().getNamedItem("width") == null ? "100" : processSize.getAttributes().getNamedItem("width").getNodeValue();
-                            process.setWidth(Integer.parseInt(w));
-                            String h = processSize.getAttributes().getNamedItem("height") == null ? "50" : processSize.getAttributes().getNamedItem("height").getNodeValue();
-                            process.setHeight(Integer.parseInt(h));
-                            processes.put(diagramm.getAttributes().getNamedItem("element").getNodeValue(), process);
-                            diagrammY = diagrammY + 20 + Integer.parseInt(h);
-                        } else if (diagramm2.item(x).getNodeName().equals("children") && diagramm2.item(x).getAttributes().getNamedItem("type").getNodeValue().equals("7001")) {
-                            Process process = processes.get(diagramm.getAttributes().getNamedItem("element").getNodeValue());
-                            parceSteps2(process, diagramm2.item(x).getChildNodes());
-                            processes.put(diagramm.getAttributes().getNamedItem("element").getNodeValue(), process);
-                        }
-                    }
-                }
-            }
+            parseProcessDiagramms(doc.getElementsByTagName("notation:Diagram"));
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    
+    private void parseProcessDiagramms(NodeList diagramms) {
+		for (int i = 0; i < diagramms.getLength(); i++) {
+			Node diagramm=diagramms.item(i);
+			if("Process".equalsIgnoreCase(getNodeAttribute(diagramm, "type"))){
+				Process process=findDiagrammProcess(diagramm);
+				
+				if(process!=null){
+					Node decorationNode=getChildNodeByAttr(diagramm,"type", "7002");
+					if(decorationNode!=null)
+						parseProcessShapes(process, decorationNode);
+					else{
+						decorationNode=getChildNodeByAttr(diagramm,"type", "7001");
+						parseProcessShapes(process, decorationNode);
+					}
+					//find process bounds
+					for (int j = 0; j < decorationNode.getParentNode().getChildNodes().getLength(); j++) {
+						Node c=decorationNode.getParentNode().getChildNodes().item(j);
+						if("notation:Bounds".equals(getNodeAttribute(c, "xmi:type"))){
+							if(getNodeAttribute(c,"x")!=null)
+								process.setWidth(Integer.parseInt(getNodeAttribute(c,"x")));
+							else if(getNodeAttribute(c,"width")!=null)
+								process.setWidth(Integer.parseInt(getNodeAttribute(c,"width")));
+							if(getNodeAttribute(c,"y")!=null)
+                        		process.setHeight(Integer.parseInt(getNodeAttribute(c,"y")));
+							else if(getNodeAttribute(c,"height")!=null)
+								process.setHeight(Integer.parseInt(getNodeAttribute(c,"height")));
+                        	
+						}
+					}
+					
+						
+				}
+			}
+		}		
+	}
+
+	
+
+	private Process findDiagrammProcess(Node diagramm) {
+		for (int i = 0; i < diagramm.getChildNodes().getLength(); i++) {
+			Node notation=diagramm.getChildNodes().item(i);
+			if("notation:Node".equals(getNodeAttribute(notation, "xmi:type"))){
+				String nodeAttribute = getNodeAttribute(notation, "element");
+				return processes.get(nodeAttribute);
+			}
+		}
+		return null;
+	}
+
+	private void parseProcessShapes(Process process, Node decorationNode) {
+		HashMap<String, Step> steps = process.getSteps();
+		for (int i = 0; i < decorationNode.getChildNodes().getLength(); i++) {
+			Node shape=decorationNode.getChildNodes().item(i);
+			if("notation:Shape".equals(getNodeAttribute(shape, "xmi:type"))){
+				Step step=steps.get(getNodeAttribute(shape, "element"));
+				
+				for (int j = 0; j < shape.getChildNodes().getLength(); j++) {
+					Node child=shape.getChildNodes().item(j);
+					if("notation:Bounds".equals(getNodeAttribute(child, "xmi:type"))){
+						
+                        step.setX(Integer.parseInt(getNodeAttribute(child,"x")));
+                        step.setY(Integer.parseInt(getNodeAttribute(child,"y")));
+                        try {                        	
+                        	if(getNodeAttribute(child,"width")!=null)
+                        		step.setWidth(Integer.parseInt(getNodeAttribute(child,"width")));
+                        	if(getNodeAttribute(child,"height")!=null)
+                        		step.setHeight(Integer.parseInt(getNodeAttribute(child,"height")));
+                        } catch (Exception ex) {
+                        }
+						break;
+					}
+				}
+			}
+		}
+		
+	}
+
+	private Node getChildNodeByAttr(Node diagramm, String attribute, String value) {
+		for (int i = 0; i < diagramm.getChildNodes().getLength(); i++) {
+			Node child=diagramm.getChildNodes().item(i);
+			if(value.equalsIgnoreCase(getNodeAttribute(child, attribute)))
+				return child;
+			if(child.hasChildNodes())
+			{
+				Node result=getChildNodeByAttr(child, attribute, value);
+				if(result!=null)
+					return result;
+			}
+			
+		}
+		return null;		
+	}
+
+	
+
+	private String getNodeAttribute(Node node, String attr){
+    	NamedNodeMap attributes = node.getAttributes();
+    	if(attributes!=null) {
+			Node namedItem = attributes.getNamedItem(attr);
+			if(namedItem!=null)
+				return namedItem.getNodeValue();
+		}
+    	return null;
     }
 
     private void parceSteps(Process process, NodeList steps) {
         try {
             for (int x = 0; x < steps.getLength(); x++) {
-                if (steps.item(x).getNodeName().equals("elements")) {
-                    Node stepNode = steps.item(x);
-                    Step step = new Step(stepNode.getAttributes().getNamedItem("name").getNodeValue(), stepNode.getAttributes().getNamedItem("xmi:type").getNodeValue());
-                    process.addStep(stepNode.getAttributes().getNamedItem("xmi:id").getNodeValue(), step);
+                String node = steps.item(x).getNodeName();
+                String nodeType = getNodeAttribute(steps.item(x), "xmi:type");
+                String nodeId = getNodeAttribute(steps.item(x), "xmi:id");
+                if("process:Lane".equals(nodeType)){
+                	process.setLane(getNodeAttribute(steps.item(x), "xmi:id"), getNodeAttribute(steps.item(x), "name"));
+                	for (int i = 0; i < steps.item(x).getChildNodes().getLength(); i++) {
+						Node stepNode = steps.item(x).getChildNodes().item(i);
+						nodeType = getNodeAttribute(stepNode, "xmi:type");
+						if(nodeType!=null){
+							String nodeName = getNodeAttribute(stepNode, "name");
+							nodeId = getNodeAttribute(stepNode, "xmi:id");
+							Step step = new Step(nodeName, nodeType);
+							process.addStep(nodeId, step);
+						}
+					}
+                	return;
+                }
+                else if (node.equals("elements")) {
+                	for (int i = 0; i < steps.item(x).getChildNodes().getLength(); i++) {
+						Node stepNode = steps.item(x).getChildNodes().item(i);
+						nodeType = getNodeAttribute(stepNode, "xmi:type");
+						String nodeName = getNodeAttribute(stepNode, "name");
+						nodeId = getNodeAttribute(stepNode, "xmi:id");
+						Step step = new Step(nodeName, nodeType);
+						process.addStep(nodeId, step);
+					}
                 }
             }
         } catch (Exception ex) {
@@ -161,23 +289,47 @@ public class Diagram {
         }
     }
 
+    private Node findChildNodeNamed(String nodeName, Node parent){
+    	
+    	for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
+    		Node current=parent.getChildNodes().item(i);
+    		if(current.getNodeName().equals(nodeName))
+    			return current;
+    		if(current.hasChildNodes())
+    		{
+    			Node found=findChildNodeNamed(nodeName, current);
+    			if(found!=null)
+    				return found;
+    		}
+		}
+    	
+		return null;
+    	
+    }
+    
     private void parceSteps2(Process process, NodeList steps) {
         try {
             for (int z = 0; z < steps.getLength(); z++) {
-                if (steps.item(z).getNodeName().equals("children")) {
+                String nodeName = steps.item(z).getNodeName();
+				if (nodeName.equals("children")) {
+					String nodeType = getNodeAttribute(steps.item(z), "xmi:type");
                     Node shape = steps.item(z);
                     for (int a = 0; a < shape.getChildNodes().getLength(); a++) {
-                        if (shape.getChildNodes().item(a).getNodeName().equals("layoutConstraint")) {
-                            Node coordinate = shape.getChildNodes().item(a);
-                            Step step = process.getSteps().get(shape.getAttributes().getNamedItem("element").getNodeValue());
-                            step.setX(Integer.parseInt(coordinate.getAttributes().getNamedItem("x").getNodeValue()));
-                            step.setY(Integer.parseInt(coordinate.getAttributes().getNamedItem("y").getNodeValue()));
+//                        Node item = shape.getChildNodes().item(a);
+						Node item=findChildNodeNamed("layoutConstraint", shape.getChildNodes().item(a));
+						String nodeName2 = item.getNodeName();
+						if (nodeName2.equals("layoutConstraint")) {
+                            Node coordinate = item;
+                            String nodeValue = getNodeAttribute(shape, "element");
+							Step step = process.getSteps().get(nodeValue);
+                            step.setX(Integer.parseInt(getNodeAttribute(coordinate,"x")));
+                            step.setY(Integer.parseInt(getNodeAttribute(coordinate,"y")));
                             try {
-                                step.setWidth(Integer.parseInt(coordinate.getAttributes().getNamedItem("width").getNodeValue()));
-                                step.setHeight(Integer.parseInt(coordinate.getAttributes().getNamedItem("height").getNodeValue()));
+                                step.setWidth(Integer.parseInt(getNodeAttribute(coordinate,"width")));
+                                step.setHeight(Integer.parseInt(getNodeAttribute(coordinate,"height")));
                             } catch (Exception ex) {
                             }
-                            process.addStep(shape.getAttributes().getNamedItem("element").getNodeValue(), step);
+                            process.addStep(nodeValue, step);
                         }
                     }
                 }

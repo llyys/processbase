@@ -141,6 +141,7 @@ public class DvkConnector extends ProcessConnector{
 		return bais;
 		
 	}
+	private org.ow2.bonita.facade.runtime.AttachmentInstance file;
 
 	public void setSaatjaIsikukood(String saatjaIsikukood) {
 		this.saatjaIsikukood = saatjaIsikukood;
@@ -180,6 +181,14 @@ public class DvkConnector extends ProcessConnector{
 
 	public String getRecipentCompanyRegNo() {
 		return recipentCompanyRegNo;
+	}
+
+	public void setFile(org.ow2.bonita.facade.runtime.AttachmentInstance file) {
+		this.file = file;
+	}
+
+	public org.ow2.bonita.facade.runtime.AttachmentInstance getFile() {
+		return file;
 	}
 
 

@@ -55,9 +55,9 @@ import org.processbase.ui.core.bonita.process.BarResource;
  *
  * @author mgubaidullin
  */
-public class TaskList extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent> {
+public class CandidateTaskList extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent> {
 
-    public TaskList() {
+    public CandidateTaskList() {
         super();
     }
     

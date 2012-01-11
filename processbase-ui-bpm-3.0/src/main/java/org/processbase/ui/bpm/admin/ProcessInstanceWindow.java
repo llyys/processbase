@@ -17,6 +17,7 @@
 package org.processbase.ui.bpm.admin;
 
 import java.io.FileNotFoundException;
+import java.util.UUID;
 
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.Alignment;
@@ -89,15 +90,18 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
         	
             
             BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-            
-            processInstanceUUID = process.getProcessInstanceUUID();
-			ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(processInstanceUUID));
-            variablesPanel.initUI();
-            tabSheet.addTab(variablesPanel, "Variables");
+            if(managed){
+	            processInstanceUUID = process.getProcessInstanceUUID();
+				ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(processInstanceUUID));
+	            variablesPanel.initUI();
+	            
+	            tabSheet.addTab(variablesPanel, "Variables");
+            }
             
 			byte[] processDiagramm = bpmModule.getProcessDiagramm(process);
 			ByteArraySource bas = new ByteArraySource(processDiagramm);
-            StreamResource imageResource = new StreamResource(bas, "processInstance.png", this.getApplication());
+			String processImageId=UUID.randomUUID().toString()+".png";
+            StreamResource imageResource = new StreamResource(bas, processImageId, this.getApplication());
             imageResource.setCacheTime(1000);
             processImage = new Embedded("", imageResource);
 
@@ -106,19 +110,21 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             imageLayout.setStyleName(Reindeer.LAYOUT_WHITE);
             imageLayout.setMargin(false);
             imageLayout.setSpacing(false);
-
+            
             closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
-            refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
-            deleteBtn = new Button(ProcessbaseApplication.getString("btnRemove", "Eemalda menetlus"), this);
-            cancelBtn = new Button(ProcessbaseApplication.getString("btnBack", "Tagasi"), this);
-
-            buttons.addButton(deleteBtn);
-            buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_LEFT);
-            buttons.addButton(cancelBtn);
-            buttons.setComponentAlignment(cancelBtn, Alignment.MIDDLE_LEFT);
-            buttons.addButton(refreshBtn);
-            buttons.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
-            buttons.setExpandRatio(refreshBtn, 1);
+            if(managed){
+	            refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
+	            deleteBtn = new Button(ProcessbaseApplication.getString("btnRemove", "Eemalda menetlus"), this);
+	            cancelBtn = new Button(ProcessbaseApplication.getString("btnBack", "Tagasi"), this);
+            
+	            buttons.addButton(deleteBtn);
+	            buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_LEFT);
+	            buttons.addButton(cancelBtn);
+	            buttons.setComponentAlignment(cancelBtn, Alignment.MIDDLE_LEFT);
+	            buttons.addButton(refreshBtn);
+	            buttons.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
+	            buttons.setExpandRatio(refreshBtn, 1);
+            }
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(true, true, true, true);

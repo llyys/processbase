@@ -3,9 +3,13 @@
     <category name="SmartBPM">
         <portlet id="ConsolePortlet" />
         <portlet id="UserTaskList" />
-        <portlet id="Processes" />
+        <portlet id="UserCaseList" />
+        <portlet id="CandidateTaskList" />
+        <portlet id="CandidateCaseList" />
         <portlet id="NewProcesses" />        
         <portlet id="AdminPortlet" />
+        <portlet id="AdminTaskList" />
+        <portlet id="AdminCaseList" />
         <portlet id="Raports" />
         <portlet id="IdentityPortlet" />
         <portlet id="MonitoringPortlet" />
