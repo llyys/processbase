@@ -62,6 +62,7 @@ public class TaskField {
 	private final TaskManager taskManager;	
 	private Object value;
 	private Widget widget;
+	private boolean readOnly;
 	
 	public TaskField(TaskManager taskManager, Widget widget) {
 		this.taskManager = taskManager;		
@@ -123,7 +124,7 @@ public class TaskField {
 	
 	private Component initComponent() throws Exception {
 		try {
-			Object value = null;
+			//Object value = null;
 			DataFieldDefinition dfd = null;
 			Collection options = null;
 			
@@ -138,8 +139,10 @@ public class TaskField {
 				if (type.equals(WidgetType.MESSAGE)) {
 					String escaped = StringEscapeUtils.unescapeHtml(value.toString());
 					Label component = new Label(escaped);
+					
 					component.setWidth("100%");
 					component.setContentMode(Label.CONTENT_XHTML);
+					setReadOnly(true);
 					return component;
 				}
 				if (type.equals(WidgetType.TEXT)) {
@@ -151,6 +154,7 @@ public class TaskField {
 					Label component = new Label(content);
 					component.setWidth("100%");
 					component.setContentMode(Label.CONTENT_XHTML);
+					setReadOnly(true);
 					return component;				
 				}
 				
@@ -207,6 +211,7 @@ public class TaskField {
 					return component;
 				}
 				if (type.equals(WidgetType.LISTBOX_MULTIPLE)) {
+					
 					ListSelect component = new ListSelect(label, (Collection)value);
 					component.setMultiSelect(true);
 					return component;
@@ -231,6 +236,7 @@ public class TaskField {
 				}
 				if (type.equals(WidgetType.FILEDOWNLOAD)) {
 					//hasAttachments = true;
+					setReadOnly(true);
 					return getDownload((String)value);
 				}
 				if (type.equals(WidgetType.BUTTON_SUBMIT)/* || widget.getType().equals(WidgetType.BUTTON_NEXT) || widget.getType().equals(WidgetType.BUTTON_PREVIOUS)*/) {
@@ -485,6 +491,23 @@ public class TaskField {
 			}
 		}
 		return errorMsg.length()==0?null:errorMsg.toString();
+	}
+
+	public String getVariableBound() {
+		if(GroovyExpression.isGroovyExpression(widget.getVariableBound()))				
+			return TaskManager.stripGroovyExpression(widget.getVariableBound());
+		else
+			return widget.getVariableBound();
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public boolean isReadOnly(){
+		return this.readOnly;
 	}
 	
 	

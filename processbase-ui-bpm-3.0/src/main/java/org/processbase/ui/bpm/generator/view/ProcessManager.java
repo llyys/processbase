@@ -31,6 +31,7 @@ import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.diagram.ProcessParser;
 import org.processbase.ui.core.bonita.forms.Activities;
 import org.processbase.ui.core.bonita.forms.FieldValue;
 import org.processbase.ui.core.bonita.forms.FormsDefinition;
@@ -592,6 +593,17 @@ public class ProcessManager extends PbPanel {
 
 	public TaskManager getTaskManager() {
 		return taskManager;
+	}
+
+	public String getProcessDataTypeByVariableName(String variableBound) {
+		try {
+			org.processbase.ui.core.bonita.diagram.Process processDefinition = ProcessParser.getProcessDefinition(getBpmModule(), processDefinitionUUID);
+			return processDefinition.getDataType(variableBound).getName();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	

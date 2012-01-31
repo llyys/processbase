@@ -129,6 +129,7 @@ import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.processbase.commands.documents.DeleteDocumentCommand;
 import org.processbase.engine.bam.command.DeleteMetaDim;
 import org.processbase.ui.core.bonita.diagram.Diagram;
+import org.processbase.ui.core.bonita.diagram.ProcessParser;
 import org.processbase.ui.core.bonita.process.ProcessParticipant;
 import org.processbase.ui.core.util.CacheUtil;
 import org.processbase.ui.core.util.ICacheDelegate;
@@ -627,9 +628,10 @@ public class BPMModule {
         getRuntimeAPI().finishTask(task.getUUID(), true);
     }
     
-    public void addDocument(ProcessInstanceUUID processInstanceUUID, String document_name, String fileName, String mimeType, byte[] fileBody) throws Exception {
+    public org.ow2.bonita.facade.runtime.Document addDocument(ProcessInstanceUUID processInstanceUUID, String document_name, String fileName, String mimeType, byte[] fileBody) throws Exception {
     	initContext();
-    	getRuntimeAPI().createDocument(document_name, processInstanceUUID, fileName, mimeType, fileBody);
+    	org.ow2.bonita.facade.runtime.Document document = getRuntimeAPI().createDocument(document_name, processInstanceUUID, fileName, mimeType, fileBody);
+    	return document;
 	}
 /*
     public void addAttachment(ProcessInstanceUUID instanceUUID, String name, String fileName, String mimeType, byte[] value) throws Exception {
@@ -1108,17 +1110,13 @@ public class BPMModule {
     
 
     public byte[] getProcessDiagramm(LightProcessInstance pi) throws Exception {
+    	org.processbase.ui.core.bonita.diagram.Process proc=ProcessParser.getProcessDefinition(this, pi.getProcessDefinitionUUID());
     	logger.debug("getProcessDiagramm");
-        Map<String, byte[]> resource = getBusinessArchive(pi.getProcessDefinitionUUID());
+       
         byte[] img = getProcessDiagramm(pi.getProcessDefinitionUUID());
         if(img==null)
         	throw new FileNotFoundException("Protsessi kirjelduse fail puudub serverist");
-        byte[] proc = null;
-        for (String key : resource.keySet()) {
-            if (key.substring(key.length() - 4, key.length()).equals("proc")) {
-                proc = resource.get(key);
-            } 
-        }
+        
         File x = new File("AAA.png");
         FileOutputStream fos = new FileOutputStream(x);
         fos.write(img);

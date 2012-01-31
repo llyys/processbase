@@ -17,25 +17,44 @@
 package org.processbase.ui.core.bonita.diagram;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  *
  * @author mgubaidullin
+ * @author lauri - added lane support, added process datatypes support
+ * 
  */
 public class Process {
 
+	private String id;
+	
     private String name;
     private String state;
     private int x = 40;
     private int y = 40;
     private int width = 0;
     private int height = 0;
+    private HashMap<String, ProcessDataType> dataTypes = new HashMap<String, ProcessDataType>();
     private HashMap<String, Step> steps = new HashMap<String, Step>();
+    private HashMap<String, ProcessData> data=new HashMap<String, ProcessData>();
 	private String laneName;
 	private String laneId;
 
     public Process(String name) {
         this.name = name;
+    }
+    
+    public void registerProcessDataType(String key, ProcessDataType data){
+    	if(!dataTypes.containsKey(key)){
+    		dataTypes.put(key, data);
+    	}    	
+    }
+    
+    public void registerProcessData(String key, ProcessData data){
+    	if(!this.data.containsKey(key)){
+    		this.data.put(key, data);
+    	}    	
     }
 
     public int getHeight() {
@@ -119,5 +138,26 @@ public class Process {
 
 	public String getLaneName() {
 		return laneName;
+	}
+	
+	public ProcessDataType getProcessDataType(String dataTypeId) {
+		return dataTypes.get(dataTypeId);		
+	}
+
+	public ProcessDataType getDataType(String dataTypeId) {
+		for (Entry<String, ProcessData> d : data.entrySet()) {
+			if(dataTypeId.equals(d.getValue().getName())){
+				return d.getValue().getDataType();
+			}
+		}
+		return null;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
 	}
 }

@@ -1,6 +1,7 @@
 package org.processbase.ui.bpm.generator.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
+import org.processbase.ui.bpm.components.MultipleUploadComponent;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.forms.ActionType;
@@ -179,6 +181,10 @@ public class TaskManager
 		//save all data from fields
 		for (Entry<String, TaskField> field : getFields().entrySet()) {
 			TaskField taskField = field.getValue();
+			
+			if(taskField.isReadOnly())//skip readonly components
+				continue;
+			
 			String error=taskField.validate();
 			if(error!=null)
 				errors.add(error);
@@ -348,7 +354,17 @@ public class TaskManager
 				}
 				
 				if (c != null) {
-										
+					//let's check if this widget is actually a multiple attachment component 
+					if(widget.getType()==WidgetType.LISTBOX_MULTIPLE){
+						
+						String processVariableDataType=getProcessManager().getProcessDataTypeByVariableName(field.getVariableBound());
+						//DataFieldDefinition processDataField = getProcessManager().getBpmModule().getProcessDataField(getProcessManager().processDefinitionUUID, widget.getVariableBound());
+						
+						if("Attachment".equalsIgnoreCase(processVariableDataType)){ //we must render a upload components
+							c=new MultipleUploadComponent(field, getProcessManager().getProcessInstanceUUID(), widget);
+							field.setReadOnly(true);
+						}
+					}
 					int col1 = 0;
 					int col2 = 0;
 					if (tableStyle!=null) {

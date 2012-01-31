@@ -23,7 +23,7 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Ylesannete nimekiri</title>
+			<title>ConsolePortlet</title>
 			<short-title>ConsolePortlet</short-title>
 		</portlet-info>
 	</portlet>
@@ -48,8 +48,8 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Kasutajale suunatud menetlustegevused.</title>
-			<short-title>Kasutajale suunatud menetlustegevused.</short-title>
+			<title>UserTaskList</title>
+			<short-title>UserTaskList</short-title>
 		</portlet-info>
 	</portlet>
 	<portlet>
@@ -73,8 +73,8 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Kasutaja poolt algatatud ja talle suunatud menetlused.</title>
-			<short-title>Kasutaja poolt algatatud ja talle suunatud menetlused.</short-title>
+			<title>UserCaseList</title>
+			<short-title>UserCaseList</short-title>
 		</portlet-info>
 	</portlet>
 	<portlet>
@@ -98,8 +98,8 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</title>
-			<short-title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</short-title>
+			<title>CandidateTaskList</title>
+			<short-title>CandidateTaskList</short-title>
 		</portlet-info>
 	</portlet>
 	<portlet>
@@ -123,8 +123,8 @@
 			<portlet-mode>view</portlet-mode>
 		</supports>
 		<portlet-info>
-			<title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</title>
-			<short-title>Ametnikule suunatud menetlustegevused, mille kandidaat ta on.</short-title>
+			<title>CandidateCaseList</title>
+			<short-title>CandidateCaseList</short-title>
 		</portlet-info>
 	</portlet>
 	
