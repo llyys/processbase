@@ -19,38 +19,27 @@ package org.processbase.ui.core;
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.io.FileOutputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.h2.util.StringUtils;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
 import org.ow2.bonita.facade.IdentityAPI;
-import org.ow2.bonita.facade.exception.UndeletableProcessException;
-import org.ow2.bonita.facade.APIAccessor;
 import org.ow2.bonita.facade.ManagementAPI;
 import org.ow2.bonita.facade.QueryDefinitionAPI;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
@@ -67,81 +56,60 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
 import org.ow2.bonita.facade.exception.DeploymentException;
-import org.ow2.bonita.facade.exception.DocumentationCreationException;
-import org.ow2.bonita.facade.exception.GroupNotFoundException;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
-import org.ow2.bonita.facade.exception.MetadataNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
-import org.ow2.bonita.facade.exception.RoleAlreadyExistsException;
 import org.ow2.bonita.facade.exception.TaskNotFoundException;
-import org.ow2.bonita.facade.exception.UserAlreadyExistsException;
+import org.ow2.bonita.facade.exception.UndeletableInstanceException;
+import org.ow2.bonita.facade.exception.UndeletableProcessException;
 import org.ow2.bonita.facade.exception.UserNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
-import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.ProcessInstance;
-import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
-import org.ow2.bonita.facade.uuid.DocumentUUID;
-import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
-import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
-import org.ow2.bonita.search.DocumentSearchBuilder;
-import org.ow2.bonita.services.Document;
-import org.ow2.bonita.services.DocumentationManager;
-import org.ow2.bonita.services.Folder;
-import org.ow2.bonita.services.IdentityService;
-import org.ow2.bonita.services.LargeDataRepository;
-import org.ow2.bonita.util.AccessorUtil;
-import org.ow2.bonita.facade.exception.UndeletableInstanceException;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
-import org.ow2.bonita.facade.identity.impl.MembershipImpl;
 import org.ow2.bonita.facade.impl.FacadeUtil;
 import org.ow2.bonita.facade.impl.SearchResult;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
+import org.ow2.bonita.facade.runtime.ActivityInstance;
+import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.facade.runtime.Comment;
+import org.ow2.bonita.facade.runtime.InitialAttachment;
 import org.ow2.bonita.facade.runtime.InstanceState;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
+import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.DocumentUUID;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.identity.auth.DomainOwner;
 import org.ow2.bonita.identity.auth.UserOwner;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.light.LightTaskInstance;
-import org.ow2.bonita.util.GroovyException;
-import org.ow2.bonita.facade.runtime.AttachmentInstance;
-import org.ow2.bonita.facade.runtime.InitialAttachment;
-import org.ow2.bonita.facade.uuid.AbstractUUID;
-import org.ow2.bonita.util.BusinessArchiveFactory;
+import org.ow2.bonita.services.Document;
+import org.ow2.bonita.services.DocumentationManager;
+import org.ow2.bonita.services.IdentityService;
+import org.ow2.bonita.services.LargeDataRepository;
+import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.DocumentService;
 import org.ow2.bonita.util.EnvTool;
+import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.Misc;
-import org.ow2.bonita.util.SimpleCallbackHandler;
-import org.processbase.commands.documents.DeleteDocumentCommand;
-import org.processbase.engine.bam.command.DeleteMetaDim;
 import org.processbase.ui.core.bonita.diagram.Diagram;
 import org.processbase.ui.core.bonita.diagram.ProcessParser;
-import org.processbase.ui.core.bonita.process.ProcessParticipant;
 import org.processbase.ui.core.util.CacheUtil;
 import org.processbase.ui.core.util.ICacheDelegate;
-
- 
-
-import com.sun.appserv.security.AppservRealm;
-import com.sun.appserv.security.ProgrammaticLogin;
-import com.sun.enterprise.security.auth.realm.Realm;
-
-import org.apache.log4j.Logger;
-import org.h2.util.StringUtils;
 /**
  *
  * @author mgubaidullin
@@ -679,7 +647,43 @@ public class BPMModule {
         return attachmentInstance;*/
         //return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
     }
-    
+    public void deleteDocument(ProcessInstanceUUID processInstanceUUID,
+			final String documentId, String field) {
+    	logger.debug("getAttachmentValue");
+        
+        
+        try {
+        	initContext();
+        	//remove attachment instance from variables
+        	java.util.ArrayList variable2 = new java.util.ArrayList();
+        	java.util.ArrayList variable = (java.util.ArrayList) getProcessInstanceVariable(processInstanceUUID, field);
+        	
+        	for (Object object : variable) {    			
+				AttachmentInstance attachment = (AttachmentInstance) object;
+				if(!documentId.equals(attachment.getUUID())){
+					variable2.add(attachment);
+				}
+        	}
+        	setProcessInstanceVariable(processInstanceUUID, field, variable2);
+        	//remove document
+        	Document result=execute(new Command<Document>() {
+				@Override
+				public Document execute(Environment environment) throws Exception {
+					DocumentationManager manager = EnvTool.getDocumentationManager();
+					manager.deleteDocument(documentId, true);
+					
+					
+				   	return null;
+				}
+			});
+			 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ;
+		
+	}
     public List<Document> getProcessInstanceDocuments(final ProcessInstanceUUID processInstanceUUID) throws Exception {
     	initContext();
         
@@ -1845,25 +1849,4 @@ public class BPMModule {
 		return getQueryRuntimeAPI().getProcessInstance(processInstanceUUID);
 		
 	}
-
-
-
-	
-
-
-
-	
-
-
-
-	
-
-
-
-	
-
-
-
-	
-	
 }

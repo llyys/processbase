@@ -136,6 +136,8 @@ public class ImmediateUpload extends VerticalLayout
                 upload.setVisible(true);
                 status.setValue("");
                 deleteBtn.setVisible(false);
+                BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+                bpmModule.deleteDocument(new ProcessInstanceUUID(processUUID), attachmentName, fileName);
             } else if (event.getButton().equals(downloadBtn)) {
             	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
             	//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);

@@ -513,8 +513,26 @@ public class FileDocumentManager implements DocumentationManager{
 	}
 
 	public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("deleteDocument");
+		System.out.println("deleteDocument");
+	    Document document = null;
+	    try {
+		   
+			DBCollection table = db.getCollection(DOCUMENTS);
+
+			DBObject doc = table.findOne(new ObjectId(documentId));
+			if (doc == null)
+				return;
+			Object fileId = doc.get(FILE_ID);
+			table.remove(doc);
+
+			if (fileId == null)
+				return;
+			GridFS gridFile = new GridFS(db, "FILE_TABLE");
+			gridFile.remove((ObjectId) fileId);
+					   
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 	}
 
 	public void deleteFolder(Folder folder) {
