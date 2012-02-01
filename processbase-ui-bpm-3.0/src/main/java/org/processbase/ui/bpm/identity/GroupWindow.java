@@ -118,11 +118,16 @@ public class GroupWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (group == null) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().addGroup(
-                            groupName.getValue().toString(),
-                            groupLabel.getValue().toString(),
-                            groupDescription.getValue().toString(),
-                            parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
+                    try {
+						ProcessbaseApplication.getCurrent().getBpmModule().addGroup(
+						        groupName.getValue().toString(),
+						        groupLabel.getValue().toString(),
+						        groupDescription.getValue().toString(),
+						        parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
+					} catch (org.ow2.bonita.facade.exception.GroupAlreadyExistsException e) {
+						showError(ProcessbaseApplication.getString("groupexists", e.getMessage()));
+						return;
+					}
                 } else {
                     ProcessbaseApplication.getCurrent().getBpmModule().updateGroupByUUID(
                             group.getUUID(),

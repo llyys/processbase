@@ -195,7 +195,8 @@ public class BPMModule {
             Constants.loadConstants();
             AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
         }
-    	this.currentDomain=currentDomain;
+    	setCurrentDomain(currentDomain.replaceAll("\\s", "_"));
+    	
         this.currentUserUID = currentUserUID;
         try {
             initContext();

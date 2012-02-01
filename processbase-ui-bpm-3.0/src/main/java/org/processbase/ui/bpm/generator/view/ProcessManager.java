@@ -384,7 +384,8 @@ public class ProcessManager extends PbPanel {
 		this.buttons.addComponent(empty);
 		this.buttons.setComponentAlignment(empty, Alignment.MIDDLE_RIGHT);
 		buttons.setExpandRatio(empty, 1.0f);
-		if(taskInstance==null || (taskInstance.isTaskAssigned() && isCanceable)){
+		//subProcess is not canceable
+		if(subProcess==false && (taskInstance==null || (taskInstance.isTaskAssigned() && isCanceable))){
 			
 			
 			Button buttonKatkesta = new Button("Katkesta");
@@ -546,6 +547,7 @@ public class ProcessManager extends PbPanel {
 	}
 
 	Set<String> modifiedProcessVariables=null;
+	private boolean subProcess=false;
 	public void registerModifiedVariable(String variable){
 		if(modifiedProcessVariables==null)
 			modifiedProcessVariables=new HashSet<String>();
@@ -604,6 +606,12 @@ public class ProcessManager extends PbPanel {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public void setIsSubProcess(boolean subProcess) {
+		this.subProcess = subProcess;
+		// TODO Auto-generated method stub
+		
 	}
 
 	

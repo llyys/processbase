@@ -34,7 +34,10 @@ public class SignaturePrepareConnector extends ProcessConnector {
 		Sign sign=new Sign(getProcessInstanceUUID().toString());
 		
 		sign.initSettings(Sign.getBonitaHomeDir());
-		
+		//bugfix when there are multiple documents, then bonita adds another list into this 
+		if(this.files.get(0) instanceof ArrayList){
+			files=(List<AttachmentInstance>) this.files.get(0);
+		}
 		List<Document> documents=new ArrayList<Document>(this.files.size());
 		QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getQueryRuntimeAPI();
 		sign.setQueryRuntimeAPI(queryRuntimeAPI);

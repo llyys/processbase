@@ -186,16 +186,22 @@ public class UserWindow extends PbWindow
             if (event.getButton().equals(saveBtn)) {
                 BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
 				if (user == null) {
-                    User userNew = bpmModule.addUser(
-                            userName.getValue().toString(),
-                            password.getValue().toString(),
-                            userFirstName.getValue().toString(),
-                            userLastName.getValue().toString(),
-                            "", userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
-                            null, new HashMap<String, String>());
-                    bpmModule.updateUserProfessionalContactInfo(
-                            userNew.getUUID(), userEmail.getValue().toString(), "",
-                            "", "", "", "", "", "", "", "", "", "");
+                    try {
+						User userNew = bpmModule.addUser(
+						        userName.getValue().toString(),
+						        password.getValue().toString(),
+						        userFirstName.getValue().toString(),
+						        userLastName.getValue().toString(),
+						        "", userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
+						        null, new HashMap<String, String>());
+						bpmModule.updateUserProfessionalContactInfo(
+						        userNew.getUUID(), userEmail.getValue().toString(), "",
+						        "", "", "", "", "", "", "", "", "", "");
+					} catch (org.ow2.bonita.facade.exception.UserAlreadyExistsException e) {
+						// TODO Auto-generated catch block						
+						showError(ProcessbaseApplication.getString("userexists", "A user with username already exists."));
+						return;
+					}
                 } else {
                     bpmModule.updateUserByUUID(
                             user.getUUID(),

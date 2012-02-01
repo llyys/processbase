@@ -103,7 +103,13 @@ public class RoleWindow extends PbWindow implements ClickListener {
         try {
             if (event.getButton().equals(applyBtn)) {
                 if (role == null) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+                    try {
+						ProcessbaseApplication.getCurrent().getBpmModule().addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
+					} catch (org.ow2.bonita.facade.exception.RoleAlreadyExistsException e) {
+						// TODO Auto-generated catch block
+						showError(ProcessbaseApplication.getString("roleexists", e.getMessage()));
+						return;
+					}
                 } else {
                     ProcessbaseApplication.getCurrent().getBpmModule().updateRoleByUUID(role.getUUID(), roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
                 }

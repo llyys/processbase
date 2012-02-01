@@ -54,11 +54,13 @@ public class NewProcessWindow extends PbWindow{
 		// TODO Auto-generated method stub
 		if(processManagerStack.size()>0){
 			ProcessManager pm=processManagerStack.pop();	
+			pm.setIsSubProcess(processManagerStack.size()>0);
 			setContent(pm);
 			pm.reloadTask();
 			//replaceComponent(processManager, pm);
 			pm.setWindow(this);
-			setCaption(pm.getLabel());
+			setCaption(getCaption().replaceAll("\\s\\>\\s"+processManager.getLabel(), ""));
+			
 			processManager=pm;
 		}
 		else{
@@ -75,7 +77,9 @@ public class NewProcessWindow extends PbWindow{
 	public void startSubProcess(ProcessManager pm){
 		processManagerStack.push(processManager);
 		setContent(pm);
-		setCaption(pm.getLabel());
+		pm.setIsSubProcess(true);
+		setCaption(getCaption()+" > "+ pm.getLabel());
+		//updateCaption(processManagerStack);
 		pm.setWindow(this);		
 		pm.initUI();
 		processManager=pm;

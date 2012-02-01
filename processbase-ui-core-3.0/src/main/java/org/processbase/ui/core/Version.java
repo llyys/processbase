@@ -1,4 +1,4 @@
 package org.processbase.ui.core;
 public final class Version {
- public static String VERSION="20120131-1704";
+ public static String VERSION="20120201-1316";
 }

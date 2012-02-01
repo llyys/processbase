@@ -316,7 +316,21 @@ public class TaskField {
 				return ((CheckBox) component).booleanValue();
 			}
 			else if (component instanceof Button) {
-					return action.getExpression();				
+				if(GroovyExpression.isGroovyExpression(action.getExpression())){
+					ProcessManager processManager = taskManager.getProcessManager();
+					Object result;
+					try {
+						result = taskManager.evalGroovyExpression(action.getExpression());
+						return result;
+					} catch (GroovyException e) {
+						throw new RuntimeException(e);						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						return null;
+					}
+					
+				}
+				return action.getExpression();				
 			} else if (component instanceof AbstractField) {
 				return ((AbstractField) component).getValue();
 			} else if (component instanceof GeneratedTable) {

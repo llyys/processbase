@@ -199,17 +199,7 @@ public class TaskManager
 							processManager.registerModifiedVariable(action.getVariable());
 							updateVariableValue(action.getVariable(), taskField.getComponentValue(action));
 						}
-					}
-					/*else if(action.getType().equals(ActionType.SET_ATTACHMENT)){
-						ImmediateUpload upload=(ImmediateUpload) taskField.getComponent();						
-						try {
-							if(upload.isNeedToSave())
-								processManager.getBpmModule().addDocument(processManager.getProcessInstanceUUID(), taskField.getName(), upload.getFileName(), upload.getMimeType(), upload.getFileBody());
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}*/
+					}					
 				}
 			}
 		}
@@ -248,7 +238,7 @@ public class TaskManager
 				}
 			}			
 			try{
-			onFinishTask();
+				onFinishTask();
 			}catch(Validator.InvalidValueException e){
 				getProcessManager().getWindow().showError(e.getMessage());
 			}
