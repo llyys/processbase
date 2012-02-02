@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.caliburn.application.event.IHandle;
+import org.h2.util.StringUtils;
 import org.hibernate.id.Assigned;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.InstanceState;
@@ -44,6 +45,7 @@ import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
 import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
 import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
@@ -103,9 +105,10 @@ public class UserCaseList extends TablePanel implements IPbTable,  Button.ClickL
         	ProcessbaseApplication application = ProcessbaseApplication.getCurrent();
         	//1. load all tasks assigned to logged user        	
         	Set<String> pids=new HashSet<String>();
-        	  Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(application.getUserName(), ActivityState.READY);
-              tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(application.getUserName(), ActivityState.EXECUTING));
-              tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(application.getUserName(), ActivityState.SUSPENDED));
+        	  BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			Collection<LightTaskInstance> tasks = bpmModule.getUserLightTaskList(application.getUserName(), ActivityState.READY);
+              tasks.addAll(bpmModule.getUserLightTaskList(application.getUserName(), ActivityState.EXECUTING));
+              tasks.addAll(bpmModule.getUserLightTaskList(application.getUserName(), ActivityState.SUSPENDED));
 
               for (LightTaskInstance task : tasks) {
                   if(task.isTask() && task.isTaskAssigned() && task.getTaskUser().equalsIgnoreCase(application.getUserName())){
@@ -162,7 +165,13 @@ public class UserCaseList extends TablePanel implements IPbTable,  Button.ClickL
 		woItem.getItemProperty("task").setValue(task==null?"":task.getActivityLabel());
 		String pdUUID = processDefinitionUUID.toString();
 		// (Nimekirjast avaneb menetlusjuhtumi vaade - Joonis + läbitud sammud)
-		TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0] + "  #" + process.getNb(), null, null, process, this, task==null?"process":"task");
+		String caption = pdUUID.split("--")[0] + "  #" + process.getNb();
+		if(task!=null){
+			String comment=ProcessbaseApplication.getCurrent().getBpmModule().getProcessComment(task.getProcessInstanceUUID());
+			if(!StringUtils.isNullOrEmpty(comment))			
+				caption=pdUUID.split("--")[0] + "  #" + comment;
+		}
+		TableLinkButton teb = new TableLinkButton(caption, null, null, process, this, task==null?"process":"task");
 		teb.setTableValue(task==null?process:task);
 		woItem.getItemProperty("name").setValue(teb);
 		
@@ -214,7 +223,8 @@ public class UserCaseList extends TablePanel implements IPbTable,  Button.ClickL
 			refreshTable();
 		}
 		else if(message.getActionType()==ActionType.REFRESH){
-			refreshTable();			
+			if(!this.processesBtn.isEnabled())
+				refreshTable();			
 		}
 		else {
 			this.processesBtn.setEnabled(true);

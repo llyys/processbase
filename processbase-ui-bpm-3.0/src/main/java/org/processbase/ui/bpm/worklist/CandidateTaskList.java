@@ -144,10 +144,11 @@ public class CandidateTaskList extends TablePanel implements Button.ClickListene
 			    icon = new ThemeResource("icons/empty.png");
 			}
 			woItem.getItemProperty("accepted").setValue(icon);
-			LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
+			BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			LightProcessDefinition lpd = bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
 			String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
 			String processInstanceUUID = task.getProcessInstanceUUID().toString();
-			TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
+			TableLinkButton teb = new TableLinkButton(bpmModule.formatProcessName(lpd, task), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
 			woItem.getItemProperty("processName").setValue(teb);
 			String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
 			String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";
@@ -216,7 +217,8 @@ public class CandidateTaskList extends TablePanel implements Button.ClickListene
 			refreshTable();
 		}
 		else if(message.getActionType()==ActionType.REFRESH){
-			refreshTable();			
+			if(!this.processesBtn.isEnabled())
+				refreshTable();			
 		}
 		else {
 			this.processesBtn.setEnabled(true);

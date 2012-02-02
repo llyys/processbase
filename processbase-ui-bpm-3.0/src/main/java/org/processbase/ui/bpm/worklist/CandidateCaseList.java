@@ -214,6 +214,7 @@ public class CandidateCaseList extends TablePanel implements IPbTable,  Button.C
 			refreshTable();
 		}
 		else if(message.getActionType()==ActionType.REFRESH){
+			if(!this.processesBtn.isEnabled())
 			refreshTable();			
 		}
 		else {

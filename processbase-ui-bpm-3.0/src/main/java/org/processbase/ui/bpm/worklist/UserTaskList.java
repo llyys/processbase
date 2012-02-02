@@ -83,10 +83,12 @@ public class UserTaskList extends TablePanel implements IPbTable, Button.ClickLi
 	        try {
 	           //Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getUserLightTaskList(ProcessbaseApplication.getCurrent().getCurrentUser().getUUID(), null);
 	        	//Set<LightProcessInstance> processInstances = ProcessbaseApplication.getCurrent().getBpmModule().getLightUserInstances();
-	           Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.READY);
+	           BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+			Collection<LightTaskInstance> tasks = bpmModule.getLightTaskList(ActivityState.READY);
 	            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.EXECUTING));
 	            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.SUSPENDED));
 	            for (LightTaskInstance task : tasks) {
+	            	
 	            	if(task.isTaskAssigned()  
 	            			&& task.getTaskUser().equals(ProcessbaseApplication.getCurrent().getCurrentUser().getUsername()))
 	            		addTableRow(task, null);
@@ -106,13 +108,16 @@ public class UserTaskList extends TablePanel implements IPbTable, Button.ClickLi
 	    private void addTableRow(LightTaskInstance task, LightTaskInstance previousTask) throws InstanceNotFoundException, Exception {
 	    	Item woItem = previousTask == null ? table.addItem(task) : table.addItemAfter(previousTask, task);
 	        try {
-				LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(task.getProcessDefinitionUUID());
-				String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
-				String processInstanceUUID = task.getProcessInstanceUUID().toString();
-				TableLinkButton teb = new TableLinkButton(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
+				BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+				LightProcessDefinition lpd = bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
+				
+				TableLinkButton teb = new TableLinkButton(bpmModule.formatProcessName(lpd, task), lpd.getDescription(), null, task, this, Constants.ACTION_OPEN);
 				woItem.getItemProperty("processName").setValue(teb);
+				
 				String taskTitle = task.getDynamicLabel() != null ? task.getDynamicLabel() : task.getActivityLabel();
 				String taskDescription = task.getDynamicDescription() != null ? (" - " + task.getDynamicDescription()) : "";
+				taskDescription=taskDescription+bpmModule.getTaskComment(task.getUUID());
+				
 				woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
 				woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
 				woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
@@ -182,7 +187,8 @@ public class UserTaskList extends TablePanel implements IPbTable, Button.ClickLi
 				refreshTable();
 			}
 			else if(message.getActionType()==ActionType.REFRESH){
-				refreshTable();			
+				if(!this.processesBtn.isEnabled())
+					refreshTable();			
 			}
 			else {
 				this.processesBtn.setEnabled(true);

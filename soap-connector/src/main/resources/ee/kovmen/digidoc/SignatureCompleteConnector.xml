@@ -21,6 +21,12 @@
         <attachment/>
       </parameters>
     </setter>
+    <setter>
+      <setterName>setFileName</setterName>     
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
   </inputs>
   <outputs/>
   <pages>
@@ -36,6 +42,12 @@
         <text>
           <labelId>file</labelId>
           <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+         <text>
+          <labelId>fileName</labelId>
+          <setter reference="/connector/inputs/setter[3]"/>
           <size>20</size>
           <maxChar>40</maxChar>
         </text>

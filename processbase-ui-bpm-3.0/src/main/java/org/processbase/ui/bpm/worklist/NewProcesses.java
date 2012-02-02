@@ -211,6 +211,7 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
 			refreshTable();
 		}
 		else if(message.getActionType()==ActionType.REFRESH){
+			if(!this.processesBtn.isEnabled())
 			refreshTable();			
 		}
 		else {

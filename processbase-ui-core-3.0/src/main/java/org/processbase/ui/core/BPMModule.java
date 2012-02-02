@@ -1849,4 +1849,54 @@ public class BPMModule {
 		return getQueryRuntimeAPI().getProcessInstance(processInstanceUUID);
 		
 	}
+
+	public String getTaskComment(ActivityInstanceUUID activityUUID) {
+		try {
+			List<Comment> commentFeed = getQueryRuntimeAPI().getActivityInstanceCommentFeed(activityUUID);
+			StringBuilder sb=new StringBuilder();
+			if(commentFeed!=null){
+				for (Comment comment : commentFeed) {
+					sb.append(comment.getMessage());
+				}
+				return sb.toString();
+			}
+		} catch (InstanceNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
+	}
+	public String getProcessComment(ProcessInstanceUUID processUUID) {
+		try {
+			List<Comment> commentFeed = getQueryRuntimeAPI().getProcessInstanceCommentFeed(processUUID);
+			StringBuilder sb=new StringBuilder();
+			if(commentFeed!=null){
+				for (Comment comment : commentFeed) {
+					sb.append(comment.getMessage());
+				}
+				return sb.toString();
+			}
+		} catch (InstanceNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public String formatProcessName(LightProcessDefinition lpd,	LightTaskInstance task) {
+		
+		String processInstanceUUID = task.getProcessInstanceUUID().toString();
+		StringBuilder sb=new StringBuilder();
+		if(lpd!=null)
+			sb.append(lpd.getLabel() != null ? lpd.getLabel() : lpd.getName());
+		else
+			sb.append(processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2));
+		sb.append(" #");
+		
+		String comment=getProcessComment(task.getProcessInstanceUUID());
+		if(!StringUtils.isNullOrEmpty(comment))			
+			sb.append(comment);
+		
+		return sb.toString();
+	}
 }
