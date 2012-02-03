@@ -36,13 +36,18 @@ import javax.servlet.http.Cookie;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.identity.Membership;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 
 import org.processbase.raports.ui.RaportModule;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
+import org.processbase.ui.bpm.generator.view.ProcessController;
+import org.processbase.ui.bpm.generator.view.ProcessManager;
 import org.processbase.ui.bpm.panel.*;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -72,6 +77,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private List<Group> userGroups;
     private Group activeGroup;
     private List<String> accessSet;
+	private ProcessController processController;
 
     public MainWindow() {
         super(ProcessbaseApplication.getString("appName","BPMS"));
@@ -392,5 +398,40 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 
 	public Group getActiveGroup() {
 		return activeGroup;
+	}
+
+
+
+	public void initProcess(String processDefinitionUUID) {
+		 mainLayout = (VerticalLayout) getContent();
+         mainLayout.removeAllComponents();
+         mainLayout.setMargin(true);
+         mainLayout.setSizeFull();
+         
+		processController = new ProcessController();
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = PbApplication.getCurrent().getBpmModule().getProcessDefinition(new ProcessDefinitionUUID(processDefinitionUUID));
+			processController.initProcess(processDefinition);
+			processController.setWindow(this);
+			processController.initUI();
+		} catch (ProcessNotFoundException e) {
+			showError("Protsessi "+processDefinitionUUID+" ei leitud");
+			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
+	public ProcessManager getProcessManager(){
+		return processController.getProcessManager();
+	}
+
+
+
+	public void initTask(String taskUUID) {
+		// TODO Auto-generated method stub
+		
 	}
 }

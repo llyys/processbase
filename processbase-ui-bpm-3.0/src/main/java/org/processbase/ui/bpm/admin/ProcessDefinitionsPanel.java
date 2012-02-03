@@ -59,6 +59,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
         
+        table.addContainerProperty("procId", String.class, null, "Process id", null, null);
         
         table.addContainerProperty("deployedBy", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedBy"), null, null);
         //table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
@@ -82,6 +83,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
                 
                 woItem.getItemProperty("version").setValue(pd.getVersion());
                 
+                woItem.getItemProperty("procId").setValue(pd.getUUID().toString());
                 woItem.getItemProperty("deployedBy").setValue(pd.getDeployedBy());
                 //woItem.getItemProperty("state").setValue(pd.getState());
                 woItem.getItemProperty("deployedDate").setValue(pd.getDeployedDate());

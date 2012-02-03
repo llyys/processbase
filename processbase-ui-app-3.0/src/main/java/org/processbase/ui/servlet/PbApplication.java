@@ -138,6 +138,18 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 					setUserName(BPMModule.USER_GUEST);
 					mainWindow.initUI();
 				}
+				else if(servletRequest.getParameter("p")!=null){
+					if(getBpmModule()==null)						
+            			setBpmModule(new BPMModule(BPMModule.USER_GUEST));
+					
+					mainWindow.initProcess(servletRequest.getParameter("p"));
+				}
+				else if(servletRequest.getParameter("t")!=null){
+					if(getBpmModule()==null)						
+            			setBpmModule(new BPMModule(BPMModule.USER_GUEST));
+					
+					mainWindow.initTask(servletRequest.getParameter("t"));
+				}
 				else
 				{
 					
@@ -226,6 +238,8 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     }
 
     public BPMModule getBpmModule() {
+    	if(bpmModule==null)
+    		bpmModule = new BPMModule(BPMModule.USER_GUEST);		
         return bpmModule;
     }
 

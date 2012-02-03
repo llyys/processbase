@@ -20,7 +20,7 @@ public class OpenProcessWindow extends NewProcessWindow{
 		BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
 		LightProcessDefinition process = bpmModule.getLightProcessDefinition(task.getProcessDefinitionUUID());
 		TaskInstance taskInstance=bpmModule.getTaskInstance(task.getUUID());
-		processManager=new ProcessManager(process, taskInstance);
+		processController.setProcessManager(new ProcessManager(process, taskInstance));
 	}
 	
 

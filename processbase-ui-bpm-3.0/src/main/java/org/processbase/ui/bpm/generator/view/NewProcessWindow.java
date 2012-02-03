@@ -34,9 +34,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class NewProcessWindow extends PbWindow{
 
-	protected ProcessManager processManager;
-	//when running subtasks we need a process stack
-	protected Stack<ProcessManager> processManagerStack = new Stack<ProcessManager>();
+	protected ProcessController processController=new ProcessController();
 
 	/**
 	 * When user opens new process panel
@@ -46,45 +44,14 @@ public class NewProcessWindow extends PbWindow{
 	
 	
 	public void initProcess(LightProcessDefinition process) throws Exception {
-		processManager=new ProcessManager(process, null);
+		processController.initProcess(process);
+	}
+	
+	public ProcessManager getProcessManager(){
+		return processController.getProcessManager();
 	}
 	
 	
-	protected void finishProcess() {
-		// TODO Auto-generated method stub
-		if(processManagerStack.size()>0){
-			ProcessManager pm=processManagerStack.pop();	
-			pm.setIsSubProcess(processManagerStack.size()>0);
-			setContent(pm);
-			pm.reloadTask();
-			//replaceComponent(processManager, pm);
-			pm.setWindow(this);
-			setCaption(getCaption().replaceAll("\\s\\>\\s"+processManager.getLabel(), ""));
-			
-			processManager=pm;
-		}
-		else{
-			if(processManager!=null && processManager.getTaskManager()!=null && StringUtils.isNotBlank(processManager.getTaskManager().getConfirmationMessage()))
-				this.getParent().showNotification(processManager.getTaskManager().getConfirmationMessage());
-			else
-				this.getParent().showNotification("Process completed");
-			this.close();
-			 
-		}
-	}
-
-
-	public void startSubProcess(ProcessManager pm){
-		processManagerStack.push(processManager);
-		setContent(pm);
-		pm.setIsSubProcess(true);
-		setCaption(getCaption()+" > "+ pm.getLabel());
-		//updateCaption(processManagerStack);
-		pm.setWindow(this);		
-		pm.initUI();
-		processManager=pm;
-		
-	}
 	
 	public void initUI() {
 		
@@ -92,43 +59,13 @@ public class NewProcessWindow extends PbWindow{
 			setWidth("845px");
 			setHeight("90%");
 			setResizable(true);
-			
-			IProcessManagerActions actions = new IProcessManagerActions() {
-				
-				public void onViewUpdated(TaskInstance taskInstance) {}				
-				public void onTaskFinished(TaskInstance taskInstance) {}				
-				public void onFinishProcess(ProcessDefinitionUUID processDefinitionUUID) {					
-					parent.finishProcess();
-				}
-
-				public void onStartSubProcess( ProcessDefinitionUUID processDefinitionUUID, ActivityInstanceUUID activityInstanceUUID) {
-					try {
-						ProcessManager pm=new ProcessManager(processDefinitionUUID, activityInstanceUUID);
-						pm.setActions(this);
-						parent.startSubProcess(pm);
-					} catch (Exception e) {
-						e.printStackTrace();
-						throw new RuntimeException(e);
-					}
-				}
-				
-				NewProcessWindow parent=null;
-				public void setParent(Object parent) {
-					this.parent = (NewProcessWindow) parent;
-				}
-			};
-			
-			processManager.setActions(actions);
-			actions.setParent(this);			
-			
-			this.setContent(processManager);
-			processManager.setWindow(this);
+			processController.setWindow(this);
+			processController.initUI();
+						
 			
 			setModal(true);
 			center();
 			
-			processManager.initUI();
-			setCaption(processManager.getLabel());
 			
 			
 			
@@ -141,8 +78,6 @@ public class NewProcessWindow extends PbWindow{
 	}
 
 
-	public ProcessManager getProcessManager() {
-		return processManager;
-	}
+	
 	
 }
