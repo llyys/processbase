@@ -85,14 +85,7 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 		 HorizontalLayout hl=new HorizontalLayout();
 		 btnAddNewLegislation.setVisible(false);
 		 btnAddNewLegislationProcess.setVisible(false);
-		 if(getModule()==null){
-			 Button btnRefresh = new Button("Uuenda", new Button.ClickListener() {			
-					public void buttonClick(ClickEvent event) {				
-						refreshTable();
-					}
-				});
-			 	hl.addComponent(btnRefresh);
-		 }
+		 
 		 	
 			hl.setSpacing(true);
 			hl.setMargin(true, true, false, false);
@@ -108,7 +101,17 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 			
 			layout.addComponent(hl);
 			hl.setComponentAlignment(btnAddNewLegislation, Alignment.MIDDLE_RIGHT);
-			hl.setComponentAlignment(btnRefresh, Alignment.MIDDLE_RIGHT);
+			
+			if(getModule()==null){
+				 Button btnRefresh = new Button("Uuenda", new Button.ClickListener() {			
+						public void buttonClick(ClickEvent event) {				
+							refreshTable();
+						}
+					});
+				 	hl.addComponent(btnRefresh);
+				 	hl.setComponentAlignment(btnRefresh, Alignment.MIDDLE_RIGHT);
+			 }
+			
 			
 		 
         	setSizeFull();
