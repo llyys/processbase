@@ -49,6 +49,20 @@
         <string></string>
       </parameters>
     </setter>
+     <setter>
+      <setterName>setSenderCompanyName</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setSenderCompanyRegNo</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
   </inputs>
   <outputs/>
   <pages>
@@ -88,6 +102,18 @@
         <text>
           <labelId>saatjaEmail</labelId>
           <setter reference="/connector/inputs/setter[6]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>senderCompanyRegNo</labelId>
+          <setter reference="/connector/inputs/setter[7]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>senderCompanyName</labelId>
+          <setter reference="/connector/inputs/setter[8]"/>
           <size>20</size>
           <maxChar>40</maxChar>
         </text>

@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.WorkPanel;
@@ -16,10 +17,14 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree.ExpandListener;
 import com.vaadin.ui.TreeTable;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.CloseEvent;
@@ -31,14 +36,84 @@ import ee.kovmen.entities.KovProcess;
 import ee.kovmen.entities.KovServiceCategory;
 
 
-public class LegislationsTableView  extends WorkPanel implements Button.ClickListener{
+public class LegislationsTableView  extends WorkPanel implements IPbTable, Button.ClickListener{
 	
     private TreeTable table;
 	private Button btnAddNew;
 	private LegislationsModule module;
+	
+	Button btnAddNewLegislation;
+	Button btnAddNewLegislationProcess;
+	protected KovServiceCategory currentCategory;
+	protected KovLegislation currentLegislation;
+	
 	public void initUI() {
-    	
+    	VerticalLayout layout=new VerticalLayout();
+    	horizontalLayout.addComponent(layout);
+		btnAddNewLegislation = new Button("Lisa", new Button.ClickListener() {			
+			public void buttonClick(ClickEvent event) {				
+				currentLegislation = new KovLegislation();
+				currentLegislation.setCategory(currentCategory);
+				
+				LegislationEditView view = new LegislationEditView(currentLegislation);
+				view.setIsNew(true);
+				view.addListener(new CloseListener() {					
+					public void windowClose(CloseEvent e) { 
+						refreshTable();
+					}
+				});				
+				view.setWidth("300px");
+				view.initUI();				
+				getApplication().getMainWindow().addWindow(view);
+			}
+		});
+		 btnAddNewLegislationProcess=new Button("Vali õigusakti protsessid", new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				
+				LegislationProcessView view = new LegislationProcessView(currentLegislation);
+				view.setIsNew(true);
+				view.addListener(new CloseListener() {					
+					public void windowClose(CloseEvent e) {
+						refreshTable();
+					}
+				});				
+				view.setWidth("300px");
+				view.initUI();				
+				getApplication().getMainWindow().addWindow(view);
+			}
+		});
+		 HorizontalLayout hl=new HorizontalLayout();
+		 btnAddNewLegislation.setVisible(false);
+		 btnAddNewLegislationProcess.setVisible(false);
+		 if(getModule()==null){
+			 Button btnRefresh = new Button("Uuenda", new Button.ClickListener() {			
+					public void buttonClick(ClickEvent event) {				
+						refreshTable();
+					}
+				});
+			 	hl.addComponent(btnRefresh);
+		 }
+		 	
+			hl.setSpacing(true);
+			hl.setMargin(true, true, false, false);
+			Label label = new Label("");
+			hl.addComponent(label);
+			hl.setExpandRatio(label, 1);
+			hl.addComponent(btnAddNewLegislation);
+			hl.addComponent(btnAddNewLegislationProcess);
+			
+			
+			
+			hl.setWidth("100%");
+			
+			layout.addComponent(hl);
+			hl.setComponentAlignment(btnAddNewLegislation, Alignment.MIDDLE_RIGHT);
+			hl.setComponentAlignment(btnRefresh, Alignment.MIDDLE_RIGHT);
+			
+		 
         	setSizeFull();
+        	
+        	
         	
 	        table = new TreeTable("Õigusaktid");
         	table.addContainerProperty("name", String.class, "");
@@ -55,19 +130,22 @@ public class LegislationsTableView  extends WorkPanel implements Button.ClickLis
 				public void valueChange(ValueChangeEvent event) {
 					Object rowObj=event.getProperty().getValue();
 					if(rowObj instanceof KovServiceCategory){						
-						getModule().SetSelectedCategory((KovServiceCategory)rowObj);
-						getModule().SetSelectedLegislation(null);
+						SetSelectedCategory((KovServiceCategory)rowObj);
+						SetSelectedLegislation(null);
 					}
 					else if(rowObj instanceof KovLegislation){
-						getModule().SetSelectedLegislation((KovLegislation)rowObj);
+						SetSelectedLegislation((KovLegislation)rowObj);
 					}
 					else{
-						getModule().SetSelectedCategory(null);
-						getModule().SetSelectedLegislation(null);
+						SetSelectedCategory(null);
+						SetSelectedLegislation(null);
 					}
 				}
             });
-        	horizontalLayout.addComponent(table);        	
+            
+            
+            
+        	layout.addComponent(table);        	
         	table.setSizeFull();
         
     }
@@ -170,7 +248,34 @@ public class LegislationsTableView  extends WorkPanel implements Button.ClickLis
 
 
 	public LegislationsModule getModule() {
+		if(this.module==null){
+			//this is a portlet then initialize it from here
+			this.module= new LegislationsModule();
+			
+		}
 		return module;
+	}
+	
+	public void SetSelectedCategory(KovServiceCategory kat) {		
+		currentCategory=kat;
+		if(kat!=null){
+			btnAddNewLegislation.setCaption("Lisa uus '"+kat.getName()+ "' õigusakt");
+			btnAddNewLegislation.setVisible(true);
+		}
+		else{
+			btnAddNewLegislation.setVisible(false);
+		}
+	}
+
+	public void SetSelectedLegislation(KovLegislation rowObj) {
+		currentLegislation=rowObj;
+		if(currentLegislation!=null){
+			btnAddNewLegislationProcess.setCaption("Määra '"+rowObj.getName()+ "' protsessid");
+			btnAddNewLegislationProcess.setVisible(true);
+		}
+		else{
+			btnAddNewLegislationProcess.setVisible(false);
+		}
 	}
 
 }

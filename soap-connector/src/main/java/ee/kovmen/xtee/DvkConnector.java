@@ -31,6 +31,8 @@ public class DvkConnector extends ProcessConnector{
 	private String saatjaNimi;
 	private String recipentCompanyName;
 	private String recipentCompanyRegNo;
+	private String senderCompanyName;
+	private String senderCompanyRegNo;
 
 
 
@@ -104,8 +106,15 @@ public class DvkConnector extends ProcessConnector{
 
 		// set up sender info
 		AadressType sender=AadressType.Factory.newInstance();
-		sender.setAsutuseNimi(SoapConnector.getConfigValue("asutus_nimi", "Smartlink OÜ"));
-		sender.setRegnr(SoapConnector.getConfigValue("asutus", "10648908"));
+		if(getSenderCompanyName()==null)
+			sender.setAsutuseNimi(SoapConnector.getConfigValue("asutus_nimi", "Smartlink OÜ"));
+		else
+			sender.setAsutuseNimi(getSenderCompanyName());
+		
+		if(getSenderCompanyRegNo()==null)		
+			sender.setRegnr(SoapConnector.getConfigValue("asutus", "10648908"));
+		else
+			sender.setRegnr(getSenderCompanyRegNo());
 		
 		sender.setIsikukood(getSaatjaIsikukood());
 		sender.setEpost(getSaatjaEmail());
@@ -146,6 +155,8 @@ public class DvkConnector extends ProcessConnector{
 	public void setSaatjaIsikukood(String saatjaIsikukood) {
 		this.saatjaIsikukood = saatjaIsikukood;
 	}
+	
+	
 
 	public String getSaatjaIsikukood() {
 		return saatjaIsikukood;
@@ -189,6 +200,22 @@ public class DvkConnector extends ProcessConnector{
 
 	public org.ow2.bonita.facade.runtime.AttachmentInstance getFile() {
 		return file;
+	}
+
+	public void setSenderCompanyName(String senderCompanyName) {
+		this.senderCompanyName = senderCompanyName;
+	}
+
+	public String getSenderCompanyName() {
+		return senderCompanyName;
+	}
+
+	public void setSenderCompanyRegNo(String senderCompanyRegNo) {
+		this.senderCompanyRegNo = senderCompanyRegNo;
+	}
+
+	public String getSenderCompanyRegNo() {
+		return senderCompanyRegNo;
 	}
 
 

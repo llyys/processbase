@@ -40,6 +40,7 @@ import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
 import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
@@ -55,7 +56,7 @@ import org.processbase.ui.core.bonita.process.BarResource;
  *
  * @author mgubaidullin
  */
-public class CandidateTaskList extends TablePanel implements Button.ClickListener, IHandle<TaskListEvent> {
+public class CandidateTaskList extends TablePanel implements IPbTable,  Button.ClickListener, IHandle<TaskListEvent> {
 
     public CandidateTaskList() {
         super();

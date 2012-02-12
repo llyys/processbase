@@ -84,4 +84,10 @@
         <ajaxable>false</ajaxable>
         <private-session-attributes>false</private-session-attributes>
     </portlet>
+     <portlet>
+        <portlet-name>LegislationsTableView</portlet-name>
+        <instanceable>true</instanceable>
+        <ajaxable>false</ajaxable>
+        <private-session-attributes>false</private-session-attributes>
+    </portlet>
 </liferay-portlet-app>

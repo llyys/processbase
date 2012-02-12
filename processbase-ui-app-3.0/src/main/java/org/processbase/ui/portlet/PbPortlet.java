@@ -65,6 +65,7 @@ import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
+import org.processbase.ui.servlet.PbModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,6 +153,27 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 	        } else if (initParameter.equalsIgnoreCase("MonitoringPanel")) {
 	            ui = new BPMMonitoringPanel();	            
 	        }
+	        //try to invoke panel dynamically not to add references for project just by using a convetion
+	        else{
+	        	  Class<?> class1;
+				try {
+					class1 = Class.forName(initParameter);
+					if(class1!=null)
+	           		  {
+	           			ui = (PbPanel) class1.newInstance();           			  
+	           		  }
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+           		  
+           	  }
 	        
             
             if(ui instanceof IPbTable){

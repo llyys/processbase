@@ -15,5 +15,6 @@
         <portlet id="MonitoringPortlet" />
         <portlet id="BAMPortlet" />
         <portlet id="ChartPortlet" />
+        <portlet id="LegislationsTableView" />
     </category>
 </display>
