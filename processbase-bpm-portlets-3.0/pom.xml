@@ -56,11 +56,11 @@
 			<artifactId>process-legislations</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>ee.smartlink</groupId>
 	  		<artifactId>EstEid</artifactId>	  
 	  		<version>1.2</version>	  		
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>com.liferay.portal</groupId>
 			<artifactId>portal-impl</artifactId>

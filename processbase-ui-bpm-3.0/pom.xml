@@ -58,11 +58,11 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.3</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>ee.smartlink</groupId>
 			<artifactId>EstEid</artifactId>
 			<version>1.2</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
