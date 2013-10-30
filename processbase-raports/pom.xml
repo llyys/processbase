@@ -46,6 +46,11 @@
 			<artifactId>security-server</artifactId>
 			<version>${bonita.version}</version> 
 		</dependency>
+        <dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-model</artifactId>
+			<version>${bonita.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.bonitasoft.console</groupId>
 			<artifactId>console-model</artifactId>
@@ -57,7 +62,7 @@
 			<version>${bonita.version}</version>
 		</dependency>
 		
-		<!-- BIRT 
+		<!-- BIRT-->
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
 			<artifactId>chart.engine.api</artifactId>
@@ -92,23 +97,26 @@
 			<artifactId>report.model.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
-		-->
-		<!--
-			<dependency> <groupId>org.eclipse.birt</groupId>
-			<artifactId>report-engine</artifactId> <type>zip</type>
-			<version>${birt.version}</version> </dependency>
+
+		<!--<dependency>
+            <groupId>org.eclipse.birt</groupId>
+			<artifactId>report.engine</artifactId>
+            <type>zip</type>
+			<version>${birt.version}</version>
+        </dependency>-->
 		
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
 			<artifactId>script.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
--->
+
 		<dependency>
 			<groupId>org.mod4j.org.eclipse.emf</groupId>
 			<artifactId>ecore</artifactId>
 			<version>${emfecore.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>

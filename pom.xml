@@ -13,13 +13,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		
-		<project.base.dir>C:\dev\processbase-git</project.base.dir>
+		<project.base.dir>D:\dev\processbase</project.base.dir>
 		
-		<tomcat.home>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32</tomcat.home>
-		<liferay.home>C:\dev_env\liferay-portal-6.0.5\tomcat-6.0.26</liferay.home>
+		<tomcat.home>D:\dev_env\BOS-5.5.1-Tomcat-6.0.32</tomcat.home>
+		<liferay.home>D:\dev_env\kovmen\tomcat\liferay-portal-6.0.5\tomcat-6.0.26</liferay.home>
 		
-		<server.deploy.path>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
-		<liferay.deploy.path>C:\dev_env\liferay-portal-6.0.5\deploy</liferay.deploy.path>
+		<server.deploy.path>D:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
+		<liferay.deploy.path>D:\dev_env\liferay-portal-6.0.5\deploy</liferay.deploy.path>
 		
 		<container.port>8080</container.port>
 		<bonita.version>5.5.1</bonita.version>
@@ -49,6 +49,11 @@
 	</properties>
 
 	<repositories>
+        <repository>
+            <id>project.local</id>
+            <name>project</name>
+            <url>file:${M2_HOME}\.m2\repository</url>
+        </repository>
 		<repository>
 		   <id>vaadin-addons</id>
 		   <url>http://maven.vaadin.com/vaadin-addons</url>
@@ -72,11 +77,6 @@
 			<id>codehaus</id>
 			<name>codehaus</name>
 			<url>http://snapshots.repository.codehaus.org</url>
-		</repository>
-		<repository>
-			<id>smartlink</id>
-			<name>smartlink</name>
-			<url>https://mvn.smartlink.ee/content/repositories/public/</url>
 		</repository>
 		<repository>
 		<id>repo1</id>
