@@ -18,3 +18,5 @@
 /aar-realm
 /process-legislations/target
 .idea
+
+*.iml
