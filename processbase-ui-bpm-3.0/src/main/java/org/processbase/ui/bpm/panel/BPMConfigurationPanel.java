@@ -16,33 +16,40 @@
  */
 package org.processbase.ui.bpm.panel;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.themes.Reindeer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.ResourceBundle;
+
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.admin.AdminCaseList;
-import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
-import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.AdminTaskList;
+import org.processbase.ui.bpm.admin.CategoriesPanel;
+import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
+import org.processbase.ui.bpm.admin.NewCategoryWindow;
+import org.processbase.ui.bpm.admin.NewProcessDefinitionWindow;
+import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.IPbTable;
+import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.core.template.TablePanel;
+import org.processbase.ui.core.template.WorkPanel;
+import org.processbase.ui.osgi.PbPanelModule;
+
+import com.vaadin.data.Item;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
-import java.util.Collection;
-import java.util.ResourceBundle;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.bpm.admin.CategoriesPanel;
-import org.processbase.ui.bpm.admin.NewCategoryWindow;
-import org.processbase.ui.bpm.admin.NewProcessDefinitionWindow;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbWindow;
-import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.osgi.PbPanelModule;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  *
@@ -55,8 +62,8 @@ public class BPMConfigurationPanel extends PbPanelModule
     private ProcessDefinitionsPanel processDefinitionsPanel;
     private DisabledProcessDefinitionsPanel disabledProcessDefinitionsPanel;
     private CategoriesPanel categoriesPanel;
-    private AdminTaskList processInstancesPanel;
-    private AdminCaseList activityInstancesPanel;
+    private AdminCaseList processInstancesPanel;
+    private AdminTaskList activityInstancesPanel;
     private Button refreshBtn = null;
     private Button btnAdd = null;
     private Button disabledProcessDefinitionBtn = null;
@@ -64,10 +71,10 @@ public class BPMConfigurationPanel extends PbPanelModule
     private Button processInstancesBtn = null;
     private Button activityInstancesBtn = null;
     private Button categoriesBtn = null;
-    private HashMap<Button, TablePanel> panels = new HashMap<Button, TablePanel>();
-    private ComboBox processesComboBox = null;
+    private HashMap<Button, WorkPanel> panels = new HashMap<Button, WorkPanel>();
 	
-
+    private CheckBox showFinished = null;
+    private TextField additionalFilter = null;
    
     public void initUI() {
         panels.clear();
@@ -89,26 +96,37 @@ public class BPMConfigurationPanel extends PbPanelModule
         disabledProcessDefinitionsPanel.setBpmConfigurationPanel(this);
         panels.put(disabledProcessDefinitionBtn, disabledProcessDefinitionsPanel);
         
-        processInstancesPanel = new AdminTaskList();
-        processInstancesPanel.setBpmConfigurationPanel(this);        
-        panels.put(processInstancesBtn, processInstancesPanel);
+        
+		if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
+				.getCurrent().getApplicationType()) {
+			processInstancesPanel = new AdminCaseList();
+			panels.put(processInstancesBtn, processInstancesPanel);
 
-        activityInstancesPanel = new AdminCaseList();
-        activityInstancesPanel.setBpmConfigurationPanel(this);
-        panels.put(activityInstancesBtn, activityInstancesPanel);
+			activityInstancesPanel = new AdminTaskList();
+			panels.put(activityInstancesBtn, activityInstancesPanel);
+		}
 
         categoriesPanel = new CategoriesPanel();
         categoriesPanel.setBpmConfigurationPanel(this);
         panels.put(categoriesBtn, categoriesPanel);
 
-        refreshProcessDefinitionCombo();
+        
+        if(activityInstancesPanel != null){
+        	activityInstancesPanel.setShowFinished(showFinished);
+        	activityInstancesPanel.setAdditionalFilter(additionalFilter);
+        }
+        if(processInstancesPanel != null){
+        	processInstancesPanel.setShowFinished(showFinished);
+        	processInstancesPanel.setAdditionalFilter(additionalFilter);
+        }
     }
 
-    private void setCurrentPanel(TablePanel tablePanel) {
-        replaceComponent(getComponent(1), tablePanel);
-        setExpandRatio(tablePanel, 1);
-        if (!tablePanel.isInitialized()){
-            tablePanel.initUI();
+    private void setCurrentPanel(WorkPanel panel) {
+        replaceComponent(getComponent(1), panel);
+        setExpandRatio(panel, 1);
+        
+        if (!panel.isInitialized()){
+            panel.initUI();
         }
         
         /*
@@ -134,23 +152,31 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.addComponent(processDefinitionBtn, btnCnt++);
         buttonBar.setComponentAlignment(processDefinitionBtn, Alignment.MIDDLE_LEFT);
 
-        // prepare myTaskListBtn button
-        processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
-        processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(processInstancesBtn, btnCnt++);
-        buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
+       
         
         //Process repository button
-        disabledProcessDefinitionBtn=new Button(ProcessbaseApplication.getString("disabledProcesses", "Protsesside hoidla"), this);
+        disabledProcessDefinitionBtn=new Button(ProcessbaseApplication.getString("disabledProcesses", "Teenuste hoidla"), this);
         disabledProcessDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(disabledProcessDefinitionBtn, btnCnt++);
         buttonBar.setComponentAlignment(disabledProcessDefinitionBtn, Alignment.MIDDLE_LEFT);
 
+        // prepare myTaskListBtn button
+        if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
+				.getCurrent().getApplicationType()) {
+	        processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
+	        processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
+	        buttonBar.addComponent(processInstancesBtn, btnCnt++);
+	        buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
+        }
+        
         // prepare myTaskArchiveBtn button
-        activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
-        activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        buttonBar.addComponent(activityInstancesBtn, btnCnt++);
-        buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
+        if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
+				.getCurrent().getApplicationType()) {
+	        activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
+	        activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
+	        buttonBar.addComponent(activityInstancesBtn, btnCnt++);
+	        buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
+        }
 
         
         
@@ -159,14 +185,16 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.addComponent(expandLabel, btnCnt++);
         buttonBar.setExpandRatio(expandLabel, 1);
 
-        // prepare processesComboBox
-        processesComboBox = new ComboBox();
-        processesComboBox.setWidth("250px");
-        processesComboBox.setInputPrompt(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
-        processesComboBox.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("selectProcessDefinition"));
-        buttonBar.addComponent(processesComboBox, btnCnt++);
-        buttonBar.setComponentAlignment(processesComboBox, Alignment.MIDDLE_LEFT);
-        processesComboBox.setVisible(false);
+        //Additional filters
+        additionalFilter = new TextField();
+        additionalFilter.setVisible(false);
+        buttonBar.addComponent(additionalFilter, btnCnt++);
+        buttonBar.setComponentAlignment(additionalFilter, Alignment.MIDDLE_RIGHT);
+        
+        showFinished = new CheckBox(ProcessbaseApplication.getString("chkboxShowFinished"));
+        showFinished.setVisible(false);
+        buttonBar.addComponent(showFinished, btnCnt++);
+        buttonBar.setComponentAlignment(showFinished, Alignment.MIDDLE_RIGHT);
 
         // prepare refresh button
         refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
@@ -178,28 +206,43 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.addComponent(btnAdd, btnCnt++);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");
+        
     }
 
     public void buttonClick(ClickEvent event) {
-        TablePanel panel = panels.get(event.getButton());
+    	WorkPanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn)) {
             if (getComponent(1).equals(processInstancesPanel)) {
-                processInstancesPanel.setFilter(processesComboBox.getValue() != null ? ((LightProcessDefinition) processesComboBox.getValue()).getUUID() : null);
+                processInstancesPanel.refreshTable();
             } else if (getComponent(1).equals(activityInstancesPanel)) {
-                activityInstancesPanel.setFilter(processesComboBox.getValue() != null ? ((LightProcessDefinition) processesComboBox.getValue()).getUUID() : null);
+                activityInstancesPanel.refreshTable();
+            }else{
+            	((TablePanel) getComponent(1)).refreshTable();
             }
-            ((TablePanel) getComponent(1)).refreshTable();
+           
         } else if (event.getButton().equals(btnAdd)) {
             if (getComponent(1) instanceof CategoriesPanel) {
                 NewCategoryWindow ncw = new NewCategoryWindow();
                 ncw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(ncw);
                 ncw.initUI();
+                ncw.addListener(new Window.CloseListener() {
+					
+					public void windowClose(CloseEvent e) {
+						categoriesPanel.refreshTable();
+					}
+				});
             } else if (getComponent(1) instanceof ProcessDefinitionsPanel) {
                 NewProcessDefinitionWindow npdw = new NewProcessDefinitionWindow();
                 npdw.addListener((Window.CloseListener) this);
                 getApplication().getMainWindow().addWindow(npdw);
                 npdw.initUI();
+                npdw.addListener(new Window.CloseListener() {
+					
+					public void windowClose(CloseEvent e) {
+						processDefinitionsPanel.refreshTable();
+					}
+				});
             }
           
         } else {
@@ -207,10 +250,17 @@ public class BPMConfigurationPanel extends PbPanelModule
             event.getButton().setStyleName("special");
             event.getButton().setEnabled(false);
             setCurrentPanel(panel);
-            if (event.getButton().equals(processInstancesBtn) || event.getButton().equals(activityInstancesBtn)) {
-                btnAdd.setVisible(false);
-            } else {
-                processesComboBox.setVisible(false);
+            if(panel instanceof IPbTable){
+            	((IPbTable)panel).refreshTable();
+            }
+            if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
+    				.getCurrent().getApplicationType()) {
+	            if (event.getButton().equals(processInstancesBtn) || event.getButton().equals(activityInstancesBtn)) {
+	                btnAdd.setVisible(false);
+	                additionalFilter.setVisible(true);
+	            } else {
+	                additionalFilter.setVisible(false);
+	            }
             }
         }
 
@@ -223,35 +273,26 @@ public class BPMConfigurationPanel extends PbPanelModule
         disabledProcessDefinitionBtn.setStyleName(Reindeer.BUTTON_LINK);
         disabledProcessDefinitionBtn.setEnabled(true);
         
-        processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        processInstancesBtn.setEnabled(true);
-        
-        activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
-        activityInstancesBtn.setEnabled(true);
+        if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
+				.getCurrent().getApplicationType()) {
+	        processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
+	        processInstancesBtn.setEnabled(true);
+	        
+	        activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
+	        activityInstancesBtn.setEnabled(true);
+	        
+	        showFinished.setVisible(true);
+        }
         
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         categoriesBtn.setEnabled(true);
         
         btnAdd.setVisible(true);
         
-        processesComboBox.setVisible(true);
+        additionalFilter.setVisible(false);
     }
 
-    public void refreshProcessDefinitionCombo() {
-        try {
-            processesComboBox.removeAllItems();
-            Collection<LightProcessDefinition> processes = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinitions(ProcessState.ENABLED);
-            for (LightProcessDefinition pd : processes) {
-                Item woItem = processesComboBox.addItem(pd);
-                String caption = pd.getLabel() != null ? pd.getLabel() : pd.getName();
-                processesComboBox.setItemCaption(pd, caption + " (version " + pd.getVersion() + ")");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            ((PbWindow)getApplication().getMainWindow()).showError(ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-    }
+
 
     public void windowClose(CloseEvent e) {
         ((TablePanel) getComponent(1)).refreshTable();

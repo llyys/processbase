@@ -1,51 +1,37 @@
 package org.processbase.ui.bpm.generator.view;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.h2.util.StringUtils;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
-import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.components.MultipleUploadComponent;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.ActionType;
 import org.processbase.ui.core.bonita.forms.Actions.Action;
 import org.processbase.ui.core.bonita.forms.Activities.Activity;
+import org.processbase.ui.core.bonita.forms.FieldValue;
 import org.processbase.ui.core.bonita.forms.PageFlow;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
-import org.processbase.ui.core.bonita.forms.FieldValue;
 import org.processbase.ui.core.bonita.forms.ValuesList;
 import org.processbase.ui.core.bonita.forms.VariableType;
 import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetGroup;
 import org.processbase.ui.core.bonita.forms.WidgetType;
-import org.processbase.ui.core.bonita.forms.Widgets;
 import org.processbase.ui.core.bonita.process.CSSProperty;
 import org.processbase.ui.core.bonita.process.ComponentStyle;
 import org.processbase.ui.core.bonita.process.TableStyle;
-import org.processbase.ui.core.template.ImmediateUpload;
 
 import com.vaadin.data.Validator;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -132,7 +118,6 @@ public class TaskManager
 				if(result!=null)
 					return result.toString();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				return null;
 			}
 		}
@@ -213,13 +198,10 @@ public class TaskManager
 				processManager.finishTask(this);
 				
 			} catch (ProcessNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (VariableNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
 		}
@@ -307,7 +289,7 @@ public class TaskManager
 	}
 	
 	private Component RenderPageComponents(Page page) throws Exception {
-		// TODO Auto-generated method stub
+	
 		setLabel(page.getPageLabel());
 		int gridColumns=1;
 		int gridRows=page.getWidgets().getWidgetsAndGroups().size();
@@ -332,6 +314,30 @@ public class TaskManager
 			Component c = null;
 			if (wg instanceof Widget) {
 				Widget widget = (Widget) wg;
+				
+				if(widget.getDisplayCondition() != null){
+					
+					Object condition = widget.getDisplayCondition();
+					if (GroovyExpression.isGroovyExpression(widget.getDisplayCondition())) {
+						try {
+							condition = evalGroovyExpression(widget.getDisplayCondition());
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					
+					boolean show = false;
+					try {
+						show = Boolean.parseBoolean(condition.toString());
+					} catch (Exception e) {
+					}
+					
+					if(!show){
+						continue;
+					}
+					
+				}
+					
 				TaskField field=new TaskField(this, widget);
 				
 				c = field.getComponent();
@@ -350,7 +356,7 @@ public class TaskManager
 						String processVariableDataType=getProcessManager().getProcessDataTypeByVariableName(field.getVariableBound());
 						//DataFieldDefinition processDataField = getProcessManager().getBpmModule().getProcessDataField(getProcessManager().processDefinitionUUID, widget.getVariableBound());
 						
-						if("Attachment".equalsIgnoreCase(processVariableDataType)){ //we must render a upload components
+						if("Attachment".equalsIgnoreCase(processVariableDataType) || field.getName().startsWith("attachment") ){ //we must render a upload components
 							c=new MultipleUploadComponent(field, getProcessManager().getProcessInstanceUUID(), widget);
 							field.setReadOnly(true);
 						}
@@ -365,7 +371,28 @@ public class TaskManager
 						col2 = componentStyle.getPosition().getTColumn();
 						row2 = componentStyle.getPosition().getTRow();
 						
-						//CSSProperty cssProperty = componentStyle.getCss();
+						// --- #1660 ---
+						//Check that cell is actually empty, if not move element to right
+						for (int i = row1; i <= row2 ; i++) {
+							for (int j = col2; j <= col2; j++) {
+								Component tmp = gridLayout.getComponent(j, i);
+								if(tmp != null){
+									col1++;
+									col2++;
+								}
+							}
+						}
+						// --- #1659 ---
+						CSSProperty css = componentStyle.getCss();
+						if(css != null){
+							if(css.getWidth() != null && css.getWidth().getSize() != null){
+								c.setWidth(css.getWidth().getSize(), css.getWidth().getSizableUnit());
+							}
+							if(css.getHeigth() != null && css.getHeigth().getSize() != null){
+								c.setHeight(css.getHeigth().getSize(), css.getHeigth().getSizableUnit());
+							}
+						}
+						//-------
 						gridLayout.addComponent(c, col1, row1, col2, row2);
 					} else {
 						gridLayout.addComponent(c, col1, row1, col2, row2);
@@ -442,5 +469,8 @@ public class TaskManager
 		return processManager;
 	}
 
+	public void showInformation(String msg){
+		
+	}
 	
 }

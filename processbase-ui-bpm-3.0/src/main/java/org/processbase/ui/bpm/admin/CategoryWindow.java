@@ -165,11 +165,15 @@ public class CategoryWindow extends PbWindow implements ClickListener {
                 close();
             } else if (event.getButton().equals(addBtn)) {
                 LightProcessDefinition lpd = (LightProcessDefinition) processesComboBox.getValue();
-                addTableRow(lpd);
-                processesComboBox.removeItem(lpd);
+                if(lpd != null){
+                	addTableRow(lpd);
+                	processesComboBox.removeItem(lpd);
+                }else{
+                	showWarning(ProcessbaseApplication.getString("errorNoProcessSelected", "No process selected!"));
+                }
             } else if (event.getButton().equals(deleteBtn)) {
                 delete();
-                close();
+                
             } else if (event.getButton() instanceof TableLinkButton) {
                 LightProcessDefinition lpd = (LightProcessDefinition) ((TableLinkButton) event.getButton()).getTableValue();
                 table.removeItem(lpd);
@@ -212,14 +216,22 @@ public class CategoryWindow extends PbWindow implements ClickListener {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
-                            try {
-                                Set<String> cats = new HashSet<String>();
-                                cats.add(category.getName());
-                               bpmModule.deleteCategories(cats);
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                throw new RuntimeException(ex);
-                            }
+							try {
+								for (Object object : table.getContainerDataSource().getItemIds()) {
+									LightProcessDefinition lpd = (LightProcessDefinition) object;
+									Set<String> cats = lpd.getCategoryNames();
+									cats.remove(category.getName());
+									ProcessbaseApplication.getCurrent().getBpmModule().setProcessCategories(lpd.getUUID(), cats);
+								}
+
+								Set<String> cats = new HashSet<String>();
+								cats.add(category.getName());
+								bpmModule.deleteCategories(cats);
+								close();
+							} catch (Exception ex) {
+								ex.printStackTrace();
+								throw new RuntimeException(ex);
+							}
                         }
                     }
                 });

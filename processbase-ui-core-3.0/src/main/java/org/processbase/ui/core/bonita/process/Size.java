@@ -19,11 +19,13 @@ package org.processbase.ui.core.bonita.process;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.vaadin.terminal.Sizeable;
+
 /**
  *
  * @author abychkov
  */
-class Size {
+public class Size {
 
     public static final int STYLE_SIZE_PX = 1;
     public static final int STYLE_SIZE_PT = 2;
@@ -101,4 +103,23 @@ class Size {
     public void setUnit(int unit) {
 	this.unit = unit;
     }
+    
+	public int getSizableUnit() {
+		int u = Sizeable.UNITS_PIXELS;
+		switch (unit) {
+		case STYLE_SIZE_PR:
+			u = Sizeable.UNITS_PERCENTAGE;
+			break;
+		case STYLE_SIZE_PT:
+			u = Sizeable.UNITS_POINTS;
+			break;
+		case STYLE_SIZE_PX:
+			u = Sizeable.UNITS_PIXELS;
+			break;
+		default:
+			break;
+		}
+		return u;
+	}
+    
 }

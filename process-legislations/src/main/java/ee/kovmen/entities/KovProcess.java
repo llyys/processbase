@@ -19,6 +19,9 @@ public class KovProcess {
 	@Column(name="DBID_")
 	Long id;
 	
+	@Column(name="proc_uuid_")
+	String uuid;
+	
 	@Column(name="LABEL_OR_NAME_")
 	String name;
 	
@@ -74,5 +77,13 @@ public class KovProcess {
 
 	public String getState() {
 		return state;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 }

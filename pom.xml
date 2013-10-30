@@ -74,15 +74,10 @@
 			<url>http://snapshots.repository.codehaus.org</url>
 		</repository>
 		<repository>
-		    <id>opencastproject</id>
-			<name>opencastproject</name>
-			<url>http://repository.opencastproject.org/nexus/content/repositories/</url>
-		</repository>
-		<!--<repository>
 			<id>smartlink</id>
 			<name>smartlink</name>
 			<url>https://mvn.smartlink.ee/content/repositories/public/</url>
-		</repository>-->
+		</repository>
 		<repository>
 		<id>repo1</id>
 		<name>repo1</name>

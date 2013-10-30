@@ -10,37 +10,34 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.birt.report.engine.api.HTMLRenderOption;
-import org.eclipse.birt.report.model.metadata.DateTimePropertyType;
 import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightActivityInstance;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.raports.birt.ReportService;
 import org.processbase.raports.birt.generator.ReportItem;
-import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbPanel;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.Validator;
+import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 
 public class RaportViewer extends PbPanel {
 
@@ -93,6 +90,7 @@ public class RaportViewer extends PbPanel {
 					 component = timeUnit = new OptionGroup(element, 
 							 Arrays.asList(new String[] {"YEAR","MONTH","DAY"}));
 					 timeUnit.setImmediate(true);
+					 timeUnit.setRequired(true);
 					 timeUnit.addListener(new Property.ValueChangeListener() {
 						
 						public void valueChange(ValueChangeEvent event) {
@@ -118,11 +116,13 @@ public class RaportViewer extends PbPanel {
 					PopupDateField datetime = new PopupDateField("Alates");					
 					datetime.setResolution(PopupDateField.RESOLUTION_DAY);
 					component=datetimeStart=datetime;
+					datetime.setRequired(true);
 				}
 				else if(element.endsWith("EndDate")){
 					PopupDateField datetime = new PopupDateField("Kuni");					
 					datetime.setResolution(PopupDateField.RESOLUTION_DAY);
 					component=datetimeEnd=datetime;
+					datetime.setRequired(true);
 				}
 				else if(element.equals("ActivityType")){
 					ActivityDefinition.Type[] values=ActivityDefinition.Type.values();
@@ -132,9 +132,11 @@ public class RaportViewer extends PbPanel {
 				        result.add(value.name());  
 				    }  
 					component=activityType = new ComboBox(element, result);
+					activityType.setRequired(true);
 				}
 				else if(element.equals("ActivityUUID")){
 					component=activityUUIDs = new ComboBox(element);
+					activityUUIDs.setRequired(true);
 				}
 				else if(element.equals("ProcessUUID")){
 					try {
@@ -147,8 +149,8 @@ public class RaportViewer extends PbPanel {
 						Collections.sort(processes);
 						component=processesUUIDs = new ComboBox(element,processes);
 						processesUUIDs.setNullSelectionAllowed(false);
+						processesUUIDs.setRequired(true);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
@@ -158,6 +160,7 @@ public class RaportViewer extends PbPanel {
 					TextField field = new TextField(element);
 					layout.addComponent(field);				
 					unmappedElements.put(element, field);
+					field.setRequired(true);
 				}
 			}
 			//we add items specially here, beacause here we can order elements (StartDate before EndDate etc) 
@@ -208,31 +211,85 @@ public class RaportViewer extends PbPanel {
 				public void buttonClick(ClickEvent event) {
 					
 					try {
-						
-						indicator.setVisible(true);
 						Map params=new HashMap();
 						
-						if(timeUnit!=null) 
-							params.put("TimeUnit", timeUnit.getValue());						
-						if(datetimeStart!=null) 
+						if(timeUnit!=null){ 
+							if(timeUnit.isValid()){
+								timeUnit.setComponentError(null);
+							}else{
+								timeUnit.setComponentError(new UserError(timeUnit.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
+							params.put("TimeUnit", timeUnit.getValue());
+						}					
+						if(datetimeStart!=null) { 
+							if(datetimeStart.isValid()){
+								datetimeStart.setComponentError(null);
+							}else{
+								datetimeStart.setComponentError(new UserError(datetimeStart.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
 							params.put("StartDate", Long.toString(((Date)datetimeStart.getValue()).getTime()));
-						if(datetimeEnd!=null) 
+						}
+						if(datetimeEnd!=null) { 
+							if(datetimeEnd.isValid()){
+								datetimeEnd.setComponentError(null);
+							}else{
+								datetimeEnd.setComponentError(new UserError(datetimeEnd.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
 							params.put("EndDate", Long.toString(((Date)datetimeEnd.getValue()).getTime()));
-						if(processesUUIDs!=null) 
+						}
+						if(processesUUIDs!=null) { 
+							if(processesUUIDs.isValid()){
+								processesUUIDs.setComponentError(null);
+							}else{
+								processesUUIDs.setComponentError(new UserError(processesUUIDs.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
 							params.put("ProcessUUID", processesUUIDs.getValue());
+						}
 						if(activityType!=null){
+							if(activityType.isValid()){
+								activityType.setComponentError(null);
+							}else{
+								activityType.setComponentError(new UserError(activityType.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
 							params.put("ActivityType", activityType.getValue());
 						}
-						if(activityUUIDs!=null) 
+						if(activityUUIDs!=null) { 
+							if(activityUUIDs.isValid()){
+								activityUUIDs.setComponentError(null);
+							}else{
+								activityUUIDs.setComponentError(new UserError(activityUUIDs.getCaption() + 
+										ProcessbaseApplication.getString("fieldRequired")));
+								return;
+							}
 							params.put("ActivityUUID", activityUUIDs.getValue());
-						
+						}
 						if(unmappedElements.size()>0){
 							for (Entry<String, TextField> elem: unmappedElements.entrySet()) {
+								if(elem.getValue().isValid()){
+									elem.getValue().setComponentError(null);
+								}else{
+									elem.getValue().setComponentError(new UserError(elem.getValue().getCaption() + 
+											ProcessbaseApplication.getString("fieldRequired")));
+									return;
+								}
 								params.put(elem.getKey(), elem.getValue().getValue());
 							}
 						}
+
+						indicator.setVisible(true);
 						
 						String result=reportService.runAndRender(reportItem, params, new HTMLRenderOption());
+						
 						indicator.setVisible(false);
 						raportControl.setValue(result);
 						

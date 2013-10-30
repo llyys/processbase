@@ -166,7 +166,13 @@ public class LiferayDocumentationManager implements DocumentationManager {
    
     public List<Document> getVersionsOfDocument(String documentId) throws DocumentNotFoundException {
         System.out.println("getVersionsOfDocument");
-        return null;
+        
+        List<Document> docs = new ArrayList<Document>();
+        Document doc = getDocument(documentId);
+        if(doc != null){
+        	docs.add(doc);
+        }
+        return docs;
     }
 
     

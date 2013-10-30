@@ -1,0 +1,69 @@
+<connector>
+	<connectorId>PdfTemplateConnector</connectorId>
+	<version>5.0</version>
+	<icon>pdf.ico</icon>
+	<categories>
+		<category>
+			<name>Documents</name>
+		</category>
+	</categories>
+	<inputs>
+		<setter>
+			<setterName>setTemplate</setterName>
+			<parameters>
+				<attachment />
+			</parameters>
+		</setter>
+		<setter>
+			<setterName>setFile</setterName>
+			<required></required>
+			<parameters>
+				<attachment />
+			</parameters>
+		</setter>
+		<setter>
+      		<setterName>setTables</setterName>
+	      	<parameters>
+	        	<list/>
+	      	</parameters>
+	    </setter>
+	    <setter>
+	      <setterName>setFileName</setterName>
+	      <required></required>
+	      <parameters>
+	        <string></string>
+	      </parameters>
+	    </setter>
+	</inputs>
+	<outputs />
+	<pages>
+		<page>
+			<pageId>PdfSettings</pageId>
+			<widgets>
+				<text>
+					<labelId>template</labelId>
+					<setter reference="/connector/inputs/setter" />
+					<size>20</size>
+					<maxChar>40</maxChar>
+				</text>
+				<text>
+					<labelId>file</labelId>
+					<setter reference="/connector/inputs/setter[2]" />
+					<size>20</size>
+					<maxChar>40</maxChar>
+				</text>
+				<list>
+		          	<labelId>tables</labelId>
+		          	<setter reference="/connector/inputs/setter[3]"/>
+		          	<maxRows>0</maxRows>
+		        </list>
+		        <text>
+		          <labelId>fileName</labelId>
+		          <setter reference="/connector/inputs/setter[4]"/>
+		          <size>20</size>
+		          <maxChar>40</maxChar>
+		        </text>
+			</widgets>
+		</page>
+	</pages>
+</connector>

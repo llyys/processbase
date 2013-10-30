@@ -16,6 +16,7 @@
  */
 package org.processbase.ui.bpm.admin;
 
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -23,6 +24,8 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+
+import org.ow2.bonita.facade.exception.CategoryAlreadyExistsException;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
@@ -52,6 +55,7 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             categoryName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoryName"));
+            categoryName.setRequired(true);
             categoryName.setWidth("270px");
             addComponent(categoryName);
 
@@ -79,7 +83,21 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
-                ProcessbaseApplication.getCurrent().getBpmModule().addCategory(categoryName.getValue().toString(), "", "", "");
+            	categoryName.setComponentError(null);
+            	if(!categoryName.isValid()){
+            		String requiredMessage = ProcessbaseApplication.getString("categoryName") + ProcessbaseApplication.getString("fieldRequired");
+            		showError(requiredMessage);
+            		categoryName.setComponentError(new UserError(requiredMessage));
+            		return;
+            	}
+            	try{
+            		ProcessbaseApplication.getCurrent().getBpmModule().addCategory(categoryName.getValue().toString(), "", "", "");
+            	}catch (CategoryAlreadyExistsException e) {
+            		String error = ProcessbaseApplication.getString("categoryName") + ProcessbaseApplication.getString("fieldNotUnique");
+            		showError(error);
+            		categoryName.setComponentError(new UserError(error));
+            		return;
+				}
                 close();
             } else {
                 close();

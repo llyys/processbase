@@ -17,12 +17,22 @@
 package org.processbase.ui.bpm.admin;
 
 import com.vaadin.data.Item;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.identity.impl.UserImpl;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.uuid.ActivityDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightActivityInstance;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.TablePanel;
@@ -50,8 +60,8 @@ public class ActivitiesPanel extends TablePanel {
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
-        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionAction"), null, null);
+        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionType"), null, null);
         table.addContainerProperty("createdDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
         table.setColumnWidth("createdDate", 100);
@@ -70,9 +80,13 @@ public class ActivitiesPanel extends TablePanel {
 
     @Override
     public void refreshTable() {
+    	
+    	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+    	Map<String, User> usersMap = new HashMap<String, User>();
+    	
         table.removeAllItems();
         try {
-            activities = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances(processInstanceUUID);
+            activities = bpmModule.getActivityInstances(processInstanceUUID);
             for (ActivityInstance lai : activities) {
                 if (lai.isAutomatic() || lai.isTask()) {
                     Item woItem = table.addItem(lai);
@@ -82,9 +96,66 @@ public class ActivitiesPanel extends TablePanel {
                     woItem.getItemProperty("startdeDate").setValue(lai.getStartedDate());
                     woItem.getItemProperty("endDate").setValue(lai.getEndedDate());
                     woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(lai.getState().toString()));
+                    
                     if (lai.isTask()) {
-                        woItem.getItemProperty("candidates").setValue(lai.getTask().getTaskCandidates());
-                        woItem.getItemProperty("taskuser").setValue(lai.getTask().getTaskUser());
+                    	
+                    	User u = null;
+                    	
+						if (lai.getTask().getTaskUser() != null) {
+							u = usersMap.get(lai.getTask().getTaskUser());
+							if (u == null) {
+								u = bpmModule.findUserByUserName(lai.getTask()
+										.getTaskUser());
+							}
+
+							StringBuilder sb = new StringBuilder();
+							if (u != null) {
+								if (u.getLastName() != null) {
+									sb.append(u.getFirstName());
+								}
+								if (u.getLastName() != null) {
+									sb.append(" ").append(u.getLastName());
+								}
+							} else {
+								sb.append(lai.getTask().getTaskUser());
+							}
+							woItem.getItemProperty("taskuser").setValue(
+									sb.toString());
+						}
+                    	
+						if (lai.getTask().getTaskCandidates() != null) {
+
+							List<User> l = new ArrayList<User>();
+
+							for (String un : lai.getTask().getTaskCandidates()) {
+								u = usersMap.get(un);
+								if (u == null) {
+									u = bpmModule.findUserByUserName(un);
+								}
+								if (u == null) {
+									u = new UserImpl(un, "");
+								}
+								l.add(u);
+							}
+
+							StringBuilder sb = new StringBuilder();
+
+							for (int i = 0; i < l.size(); i++) {
+								if (i > 0) {
+									sb.append(", ");
+								}
+								if (l.get(i).getLastName() != null) {
+									sb.append(l.get(i).getFirstName());
+								}
+								if (l.get(i).getLastName() != null) {
+									sb.append(" ").append(
+											l.get(i).getLastName());
+								}
+							}
+
+							woItem.getItemProperty("candidates").setValue(
+									sb.toString());
+						}
                     }
 
                 }

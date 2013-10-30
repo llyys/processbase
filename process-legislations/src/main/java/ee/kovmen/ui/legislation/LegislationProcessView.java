@@ -14,6 +14,8 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 
 import ee.kovmen.data.LegislationData;
@@ -39,18 +41,36 @@ public class LegislationProcessView extends PbWindow implements Property.ValueCh
 		setModal(true);
 		FormLayout form=new FormLayout();
 		addComponent(form);
+		
+		setWidth("800px");
+        setHeight("400px");
+        
+        setCaption("Valige seotud protsessid");
 
-		final OptionGroup procSelect = new OptionGroup("Valige seotud protsessid");
+		final OptionGroup procSelect = new OptionGroup();
 		procSelect.setMultiSelect(true);
-		procSelect.setImmediate(true);// react when the user selects something
+		procSelect.setImmediate(true);
+		// react when the user selects something
+		
+		Session session = LegislationData.getCurrent().getSession();
+		Transaction t=session.beginTransaction();
+		KovLegislation leg=(KovLegislation) session.get(KovLegislation.class, currentLegislation.getId());
 		
 		HibernateTemplate hibernate = LegislationData.getCurrent().getHibernate();
-		List find = hibernate.find("select p from KovProcess p where p.state='ENABLED'");
-		for (Object object : find) {
-			Item item = procSelect.addItem(object);			
+		List<KovProcess> find = hibernate.find("select p from KovProcess p where p.state='ENABLED'");
+		for (KovProcess proccess : find) {
+			Item item = procSelect.addItem(proccess);	
+			for (KovProcess p : leg.getProcesses()) {
+				if(proccess.getId().equals(p.getId())){
+					procSelect.select(proccess);
+					break;
+				}
+			}
 		}
+		t.commit();
 		
 		form.addComponent(procSelect);
+
 		form.addComponent(new Button("Salvesta", new Button.ClickListener(){
 
 			public void buttonClick(ClickEvent event) {
@@ -65,10 +85,12 @@ public class LegislationProcessView extends PbWindow implements Property.ValueCh
 				}
 				t.commit();
 				
-				
+				close();
 			}
 			
 		}));
+		
+		
 
 	}
 	

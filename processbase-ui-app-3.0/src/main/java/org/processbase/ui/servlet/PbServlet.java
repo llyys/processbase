@@ -24,23 +24,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-import com.vaadin.Application;
-import com.vaadin.terminal.gwt.server.AbstractApplicationServlet;
-import com.vaadin.terminal.gwt.server.ApplicationServlet;
-import com.vaadin.ui.Window;
-
-import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
+
+import com.google.gson.Gson;
+import com.vaadin.Application;
+import com.vaadin.terminal.gwt.server.ApplicationServlet;
+import com.vaadin.ui.Window;
 
 public class PbServlet extends ApplicationServlet {
 

@@ -94,5 +94,9 @@ public class PortalUser implements User{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public com.liferay.portal.model.User getPortalUser() {
+		return portalUser;
+	}
 
 }

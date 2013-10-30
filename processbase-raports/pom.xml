@@ -57,55 +57,53 @@
 			<version>${bonita.version}</version>
 		</dependency>
 		
-		<!-- BIRT -->
+		<!-- BIRT 
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>chartengineapi</artifactId>
+			<artifactId>chart.engine.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>engineapi</artifactId>
+			<artifactId>report.engine.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>coreapi</artifactId>
-			<version>${birt.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.birt</groupId>
-			<artifactId>dataadapterapi</artifactId>
+			<artifactId>core.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>dteapi</artifactId>
+			<artifactId>data.adapter.api</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>data.engine.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
 
 		
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>modelapi</artifactId>
+			<artifactId>report.model.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
-		
-	<!--	
-			<dependency> 
-			<groupId>org.eclipse.birt</groupId>
-			<artifactId>report-engine</artifactId> 
-			<type>zip</type>
-			<version>${birt.version}</version> </dependency>
 		-->
+		<!--
+			<dependency> <groupId>org.eclipse.birt</groupId>
+			<artifactId>report-engine</artifactId> <type>zip</type>
+			<version>${birt.version}</version> </dependency>
+		
 		<dependency>
 			<groupId>org.eclipse.birt</groupId>
-			<artifactId>scriptapi</artifactId>
+			<artifactId>script.api</artifactId>
 			<version>${birt.version}</version>
 		</dependency>
-
+-->
 		<dependency>
 			<groupId>org.mod4j.org.eclipse.emf</groupId>
 			<artifactId>ecore</artifactId>
@@ -157,11 +155,6 @@
 			<id>codehaus</id>
 			<name>codehaus</name>
 			<url>http://snapshots.repository.codehaus.org</url>		
-		</repository>
-		<repository>
-			<id>krakenapps</id>
-			<name>krakenapps</name>
-			<url>http://download.krakenapps.org/</url>		
 		</repository>
 	</repositories>
 </project>

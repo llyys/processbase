@@ -26,55 +26,59 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Runo;
 
-public class LegislationPanel extends PbPanel implements ITabsheetPanel, LazyLoader {
+public class LegislationPanel extends PbPanel implements ITabsheetPanel,
+		LazyLoader {
+
+	private ProcessDefinition processDefinition = null;
+	private ProcessDefinitionWindow parentWindow;
 	private Table tableLegislations = new Table();
-	private Button addBtn=null;
-	private Button saveBtn=null;
-	 @Override
-	 public void initUI() {
-		 if(super.isInitialized())
-			 return;
-	   super.setInitialized(true);
-	   setSpacing(true);
-       setMargin(true);
-	   tableLegislations.addContainerProperty("name", String.class, null, "Resursi nimetus", null, null);
-	   
-       tableLegislations.setWidth("100%");
-              
-       
-       tableLegislations.setEditable(false);
-       tableLegislations.setImmediate(false);
-       addComponent(tableLegislations);
-       tableLegislations.setPageLength(11);
-       setSizeFull();
-       refreshTable();
-	 }
-	 
-	 public void onActivate(boolean isActive) {		 
-		 if(isActive && !isInitialized())
-			 initUI();
-	 }
-	 
-	  
-	 
-	private void showError(String message) {			
-		 ((PbWindow) getWindow()).showError(message);
+
+	@Override
+	public void initUI() {
+		if (super.isInitialized())
+			return;
+		super.setInitialized(true);
+		setSpacing(true);
+		setMargin(true);
+		tableLegislations.addContainerProperty("name", String.class, null,
+				"Resursi nimetus", null, null);
+
+		tableLegislations.setWidth("100%");
+
+		tableLegislations.setEditable(false);
+		tableLegislations.setImmediate(false);
+		addComponent(tableLegislations);
+		tableLegislations.setPageLength(11);
+		setSizeFull();
+		refreshTable();
 	}
-	 
-	 public void setProcessDefinition(ProcessDefinition processDefinition) {
+
+	public void onActivate(boolean isActive) {
+		if (isActive && !isInitialized())
+			initUI();
+	}
+
+	private void showError(String message) {
+		((PbWindow) getWindow()).showError(message);
+	}
+
+	public void setProcessDefinition(ProcessDefinition processDefinition) {
 		this.processDefinition = processDefinition;
 	}
-	private ProcessDefinition processDefinition = null;
+
 	
+
 	@Override
-	public String getCaption(){
-		return ProcessbaseApplication.getString("processResoucses", "Process resources");		
+	public String getCaption() {
+		return ProcessbaseApplication.getString("processLegislationInfo",
+				"Process legislations");
 	}
-	
-	public void refreshTable()
-	{
+
+	public void refreshTable() {
 		try {
-			Map<String, byte[]> businessArchive = ProcessbaseApplication.getCurrent().getBpmModule().getBusinessArchive(this.processDefinition.getUUID());
+			Map<String, byte[]> businessArchive = ProcessbaseApplication
+					.getCurrent().getBpmModule()
+					.getBusinessArchive(this.processDefinition.getUUID());
 			for (Entry<String, byte[]> element : businessArchive.entrySet()) {
 				Item addItem = tableLegislations.addItem(element.getKey());
 				addItem.getItemProperty("name").setValue(element.getKey());
@@ -84,12 +88,12 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel, LazyLoa
 			e1.printStackTrace();
 		}
 		try {
-			
+
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
 	}
-	
+
 	public void setParentWindow(ProcessDefinitionWindow parentWindow) {
 		this.parentWindow = parentWindow;
 	}
@@ -98,38 +102,8 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel, LazyLoa
 		return parentWindow;
 	}
 
-	public class Legislation{
-		public Legislation()
-		{
-			uuid=UUID.randomUUID().toString();
-			name="";
-			url="";
-		}
-		private String uuid;
-		private String name;
-		private String url;
-		
-		public void setUrl(String url) {
-			this.url = url;
-		}
-		public String getUrl() {
-			return url;
-		}
-		public void setUuid(String uuid) {
-			this.uuid = uuid;
-		}
-		public String getUuid() {
-			return uuid;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public String getName() {
-			return name;
-		}
-	}
-	private ProcessDefinitionWindow parentWindow;
 	
+
 	public String getLazyLoadingMessage() {
 		// TODO Auto-generated method stub
 		return "Loen protsessi definitsioone";
@@ -140,5 +114,5 @@ public class LegislationPanel extends PbPanel implements ITabsheetPanel, LazyLoa
 		initUI();
 		return this;
 	}
-	
+
 }

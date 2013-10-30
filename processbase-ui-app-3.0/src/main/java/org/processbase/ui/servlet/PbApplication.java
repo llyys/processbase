@@ -16,39 +16,28 @@
  */
 package org.processbase.ui.servlet;
 
-import antlr.StringUtils;
-
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
-import com.vaadin.ui.UriFragmentUtility;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.enterprise.context.SessionScoped;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.enterprise.context.SessionScoped;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.ow2.bonita.facade.identity.User;
-import org.processbase.engine.bam.db.HibernateUtil;
+import org.processbase.ui.bpm.identity.sync.UserRolesSync;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.util.SpringContextHelper;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
-import org.processbase.ui.osgi.impl.PbPanelModuleServiceImpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.UriFragmentUtility;
 
 /**
  *
@@ -63,7 +52,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 	
     private MainWindow mainWindow;
     private HttpSession httpSession = null;
-    private BPMModule bpmModule = null;
+	private BPMModule bpmModule = null;
     private ResourceBundle messages = null;
     private ResourceBundle customMessages = null;
     private String userName = null;
@@ -81,7 +70,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     }
 
     public void initUI() {
-    	
+
         System.out.println("PbApplication init ");
 //        if (!Constants.LOADED) {
 //            Constants.loadConstants();
@@ -211,7 +200,16 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 				System.out.println("Set cookie.");
             }
             setBpmModule(bpmm);
+            
+            try {
+				// Sync user roles
+				new UserRolesSync().updateUser(bpmm.findUserByUserName(userName));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+            
             mainWindow.initUI();
+            
         } else {
             throw new Exception(getPbMessages().getString("loginWindowException2"));
         }

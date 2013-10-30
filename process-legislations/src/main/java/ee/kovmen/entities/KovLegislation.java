@@ -28,11 +28,14 @@ public class KovLegislation  implements Serializable{
 	@Column
     String type;
 	
+	@Column
+    String description;
+	
 	@ManyToOne(targetEntity=KovServiceCategory.class)
     KovServiceCategory category;
 	
 	//this will create new sub table, that allows extended OneToMany mapping
-	@OneToMany
+	@ManyToMany
 	private	Set<KovProcess> processes;
 	
 	public Long getId() {
@@ -64,6 +67,18 @@ public class KovLegislation  implements Serializable{
 	}
 	public Set<KovProcess> getProcesses() {
 		return processes;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

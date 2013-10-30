@@ -131,9 +131,9 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 						TableLinkButton tlb = (TableLinkButton) event.getButton();
 						String uuid = (String) tlb.getTableValue();
 						tableMembership.removeItem(uuid);
-						if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
+						//if (!uuid.startsWith("NEW_MEMBERSHIP_UUID")) {
 							deletedMembership.add(uuid);
-						}
+						//}
 					}
 				}, Constants.ACTION_DELETE);
 		woItem.getItemProperty("actions").setValue(tlb);
@@ -223,6 +223,13 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 				Set<String> entityUUIDs = new HashSet<String>();
 				entityUUIDs.add(processDefinition.getUUID().toString());
 				bpmModule.applyRuleToEntities(rule.getUUID(), null, null, null,membershipUUIDs, entityUUIDs);
+			}
+			
+			if(deletedMembership != null && deletedMembership.size() > 0){
+				Set<String> entityUUIDs = new HashSet<String>();
+				entityUUIDs.add(processDefinition.getUUID().toString());
+				
+				bpmModule.removeRuleFromEntities(rule.getUUID(), null, null, null, deletedMembership, entityUUIDs);
 			}
 
 		} catch (Exception ex) {

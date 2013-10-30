@@ -16,10 +16,25 @@
  */
 package org.processbase.ui.core.template;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import org.apache.commons.lang.StringUtils;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.services.Document;
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.forms.Validators;
+import org.springframework.beans.factory.config.SetFactoryBean;
+
+import com.vaadin.data.Validator;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Alignment;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
@@ -32,17 +47,9 @@ import com.vaadin.ui.Upload.FinishedListener;
 import com.vaadin.ui.Upload.StartedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.util.ResourceBundle;
-
-
-import org.ow2.bonita.facade.runtime.AttachmentInstance;
-import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
-import org.ow2.bonita.services.Document;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.ProcessbaseApplication;
 
 /**
  *
@@ -56,6 +63,8 @@ public class ImmediateUpload extends VerticalLayout
         Upload.ProgressListener,
         Upload.FinishedListener,
         Upload.Receiver {
+	
+	private static final int MAX_UPLOAD_SIZE = 52428800;
 
     private Label status = new Label("");
     private ProgressIndicator pi = new ProgressIndicator();
@@ -72,25 +81,39 @@ public class ImmediateUpload extends VerticalLayout
     private String processUUID;
     private ResourceBundle messages;
     private boolean needToSave = false;
+    
+    private boolean hideOnDelete = false;
+    
+    private String label;
+    private boolean mandatory = false;
+    
+    private Validators validators;
 
 
     public ImmediateUpload(String processUUID, String label, String attachmentName, String fileName, boolean hasFile, boolean readOnly, ResourceBundle messages) {
-        System.out.println(processUUID + " " + attachmentName + " " + fileName + " " + hasFile);
-        this.processUUID = processUUID;
+        
+    	this.processUUID = processUUID;
         this.messages = messages;
         this.fileName = fileName;
         this.attachmentName = attachmentName;
+       
+        
         setSpacing(true);
 
         addComponent(statusLayout);
-        if (!hasFile) {
-            addComponent(upload);
-        } else {
-            downloadBtn.setCaption(label);
+        if (hasFile){
+            downloadBtn.setCaption(fileName != null ? fileName : label);
             downloadBtn.setStyleName(Reindeer.BUTTON_LINK);
             downloadBtn.addListener((Button.ClickListener) this);
-            addComponent(downloadBtn);
+           // addComponent(downloadBtn);
         }
+    
+    	addComponent(upload);
+    	if(hasFile){
+    		upload.setVisible(false);
+    	}else{
+    		upload.setVisible(true);
+    	}
 
         addComponent(progressLayout);
 
@@ -111,9 +134,19 @@ public class ImmediateUpload extends VerticalLayout
         deleteBtn.setDescription(messages.getString("btnDelete"));
         deleteBtn.setIcon(new ThemeResource("icons/cancel.png"));
         deleteBtn.addListener((Button.ClickListener) this);
-        deleteBtn.setVisible(false);
+        if(hasFile && !readOnly){
+        	deleteBtn.setVisible(true);
+        	downloadBtn.setVisible(true);
+        	//status.setVisible(true);
+        	
+        }else{
+        	deleteBtn.setVisible(false);
+        }
         statusLayout.addComponent(deleteBtn);
         statusLayout.addComponent(status);
+        if (hasFile){
+        	statusLayout.addComponent(downloadBtn);
+        }
 
         /**
          * =========== Add needed listener for the upload component: start,
@@ -125,7 +158,14 @@ public class ImmediateUpload extends VerticalLayout
         upload.addListener((Upload.FailedListener) this);
         upload.addListener((Upload.FinishedListener) this);
 
+        this.label = label;
     }
+    
+    public ImmediateUpload(String processUUID, String label, String attachmentName, String fileName, boolean hasFile, boolean readOnly, ResourceBundle messages, boolean hideOnDelete) {
+    	this(processUUID, label, attachmentName, fileName, hasFile, readOnly, messages);
+    	this.hideOnDelete = hideOnDelete;
+    }
+        
 
     public void buttonClick(ClickEvent event) {
         try {
@@ -136,35 +176,56 @@ public class ImmediateUpload extends VerticalLayout
                 upload.setVisible(true);
                 status.setValue("");
                 deleteBtn.setVisible(false);
+                upload.setVisible(true);
+                downloadBtn.setVisible(false);
+                if(hideOnDelete){
+                	setVisible(false);
+                }
                 BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-                bpmModule.deleteDocument(new ProcessInstanceUUID(processUUID), attachmentName, fileName);
+                bpmModule.deleteDocument(new ProcessInstanceUUID(processUUID), fileName, fileName);
+                setComponentError(null);
+                fileName = null;
             } else if (event.getButton().equals(downloadBtn)) {
             	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
             	//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
 				//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
 				
-				Document document = bpmModule.getDocument(new ProcessInstanceUUID(processUUID), attachmentName);
+				Document document = bpmModule.getDocument(new ProcessInstanceUUID(processUUID), fileName);
 				
                 byte[] bytes = bpmModule.getDocumentBytes(document);
                 
 				ByteArraySource bas = new ByteArraySource(bytes);
+				
                 if(bas!=null && bas.byteArray.length!=0){
-	                StreamResource streamResource = new StreamResource(bas, document.getContentFileName(), getApplication());
+	                DownloadStreamResource streamResource = new DownloadStreamResource(bas, 
+	                		document.getContentFileName(), getApplication());
 	                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
-	                streamResource.getStream().setParameter("Content-Disposition",
-	                        "attachment; filename="+attachmentName);
-	                event.getButton().getWindow().open(streamResource);
+	               
+	                streamResource.setMIMEType("application/octet-stream");
+	                streamResource.setParameter("Content-Disposition", "attachment; filename=\"" + document.getContentFileName()+"\"");
+	                streamResource.setParameter("Cache-Control", "private, max-age=86400"); 
+	                streamResource.setParameter("X-Content-Type-Options", "nosniff");
+	                
+	                getApplication().getMainWindow().open(streamResource);
+                } else {
+                	getWindow().showNotification(ProcessbaseApplication.getString("fileIsEmpty").replace("{0}", attachmentName));
                 }
-                else
-                	getWindow().showNotification("File " + attachmentName + "is empty");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            getWindow().showNotification("File loading error");
+            getWindow().showNotification(ProcessbaseApplication.getString("fileLoadError"));
         }
     }
 
     public void uploadStarted(StartedEvent event) {
+    	if(event.getContentLength() > MAX_UPLOAD_SIZE){
+    		setComponentError(new UserError(ProcessbaseApplication.getString("fileUploadSizeLimit")));
+    		getWindow().showNotification(ProcessbaseApplication.getString("fileUploadSizeLimit"), Notification.TYPE_ERROR_MESSAGE);
+    		upload.interruptUpload();
+    		return;
+    	}
+    	
+    	setComponentError(null);
         // This method gets called immediatedly after upload is started
         upload.setVisible(false);
         progressLayout.setVisible(true);
@@ -174,6 +235,13 @@ public class ImmediateUpload extends VerticalLayout
     }
 
     public void updateProgress(long readBytes, long contentLength) {
+    	if(contentLength > MAX_UPLOAD_SIZE){
+    		setComponentError(new UserError(ProcessbaseApplication.getString("fileUploadSizeLimit")));
+    		getWindow().showNotification(ProcessbaseApplication.getString("fileUploadSizeLimit"), Notification.TYPE_ERROR_MESSAGE);
+    		upload.interruptUpload();
+    		return;
+    	}
+    	
         // This method gets called several times during the update
         pi.setValue(new Float(readBytes / (float) contentLength));
     }
@@ -190,12 +258,27 @@ public class ImmediateUpload extends VerticalLayout
     }
 
     public void uploadFinished(FinishedEvent event) {
+    	if(event instanceof Upload.SucceededEvent){
+    		
         // This method gets called always when the upload finished,
         // either succeeding or failing
         progressLayout.setVisible(false);
 //                upload.setVisible(true);
 //                upload.setCaption("Select another file");
         deleteBtn.setVisible(true);
+        
+        if(isNeedToSave()){
+        	try{
+        		BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+		        bpmModule.addDocument(new ProcessInstanceUUID(processUUID), fileName, 
+		        		fileName, mtype, baos.toByteArray());
+		        needToSave = false;
+	        }catch (Exception e) {
+				e.printStackTrace();
+			}
+        }
+        
+        }
     }
 
     public OutputStream receiveUpload(String filename, String mimetype) {
@@ -233,5 +316,28 @@ public class ImmediateUpload extends VerticalLayout
 		upload.addListener(finishedListener);
 	}
 
+	public boolean isMandatory() {
+		return mandatory;
+	}
+
+	public void setMandatory(boolean mandatory) {
+		this.mandatory = mandatory;
+	}
+	
+	public String getLabel() {
+		return label;
+	}
+	
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Validators getValidators() {
+		return validators;
+	}
+
+	public void setValidators(Validators validators) {
+		this.validators = validators;
+	}
 
 }

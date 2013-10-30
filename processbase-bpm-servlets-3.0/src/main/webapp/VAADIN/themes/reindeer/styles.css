@@ -280,7 +280,7 @@
 div.v-app-loading {
 	/* You can use this to provide indication for the user that the application is loading. */
 	/* It is applied to the same element as .v-app */
-	background-image: url(../base/common/img/loading-indicator.gif);
+	background-image: url(../base/common/img/290.gif);
 	background-repeat: no-repeat;
 	background-position: 50%;
 	width: 100%;
@@ -428,20 +428,20 @@ div.v-app-loading {
 .v-loading-indicator-delay,
 .v-loading-indicator-wait {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 50%;
+	right: 50%;
 	z-index: 30000;
-	width: 31px;
-	height: 31px;
-	background: transparent url(../base/common/img/loading-indicator.gif);
+	width: 96px;
+	height: 96px;
+	background: transparent url(../base/common/img/290.gif);
 	margin-right: 5px;
 	margin-top: 5px;
 }
 .v-loading-indicator-delay {
-	background-image: url(../base/common/img/loading-indicator-delay.gif);
+	/*background-image: url(../base/common/img/loading-indicator-delay.gif);*/
 }
 .v-loading-indicator-wait {
-	background-image: url(../base/common/img/loading-indicator-wait.gif);
+	/*background-image: url(../base/common/img/loading-indicator-wait.gif);*/
 }
 /* Debug dialog */
 .v-debug-console {
@@ -5855,4 +5855,4 @@ textarea.v-textarea-readonly,
   background-image: url(common/img/black-vertical-sprites.png);
   -background-image: url(common/img/black-vertical-sprites-ie6.png);
   background-position: left -800px;
-}
+}  

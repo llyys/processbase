@@ -1,32 +1,12 @@
 package org.processbase.ui.bpm.generator.view;
 
-import java.util.List;
-import java.util.Stack;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
-import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
-import org.ow2.bonita.light.LightTaskInstance;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
-import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
-import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
-import org.processbase.ui.core.bonita.process.BarResource;
-import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
 
-import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.Accordion;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.CustomLayout;
 /**
  * Process pool dialog that can have multiple UserTaskPanels
  * 
@@ -66,11 +46,7 @@ public class NewProcessWindow extends PbWindow{
 			setModal(true);
 			center();
 			
-			
-			
-			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}

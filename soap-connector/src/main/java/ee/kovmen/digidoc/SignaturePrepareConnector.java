@@ -22,7 +22,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	
 	
 	// DO NOT REMOVE NOR RENAME THIS FIELD
-	private List<AttachmentInstance> files;
+	private List files;
 	// DO NOT REMOVE NOR RENAME THIS FIELD
 	private java.lang.String cert;
 	private String signatureHash;
@@ -30,22 +30,40 @@ public class SignaturePrepareConnector extends ProcessConnector {
 
 	@Override
 	protected void executeConnector() throws Exception {
-		// TODO Auto-generated method stub
+	
 		Sign sign=new Sign(getProcessInstanceUUID().toString());
-		
 		sign.initSettings(Sign.getBonitaHomeDir());
-		//bugfix when there are multiple documents, then bonita adds another list into this 
-		if(this.files.get(0) instanceof ArrayList){
-			files=(List<AttachmentInstance>) this.files.get(0);
-		}
-		List<Document> documents=new ArrayList<Document>(this.files.size());
+		
+		List<Document> documents=new ArrayList<Document>();
+		
 		QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getQueryRuntimeAPI();
 		sign.setQueryRuntimeAPI(queryRuntimeAPI);
 		
-		for (AttachmentInstance attachment : files) {
-			org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
-			documents.add(bonita_doc);
+		for (int i = 0; i < files.size(); i++) {
+			if(files.get(i) instanceof AttachmentInstance){
+				AttachmentInstance attachment = (AttachmentInstance) files.get(i);
+				org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
+				if(bonita_doc != null){
+					documents.add(bonita_doc);
+				}
+			} else if(files.get(i) instanceof List) {
+				List list = (List) files.get(i);
+				for (int j = 0; j < list.size(); j++) {
+					if(list.get(j) instanceof AttachmentInstance){
+						AttachmentInstance attachment = (AttachmentInstance) list.get(j);
+						org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
+						if(bonita_doc != null){
+							documents.add(bonita_doc);
+						}
+					}
+				}
+			}
 		}
+		
+//		for (AttachmentInstance attachment : files) {
+//				org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
+//				documents.add(bonita_doc);
+//		}
 
 		//kui on cert topelt kodeeritud (sest cerdi andmed on sisestatud <input type="text"> v�ljale ja see s��b �ra reavahetused ning cert selle t�ttu ei t��ta
 		if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
@@ -63,10 +81,27 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	protected List<ConnectorError> validateValues() {
 		List<ConnectorError> errors = new ArrayList<ConnectorError>();
 		if(this.cert==null){
-			errors.add(new ConnectorError("Cert", new Exception("Sertifikaadi v�li puudub")));
+			errors.add(new ConnectorError("Cert", new Exception("Cert is missing!")));
 		}
-		if(files.size()==0){
-			errors.add(new ConnectorError("files", new Exception("No files to sign")));
+		int filesToSign = 0;
+		for (int i = 0; i < files.size(); i++) {
+			if(files.get(i) instanceof AttachmentInstance){
+				if(files.get(i) != null){
+					filesToSign++;
+				}
+			} else if(files.get(i) instanceof List) {
+				List list = (List) files.get(i);
+				for (int j = 0; j < list.size(); j++) {
+					if(list.get(j) instanceof AttachmentInstance){
+						if(list.get(j) != null){
+							filesToSign++;
+						}
+					}
+				}
+			}
+		}
+		if(filesToSign==0){
+			errors.add(new ConnectorError("files", new Exception("No files to sign!")));
 		}		
 		return errors.size()==0?null:errors;
 	}
@@ -75,7 +110,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	 * Setter for input argument 'files'
 	 * DO NOT REMOVE NOR RENAME THIS SETTER, unless you also change the related entry in the XML descriptor file
 	 */
-	public void setFiles(List<AttachmentInstance> files) {
+	public void setFiles(List files) {
 		this.files = files;
 	}
 

@@ -2,70 +2,103 @@ package ee.kovmen.data;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Properties;
 
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
-import org.hibernate.dialect.PostgreSQLDialect;
-import org.hibernate.engine.Mapping;
-import org.hibernate.mapping.Set;
 import org.ow2.bonita.util.BonitaConstants;
-
-import ee.kovmen.entities.KovLegislation;
-import ee.kovmen.entities.Oigusakt;
-import ee.kovmen.entities.Teenus;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import ee.kovmen.entities.KovLegislation;
+
 public class LegislationData {
-	private static SessionFactory sessionFactory;
-	private static AnnotationConfiguration configure;
-	private HibernateTemplate hibernateTemplate; 
+	
+//	private static SessionFactory sessionFactory;
+//	private static AnnotationConfiguration configure;
+//	private HibernateTemplate hibernateTemplate; 
+	
+	private static Map<String, SessionFactory> sessionFactoryMap = new HashMap<String, SessionFactory>();
+	
+	private static Map<String, HibernateTemplate> hibernateTemplateMap = new HashMap<String, HibernateTemplate>();
 	
 	public static SessionFactory getSessionFactory() {
-        if (sessionFactory!=null) return sessionFactory;
-        try {
-       	 String userHomeDir=BonitaConstants.getBonitaHomeFolder();
-            File file=new File(userHomeDir+"/server/default/conf/bonita-journal.properties");
-            FileInputStream fis = new FileInputStream(file);
-            Properties properties = null;
-			 
-            if(properties==null)
-            	properties=new Properties(); 
-            
-            properties.load(fis);
-            fis.close();
-           
-            
-            AnnotationConfiguration configuration=new AnnotationConfiguration();
-            /*configuration.addPackage("ee.kovmen.entities");
-            configuration.addAnnotatedClass(Oigusakt.class);
-            configuration.addAnnotatedClass(Teenus.class);
-            */
-            configure = configuration.configure();
-            /*
-            for (Entry<Object, Object> p : properties.entrySet()) {
-				configure.setProperty(p.getKey().toString(), p.getValue().toString());
+		
+		String currentDomain = ProcessbaseApplication.getCurrent()
+				.getBpmModule().getCurrentDomain();
+
+		SessionFactory sessionFactory =  sessionFactoryMap.get(currentDomain);
+		if (sessionFactory == null) {
+			try {
+				String userHomeDir = BonitaConstants.getBonitaHomeFolder();
+				File file = new File(userHomeDir + "/server/" + currentDomain
+						+ "/conf/bonita-journal.properties");
+
+				FileInputStream in = new FileInputStream(file);
+
+				Properties properties = new Properties();
+				properties.load(in);
+
+				in.close();
+
+				AnnotationConfiguration configuration = new AnnotationConfiguration();
+				
+				configuration
+						.setProperties(properties);
+
+				AnnotationConfiguration configure = configuration.configure();
+				sessionFactory = configure.buildSessionFactory();
+				
+				sessionFactoryMap.put(currentDomain, sessionFactory);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-            */
-            
-       	
-           
-           sessionFactory = configure.buildSessionFactory();
-           
-           
-       } catch (Exception ex) {
-           // Make sure you log the exception, as it might be swallowed
-           System.err.println("Initial SessionFactory creation failed." + ex);
-           throw new ExceptionInInitializerError(ex);
-       }
+		}
 		return sessionFactory;
+		
+//        if (sessionFactory!=null) return sessionFactory;
+//        try {
+//       	 String userHomeDir=BonitaConstants.getBonitaHomeFolder();
+//            File file=new File(userHomeDir+"/server/default/conf/bonita-journal.properties");
+//            FileInputStream fis = new FileInputStream(file);
+//            Properties properties = null;
+//			 
+//            if(properties==null)
+//            	properties=new Properties(); 
+//            
+//            properties.load(fis);
+//            fis.close();
+//           
+//            
+//            AnnotationConfiguration configuration=new AnnotationConfiguration();
+//            /*configuration.addPackage("ee.kovmen.entities");
+//            configuration.addAnnotatedClass(Oigusakt.class);
+//            configuration.addAnnotatedClass(Teenus.class);
+//            */
+//            configure = configuration.configure();
+//            /*
+//            for (Entry<Object, Object> p : properties.entrySet()) {
+//				configure.setProperty(p.getKey().toString(), p.getValue().toString());
+//			}
+//            */
+//            
+//       	
+//           
+//           sessionFactory = configure.buildSessionFactory();
+//           
+//           
+//       } catch (Exception ex) {
+//           // Make sure you log the exception, as it might be swallowed
+//           System.err.println("Initial SessionFactory creation failed." + ex);
+//           throw new ExceptionInInitializerError(ex);
+//       }
+//		return sessionFactory;
     }
 	
 	public Session getSession(){
@@ -76,10 +109,22 @@ public class LegislationData {
 	}
 	
 	public HibernateTemplate getHibernate(){
-		if(hibernateTemplate==null)
-			hibernateTemplate=new HibernateTemplate(getSessionFactory());
 		
+		String currentDomain = ProcessbaseApplication.getCurrent()
+				.getBpmModule().getCurrentDomain();
+
+		HibernateTemplate hibernateTemplate = hibernateTemplateMap
+				.get(currentDomain);
+		if (hibernateTemplate == null) {
+			hibernateTemplate = new HibernateTemplate(getSessionFactory());
+			hibernateTemplateMap.put(currentDomain, hibernateTemplate);
+		}
 		return hibernateTemplate;
+
+//		if(hibernateTemplate==null)
+//			hibernateTemplate=new HibernateTemplate(getSessionFactory());
+//		
+//		return hibernateTemplate;
 	}
 	
 	

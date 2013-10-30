@@ -17,21 +17,35 @@
 package org.processbase.ui.bpm.admin;
 
 import com.vaadin.data.Item;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+
+import ee.kovmen.data.LegislationData;
+import ee.kovmen.entities.KovLegislation;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.jdbc.Work;
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
@@ -42,6 +56,7 @@ import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.BusinessArchiveFactory;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
@@ -80,7 +95,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
-            cbDisableOtherInstances=new CheckBox("Leave old process active");
+            cbDisableOtherInstances=new CheckBox(ProcessbaseApplication.getString("newProcessLeavOldActive"));
             
             // prepare upload button
             upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
@@ -107,7 +122,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             fis = new FileInputStream(file);
             int i = fis.read(readData);
             fis.close();
-            if (this.fileType.equals(FILE_BAR)) {
+            if (FILE_BAR.equals(this.fileType)) {
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
@@ -147,23 +162,27 @@ public class NewProcessDefinitionWindow extends PbWindow
             	getBpmModule().updateUserGroups(businessArchive.getProcessUUID());
             	
                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
-            } else if (this.fileType.equals(FILE_JAR)) {
+                close();
+            } else if (FILE_JAR.equals(this.fileType)) {
                 getBpmModule().deployJar(originalFilename, readData);
                 showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
+            }else{
+            	 showWarning(ProcessbaseApplication.getString("error.incorrectFileType"));
             }
            
-            close();
+            
         }
         catch (org.ow2.bonita.facade.exception.DeploymentException ex){
         	//showError(ex.);
         	String[] errorLines=ex.getMessage().split("\n");
         	String errorMsg=errorLines.length>1?errorLines[1]:ex.getMessage();
         	showError(errorMsg);
-        	 throw new RuntimeException(ex);
+        	ex.printStackTrace();
+        	// throw new RuntimeException(ex);
         }
         catch (org.ow2.bonita.facade.exception.DocumentAlreadyExistsException ex){
         	showError("Document already exists");
-        	 throw new RuntimeException(ex);
+        	// throw new RuntimeException(ex);
         }
         catch (Exception ex) {
             ex.printStackTrace();

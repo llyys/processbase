@@ -16,108 +16,124 @@
  */
 package org.processbase.ui.bpm.identity;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window;
 import java.util.List;
+
 import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
+import org.processbase.ui.core.template.PagedTablePanel;
 import org.processbase.ui.core.template.TableLinkButton;
-import org.processbase.ui.core.template.TablePanel;
+
+import com.vaadin.data.Item;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window;
 
 /**
- *
+ * 
  * @author marat gubaidullin
  */
-public class MetadataPanel extends TablePanel implements
-        Button.ClickListener,
-        Window.CloseListener {
+public class MetadataPanel extends PagedTablePanel implements
+		Button.ClickListener {
 
-    public MetadataPanel() {
-        super();
-    }
+	public MetadataPanel() {
+		super();
+	}
 
-    @Override
-    public void initUI() {
-        super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
-        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
-        table.setColumnExpandRatio("label", 1);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-        table.setImmediate(true);
-    }
+	@Override
+	public void initUI() {
+		super.initUI();
+		table.addContainerProperty("name", TableLinkButton.class, null,
+				getText("tableCaptionName"), null, null);
+		table.addContainerProperty("label", String.class, null,
+				getText("tableCaptionLabel"), null, null);
+		table.setColumnExpandRatio("label", 1);
+		table.addContainerProperty("actions", TableLinkButton.class, null,
+				getText("tableCaptionActions"), null, null);
+		table.setImmediate(true);
 
-    @Override
-    public void refreshTable() {
-        try {
-            table.removeAllItems();
-            List<ProfileMetadata> metadatas = ProcessbaseApplication.getCurrent().getBpmModule().getAllProfileMetadata();
+		setInitialized(true);
+	}
 
-            for (ProfileMetadata metadata : metadatas) {
-                Item woItem = table.addItem(metadata);
-                TableLinkButton teb = new TableLinkButton(metadata.getName(), "", null, metadata, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("name").setValue(teb);
-                woItem.getItemProperty("label").setValue(metadata.getLabel());
-                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metadata, this, Constants.ACTION_DELETE);
-                woItem.getItemProperty("actions").setValue(tlb);
-            }
-            table.setSortContainerPropertyId("username");
-            table.setSortAscending(false);
-            table.sort();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showError(ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-    }
+	@Override
+	public int load(int startPosition, int maxResults) {
+		int results = 0;
 
-    @Override
-    public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
-        if (event.getButton() instanceof TableLinkButton) {
-            TableLinkButton execBtn = (TableLinkButton) event.getButton();
-            ProfileMetadata metadata = (ProfileMetadata) execBtn.getTableValue();
-            if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
-                try {
-                    removeMetadata(metadata);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    showError(ex.getMessage());
-                    throw new RuntimeException(ex);
-                }
-            } else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                MetadataWindow nmw = new MetadataWindow(metadata);
-                nmw.addListener((Window.CloseListener) this);
-                getWindow().addWindow(nmw);
-                nmw.initUI();
-            }
+		try {
+			table.removeAllItems();
+			List<ProfileMetadata> metadatas = ProcessbaseApplication
+					.getCurrent().getBpmModule()
+					.getProfileMetadata(startPosition, maxResults);
+			results = metadatas.size();
 
-        }
-    }
+			for (ProfileMetadata metadata : metadatas) {
+				Item woItem = table.addItem(metadata);
+				TableLinkButton teb = new TableLinkButton(metadata.getName(),
+						"", null, metadata, this, Constants.ACTION_OPEN);
+				woItem.getItemProperty("name").setValue(teb);
+				woItem.getItemProperty("label").setValue(metadata.getLabel());
+				TableLinkButton tlb = new TableLinkButton(
+						ProcessbaseApplication.getCurrent().getPbMessages()
+								.getString("btnDelete"), "icons/cancel.png",
+						metadata, this, Constants.ACTION_DELETE);
+				woItem.getItemProperty("actions").setValue(tlb);
+			}
+			table.setSortContainerPropertyId("username");
+			table.setSortAscending(false);
+			table.sort();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 
-    private void removeMetadata(final ProfileMetadata metadata) {
-        ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeMetadata") + "?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
-                new ConfirmDialog.Listener() {
+		return results;
+	}
 
-                    public void onClose(ConfirmDialog dialog) {
-                        if (dialog.isConfirmed()) {
-                            try {
-                                ProcessbaseApplication.getCurrent().getBpmModule().removeProfileMetadataByUUID(metadata.getUUID());
-                                table.removeItem(metadata);
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                showError(ex.getMessage());
-                                throw new RuntimeException(ex);
-                            }
-                        }
-                    }
-                });
-    }
+	public void buttonClick(ClickEvent event) {
+		if (event.getButton() instanceof TableLinkButton) {
+			TableLinkButton execBtn = (TableLinkButton) event.getButton();
+			ProfileMetadata metadata = (ProfileMetadata) execBtn
+					.getTableValue();
+			if (execBtn.getAction().equals(Constants.ACTION_DELETE)) {
+				try {
+					removeMetadata(metadata);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					showError(ex.getMessage());
+					throw new RuntimeException(ex);
+				}
+			} else if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+				MetadataWindow nmw = new MetadataWindow(metadata);
+				nmw.addListener((Window.CloseListener) this);
+				getWindow().addWindow(nmw);
+				nmw.initUI();
+			}
+
+		}
+	}
+
+	private void removeMetadata(final ProfileMetadata metadata) {
+		ConfirmDialog.show(getApplication().getMainWindow(),
+				getText("windowCaptionConfirm"), getText("removeMetadata")
+						+ "?", getText("btnYes"), getText("btnNo"),
+				new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+							try {
+								ProcessbaseApplication
+										.getCurrent()
+										.getBpmModule()
+										.removeProfileMetadataByUUID(
+												metadata.getUUID());
+								table.removeItem(metadata);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+								showError(ex.getMessage());
+								throw new RuntimeException(ex);
+							}
+						}
+					}
+				});
+	}
 }

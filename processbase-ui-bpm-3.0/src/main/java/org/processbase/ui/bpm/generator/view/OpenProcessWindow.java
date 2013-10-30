@@ -4,7 +4,6 @@
 package org.processbase.ui.bpm.generator.view;
 
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.ui.core.BPMModule;

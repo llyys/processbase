@@ -7,9 +7,8 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbWindow;
-
-import com.vaadin.ui.Window;
 
 public class ProcessController {
 	private ProcessManager processManager;
@@ -38,7 +37,11 @@ public class ProcessController {
 			pm.reloadTask();
 			//replaceComponent(processManager, pm);
 			pm.setWindow(getWindow());
-			getWindow().setCaption(getWindow().getCaption().replaceAll("\\s\\>\\s"+processManager.getLabel(), ""));
+			
+			String label = getWindow().getCaption();
+			label = label.substring(0, label.lastIndexOf(">"));
+			
+			getWindow().setCaption(label);
 			
 			processManager=pm;
 		}
@@ -46,7 +49,7 @@ public class ProcessController {
 			if(processManager!=null && processManager.getTaskManager()!=null && StringUtils.isNotBlank(processManager.getTaskManager().getConfirmationMessage()))
 				getWindow().getParent().showNotification(processManager.getTaskManager().getConfirmationMessage());
 			else
-				getWindow().getParent().showNotification("Process completed");
+				getWindow().getParent().showNotification(ProcessbaseApplication.getString("processCompleted"));
 			getWindow().close();
 			 
 		}
@@ -112,7 +115,6 @@ public class ProcessController {
 			
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}

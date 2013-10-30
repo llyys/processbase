@@ -55,11 +55,11 @@
 			<artifactId>process-legislations</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--<dependency>
+		<dependency>
 			<groupId>ee.smartlink</groupId>
 	  		<artifactId>EstEid</artifactId>	  
 	  		<version>1.2</version>	  		
-		</dependency>-->
+		</dependency>
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-web-api</artifactId>

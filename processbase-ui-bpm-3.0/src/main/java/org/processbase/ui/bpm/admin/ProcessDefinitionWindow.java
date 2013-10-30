@@ -25,8 +25,8 @@ import java.util.UUID;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.processbase.ui.bpm.admin.process.CustomUiPanel;
 import org.processbase.ui.bpm.admin.process.DescriptionPanel;
-import org.processbase.ui.bpm.admin.process.LegislationPanel;
 import org.processbase.ui.bpm.admin.process.ProcessAccessPanel;
+import org.processbase.ui.bpm.admin.process.ResourcesPanel;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.ITabsheetPanel;
@@ -74,7 +74,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
     private DescriptionPanel descPanel=new DescriptionPanel();
    // private CustomUiPanel uiPanel=new CustomUiPanel();
     private ProcessAccessPanel accessPanel=new ProcessAccessPanel();
-    private LegislationPanel legislationPanel=new LegislationPanel();
+//    private LegislationPanel legislationPanel=new LegislationPanel();
+    private ResourcesPanel resourcesPanel = new ResourcesPanel();
     
     public ProcessDefinitionWindow(ProcessDefinition processDefinition) {
         super(processDefinition.getLabel());
@@ -108,13 +109,19 @@ public class ProcessDefinitionWindow extends PbWindow implements
             accessPanel.onActivate(false);
             tabSheet.addTab(accessPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("processAccess"), null);
             
-            legislationPanel.setProcessDefinition(processDefinition);
-            legislationPanel.setParentWindow(this);
+            resourcesPanel.setProcessDefinition(processDefinition);
+            resourcesPanel.setParentWindow(this);
+            tabSheet.addTab(resourcesPanel, resourcesPanel.getCaption(), null);
             
-            /*legislationPanel.initUI();
-            legislationPanel.onActivate(false);*/
+//            legislationPanel.setProcessDefinition(processDefinition);
+//            legislationPanel.setParentWindow(this);
+//            
+//            /*legislationPanel.initUI();
+//            legislationPanel.onActivate(false);*/
+//            
+//            tabSheet.addTab(legislationPanel, legislationPanel.getCaption(), null);
             
-            tabSheet.addTab(legislationPanel, legislationPanel.getCaption(), null);
+            
 
             tabSheet.setStyleName(Reindeer.TABSHEET_MINIMAL);
             tabSheet.setSizeFull();
@@ -135,8 +142,8 @@ public class ProcessDefinitionWindow extends PbWindow implements
             getButtons().setHeight("30px");
             getButtons().setWidth("100%");
             layout.addComponent(getButtons());
-            layout.setWidth("800px");
-            layout.setHeight("400px");
+            layout.setWidth("900px");
+            layout.setHeight("500px");
             setResizable(false);
             setModal(true);
             

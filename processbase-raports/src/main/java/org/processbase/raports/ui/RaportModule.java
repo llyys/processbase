@@ -6,12 +6,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
-import org.ow2.bonita.light.LightTaskInstance;
 import org.processbase.raports.birt.generator.ReportItem;
 import org.processbase.raports.data.ReportingDataStore;
-
-import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
@@ -20,19 +18,16 @@ import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.osgi.PbPanelModule;
 
 import com.vaadin.data.Item;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RaportModule extends PbPanelModule implements IPbTable,  Button.ClickListener{
-private static Logger log=Logger.getLogger(RaportModule.class.getName());
-	 protected Table table = new Table();
+
+	private static Logger log=Logger.getLogger(RaportModule.class.getName());
+	
+	protected Table table = new Table();
 	
 	@Override
 	public String getTitle(Locale arg0) {
@@ -41,9 +36,9 @@ private static Logger log=Logger.getLogger(RaportModule.class.getName());
 	
 	String[] getResourceListing(String path) throws IOException, URISyntaxException {
 		URL dirURL = this.getClass().getResource(path);
-		return new File(dirURL.toURI()).list();		
-		
+		return new File(dirURL.toURI()).list();			
 	}
+	
 	@Override
 	public void initUI() {
 		
@@ -82,7 +77,7 @@ private static Logger log=Logger.getLogger(RaportModule.class.getName());
 		if (event.getButton() instanceof TableLinkButton) {
             try {
             	ReportItem reportItem = (ReportItem) ((TableLinkButton) event.getButton()).getTableValue();
-               	OpenRaportWindow(reportItem);
+               	openRaportWindow(reportItem);
 
             } catch (Exception ex) {
                 ex.printStackTrace();                
@@ -91,7 +86,7 @@ private static Logger log=Logger.getLogger(RaportModule.class.getName());
         }
 	}
 	
-	private void OpenRaportWindow(ReportItem ri){
+	private void openRaportWindow(ReportItem ri){
 		log.fine("Open raport window");
 		PbWindow reportWindow=new PbWindow(ri.getReportId());
 		RaportViewer panel=new RaportViewer(ri);

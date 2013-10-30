@@ -1,0 +1,62 @@
+<connector>
+  <connectorId>AditSendDocument</connectorId>
+  <version>5.0</version>
+  <categories>
+    <category>
+      <name>ADIT</name>
+    </category>
+  </categories>
+  <inputs>
+    <setter>
+      <setterName>setIdCode</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setDocumentId</setterName>
+      <required></required>
+      <parameters>
+        <long>0</long>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setReceivers</setterName>
+      <required></required>
+      <parameters>
+        <list/>
+      </parameters>
+    </setter>
+  </inputs>
+  <outputs>
+    <getter>
+      <name>documentId</name>
+      <metadata/>
+    </getter>
+  </outputs>
+  <pages>
+    <page>
+      <pageId>parameters</pageId>
+      <widgets>
+        <text>
+          <labelId>idCode</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>documentId</labelId>
+          <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <list>
+          <labelId>receivers</labelId>
+          <setter reference="/connector/inputs/setter[3]"/>
+          <maxRows>0</maxRows>
+        </list>
+      </widgets>
+    </page>
+  </pages>
+</connector>

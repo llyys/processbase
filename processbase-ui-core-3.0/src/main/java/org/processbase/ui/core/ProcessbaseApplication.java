@@ -17,6 +17,7 @@
 package org.processbase.ui.core;
 
 import com.vaadin.Application;
+import com.vaadin.Application.SystemMessages;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.DownloadStream;
 import com.vaadin.terminal.Terminal;
@@ -64,6 +65,17 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
+	
+	
+	public static CustomizedSystemMessages messages = new CustomizedSystemMessages();
+	
+	 public static SystemMessages getSystemMessages() {
+		 
+		 messages.setOutOfSyncNotificationEnabled(false);
+		 messages.setSessionExpiredNotificationEnabled(false);
+		 
+        return messages;
+    }
 	    
     public abstract int getApplicationType();
 
@@ -313,4 +325,5 @@ public abstract class ProcessbaseApplication extends Application implements Tran
             }
         }
     }
+	
 }

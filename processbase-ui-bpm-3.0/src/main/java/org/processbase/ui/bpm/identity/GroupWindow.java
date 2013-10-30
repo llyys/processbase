@@ -16,8 +16,17 @@
  */
 package org.processbase.ui.bpm.identity;
 
+import java.util.List;
+
+import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.identity.Group;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.PbWindow;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -27,12 +36,6 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import java.util.List;
-import org.ow2.bonita.facade.IdentityAPI;
-import org.ow2.bonita.facade.identity.Group;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbWindow;
 
 /**
  *
@@ -73,7 +76,11 @@ public class GroupWindow extends PbWindow implements ClickListener {
             groupLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupLabel"));
             groupDescription = new TextArea(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupDescription"));
             parentGroup = new ComboBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupParent"));
-
+            
+            groupName.setRequired(true);
+             
+            groupLabel.setRequired(true);
+          
             parentGroup.setWidth("270px");
             parentGroup.setContainerDataSource(getGroups());
             parentGroup.setItemCaptionPropertyId("path");
@@ -117,6 +124,16 @@ public class GroupWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
+            	
+            	if(!groupName.isValid()){
+            		showError(ProcessbaseApplication.getString("groupName") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	}
+            	if(!groupLabel.isValid()){
+            		showError(ProcessbaseApplication.getString("groupLabel") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	}
+            		
                 if (group == null) {
                     try {
 						ProcessbaseApplication.getCurrent().getBpmModule().addGroup(
@@ -137,6 +154,8 @@ public class GroupWindow extends PbWindow implements ClickListener {
                             parentGroup.getValue() != null ? parentGroup.getValue().toString() : null);
                 }
                 close();
+            	
+            		
             } else {
                 close();
             }

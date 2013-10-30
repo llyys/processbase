@@ -16,6 +16,11 @@
  */
 package org.processbase.ui.bpm.identity;
 
+import org.ow2.bonita.facade.identity.Role;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.PbWindow;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -24,10 +29,6 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import org.ow2.bonita.facade.identity.Role;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbWindow;
 
 /**
  *
@@ -67,6 +68,10 @@ public class RoleWindow extends PbWindow implements ClickListener {
             roleLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("roleLabel"));
             roleDescription = new TextArea(ProcessbaseApplication.getCurrent().getPbMessages().getString("roleDescription"));
 
+            roleName.setRequired(true);
+            roleLabel.setRequired(true);
+            
+            
             roleName.setWidth("270px");
             addComponent(roleName);
             roleLabel.setWidth("270px");
@@ -102,11 +107,20 @@ public class RoleWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
+            	
+            	if(!roleName.isValid()){
+            		showError(ProcessbaseApplication.getString("roleName") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	}
+            	if(!roleLabel.isValid()){
+            		showError(ProcessbaseApplication.getString("roleLabel") + ProcessbaseApplication.getString("fieldRequired"));
+	            	return;
+	        	}
+            	
                 if (role == null) {
                     try {
 						ProcessbaseApplication.getCurrent().getBpmModule().addRole(roleName.getValue().toString(), roleLabel.getValue().toString(), roleDescription.getValue().toString());
 					} catch (org.ow2.bonita.facade.exception.RoleAlreadyExistsException e) {
-						// TODO Auto-generated catch block
 						showError(ProcessbaseApplication.getString("roleexists", e.getMessage()));
 						return;
 					}

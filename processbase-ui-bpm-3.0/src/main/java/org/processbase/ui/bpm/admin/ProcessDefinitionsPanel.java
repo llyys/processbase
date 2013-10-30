@@ -59,7 +59,7 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
         
-        table.addContainerProperty("procId", String.class, null, "Process id", null, null);
+        table.addContainerProperty("procId", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessID"), null, null);
         
         table.addContainerProperty("deployedBy", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedBy"), null, null);
         //table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
@@ -103,23 +103,26 @@ public class ProcessDefinitionsPanel extends TablePanel implements
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
             if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+            	ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
                 try {
-                    ProcessDefinition pd = (ProcessDefinition) execBtn.getTableValue();
                     ProcessDefinition processDefinition = ProcessbaseApplication.getCurrent().getBpmModule().getProcessDefinition(pd);
                     
                     ProcessDefinitionWindow processDefinitionWindow = new ProcessDefinitionWindow(processDefinition);
-                    //processDefinitionWindow.addListener((Window.CloseListener) this);
+                    processDefinitionWindow.addListener((Window.CloseListener) this);
                     
                     getApplication().getMainWindow().addWindow(processDefinitionWindow);
                     processDefinitionWindow.initUI();
                 } catch (ProcessNotFoundException ex) {
-                	showError("Protsessi kirjeldused "+ex.getProcessUUID()+" on s�steemist eemaldatud, palun uuendage nimekiri");
-                	try {
-						ProcessbaseApplication.getCurrent().getBpmModule().archiveProcessDefinitions(ex.getProcessUUID());
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						throw new RuntimeException(ex);
-					}
+                	//showError("Protsessi kirjeldused "+ex.getProcessUUID()+" on süsteemist eemaldatud, palun uuendage nimekiri");
+                	
+                	table.removeItem(pd);
+                	
+//                	
+//                	try {
+//						ProcessbaseApplication.getCurrent().getBpmModule().archiveProcessDefinitions(ex.getProcessUUID());
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
                 	
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -133,7 +136,5 @@ public class ProcessDefinitionsPanel extends TablePanel implements
 	public void setBpmConfigurationPanel(
 			BPMConfigurationPanel bpmConfigurationPanel) {
 				this.bpmConfigurationPanel = bpmConfigurationPanel;
-		// TODO Auto-generated method stub
-		
 	}
 }

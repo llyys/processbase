@@ -25,12 +25,18 @@ public class DvkConnectorTest {
 	  doc.setMimeType("application/rtf");
 	  doc.setInputStream(fileStream);
 	  contentsToSend.add(doc);
+	  dvkConnector.setSaatjaEmail("lyys.lauri@gmail.com");
+	  dvkConnector.setSaatjaIsikukood("37903236510");
+	  dvkConnector.setSenderCompanyName("Smartlink OÜ");
+	  dvkConnector.setSenderCompanyRegNo("10648908");	  
 	  
-	  dvkConnector.setRecipentCompanyName("INTERINX OÜ");
-	  dvkConnector.setRecipentCompanyRegNo("10425769");
+	  dvkConnector.setRecipentCompanyName("Viljandi Maavalitsus");
+	  dvkConnector.setRecipentCompanyRegNo("70002791");
+	  
+	  dvkConnector.setTitle("Test document");
 	  
 	  try {
-		dvkConnector.SendDocument(contentsToSend);
+		dvkConnector.sendDocument(contentsToSend);
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

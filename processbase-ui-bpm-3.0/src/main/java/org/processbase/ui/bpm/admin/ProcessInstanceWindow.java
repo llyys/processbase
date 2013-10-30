@@ -30,6 +30,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
+import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightProcessInstance;
@@ -83,11 +84,8 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
 	public void initUI() {
         try {
         	setContent(tabSheet);
-        	tabSheet.addTab(layout, "Process");
+        	tabSheet.addTab(layout, ProcessbaseApplication.getString("tableCaptionProcessName", "Process"));
         	tabSheet.setSizeFull();
-        	
-        	
-        	
             
             BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
             if(managed){
@@ -95,7 +93,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
 				ProcessVariablesPanel variablesPanel=new ProcessVariablesPanel(bpmModule.getProcessInstance(processInstanceUUID));
 	            variablesPanel.initUI();
 	            
-	            tabSheet.addTab(variablesPanel, "Variables");
+	            tabSheet.addTab(variablesPanel, ProcessbaseApplication.getString("processVariables"));
             }
             
 			byte[] processDiagramm = bpmModule.getProcessDiagramm(process);
@@ -114,8 +112,8 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
             if(managed){
 	            refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
-	            deleteBtn = new Button(ProcessbaseApplication.getString("btnRemove", "Eemalda menetlus"), this);
-	            cancelBtn = new Button(ProcessbaseApplication.getString("btnBack", "Tagasi"), this);
+	            deleteBtn = new Button(ProcessbaseApplication.getString("btnDeleteProcess", "Kustuta menetlus"), this);
+	            cancelBtn = new Button(ProcessbaseApplication.getString("btnCancelProcess", "Katkesta menetlus"), this);
             
 	            buttons.addButton(deleteBtn);
 	            buttons.setComponentAlignment(deleteBtn, Alignment.MIDDLE_LEFT);
@@ -148,12 +146,21 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
             }
 
             String pdUUID = process.getProcessDefinitionUUID().toString();
+            String[] tmp =  pdUUID.split("--");
             setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("ProcessActivities")
-                    + " \"" + pdUUID.split("--")[0] + " " + pdUUID.split("--")[1] + " \"");
+                    + " \"" + tmp[0] + " " + tmp[1] + "#" + process.getNb() + " \"");
             setWidth("90%");
             setHeight("95%");
             setModal(true);
             setResizable(false);
+            
+            if (managed) {
+	            if(InstanceState.FINISHED.equals(process.getInstanceState()) || 
+	            		InstanceState.CANCELLED.equals(process.getInstanceState())){
+	            	cancelBtn.setVisible(false);
+	            }
+            }
+            
         } catch(FileNotFoundException ex){
         	getParent().showNotification(ex.getMessage());        	
         	close();
@@ -172,10 +179,8 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                 activitiesPanel.refreshTable();
             } else if (event.getButton().equals(deleteBtn)) {
                 delete();
-                close();
             } else if (event.getButton().equals(cancelBtn)) {
                 cancel();
-                close();
             } else if (event.getButton().equals(closeBtn)) {
                 close();
             }
@@ -199,6 +204,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                             try {
                                 ProcessbaseApplication.getCurrent().getBpmModule().deleteProcessInstance(process.getProcessInstanceUUID());
                                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("executedSuccessfully"));
+                                close();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();
@@ -222,6 +228,7 @@ public class ProcessInstanceWindow extends PbWindow implements Button.ClickListe
                             try {
                                 ProcessbaseApplication.getCurrent().getBpmModule().cancelProcessInstance(process.getProcessInstanceUUID());
                                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("executedSuccessfully"));
+                                close();
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();

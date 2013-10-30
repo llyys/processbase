@@ -176,5 +176,6 @@
 		    <artifactId>ehcache-core</artifactId>
 		    <version>${ehcache.version}</version>		    
 		  </dependency>
+		  
 	</dependencies>
 </project>

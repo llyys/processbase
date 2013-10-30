@@ -16,136 +16,244 @@
  */
 package org.processbase.ui.bpm.admin;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.ow2.bonita.facade.runtime.ActivityState;
+
+import org.apache.commons.lang.StringUtils;
+import org.ow2.bonita.facade.runtime.InstanceState;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
-import org.ow2.bonita.light.LightActivityInstance;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
+import org.ow2.bonita.light.LightProcessInstance;
+import org.ow2.bonita.light.LightTaskInstance;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
+import org.processbase.ui.core.template.PagedTablePanel;
 import org.processbase.ui.core.template.PbColumnGenerator;
-import org.processbase.ui.core.template.TableExecButtonBar;
 import org.processbase.ui.core.template.TableLinkButton;
-import org.processbase.ui.core.template.TablePanel;
+
+import com.vaadin.data.Item;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 
 /**
- *
+ * 
  * @author mgubaidullin
  */
-public class AdminCaseList extends TablePanel implements Button.ClickListener,IPbTable {
+public class AdminCaseList extends PagedTablePanel implements
+		Button.ClickListener, IPbTable {
 
-    private ProcessDefinitionUUID filter = null;
-	private BPMConfigurationPanel bpmConfigurationPanel;
+	private CheckBox showFinished;
 
-    public AdminCaseList() {
-        super();
-    }
+	private TextField additionalFilter = null;
 
-    @Override
-    public void initUI() {
-        super.initUI();
-        table.addContainerProperty("processName", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
-        table.addContainerProperty("label", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActivityName"), null, null);
-        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionType"), null, null);
-        table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
-        table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
-        table.setColumnWidth("lastUpdate", 100);
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
-    }
-
-    @Override
-    public void refreshTable() {
-        table.removeAllItems();
-        try {
-            Set<LightActivityInstance> ais = null;
-            if (filter != null) {
-                ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances(filter);
-            } else {
-                ais = ProcessbaseApplication.getCurrent().getBpmModule().getActivityInstances();
-            }
-
-            for (LightActivityInstance ai : ais) {
-                Item woItem = table.addItem(ai);
-                LightProcessDefinition lpd = ProcessbaseApplication.getCurrent().getBpmModule().getLightProcessDefinition(ai.getProcessDefinitionUUID());
-                String processName = lpd.getLabel() != null ? lpd.getLabel() : lpd.getName();
-                String processInstanceUUID = ai.getProcessInstanceUUID().toString();
-                woItem.getItemProperty("processName").setValue(processName + "  #" + processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2));
-                StringBuilder link = new StringBuilder(ai.getActivityLabel() != null ? ai.getActivityLabel() : ai.getActivityName());
-
-                if (ai.getDynamicLabel() != null && ai.getDynamicDescription() != null) {
-                    link.append("(").append(ai.getDynamicLabel()).append(" - ").append(ai.getDynamicDescription()).append(")");
-                } else if (ai.getDynamicLabel() != null && ai.getDynamicDescription() == null) {
-                    link.append("(").append(ai.getDynamicLabel()).append(")");
-                } else if (ai.getDynamicLabel() != null && ai.getDynamicDescription() != null) {
-                    link.append("(").append(ai.getDynamicDescription()).append(")");
-                }
-
-                TableLinkButton teb = new TableLinkButton(link.toString(), ai.getActivityDescription(), null, ai, this, Constants.ACTION_OPEN);
-                woItem.getItemProperty("label").setValue(teb);
-                woItem.getItemProperty("lastUpdate").setValue(ai.getLastUpdateDate());
-                woItem.getItemProperty("state").setValue(ai.getState());
-                if (ai.isTask()) {
-                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("task"));
-                } else if (ai.isAutomatic()) {
-                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("automatic"));
-                } else if (ai.isTimer()) {
-                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("timer"));
-                } else if (ai.isSubflow()) {
-                    woItem.getItemProperty("type").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString("subflow"));
-                }
-            }
-            table.setSortContainerPropertyId("processName");
-            table.setSortAscending(false);
-            table.sort();
-        } catch (Exception ex) {
-            Logger.getLogger(AdminCaseList.class.getName()).log(Level.SEVERE, ex.getMessage());
-            showError(ex.toString());
-        }
-    }
-
-    @Override
-    public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
-        if (event.getButton() instanceof TableLinkButton) {
-            TableLinkButton execBtn = (TableLinkButton) event.getButton();
-            LightActivityInstance activity = (LightActivityInstance) execBtn.getTableValue();
-            try {
-                if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
-                    ActivityWindow activityWindow = new ActivityWindow(activity);
-                    getApplication().getMainWindow().addWindow(activityWindow);
-                    activityWindow.initUI();
-                } else if (execBtn.getAction().equals(Constants.ACTION_STOP)) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().stopExecution(activity.getProcessInstanceUUID(), activity.getActivityName());
-                    Item woItem = table.getItem(activity);
-                    woItem.getItemProperty("state").setValue(ActivityState.CANCELLED);
-                    TableExecButtonBar tebb = new TableExecButtonBar();
-                    tebb.addButton(new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnOpen"), "icons/document.png", activity, this, Constants.ACTION_OPEN));
-                    woItem.getItemProperty("actions").setValue(tebb);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                showError(ex.toString());
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-
-    public void setFilter(ProcessDefinitionUUID filter) {
-        this.filter = filter;
-    }
-
-	public void setBpmConfigurationPanel(
-			BPMConfigurationPanel bpmConfigurationPanel) {
-				this.bpmConfigurationPanel = bpmConfigurationPanel;
-		// TODO Auto-generated method stub
-		
+	public AdminCaseList() {
+		super();
 	}
+
+	@Override
+	public void initUI() {
+		super.initUI();
+		table.addContainerProperty("name", TableLinkButton.class, null,
+				getText("tableCaptionProcedure"), null, null);
+		table.setColumnExpandRatio("name", 1);
+
+		table.addContainerProperty("initiator", String.class, null,
+				getText("tableCaptionInitiator"), null, null);
+		table.setColumnWidth("initiator", 100);
+
+		table.addContainerProperty("version", String.class, null,
+				getText("tableCaptionVersion"), null, null);
+		table.setColumnWidth("version", 100);
+
+		table.addContainerProperty("startedDate", Date.class, null,
+				getText("tableCaptionStartedDate"), null, null);
+		table.addGeneratedColumn("startedDate", new PbColumnGenerator());
+		table.setColumnWidth("startedDate", 100);
+
+		table.addContainerProperty("lastUpdate", Date.class, null,
+				getText("tableCaptionLastUpdate"), null, null);
+		table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
+		table.setColumnWidth("lastUpdate", 100);
+
+		table.addContainerProperty("state", String.class, null,
+				getText("tableCaptionState"), null, null);
+		table.setColumnWidth("state", 90);
+
+		table.setVisibleColumns(new Object[] { "name", "initiator", "version",
+				"startedDate", "lastUpdate", "state" });
+
+		setInitialized(true);
+	}
+
+	@Override
+	public int load(int startPosition, int maxResults) {
+		try {
+			table.removeAllItems();
+
+			Set<InstanceState> statesFilters = new HashSet<InstanceState>();
+			if (showFinished == null || !((Boolean) showFinished.getValue())) {
+				statesFilters.add(InstanceState.STARTED);
+			}
+
+			// Filter words
+			Set<String> filterWords = new HashSet<String>();
+			if (additionalFilter != null && additionalFilter.getValue() != null
+					&& StringUtils.isNotBlank(additionalFilter.getValue() + "")) {
+				String[] words = StringUtils.splitByWholeSeparator(
+						additionalFilter.getValue() + "", " ");
+				for (int i = 0; i < words.length; i++) {
+					filterWords.add(words[i]);
+				}
+			}
+
+			BPMModule bpmModule = ProcessbaseApplication.getCurrent()
+					.getBpmModule();
+
+			List<LightProcessInstance> results = new ArrayList<LightProcessInstance>();
+			results.addAll(bpmModule.getLightProcessInstances());
+
+			// Filter process instances
+			List<LightProcessInstance> filtered = new ArrayList<LightProcessInstance>();
+
+			for (LightProcessInstance pi : results) {
+				if (statesFilters.size() > 0
+						&& !statesFilters.contains(pi.getInstanceState())) {
+					continue;
+				}
+
+				if (filterWords.size() > 0) {
+
+					String name = pi.getUUID().toString().split("--")[0]
+							+ "  #" + pi.getNb();
+
+					boolean contains = true;
+					for (String w : filterWords) {
+						if (!StringUtils.containsIgnoreCase(name, w)) {
+							contains = false;
+							break;
+						}
+					}
+					if (!contains) {
+						continue;
+					}
+				}
+
+				filtered.add(pi);
+			}
+
+			// Let sort list
+			Collections.sort(filtered, new Comparator<LightProcessInstance>() {
+				public int compare(LightProcessInstance o1,
+						LightProcessInstance o2) {
+					return o2.getStartedDate().compareTo(o1.getStartedDate());
+				}
+			});
+
+			int from = startPosition < filtered.size() ? startPosition
+					: filtered.size();
+			int to = (startPosition + maxResults) < filtered.size() ? (startPosition + maxResults)
+					: filtered.size();
+
+			List<LightProcessInstance> page = filtered.subList(from, to);
+
+			for (LightProcessInstance pi : page) {
+
+				Item woItem = table.addItem(pi);
+
+				String pdUUID = pi.getProcessDefinitionUUID().toString();
+
+				TableLinkButton teb = new TableLinkButton(pdUUID.split("--")[0]
+						+ "  #" + pi.getNb(), null, null, pi, this,
+						Constants.ACTION_OPEN);
+
+				woItem.getItemProperty("name").setValue(teb);
+				woItem.getItemProperty("initiator").setValue(pi.getStartedBy());
+				woItem.getItemProperty("startedDate").setValue(
+						pi.getStartedDate());
+				woItem.getItemProperty("version").setValue(
+						pdUUID.split("--")[1]);
+
+				// Find all tasks
+				List<LightTaskInstance> tasks = new ArrayList<LightTaskInstance>();
+				try {
+					tasks.addAll(bpmModule.getLightTasks(pi
+							.getProcessInstanceUUID()));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				// Sort tasks
+				Collections.sort(tasks, new Comparator<LightTaskInstance>() {
+
+					public int compare(LightTaskInstance o2,
+							LightTaskInstance o1) {
+						return o1.getLastUpdateDate().compareTo(
+								o2.getLastUpdateDate());
+					}
+				});
+				if (!tasks.isEmpty()) {
+					woItem.getItemProperty("lastUpdate").setValue(
+							tasks.get(0).getLastUpdateDate());
+				} else {
+					woItem.getItemProperty("lastUpdate").setValue(
+							pi.getLastUpdate());
+				}
+
+				woItem.getItemProperty("state").setValue(getText(pi.getInstanceState().toString()));
+			}
+
+			table.setSortContainerPropertyId("lastUpdate");
+			table.setSortAscending(false);
+			table.sort();
+
+			return page.size();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return 0;
+	}
+
+	public void buttonClick(ClickEvent event) {
+		if (event.getButton() instanceof TableLinkButton) {
+			try {
+				TableLinkButton execBtn = (TableLinkButton) event.getButton();
+				LightProcessInstance process = (LightProcessInstance) ((TableLinkButton) event
+						.getButton()).getTableValue();
+				if (execBtn.getAction().equals(Constants.ACTION_OPEN)) {
+					ProcessInstanceWindow window = new ProcessInstanceWindow(
+							process, true);
+					this.getWindow().addWindow(window);
+					window.initUI();
+					window.addListener(new Window.CloseListener() {
+
+						public void windowClose(CloseEvent e) {
+							refreshTable();
+						}
+					});
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+
+	public void setShowFinished(CheckBox showFinished) {
+		this.showFinished = showFinished;
+	}
+
+	public void setAdditionalFilter(TextField additionalFilter) {
+		this.additionalFilter = additionalFilter;
+	}
+
 }

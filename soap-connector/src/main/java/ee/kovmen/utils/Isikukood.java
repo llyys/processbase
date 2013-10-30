@@ -83,7 +83,7 @@ public class Isikukood
       if (ageInDays < 0)
       {
           ageInDays += today.getActualMaximum(Calendar.DAY_OF_MONTH);
-          ageInMonths = ageInMonths--;
+          ageInMonths--;
 
           if (ageInMonths < 0)
           {

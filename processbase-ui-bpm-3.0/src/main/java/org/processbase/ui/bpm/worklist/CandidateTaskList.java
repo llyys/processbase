@@ -16,48 +16,60 @@
  */
 package org.processbase.ui.bpm.worklist;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.caliburn.application.event.IHandle;
+import org.ow2.bonita.facade.exception.InstanceNotFoundException;
+import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
+import org.ow2.bonita.light.LightProcessDefinition;
+import org.ow2.bonita.light.LightProcessInstance;
+import org.ow2.bonita.light.LightTaskInstance;
+import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
+import org.processbase.ui.core.template.PagedTablePanel;
+import org.processbase.ui.core.template.PbColumnGenerator;
+import org.processbase.ui.core.template.TableLinkButton;
+
 import com.vaadin.data.Item;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-
-import org.caliburn.application.event.IHandle;
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.exception.InstanceNotFoundException;
-import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.ow2.bonita.light.LightTaskInstance;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
-import org.processbase.ui.core.bonita.forms.XMLTaskDefinition;
-import org.processbase.ui.core.template.IPbTable;
-import org.processbase.ui.core.template.PbColumnGenerator;
-import org.processbase.ui.core.template.TableLinkButton;
-import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.bpm.generator.GeneratedWindow;
-import org.processbase.ui.bpm.generator.view.OpenProcessWindow;
-import org.processbase.ui.bpm.panel.events.TaskListEvent;
-import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.FormsDefinition;
-import org.processbase.ui.core.bonita.process.BarResource;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  *
  * @author mgubaidullin
  */
-public class CandidateTaskList extends TablePanel implements IPbTable,  Button.ClickListener, IHandle<TaskListEvent> {
+public class CandidateTaskList extends PagedTablePanel implements IPbTable,  Button.ClickListener, IHandle<TaskListEvent> {
 
+	
+	private TextField additionalFilter = null;
+	
     public CandidateTaskList() {
         super();
     }
@@ -65,53 +77,113 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
 	private Button processesBtn;
     @Override
     public void initUI() {
-    	if(isInitialized()) return;
         super.initUI();
         table.setRowHeaderMode(Table.ROW_HEADER_MODE_ICON_ONLY);
         table.addContainerProperty("accepted", ThemeResource.class, null);
         table.setItemIconPropertyId("accepted");
         table.setColumnWidth("accepted", 30);
         
-        table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
+        table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcedure"), null, null);
+        table.setColumnExpandRatio("processName", 1);
+        
         table.addContainerProperty("taskName", Label.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
-        table.setColumnExpandRatio("taskName", 1);
+        table.setColumnExpandRatio("taskName", 2);
+        
+        table.addContainerProperty("initiator", String.class, null, getText("tableCaptionInitiator"), null, null);
+		table.setColumnWidth("initiator", 100);
         
         table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
-        
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
-        table.setColumnWidth("lastUpdate", 110);
+        ////table.setColumnWidth("lastUpdate", 1);
         
         table.addContainerProperty("expectedEndDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionExpectedEndDate"), null, null);
         table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
-        table.setColumnWidth("expectedEndDate", 110);
+        //table.setColumnWidth("expectedEndDate", 1);
         
-        table.setVisibleColumns(new Object[]{"processName", "taskName", "lastUpdate", "expectedEndDate"});
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        
+        table.setVisibleColumns(new Object[]{"processName", "taskName", "initiator", "lastUpdate", "expectedEndDate", "state"});
+
+        setInitialized(true);
     }
 
     @Override
-    public void refreshTable() {
-    	if(!isInitialized())
-    		initUI();
-    	
+    public int load(int startPosition, int maxResults) {
+    	int results = 0;
         table.removeAllItems();
         try {
-            Collection<LightTaskInstance> tasks = ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.READY);
-            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.EXECUTING));
-            tasks.addAll(ProcessbaseApplication.getCurrent().getBpmModule().getLightTaskList(ActivityState.SUSPENDED));
-//        tasks.addAll(bpmModule.getActivities(ActivityState.INITIAL));
-            for (LightTaskInstance task : tasks) {
+        	
+        	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+        	
+            List<LightTaskInstance> tasks = new ArrayList<LightTaskInstance>();
+            tasks.addAll(bpmModule.getLightTaskList(ActivityState.READY));
+            tasks.addAll(bpmModule.getLightTaskList(ActivityState.EXECUTING));
+            tasks.addAll(bpmModule.getLightTaskList(ActivityState.SUSPENDED));
+            
+ 
+         // Filter words
+			Set<String> filterWords = new HashSet<String>();
+			if (additionalFilter != null && additionalFilter.getValue() != null
+					&& StringUtils.isNotBlank(additionalFilter.getValue() + "")) {
+				String[] words = StringUtils.splitByWholeSeparator(
+						additionalFilter.getValue() + "", " ");
+				for (int i = 0; i < words.length; i++) {
+					filterWords.add(words[i]);
+				}
+			}
+	    	
+	    	List<LightTaskInstance> filteredTasks = new ArrayList<LightTaskInstance>();
+	    	
+	    	for (LightTaskInstance task : tasks) {
+
+	    		//Do filter
+	    		String processName = task.getProcessDefinitionUUID().toString();
+				String taskName  = task.getActivityLabel();
+
+				boolean contains = true;
+				for (String w : filterWords) {
+					if (!StringUtils.containsIgnoreCase(processName, w) && 
+							!StringUtils.containsIgnoreCase(taskName, w)) {
+						contains = false;
+						break;
+					}
+				}
+				if (!contains) {
+					continue;
+				}
+	    		
+				filteredTasks.add(task);
+			}
+	    	
+	    	//Let sort list
+	    	Collections.sort(filteredTasks, new Comparator<LightTaskInstance>() {
+
+				public int compare(LightTaskInstance o1,
+						LightTaskInstance o2) {
+					return o2.getLastUpdateDate().compareTo(o1.getLastUpdateDate());
+				}
+			});
+	    	
+	    	int from = startPosition < filteredTasks.size() ? startPosition : filteredTasks.size();
+	    	int to = (startPosition + maxResults) < filteredTasks.size() ? 
+	    			(startPosition + maxResults) : filteredTasks.size();
+	    	
+	    	//Get page
+	    	List<LightTaskInstance> page = filteredTasks.subList(from, to);
+
+            for (LightTaskInstance task : page) {            	
                 addTableRow(task, null);
             }
-            this.rowCount = tasks.size();
+            
+           results = page.size();
         } catch (Exception ex) {
-        	
             ex.printStackTrace();
-            throw new RuntimeException(ex);
         }
         table.setSortContainerPropertyId("lastUpdate");
         table.setSortAscending(false);
         table.sort();
-
+		
+		return results;
     }
 
     private void addTableRow(LightTaskInstance task, LightTaskInstance previousTask) throws InstanceNotFoundException, Exception {
@@ -156,8 +228,21 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
 			woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
 			woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
 			woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
+			woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(task.getState().toString()));
+			
+			
+			ProcessInstanceUUID processUuid = task.getProcessInstanceUUID();
+			if(task.getRootInstanceUUID() != null){
+				processUuid = task.getRootInstanceUUID();
+			}
+			try{
+				LightProcessInstance process = bpmModule.getLightProcessInstance(processUuid);
+				woItem.getItemProperty("initiator").setValue(process.getStartedBy());
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Label label = new Label(task.getActivityName());
 			label.setComponentError(new UserError(e.getMessage()));
@@ -167,9 +252,7 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
 
     }
 
-    @Override
     public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             try {
                 LightTaskInstance task = (LightTaskInstance) ((TableLinkButton) event.getButton()).getTableValue();
@@ -203,7 +286,13 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
             	OpenProcessWindow opw=new OpenProcessWindow();
             	opw.initTask(newTask);
             	opw.initUI();
-           	 	this.getApplication().getMainWindow().addWindow(opw);            	
+           	 	this.getApplication().getMainWindow().addWindow(opw); 
+           	 	opw.addListener(new Window.CloseListener() {
+           		
+					public void windowClose(CloseEvent e) {
+						refreshTable();
+					}
+				});
             }
         } catch (Exception ex) {
             //ex.printStackTrace();
@@ -216,6 +305,12 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
 		if(this.processesBtn==message.getButton())
 		{
 			refreshTable();
+//			if(showFinished != null){
+//				showFinished.setVisible(true);
+//			}
+			if(additionalFilter != null){
+				additionalFilter.setVisible(true);
+			}
 		}
 		else if(message.getActionType()==ActionType.REFRESH){
 			if(!this.processesBtn.isEnabled())
@@ -231,4 +326,9 @@ public class CandidateTaskList extends TablePanel implements IPbTable,  Button.C
 		this.processesBtn = myTaskBtn;
 		
 	}
+	
+	public void setAdditionalFilter(TextField additionalFilter) {
+		this.additionalFilter = additionalFilter;
+	}
+	
 }

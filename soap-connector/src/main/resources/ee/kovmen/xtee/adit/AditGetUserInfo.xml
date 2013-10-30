@@ -1,0 +1,37 @@
+<connector>
+  <connectorId>AditGetUserInfo</connectorId>
+  <version>5.0</version>
+  <categories>
+    <category>
+      <name>ADIT</name>
+    </category>
+  </categories>
+  <inputs>    
+    <setter>
+      <setterName>setIsikukood</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>    
+  </inputs>
+  <outputs>
+    <getter>
+      <name>userInfo</name>
+      <metadata/>
+    </getter>
+  </outputs>
+  <pages>    
+    <page>
+      <pageId>teenuse_andmed</pageId>
+      <widgets>
+        <text>
+          <labelId>isikukood</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>        
+      </widgets>
+    </page>
+  </pages>
+</connector>

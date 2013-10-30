@@ -16,17 +16,21 @@
  */
 package org.processbase.ui.bpm.admin;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window;
 import java.util.Set;
+
 import org.ow2.bonita.facade.runtime.Category;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TablePanel;
+
+import com.vaadin.data.Item;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window;
 
 /**
  *
@@ -34,7 +38,7 @@ import org.processbase.ui.core.template.TablePanel;
  */
 public class CategoriesPanel extends TablePanel implements
         Button.ClickListener,
-        Window.CloseListener {
+        Window.CloseListener, IPbTable {
 
     private BPMConfigurationPanel bpmConfigurationPanel;
 
@@ -91,6 +95,12 @@ public class CategoriesPanel extends TablePanel implements
                     CategoryWindow categoryWindow = new CategoryWindow((Category) execBtn.getTableValue());
                     getApplication().getMainWindow().addWindow(categoryWindow);
                     categoryWindow.initUI();
+                    categoryWindow.addListener(new Window.CloseListener() {
+						
+						public void windowClose(CloseEvent e) {
+							refreshTable();
+						}
+					});
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     showError(ex.getMessage());
@@ -104,8 +114,6 @@ public class CategoriesPanel extends TablePanel implements
 	public void setBpmConfigurationPanel(
 			BPMConfigurationPanel bpmConfigurationPanel) {
 				this.bpmConfigurationPanel = bpmConfigurationPanel;
-		// TODO Auto-generated method stub
-		
 	}
 
     

@@ -18,8 +18,10 @@ package org.processbase.ui.core;
 
 //import com.sun.appserv.security.ProgrammaticLogin; //if executed other than glassfish this will throw class not found exception ?
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +31,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.security.auth.login.LoginContext;
@@ -36,6 +39,9 @@ import javax.security.auth.login.LoginContext;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.h2.util.StringUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
 import org.ow2.bonita.env.Environment;
 import org.ow2.bonita.facade.BAMAPI;
 import org.ow2.bonita.facade.CommandAPI;
@@ -72,6 +78,7 @@ import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
 import org.ow2.bonita.facade.impl.FacadeUtil;
 import org.ow2.bonita.facade.impl.SearchResult;
+import org.ow2.bonita.facade.paging.ProcessInstanceCriterion;
 import org.ow2.bonita.facade.privilege.Rule;
 import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.facade.runtime.ActivityInstance;
@@ -100,6 +107,7 @@ import org.ow2.bonita.services.DocumentationManager;
 import org.ow2.bonita.services.IdentityService;
 import org.ow2.bonita.services.LargeDataRepository;
 import org.ow2.bonita.util.AccessorUtil;
+import org.ow2.bonita.util.BonitaConstants;
 import org.ow2.bonita.util.Command;
 import org.ow2.bonita.util.DocumentService;
 import org.ow2.bonita.util.EnvTool;
@@ -361,6 +369,7 @@ public class BPMModule {
         Set<ProcessDefinitionUUID> processUUIDException = new HashSet<ProcessDefinitionUUID>();
         for (Rule r : userRules) {
             processException = r.getEntities();
+            processUUIDException.add(new ProcessDefinitionUUID(r.getName()));
             for (String processID : processException) {
                 processUUIDException.add(new ProcessDefinitionUUID(processID));
             }
@@ -484,6 +493,11 @@ public class BPMModule {
 	        initContext();
 	        return getQueryRuntimeAPI().getLightTaskList(instanceUUID, state);
 	}
+    
+    public Set<LightTaskInstance> getLightTasks(ProcessInstanceUUID instanceUUID) throws Exception {
+        initContext();
+        return getQueryRuntimeAPI().getLightTasks(instanceUUID);
+}
 
     public Set<ProcessInstance> getUserInstances() throws Exception {
     	logger.debug("getUserInstances");
@@ -632,6 +646,7 @@ public class BPMModule {
 				public Document execute(Environment environment) throws Exception {
 					DocumentationManager manager = EnvTool.getDocumentationManager();
 					SearchResult documents = DocumentService.getDocuments(manager, processUUID, name);
+
 					Document document = documents.getDocuments().get(0);
 										
 				   	return document;
@@ -647,6 +662,51 @@ public class BPMModule {
         return attachmentInstance;*/
         //return queryRuntimeAPI.getAttachmentValue(attachmentInstance);
     }
+    
+    public List<Document> getDocuments(final ProcessInstanceUUID processUUID, final String name) throws Exception { 
+    	
+        initContext();
+        
+        try {
+        	List<Document> result=execute(new Command<List<Document>>() {
+
+				@Override
+				public List<Document> execute(Environment environment) throws Exception {
+					DocumentationManager manager = EnvTool.getDocumentationManager();
+					SearchResult documents = DocumentService.getDocuments(manager, processUUID, name);
+		
+				   	return documents.getDocuments();
+				}
+			});
+			 return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+    }
+    
+    public List<AttachmentInstance> getLastAttachments(final ProcessInstanceUUID processUUID) throws Exception { 
+    	
+        initContext();
+        
+        try {
+        	List<AttachmentInstance> result=execute(new Command<List<AttachmentInstance>>() {
+
+				@Override
+				public List<AttachmentInstance> execute(Environment environment) throws Exception {
+					DocumentationManager manager = EnvTool.getDocumentationManager();
+				   	return DocumentService.getLastAttachments(manager, processUUID);
+				}
+			});
+			 return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+    }
+    
     public void deleteDocument(ProcessInstanceUUID processInstanceUUID,
 			final String documentId, String field) {
     	logger.debug("getAttachmentValue");
@@ -658,10 +718,14 @@ public class BPMModule {
         	java.util.ArrayList variable2 = new java.util.ArrayList();
         	java.util.ArrayList variable = (java.util.ArrayList) getProcessInstanceVariable(processInstanceUUID, field);
         	
+        	final List<String> removeFiles = new ArrayList<String>();
+        	
         	for (Object object : variable) {    			
 				AttachmentInstance attachment = (AttachmentInstance) object;
-				if(!documentId.equals(attachment.getUUID())){
+				if(!documentId.equals(attachment.getName())){
 					variable2.add(attachment);
+				}else {
+					removeFiles.add(attachment.getUUID().toString());
 				}
         	}
         	setProcessInstanceVariable(processInstanceUUID, field, variable2);
@@ -670,8 +734,10 @@ public class BPMModule {
 				@Override
 				public Document execute(Environment environment) throws Exception {
 					DocumentationManager manager = EnvTool.getDocumentationManager();
-					manager.deleteDocument(documentId, true);
 					
+					for (String fileUuid : removeFiles) {
+						manager.deleteDocument(fileUuid, true);
+					}
 					
 				   	return null;
 				}
@@ -740,10 +806,10 @@ public class BPMModule {
 	public TaskInstance assignTask(ActivityInstanceUUID activityInstanceUUID, String user) throws TaskNotFoundException, IllegalTaskStateException, Exception {
     	logger.debug("assignTask");
         initContext();
-        TaskInstance ti = getTaskInstance(activityInstanceUUID);
-        if (ti != null && ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
-            return null;
-        }
+//        TaskInstance ti = getTaskInstance(activityInstanceUUID);
+//        if (ti != null && ti.isTaskAssigned() && !ti.getTaskUser().equals(user)) {
+//            return null;
+//        }
         getRuntimeAPI().assignTask(activityInstanceUUID, user);
         return getTaskInstance(activityInstanceUUID);
     }
@@ -941,6 +1007,13 @@ public class BPMModule {
         initContext();
         return getQueryRuntimeAPI().getLightProcessInstances();
     }
+    
+    public List<LightProcessInstance> getLightProcessInstances(int fromIndex, int pageSize) throws Exception {
+    	logger.debug("getLightProcessInstances");
+        initContext();
+        
+        return getQueryRuntimeAPI().getLightProcessInstances(fromIndex, pageSize, ProcessInstanceCriterion.STARTED_DATE_ASC);
+    }
 
     public Set<LightProcessInstance> getLightProcessInstances(ProcessDefinitionUUID pduuid) throws Exception {
     	logger.debug("getLightProcessInstances");
@@ -998,7 +1071,7 @@ public class BPMModule {
     public Set<LightActivityInstance> getActivityInstances(ProcessDefinitionUUID pduuid) throws ProcessNotFoundException, ActivityNotFoundException, Exception {
     	logger.debug("getActivityInstances");
         initContext();
-        Set<LightActivityInstance> result = new HashSet();
+        Set<LightActivityInstance> result = new HashSet<LightActivityInstance>();
         try {
             Set<LightProcessInstance> pis = getQueryRuntimeAPI().getLightProcessInstances(pduuid);
             for (LightProcessInstance pi : pis) {
@@ -1334,11 +1407,23 @@ public class BPMModule {
         initContext();
         return getIdentityAPI().getAllUsers();
     }
+    
+    public List<User> getUsers(int startPosition, int maxResults) throws Exception {
+    	logger.debug("getUsers");
+        initContext();
+        return getIdentityAPI().getUsers(startPosition, maxResults);
+    }
 
     public List<Role> getAllRoles() throws Exception {
     	logger.debug("getAllRoles");
         initContext();
         return getIdentityAPI().getAllRoles();
+    }
+    
+    public List<Role> getRoles(int startPosition, int maxResults) throws Exception {
+    	logger.debug("getRoles");
+        initContext();
+        return getIdentityAPI().getRoles(startPosition, maxResults);
     }
     
     public Role findRoleByName(String name)throws Exception{
@@ -1359,11 +1444,33 @@ public class BPMModule {
     	}
     	return null;
     }
+    
+    public Group findGroupByName(String name, String parentName)throws Exception{
+    	logger.debug("findGroupByName");
+    	
+		for (Group g : getAllGroups()) {
+			if (g.getName().equalsIgnoreCase(name)) {
+				if (parentName == null && g.getParentGroup() == null) {
+					return g;
+				} else if (g.getParentGroup() != null
+						&& g.getParentGroup().getName().equals(parentName)) {
+					return g;
+				}
+			}
+		}
+    	return null;
+    }
 
     public List<Group> getAllGroups() throws Exception {
     	logger.debug("getAllGroups");
         initContext();
         return getIdentityAPI().getAllGroups();
+    }
+    
+    public List<Group> getGroups(int startPosition, int maxResults) throws Exception {
+    	logger.debug("getGroups");
+        initContext();
+        return getIdentityAPI().getGroups(startPosition, maxResults);
     }
 
     public List<ProfileMetadata> getAllProfileMetadata() throws Exception {
@@ -1372,6 +1479,12 @@ public class BPMModule {
         return getIdentityAPI().getAllProfileMetadata();
     }
 
+    public List<ProfileMetadata> getProfileMetadata(int startPosition, int maxResults) throws Exception {
+    	logger.debug("getAllProfileMetadata");
+        initContext();
+        return getIdentityAPI().getProfileMetadata(startPosition, maxResults);
+    }
+    
     public User addUser(String username, String password, String firstName, String lastName, String title, String jobTitle, String managerUserUUID, Map<String, String> profileMetadata) throws Exception {
     	logger.debug("addUser");
         initContext();
@@ -1411,7 +1524,11 @@ public class BPMModule {
     public void removeRoleByUUID(String roleUUID) throws Exception {
     	logger.debug("removeRoleByUUID");
         initContext();
-        getIdentityAPI().removeRoleByUUID(roleUUID);
+        
+        List<String> roleUuids = new ArrayList<String>();
+        roleUuids.add(roleUUID);
+        
+        getIdentityAPI().removeRoles(roleUuids);
     }
 
     public Role updateRoleByUUID(String roleUUID, String name, String label, String description) throws Exception {
@@ -1684,27 +1801,41 @@ public class BPMModule {
 					if(StringUtils.isNullOrEmpty(password))
 						password=RandomStringUtils.randomAlphabetic(8);
 					
-					user=identityAPI.addUser(authUser.getUsername(), password, authUser.getFirstName(), authUser.getLastName(), "", null, null, null);
+					user=identityAPI.addUser(authUser.getUsername(), password, authUser.getFirstName(), 
+							authUser.getLastName(), "", null, null, null);
 					
-					List<Group> groups= identityAPI.getAllGroups();
-					Group group=null;
-					for (Group group1 : groups) {
-						if(group1.getName().equalsIgnoreCase(identityAPI.DEFAULT_GROUP_NAME));
-						{
-							group=group1;
-							break;
-						}
-					}
-					Role role = identityAPI.findRoleByName(identityAPI.USER_ROLE_NAME);
-					if(role!=null && group!=null)
-					{
-						Membership membership = identityAPI.getMembershipForRoleAndGroup(role.getUUID(), group.getUUID());
-						if(membership!=null){
-							List<String> membershipUUIDs=new ArrayList<String>();
-							membershipUUIDs.add(membership.getUUID());
-							identityAPI.addMembershipsToUser(user.getUUID(), membershipUUIDs);
-						}
-					}					
+					identityAPI.updateUserProfessionalContactInfo(user.getUUID(), 
+							authUser.getUsername() + "@eesti.ee", "", "", "", "", "", "", "", "", "", "", "");
+					
+					
+					List<String> path = new ArrayList<String>();
+					path.add("platform");
+					
+					Group g = identityAPI.getGroupUsingPath(path);
+					Role r = identityAPI.findRoleByName("guest");
+					
+					Membership m = identityAPI.getMembershipForRoleAndGroup(r.getUUID(), g.getUUID());
+					identityAPI.addMembershipToUser(user.getUUID(), m.getUUID());
+					
+//					List<Group> groups= identityAPI.getAllGroups();
+//					Group group=null;
+//					for (Group group1 : groups) {
+//						if(group1.getName().equalsIgnoreCase(identityAPI.DEFAULT_GROUP_NAME));
+//						{
+//							group=group1;
+//							break;
+//						}
+//					}
+//					Role role = identityAPI.findRoleByName(identityAPI.USER_ROLE_NAME);
+//					if(role!=null && group!=null)
+//					{
+//						Membership membership = identityAPI.getMembershipForRoleAndGroup(role.getUUID(), group.getUUID());
+//						if(membership!=null){
+//							List<String> membershipUUIDs=new ArrayList<String>();
+//							membershipUUIDs.add(membership.getUUID());
+//							identityAPI.addMembershipsToUser(user.getUUID(), membershipUUIDs);
+//						}
+//					}					
 				}		
 				return user;
 			}
@@ -1754,9 +1885,14 @@ public class BPMModule {
 									Group parentGroup=null;
 									
 									//g = getIdentityAPI().getGroupByUUID(i==1?getIdentityAPI().DEFAULT_GROUP_NAME:groups2[i-1]);
-									parentGroup=groupMap.get(i==1?getIdentityAPI().DEFAULT_GROUP_NAME:groups2[i-1]);
+									//parentGroup=groupMap.get(i==1?getIdentityAPI().DEFAULT_GROUP_NAME:groups2[i-1]);
 									
-									Group newGroup=getIdentityAPI().addGroup(groupLabel, groupLabel, "AUTO IMPORTED" , parentGroup.getUUID());
+									if(i > 1){
+										parentGroup=groupMap.get(groups2[i-1]);
+									}
+									
+									Group newGroup=getIdentityAPI().addGroup(groupLabel, groupLabel, "AUTO IMPORTED" , 
+											(parentGroup != null ? parentGroup.getUUID(): null));
 									groupMap.put(newGroup.getLabel(), newGroup);
 									rm.setNewMembership(true);
 									rm.setGroup(newGroup);
@@ -1764,15 +1900,25 @@ public class BPMModule {
 							}
 													
 							
-							if(existingRoles.containsKey(participant.getName())==false){//if no dublicate detected.
-								if("Initiator".equals(participant.getName())==false){
-									rm.setRole(getIdentityAPI().addRole(participant.getName(), participant.getLabel(), "AUTO IMPORTED:"+participant.getDescription()));
-									rm.setNewMembership(true);
-									existingRoles.put(rm.getRole().getName(), rm.getRole());
+//							if(existingRoles.containsKey(participant.getName())==false){//if no dublicate detected.
+//								if("Initiator".equals(participant.getName())==false){
+//									rm.setRole(getIdentityAPI().addRole(participant.getName(), participant.getLabel(), "AUTO IMPORTED:"+participant.getDescription()));
+//									rm.setNewMembership(true);
+//									existingRoles.put(rm.getRole().getName(), rm.getRole());
+//								}
+//							}else{
+//								rm.setRole(existingRoles.get(participant.getName()));
+//							}
+							if(rm.getRoleName() != null){
+								if(existingRoles.containsKey(rm.getRoleName())==false){//if no dublicate detected.
+									if("Initiator".equals(rm.getRoleName())==false){
+										rm.setRole(getIdentityAPI().addRole(rm.getRoleName(),rm.getRoleName(), "AUTO IMPORTED"));
+										rm.setNewMembership(true);
+										existingRoles.put(rm.getRole().getName(), rm.getRole());
+									}
+								}else{
+									rm.setRole(existingRoles.get(participant.getName()));
 								}
-							}
-							else{
-								rm.setRole(existingRoles.get(participant.getName()));
 							}
 							/*
 							if(rm.isNewMembership()){								
@@ -1877,7 +2023,6 @@ public class BPMModule {
 				return sb.toString();
 			}
 		} catch (InstanceNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "";
@@ -1893,10 +2038,19 @@ public class BPMModule {
 			sb.append(processInstanceUUID.substring(processInstanceUUID.lastIndexOf("--") + 2));
 		sb.append(" #");
 		
-		String comment=getProcessComment(task.getProcessInstanceUUID());
-		if(!StringUtils.isNullOrEmpty(comment))			
-			sb.append(comment);
+		String piUUID = task.getProcessInstanceUUID().toString();
+		sb.append(piUUID.substring(piUUID.lastIndexOf("--") + 2));
+		
+		
+//		String comment=getProcessComment(task.getProcessInstanceUUID());
+//		if(!StringUtils.isNullOrEmpty(comment))			
+//			sb.append(comment);
 		
 		return sb.toString();
 	}
+	
+	public String getCurrentDomain() {
+		return currentDomain;
+	}
+	
 }

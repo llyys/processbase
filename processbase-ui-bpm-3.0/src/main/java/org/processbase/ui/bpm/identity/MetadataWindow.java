@@ -16,6 +16,11 @@
  */
 package org.processbase.ui.bpm.identity;
 
+import org.ow2.bonita.facade.identity.ProfileMetadata;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.PbWindow;
+
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -23,10 +28,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbWindow;
 
 /**
  *
@@ -63,7 +64,11 @@ public class MetadataWindow extends PbWindow implements ClickListener {
             applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
             metadataName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataName"));
             metadataLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataLabel"));
-
+            
+            metadataName.setRequired(true);
+           
+            metadataLabel.setRequired(true);
+           
             metadataName.setWidth("270px");
             addComponent(metadataName);
             metadataLabel.setWidth("270px");
@@ -96,6 +101,16 @@ public class MetadataWindow extends PbWindow implements ClickListener {
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(applyBtn)) {
+            	
+            	if(!metadataName.isValid()){
+            		showError(ProcessbaseApplication.getString("metadataName") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	}
+            	if(!metadataLabel.isValid()){
+            		showError(ProcessbaseApplication.getString("metadataLabel") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	}
+            
                 if (metadata == null) {
                     ProcessbaseApplication.getCurrent().getBpmModule().addProfileMetadata(metadataName.getValue().toString(), metadataLabel.getValue().toString());
                 } else {

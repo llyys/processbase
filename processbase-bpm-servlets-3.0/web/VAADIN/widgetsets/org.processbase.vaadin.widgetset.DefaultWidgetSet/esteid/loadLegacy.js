@@ -13,6 +13,8 @@ estEidLoader.err_sign      = "Signing failed";
 
 estEidLoader.waitForJavaStart = null;
 
+estEidLoader.attempts = 0;
+
 estEidLoader.hex2pem = function(input) {
     var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     var output = "-----BEGIN CERTIFICATE-----\n";
@@ -94,22 +96,29 @@ estEidLoader.defineCertGetter = function(id, getter) {
  * Available only for Mac and Linux as of 06.10.2010
  */
 estEidLoader.getCertSKplug = function() {
-    estEidLoader.htmlLog("Loading cert data via x-digidoc plugin");
 
-    var s = document.getElementById("sSign");
-    var c = s.getCertificate();
+	if(estEidLoader.attempts < 3){
+		estEidLoader.attempts++;
+		
+		estEidLoader.htmlLog("Loading cert data via x-digidoc plugin");
 
-    /* SK Plugin has certificateAsPEM field, but it's broken in IE */
+		var s = document.getElementById("sSign");
+		var c = s.getCertificate();
 
-    /* TODO: Improve error handling */
-    if(!c.certificateAsHex) throw("no cert data");
+		/* SK Plugin has certificateAsPEM field, but it's broken in IE */
 
-    s.certID = c.id;
+		/* TODO: Improve error handling */
+		if(!c.certificateAsHex) throw("no cert data");
 
-    return { cert: estEidLoader.hex2pem(c.certificateAsHex),
-             CN: c.CN,
-             validFrom: c.validFrom,
-             validTo: c.validUntil };
+		s.certID = c.id;
+
+		return { cert: estEidLoader.hex2pem(c.certificateAsHex),
+				 CN: c.CN,
+				 validFrom: c.validFrom,
+				 validTo: c.validUntil };
+	}else{
+		throw("no cert data");
+	}
 };
 estEidLoader.setupSKplug = function(id) {
   var e = document.getElementById(id);

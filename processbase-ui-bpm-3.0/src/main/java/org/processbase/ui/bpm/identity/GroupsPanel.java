@@ -16,81 +16,109 @@
  */
 package org.processbase.ui.bpm.identity;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 import org.ow2.bonita.facade.IdentityAPI;
 import org.ow2.bonita.facade.identity.Group;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ConfirmDialog;
+import org.processbase.ui.core.template.PagedTablePanel;
 import org.processbase.ui.core.template.TableLinkButton;
-import org.processbase.ui.core.template.TreeTablePanel;
+
+import com.vaadin.data.Item;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Window;
 
 /**
  *
  * @author marat gubaidullin
  */
-public class GroupsPanel extends TreeTablePanel implements
-        Button.ClickListener,
-        Window.CloseListener {
+public class GroupsPanel extends PagedTablePanel implements
+        Button.ClickListener {
 
-    public GroupsPanel() {
+    /** Serial version UID. */
+	private static final long serialVersionUID = -500420946086725732L;
+
+	public GroupsPanel() {
         super();
     }
 
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
-        treeTable.setColumnExpandRatio("name", 1);
-        treeTable.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
-        treeTable.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
-        treeTable.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-        treeTable.setImmediate(true);
-    }
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
+        table.setColumnExpandRatio("name", 1);
+        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
+        table.setColumnExpandRatio("label", 1);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
+        table.setColumnExpandRatio("description", 1);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.setImmediate(true);
 
+        setInitialized(true);
+    }
+    
     @Override
-    public void refreshTable() {
-        try {
-            treeTable.removeAllItems();
-            List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getAllGroups();
+    public int load(int startPosition, int maxResults) {
+    	int results = 0;
+		try {
+            table.removeAllItems();
+            List<Group> groups = ProcessbaseApplication.getCurrent().getBpmModule().getGroups(startPosition, maxResults);
             for (Group group : groups) {
-//                System.out.println("group = " + group.getName() + " parent = " + group.getParentGroup());
-                Item woItem = treeTable.addItem(group.getUUID());
-                TableLinkButton teb = new TableLinkButton(group.getName(), "", null, group, this, Constants.ACTION_OPEN);
+      	
+            	List<Group> path = new ArrayList<Group>();
+            	path.add(group);
+            	Group c = group;
+            	while(c.getParentGroup() != null){
+            		path.add(c.getParentGroup());
+            		c = c.getParentGroup(); 
+            	}
+            	Collections.reverse(path);
+            	
+            	StringBuilder sb = new StringBuilder();
+            	for (Group g : path) {
+					sb.append("/").append(g.getName());
+				}
+            	
+                Item woItem = table.addItem(group.getUUID());
+                TableLinkButton teb = new TableLinkButton(sb.toString(), "", null, group, this, Constants.ACTION_OPEN);
                 woItem.getItemProperty("name").setValue(teb);
                 woItem.getItemProperty("label").setValue(group.getLabel());
                 woItem.getItemProperty("description").setValue(group.getDescription());
-                if (!group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME)) {
-                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
-                    woItem.getItemProperty("actions").setValue(tlb);
-                }
+				if (!(group.getName() != null && group.getName().equals(IdentityAPI.DEFAULT_GROUP_NAME))
+						&& !(group.getDescription() != null && group.getDescription().startsWith("AUTO IMPORTED"))) {
+					
+					TableLinkButton tlb = new TableLinkButton(
+							ProcessbaseApplication.getCurrent().getPbMessages()
+									.getString("btnDelete"), "icons/cancel.png", group, this, Constants.ACTION_DELETE);
+					woItem.getItemProperty("actions").setValue(tlb);
+				}
             }
+            results = groups.size();
+            
+//	            for (Group group : groups) {
+//	                if (group.getParentGroup() != null) {
+//	                    treeTable.setChildrenAllowed(group.getParentGroup().getUUID(), true);
+//	                    treeTable.setCollapsed(group.getParentGroup().getUUID(), false);
+//	                    treeTable.setParent(group.getUUID(), group.getParentGroup().getUUID());
+//	                }
+//	            }
 
-            for (Group group : groups) {
-                if (group.getParentGroup() != null) {
-                    treeTable.setChildrenAllowed(group.getParentGroup().getUUID(), true);
-                    treeTable.setCollapsed(group.getParentGroup().getUUID(), false);
-                    treeTable.setParent(group.getUUID(), group.getParentGroup().getUUID());
-                }
-            }
-
-            treeTable.setSortContainerPropertyId("name");
-            treeTable.setSortAscending(false);
-            treeTable.sort();
+            table.setSortContainerPropertyId("name");
+            table.setSortAscending(false);
+            table.sort();
         } catch (Exception ex) {
             ex.printStackTrace();
-            showError(ex.getMessage());
-            throw new RuntimeException(ex);
         }
+		
+		return results;
     }
 
-    @Override
     public void buttonClick(ClickEvent event) {
-        super.buttonClick(event);
         if (event.getButton() instanceof TableLinkButton) {
             TableLinkButton execBtn = (TableLinkButton) event.getButton();
             Group group = (Group) execBtn.getTableValue();
@@ -123,7 +151,7 @@ public class GroupsPanel extends TreeTablePanel implements
                         if (dialog.isConfirmed()) {
                             try {
                                 ProcessbaseApplication.getCurrent().getBpmModule().removeGroupByUUID(group.getUUID());
-                                treeTable.removeItem(group.getUUID());
+                                table.removeItem(group.getUUID());
                             } catch (Exception ex) {
                                 showError(ex.getMessage());
                                 ex.printStackTrace();

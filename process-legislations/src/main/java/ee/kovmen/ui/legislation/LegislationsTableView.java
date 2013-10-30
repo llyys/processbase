@@ -1,32 +1,32 @@
 package ee.kovmen.ui.legislation;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.TableLinkButton;
-import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.WorkPanel;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Tree.ExpandListener;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
 
@@ -43,14 +43,17 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 	private LegislationsModule module;
 	
 	Button btnAddNewLegislation;
+	Button btnEditLegislation;
+	
 	Button btnAddNewLegislationProcess;
+
 	protected KovServiceCategory currentCategory;
 	protected KovLegislation currentLegislation;
 	
 	public void initUI() {
     	VerticalLayout layout=new VerticalLayout();
     	horizontalLayout.addComponent(layout);
-		btnAddNewLegislation = new Button("Lisa", new Button.ClickListener() {			
+		btnAddNewLegislation = new Button(getMessage("btnAdd"), new Button.ClickListener() {			
 			public void buttonClick(ClickEvent event) {				
 				currentLegislation = new KovLegislation();
 				currentLegislation.setCategory(currentCategory);
@@ -67,7 +70,24 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 				getApplication().getMainWindow().addWindow(view);
 			}
 		});
-		 btnAddNewLegislationProcess=new Button("Vali õigusakti protsessid", new Button.ClickListener() {
+		
+		btnEditLegislation = new Button(getMessage("btnEdit"), new Button.ClickListener() {			
+			public void buttonClick(ClickEvent event) {				
+
+				LegislationEditView view = new LegislationEditView(currentLegislation);
+				view.setIsNew(false);
+				view.addListener(new CloseListener() {					
+					public void windowClose(CloseEvent e) { 
+						refreshTable();
+					}
+				});				
+				view.setWidth("300px");
+				view.initUI();				
+				getApplication().getMainWindow().addWindow(view);
+			}
+		});
+		
+		 btnAddNewLegislationProcess=new Button(getMessage("legislationSelectProcesses"), new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				
 				LegislationProcessView view = new LegislationProcessView(currentLegislation);
@@ -84,6 +104,7 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 		});
 		 HorizontalLayout hl=new HorizontalLayout();
 		 btnAddNewLegislation.setVisible(false);
+		 btnEditLegislation.setVisible(false);
 		 btnAddNewLegislationProcess.setVisible(false);
 		 
 		 	
@@ -94,6 +115,7 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 			hl.setExpandRatio(label, 1);
 			hl.addComponent(btnAddNewLegislation);
 			hl.addComponent(btnAddNewLegislationProcess);
+			hl.addComponent(btnEditLegislation);
 			
 			
 			
@@ -103,14 +125,14 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 			hl.setComponentAlignment(btnAddNewLegislation, Alignment.MIDDLE_RIGHT);
 			
 			if(getModule()==null){
-				 Button btnRefresh = new Button("Uuenda", new Button.ClickListener() {			
+				 Button btnRefresh = new Button(getMessage("btnUpload"), new Button.ClickListener() {			
 						public void buttonClick(ClickEvent event) {				
 							refreshTable();
 						}
 					});
 				 	hl.addComponent(btnRefresh);
 				 	hl.setComponentAlignment(btnRefresh, Alignment.MIDDLE_RIGHT);
-			 }
+			}
 			
 			
 		 
@@ -118,10 +140,15 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
         	
         	
         	
-	        table = new TreeTable("Õigusaktid");
-        	table.addContainerProperty("name", String.class, "");
-        	table.addContainerProperty("description", String.class, "");
-        	table.addContainerProperty("url", String.class, "");
+	        table = new TreeTable("");
+	        table.addContainerProperty("category", String.class, null, getMessage("legislationsByCategories"), null, null);
+	        table.setColumnExpandRatio("category", 1);
+	        table.addContainerProperty("url", Component.class, null, getMessage("legislationUrl"), null, null);
+	        table.setColumnExpandRatio("url", 1);
+        	table.addContainerProperty("type", String.class, null,getMessage("legislationType"), null, null);
+        	table.addContainerProperty("description", String.class, null, getMessage("legislationDescription"), null, null);
+        	table.setColumnExpandRatio("description", 2);
+        	
         	
         	table.setSelectable(true);
         	table.setImmediate(true);
@@ -158,21 +185,48 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
         try {
         	Session session=null;
         	Transaction tran=null;
+        	
         	table.removeAllItems();
         	try {
 				session = LegislationData.getCurrent().getSession();
 				tran = session.beginTransaction();
-				List<KovServiceCategory> data = session.createCriteria(KovServiceCategory.class).add(Restrictions.isNull("displayed")).list();
+				List<KovServiceCategory> data = session.createCriteria(KovServiceCategory.class)
+					.add(Restrictions.isNull("displayed")).addOrder(Order.asc("name")).list();
 				if(data!=null){
 					for (KovServiceCategory category : data) {
-						 Object tcategory = table.addItem(new Object[] { category.getName(), "", ""}, category);
+						 Object tcategory = table.addItem(new Object[] { category.getName(), new Label(""), "", ""}, category);
 						 if(category.getLegislations()!=null){
-							 for (KovLegislation leg : category.getLegislations()) {
-								 Object tleg = table.addItem(new Object[] { leg.getName(), leg.getUrl(), ""}, leg);
+							 List<KovLegislation> legislations = new ArrayList<KovLegislation>(category.getLegislations());
+							 
+							 Collections.sort(legislations,
+								new Comparator<KovLegislation>() {
+
+									public int compare(KovLegislation o1,
+											KovLegislation o2) {
+										if(o1.getName() != null && o2.getName() != null){
+											return o1.getName().compareTo(o2.getName());
+										}else{
+											return o1.getId().compareTo(o2.getId());
+										}
+									}
+									
+								});
+							 
+							 for (KovLegislation leg : legislations) {
+								 Component l = null; 
+								 if (leg.getUrl() != null) {
+									 Link link= new Link(leg.getUrl(), new ExternalResource(leg.getUrl()) );
+									 link.setTargetName("_blank");
+									 l = link;
+								 }else {
+									 l = new Label("");
+								 }
+								
+								 Object tleg = table.addItem(new Object[] { leg.getName(), l, leg.getType(), leg.getDescription()}, leg);
 								 table.setParent(tleg, tcategory);
 								 if(leg.getProcesses()!=null){
 									 for (KovProcess proc : leg.getProcesses()) {
-										 Object tproc = table.addItem(new Object[] { proc.getName(), "", ""}, null);
+										 Object tproc = table.addItem(new Object[] {proc.toString(), new Label(""), "", ""}, null);
 										 table.setParent(tproc, tleg);
 										 table.setChildrenAllowed(tproc, false);
 									}
@@ -262,23 +316,36 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 	public void SetSelectedCategory(KovServiceCategory kat) {		
 		currentCategory=kat;
 		if(kat!=null){
-			btnAddNewLegislation.setCaption("Lisa uus '"+kat.getName()+ "' õigusakt");
+			btnAddNewLegislation.setCaption(getMessage("legislationAddNew"));
 			btnAddNewLegislation.setVisible(true);
 		}
 		else{
-			btnAddNewLegislation.setVisible(false);
+			btnAddNewLegislationProcess.setVisible(false);
 		}
+		btnEditLegislation.setVisible(false);
 	}
 
 	public void SetSelectedLegislation(KovLegislation rowObj) {
 		currentLegislation=rowObj;
 		if(currentLegislation!=null){
-			btnAddNewLegislationProcess.setCaption("Määra '"+rowObj.getName()+ "' protsessid");
+			btnAddNewLegislationProcess.setCaption(getMessage("legislationSelectProcesses"));
 			btnAddNewLegislationProcess.setVisible(true);
+			btnEditLegislation.setVisible(true);
+			btnAddNewLegislation.setVisible(false);
 		}
 		else{
 			btnAddNewLegislationProcess.setVisible(false);
 		}
+		
+	}
+	
+	private String getMessage(String key){
+		try {
+			return ProcessbaseApplication.getCurrent().getPbMessages().getString(key);
+		} catch (Exception e) {
+			//ignore
+		}
+		return key;
 	}
 
 }

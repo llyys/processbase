@@ -10,8 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.connector.core.ConnectorError;
 import org.ow2.bonita.connector.core.ProcessConnector;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
-import org.ow2.bonita.facade.RuntimeAPI;
-import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.util.AccessorUtil;
 
 import ee.sk.digidoc.SignedDoc;

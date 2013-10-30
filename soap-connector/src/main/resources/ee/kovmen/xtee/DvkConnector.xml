@@ -63,6 +63,13 @@
         <string></string>
       </parameters>
     </setter>
+    <setter>
+      <setterName>setTitle</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
   </inputs>
   <outputs/>
   <pages>
@@ -106,14 +113,20 @@
           <maxChar>40</maxChar>
         </text>
         <text>
-          <labelId>senderCompanyRegNo</labelId>
+          <labelId>senderCompanyName</labelId>
           <setter reference="/connector/inputs/setter[7]"/>
           <size>20</size>
           <maxChar>40</maxChar>
         </text>
         <text>
-          <labelId>senderCompanyName</labelId>
+          <labelId>senderCompanyRegNo</labelId>
           <setter reference="/connector/inputs/setter[8]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>title</labelId>
+          <setter reference="/connector/inputs/setter[9]"/>
           <size>20</size>
           <maxChar>40</maxChar>
         </text>

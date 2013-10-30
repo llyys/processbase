@@ -16,44 +16,46 @@
  */
 package org.processbase.ui.bpm.worklist;
 
-import com.liferay.portal.kernel.dao.search.ButtonSearchEntry;
-import com.vaadin.data.Item;
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.BaseTheme;
-import com.vaadin.ui.themes.Reindeer;
-
 import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.caliburn.application.event.IHandle;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.identity.Group;
 import org.ow2.bonita.facade.runtime.Category;
 import org.ow2.bonita.light.LightProcessDefinition;
+import org.processbase.ui.bpm.generator.view.NewProcessWindow;
+import org.processbase.ui.bpm.panel.events.TaskListEvent;
+import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
 import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.bonita.forms.XMLProcessDefinition;
+import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.TableLinkButton;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.util.CategoryAndProcessDefinition;
-import org.processbase.ui.bpm.generator.GeneratedWindow;
-import org.processbase.ui.bpm.generator.view.NewProcessWindow;
-import org.processbase.ui.bpm.panel.events.TaskListEvent;
-import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
-import org.processbase.ui.bpm.panel.events.TogglePanelEvent;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.FormsDefinition;
-import org.processbase.ui.core.bonita.process.BarResource;
+
+import com.vaadin.data.Item;
+import com.vaadin.terminal.ExternalResource;
+import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Link;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.Reindeer;
+
+import ee.kovmen.data.LegislationData;
+import ee.kovmen.entities.KovLegislation;
 
 /**
  *
@@ -69,13 +71,15 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
     public void initUI() {
     	
         super.initUI();
-        treeTable.addContainerProperty("category", AbstractComponent.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
+        treeTable.addContainerProperty("category", AbstractComponent.class, null, ProcessbaseApplication.getString("tableCaptionCategory"), null, null);
         //treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
         //treeTable.setColumnExpandRatio("processName", 1);
-        treeTable.addContainerProperty("processDescription", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
-        treeTable.setColumnExpandRatio("processDescription", 1);
+        treeTable.addContainerProperty("processDescription", String.class, null, ProcessbaseApplication.getString("tableCaptionDescription"), null, null);
+        treeTable.setColumnExpandRatio("processDescription", 2);
         //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
-        treeTable.setVisibleColumns(new Object[]{"category", "processDescription"/*, "version"*/});
+        treeTable.addContainerProperty("processLegislations", Component.class, null, ProcessbaseApplication.getString("processLegislationInfo"), null, null);
+        treeTable.setColumnExpandRatio("processLegislations", 1);
+        treeTable.setVisibleColumns(new Object[]{"category", "processDescription", "processLegislations"/*, "version"*/});
         
     }
 
@@ -137,6 +141,32 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
             woItem.getItemProperty("category").setValue(teb);
             woItem.getItemProperty("processDescription").setValue(item.getProcessDef().getDescription());
            // woItem.getItemProperty("version").setValue(item.getProcessDef().getVersion());
+            
+            VerticalLayout list = new VerticalLayout();
+            
+			try {
+				Session s = LegislationData.getCurrent().getSession();
+				Transaction t = s.beginTransaction();
+
+				Criteria c = s.createCriteria(KovLegislation.class);
+				c.createAlias("processes", "p").add(
+						Restrictions.eq("p.uuid", item.getProcessDef()
+								.getUUID().toString()));
+
+				for (KovLegislation legislation : (List<KovLegislation>) c
+						.list()) {
+					Link link = new Link(legislation.getName(),
+							new ExternalResource(legislation.getUrl()));
+					link.setTargetName("_blank");
+					list.addComponent(link);
+				}
+
+				t.commit();
+			} catch (Exception e) {
+				LOGGER.error("could not find legislations", e);
+			}
+			
+			woItem.getItemProperty("processLegislations").setValue(list);
         }
     }
 
@@ -174,7 +204,12 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
             	 ppanel.initProcess(process);
             	 ppanel.initUI();
             	 this.getApplication().getMainWindow().addWindow(ppanel);
-            	 
+            	 ppanel.addListener(new Window.CloseListener() {
+            			
+						public void windowClose(CloseEvent e) {
+							refreshTable();
+						}
+					});
             	/* BarResource barResource = BarResource.getBarResource(process.getUUID());
                  XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(process.getName());
                  if (!xmlProcess.isByPassFormsGeneration()) {
@@ -197,8 +232,11 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
             throw new RuntimeException(ex);
         }
     }
+    
     Group group;
-	private Button processesBtn;
+	
+    private Button processesBtn;
+	
 	public void setUserCurrentGroup(Group group) {
 		this.group=group;
 		refreshTable();

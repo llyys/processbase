@@ -16,37 +16,33 @@
  */
 package org.processbase.ui.bpm.panel;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.caliburn.application.event.IEventAggregator;
 import org.caliburn.application.event.imp.DefaultEventAggregator;
-import org.ow2.bonita.facade.IdentityAPI;
-import org.ow2.bonita.facade.identity.Group;
-import org.ow2.bonita.facade.identity.Membership;
-import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.light.LightProcessDefinition;
 import org.processbase.ui.bpm.panel.events.TaskListEvent;
 import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.worklist.CandidateCaseList;
+import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.bpm.worklist.NewProcesses;
 import org.processbase.ui.bpm.worklist.UserCaseList;
-import org.processbase.ui.bpm.worklist.TaskCompleted;
-import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.TablePanel;
-import org.processbase.ui.core.template.TreeTablePanel;
-import org.processbase.ui.core.template.WorkPanel;
 import org.processbase.ui.osgi.PbPanelModule;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Item;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -58,11 +54,13 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 
     private ButtonBar buttonBar = new ButtonBar();
     private CandidateTaskList pnlTaskList;
+   
     //private TaskCompleted taskCompletedPanel; 
-    private UserCaseList pnlRoleProcesses; 
+   
     private NewProcesses pnlNewProcesses;
     private Button refreshBtn = null;
     private Button btnTaskList = null;
+    
     //private Button myTaskCompletedBtn = null;
     private Button btnRoleProcesses = null;
     private Button btnNewProcess = null;
@@ -71,7 +69,17 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 	private Button myTaskBtn;
 	private IEventAggregator events;
 	private Button btnUserTaskList;
+	
+	private UserCaseList pnlRoleProcesses; 
 	private UserTaskList pnlUserTaskList;
+	
+	private CheckBox showFinished;
+	
+	private CandidateCaseList pnlCaseList;
+	private Button btnCaseList = null;
+	
+	private TextField additionalFilter = null;
+	
 
     public void initUI(){
     	if(isInitialized())
@@ -122,6 +130,19 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         btnTaskList.setEnabled(true);        
         buttonBar.addComponent(btnTaskList);
         buttonBar.setComponentAlignment(btnTaskList, Alignment.MIDDLE_LEFT);
+        
+//Menetluse tegevuste nimekiri        
+        
+        btnCaseList = new Button(ProcessbaseApplication.getString("myTaskCompletedBtn"), this);
+        btnCaseList.setStyleName(Reindeer.BUTTON_LINK);
+    	pnlCaseList = new CandidateCaseList();
+    	pnlCaseList.setButton(btnCaseList);
+        
+                
+    	btnCaseList.setData(pnlCaseList);
+    	btnCaseList.setEnabled(true);        
+        buttonBar.addComponent(btnCaseList);
+        buttonBar.setComponentAlignment(btnCaseList, Alignment.MIDDLE_LEFT);
 
 //kasutajale suunatud menetlused
         
@@ -132,6 +153,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         
         btnUserTaskList.setData(pnlUserTaskList);
         pnlUserTaskList.setButton(btnUserTaskList);
+        
         buttonBar.addComponent(btnUserTaskList);
         buttonBar.setComponentAlignment(btnUserTaskList, Alignment.MIDDLE_LEFT);
         
@@ -156,11 +178,31 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         buttonBar.setComponentAlignment(myTaskBtn, Alignment.MIDDLE_LEFT);
 */
         
-// prepare refresh button
+        showFinished = new CheckBox(ProcessbaseApplication.getString("chkboxShowFinished"));
+        showFinished.setVisible(false);
+		
+        pnlRoleProcesses.setShowFinished(showFinished);
+		pnlCaseList.setShowFinished(showFinished);
+
+
+		buttonBar.addComponent(showFinished); 
+        buttonBar.setComponentAlignment(showFinished, Alignment.MIDDLE_RIGHT);        
+        buttonBar.setExpandRatio(showFinished, 1);
+        
+      
+        additionalFilter = new TextField();
+        buttonBar.addComponent(additionalFilter);
+        buttonBar.setComponentAlignment(additionalFilter, Alignment.MIDDLE_LEFT);
+        additionalFilter.setVisible(false);
+           
+        pnlCaseList.setAdditionalFilter(additionalFilter);
+        pnlTaskList.setAdditionalFilter(additionalFilter);
+        
+        // prepare refresh button
         refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"));        
         buttonBar.addComponent(refreshBtn); 
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);        
-        buttonBar.setExpandRatio(refreshBtn, 1);
+        //buttonBar.setExpandRatio(refreshBtn, 1);
         
         //Register event agrigator
         events = new DefaultEventAggregator();
@@ -169,6 +211,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         events.Subscribe(pnlNewProcesses);
         events.Subscribe(pnlUserTaskList);
         events.Subscribe(pnlTaskList);
+        events.Subscribe(pnlCaseList);
         
         refreshBtn.addListener(new Button.ClickListener() {			
 			public void buttonClick(ClickEvent event) {
@@ -178,7 +221,7 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 				events.Publish(message);
 			}
 		});
-        
+        	
                 
     }
 
@@ -199,6 +242,9 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
 		message.setActionType(ActionType.TOGGLE_PANEL);
 		message.setParentContainer(this);
 		
+		showFinished.setVisible(false);
+		additionalFilter.setVisible(false);
+		
 		events.Publish(message);    	
     }
 
@@ -208,4 +254,6 @@ public class TaskListPanel extends PbPanelModule implements Button.ClickListener
         ResourceBundle rb = ResourceBundle.getBundle("MessagesBundle", locale);
         return rb.getString("bpmTasklist");
     }
+
+    
 }

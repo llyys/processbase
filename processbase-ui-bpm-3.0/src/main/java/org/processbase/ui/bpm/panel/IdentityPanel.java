@@ -27,6 +27,8 @@ import com.vaadin.ui.Window;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.PagedTablePanel;
+import org.processbase.ui.core.template.PagedTreeTablePanel;
 import org.processbase.ui.core.template.TablePanel;
 import org.processbase.ui.core.template.TreeTablePanel;
 import org.processbase.ui.core.template.WorkPanel;
@@ -98,6 +100,10 @@ public class IdentityPanel extends PbPanelModule
             ((TablePanel) workPanel).refreshTable();
         } else if (workPanel instanceof TreeTablePanel) {
             ((TreeTablePanel) workPanel).refreshTable();
+        } else if (workPanel instanceof PagedTablePanel) {
+            ((PagedTablePanel) workPanel).refreshTable();
+        } else if (workPanel instanceof PagedTreeTablePanel) {
+            ((PagedTreeTablePanel) workPanel).refreshTable();
         }
     }
 
@@ -162,6 +168,10 @@ public class IdentityPanel extends PbPanelModule
         WorkPanel panel = panels.get(event.getButton());
         if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TablePanel)) {
             ((TablePanel) getComponent(1)).refreshTable();
+        }else  if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof PagedTablePanel)) { 
+        	((PagedTablePanel) getComponent(1)).refreshTable();
+        }else  if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof PagedTreeTablePanel)) { 
+            ((PagedTreeTablePanel) getComponent(1)).refreshTable();
         } else if (event.getButton().equals(refreshBtn) && (getComponent(1) instanceof TreeTablePanel)) {
             ((TreeTablePanel) getComponent(1)).refreshTable();
        /* } else if (event.getButton().equals(syncBtn)) {
@@ -177,6 +187,10 @@ public class IdentityPanel extends PbPanelModule
                 ((TablePanel) getComponent(1)).refreshTable();
             } else if (getComponent(1) instanceof TreeTablePanel) {
                 ((TreeTablePanel) getComponent(1)).refreshTable();
+            } else  if (getComponent(1) instanceof PagedTablePanel) { 
+            	((PagedTablePanel) getComponent(1)).refreshTable();
+            } else  if (getComponent(1) instanceof PagedTreeTablePanel) { 
+            	((PagedTreeTablePanel) getComponent(1)).refreshTable();
             }
             if (!event.getButton().equals(usersBtn)) {
            //     syncBtn.setVisible(false);
@@ -206,6 +220,10 @@ public class IdentityPanel extends PbPanelModule
             ((TablePanel) getComponent(1)).refreshTable();
         } else if (getComponent(1) instanceof TreeTablePanel) {
             ((TreeTablePanel) getComponent(1)).refreshTable();
+        }else if (getComponent(1) instanceof PagedTablePanel) {
+            ((PagedTablePanel) getComponent(1)).refreshTable();
+        } else if (getComponent(1) instanceof PagedTreeTablePanel) {
+            ((PagedTreeTablePanel) getComponent(1)).refreshTable();
         }
     }
 

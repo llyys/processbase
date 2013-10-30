@@ -11,14 +11,15 @@ import ee.finestmedia.xtee.client.adit.types.noNamespace.GetUserInfoResponseAtta
 import ee.kovmen.SoapConnector;
 import ee.kovmen.xtee.result.AditUserInfo;
 
-public class AditGetUserInfo extends AditConnector {
-	
+public class AditGetUserInfo extends AbstractAditConnector {
+
 	private String isikukood;
 	private AditUserInfo userInfo;
-	
+
 	public AditUserInfo getUserInfo(String isikukood) throws Exception {
 		AditRequestInfo info = new AditRequestInfo(isikukood);
-		info.setInstitution(SoapConnector.getConfigValue("asutus", "10648908"));
+		info.setInstitution(SoapConnector.getConfigValue("asutus_smartlink",
+				"10648908"));
 
 		if (!isikukood.startsWith("EE"))
 			info.setIdCode("EE" + isikukood);
@@ -27,11 +28,13 @@ public class AditGetUserInfo extends AditConnector {
 
 		ArrayList<String> userCodes = new ArrayList<String>();
 		userCodes.add(isikukood);
-		
-		AditResponse<List<GetUserInfoResponseAttachmentV1UserType>> result = getService().getUserInfo(info, userCodes);
+
+		AditResponse<List<GetUserInfoResponseAttachmentV1UserType>> result = getService()
+				.getUserInfo(info, userCodes);
 		userCodes.add(isikukood);
-		
-		GetUserInfoResponseAttachmentV1UserType userType = result.getExtra().get(0);
+
+		GetUserInfoResponseAttachmentV1UserType userType = result.getExtra()
+				.get(0);
 
 		AditUserInfo ui = new AditUserInfo();
 		ui.setCanRead(userType.getCanRead());
@@ -40,23 +43,26 @@ public class AditGetUserInfo extends AditConnector {
 		ui.setHasJoined(userType.getHasJoined());
 		ui.setFreeSpaceBytes(userType.getFreeSpaceBytes());
 		ui.setUsedSpaceBytes(userType.getUsedSpaceBytes());
+	
+		
 		return ui;
 
 	}
 
 	@Override
 	protected void executeConnector() throws Exception {
-		userInfo=getUserInfo(isikukood);
-		
+		userInfo = getUserInfo(isikukood);
+
 	}
-	
+
 	@Override
 	protected List<ConnectorError> validateValues() {
 		List<ConnectorError> errors = new ArrayList<ConnectorError>();
-		if(this.isikukood==null){
-			errors.add(new ConnectorError("Isikukood", new Exception("Isikukood puudub")));
+		if (this.isikukood == null) {
+			errors.add(new ConnectorError("Isikukood", new Exception(
+					"Isikukood puudub")));
 		}
-		return errors.size()==0?null:errors;
+		return errors.size() == 0 ? null : errors;
 	}
 
 	public void setIsikukood(String isikukood) {
@@ -75,5 +81,4 @@ public class AditGetUserInfo extends AditConnector {
 		return userInfo;
 	}
 
-	
 }

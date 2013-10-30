@@ -24,8 +24,8 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.HashMap;
 import java.util.Locale;
-import org.processbase.ui.bpm.admin.AdminCaseList;
 import org.processbase.ui.bpm.admin.AdminTaskList;
+import org.processbase.ui.bpm.admin.AdminCaseList;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -61,8 +61,8 @@ public class DevelopmentPanel extends PbPanelModule
     private ButtonBar buttonBar = new ButtonBar();
     private ModulesJarPanel modulesJarPanel;
     private ModulesTabPanel modulesTabPanel;
-    private AdminTaskList processInstancesPanel;
-    private AdminCaseList activityInstancesPanel;
+    //private AdminCaseList processInstancesPanel;
+   // private AdminTaskList activityInstancesPanel;
     private Button refreshBtn = null;
     private Button btnAdd = null;
     private Button modulesJarBtn = null;
@@ -86,11 +86,11 @@ public class DevelopmentPanel extends PbPanelModule
         modulesJarPanel.initUI();
         modulesJarPanel.refreshTable();
 
-        processInstancesPanel = new AdminTaskList();
-        panels.put(processInstancesBtn, processInstancesPanel);
+       // processInstancesPanel = new AdminCaseList();
+       // panels.put(processInstancesBtn, processInstancesPanel);
 
-        activityInstancesPanel = new AdminCaseList();
-        panels.put(activityInstancesBtn, activityInstancesPanel);
+       // activityInstancesPanel = new AdminTaskList();
+       // panels.put(activityInstancesBtn, activityInstancesPanel);
 
         modulesTabPanel = new ModulesTabPanel();
         panels.put(modulesTabBtn, modulesTabPanel);

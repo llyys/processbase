@@ -1,10 +1,12 @@
 package org.processbase.ui.bpm.admin;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.IPbTable;
@@ -22,13 +24,19 @@ implements IPbTable
 	        
 	        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
 	        
+	        table.setVisibleColumns(new String[]{"name", "version", "deployedBy", "deployedDate"});
 	    }
 	 
 	 @Override
 	    public void refreshTable() {
 	        try {
 	            table.removeAllItems();
-	            Set<ProcessDefinition> pds = ProcessbaseApplication.getCurrent().getBpmModule().getProcesses();
+	            
+	            BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+	            
+	            Set<ProcessDefinition> pds = new HashSet<ProcessDefinition>();
+	            pds.addAll(bpmModule.getProcesses());
+	            pds.addAll(bpmModule.getProcesses(ProcessState.ARCHIVED));
 	            for (ProcessDefinition pd : pds) {
 	            	if(pd.getState()!=ProcessState.ENABLED){
 		                Item woItem = table.addItem(pd);

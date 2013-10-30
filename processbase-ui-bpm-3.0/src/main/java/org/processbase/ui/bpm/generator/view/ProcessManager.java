@@ -3,16 +3,13 @@ package org.processbase.ui.bpm.generator.view;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.h2.util.StringUtils;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.exception.IllegalTaskStateException;
@@ -25,40 +22,32 @@ import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.light.LightProcessDefinition;
-import org.ow2.bonita.util.Command;
-import org.ow2.bonita.util.GroovyException;
+import org.ow2.bonita.light.LightProcessInstance;
 import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.bpm.admin.ProcessInstanceWindow;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.diagram.ProcessParser;
 import org.processbase.ui.core.bonita.forms.Activities;
-import org.processbase.ui.core.bonita.forms.FieldValue;
-import org.processbase.ui.core.bonita.forms.FormsDefinition;
-import org.processbase.ui.core.bonita.forms.PageFlow;
-import org.processbase.ui.core.bonita.forms.Widget;
-import org.processbase.ui.core.bonita.forms.WidgetType;
-import org.processbase.ui.core.bonita.forms.Widgets;
 import org.processbase.ui.core.bonita.forms.Activities.Activity;
+import org.processbase.ui.core.bonita.forms.FormsDefinition;
 import org.processbase.ui.core.bonita.forms.FormsDefinition.Process;
+import org.processbase.ui.core.bonita.forms.PageFlow;
 import org.processbase.ui.core.bonita.forms.PageFlow.Pages.Page;
+import org.processbase.ui.core.bonita.forms.WidgetType;
 import org.processbase.ui.core.bonita.process.BarResource;
 import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
-import org.processbase.ui.core.template.TablePanel;
 
-import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
 
 public class ProcessManager extends PbPanel {
 	
@@ -229,7 +218,7 @@ public class ProcessManager extends PbPanel {
 			groovyContext.put("parent", this);
 			groovyContext.put("taskManager", this.taskManager);
 			groovyContext.put("appication", application);
-	//		groovyContext.put("apiAccessor", application.getBpmModule().getAPIAccessor());
+			//groovyContext.put("apiAccessor", application.getBpmModule().getAPIAccessor());
 			if(application.getApplicationType()==ProcessbaseApplication.LIFERAY_PORTAL)
 				
 				groovyContext.put("loggedUser", application.getSessionAttribute("LiferayUser"));
@@ -290,7 +279,11 @@ public class ProcessManager extends PbPanel {
 	}
 	
 	public String getLabel(){
-		return process.getProcessLabel();
+		String nb = "";
+		if(processInstanceUUID != null){
+			nb = processInstanceUUID.toString().substring(processInstanceUUID.toString().lastIndexOf("--") + 2);
+		}
+		return process.getProcessLabel() + "#" + nb;
 	}
 
 	/**
@@ -384,23 +377,48 @@ public class ProcessManager extends PbPanel {
 		this.buttons.addComponent(empty);
 		this.buttons.setComponentAlignment(empty, Alignment.MIDDLE_RIGHT);
 		buttons.setExpandRatio(empty, 1.0f);
+		
+		ProcessbaseApplication application = ProcessbaseApplication.getCurrent();
+		
+		LightProcessInstance pi = null;
+		if(processInstanceUUID != null){
+			try{
+				pi = bpmModule.getLightProcessInstance(processInstanceUUID);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		//subProcess is not canceable
-		if(subProcess==false && (taskInstance==null || (taskInstance.isTaskAssigned() && isCanceable))){
+		if((pi == null || pi.getStartedBy().equals(application.getUserName())) && (taskInstance == null ||
+				taskInstance.getRootInstanceUUID().equals(taskInstance.getProcessInstanceUUID()))){
 			
 			
 			Button buttonKatkesta = new Button("Katkesta");
 			buttonKatkesta.addListener(new Button.ClickListener() {
 				public void buttonClick(ClickEvent event) {
-					try {
-						if(taskInstance!=null)
-							getBpmModule().cancelProcessInstance(getProcessInstanceUUID());
-						getWindow().close();
-					} catch (Exception e) {
-						getWindow().showError("Unable to cancel the process");
-						throw new RuntimeException(e);
-					}
+					ConfirmDialog.show(getApplication().getMainWindow(), ProcessbaseApplication.getString("confirmTitle", "Confirmation"),
+							ProcessbaseApplication.getString("confirmMessage", "Are you really sure?"), 
+							ProcessbaseApplication.getString("btnYes", "Yes"), 
+							ProcessbaseApplication.getString("btnNo", "No"),
+							new ConfirmDialog.Listener() {
+
+								public void onClose(ConfirmDialog dialog) {
+									if (dialog.isConfirmed()) {
+										try {
+											if(taskInstance!=null)
+												getBpmModule().cancelProcessInstance(getProcessInstanceUUID());
+											getWindow().close();
+										} catch (Exception e) {
+											getWindow().showError("Unable to cancel the process");
+											throw new RuntimeException(e);
+										}
+									}
+								}
+							});
 				}
 			});
+			
 			this.buttons.addButton(buttonKatkesta);
 			this.buttons.setComponentAlignment(buttonKatkesta, Alignment.MIDDLE_RIGHT);
 			
@@ -458,7 +476,6 @@ public class ProcessManager extends PbPanel {
 
 	public void setProcessInstanceUUID(ProcessInstanceUUID processInstanceUUID) {
 		this.processInstanceUUID = processInstanceUUID;
-		
 	}
 	public void setProcessVariables(Map<String, Object> processVariables) {
 		this.processVariables = processVariables;
@@ -602,8 +619,7 @@ public class ProcessManager extends PbPanel {
 			org.processbase.ui.core.bonita.diagram.Process processDefinition = ProcessParser.getProcessDefinition(getBpmModule(), processDefinitionUUID);
 			return processDefinition.getDataType(variableBound).getName();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return null;
 	}
@@ -613,7 +629,5 @@ public class ProcessManager extends PbPanel {
 		// TODO Auto-generated method stub
 		
 	}
-
-	
 	
 }

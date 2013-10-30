@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
 import org.ow2.bonita.facade.exception.DocumentNotFoundException;
 import org.ow2.bonita.facade.runtime.Document;
@@ -121,7 +122,7 @@ public class Sign {
 				*/
 		}
 		 
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		CertificateFactory cf = CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
 		X509Certificate certificate = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert.getBytes()));
 		setSignature(getSdoc().prepareSignature((X509Certificate) certificate, null, null));
 		return SignedDoc.bin2hex(getSignature().calculateSignedInfoDigest());

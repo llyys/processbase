@@ -16,6 +16,25 @@
  */
 package org.processbase.ui.bpm.identity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.ProfileMetadata;
+import org.ow2.bonita.facade.identity.Role;
+import org.ow2.bonita.facade.identity.User;
+import org.processbase.ui.bpm.identity.sync.UserRolesSync;
+import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
+import org.processbase.ui.core.template.PbWindow;
+import org.processbase.ui.core.template.TableLinkButton;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Alignment;
@@ -32,22 +51,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-import org.ow2.bonita.facade.IdentityAPI;
-import org.ow2.bonita.facade.identity.Group;
-import org.ow2.bonita.facade.identity.Membership;
-import org.ow2.bonita.facade.identity.ProfileMetadata;
-import org.ow2.bonita.facade.identity.Role;
-import org.ow2.bonita.facade.identity.User;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.template.ButtonBar;
-import org.processbase.ui.core.template.PbWindow;
-import org.processbase.ui.core.template.TableLinkButton;
 
 /**
  *
@@ -74,6 +77,8 @@ public class UserWindow extends PbWindow
     private Table tableMembership = new Table();
     private Table tableMetadata = new Table();
     private ArrayList<String> deletedMembership = new ArrayList<String>();
+    
+    private Button updateRoles;
 
     public UserWindow(User user) {
         super();
@@ -103,6 +108,9 @@ public class UserWindow extends PbWindow
             userEmail = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userEmail"));
             userJobTitle = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userJobTitle"));
             password = new PasswordField(ProcessbaseApplication.getCurrent().getPbMessages().getString("password"));
+            
+            updateRoles = new Button("Update", this);
+           // updateRoles.setVisible(false);
 
             // prepare user information
             userInfofmation.setMargin(true);
@@ -119,7 +127,11 @@ public class UserWindow extends PbWindow
             userInfofmation.addComponent(userEmail);
             userJobTitle.setWidth("270px");
             userInfofmation.addComponent(userJobTitle);
-
+            
+            userName.setRequired(true);
+            userFirstName.setRequired(true);
+            userLastName.setRequired(true);
+           
 
             // prepare user membership
             userMembership.setMargin(true);
@@ -154,6 +166,10 @@ public class UserWindow extends PbWindow
             buttons.setExpandRatio(saveBtn, 1);
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
+            
+            buttons.addButton(updateRoles);
+            buttons.setComponentAlignment(updateRoles, Alignment.MIDDLE_RIGHT);
+            
             buttons.setMargin(false);
             buttons.setHeight("30px");
             buttons.setWidth("100%");
@@ -184,6 +200,20 @@ public class UserWindow extends PbWindow
     public void buttonClick(ClickEvent event) {
         try {
             if (event.getButton().equals(saveBtn)) {
+
+            	if(!userName.isValid()){
+            		showError(ProcessbaseApplication.getString("userName") + ProcessbaseApplication.getString("fieldRequired"));
+            		return;
+            	} 
+                if(!userFirstName.isValid()){
+                	showError(ProcessbaseApplication.getString("userFirstName") + ProcessbaseApplication.getString("fieldRequired"));
+             		return;
+            	}
+                if(!userLastName.isValid()){
+                	showError(ProcessbaseApplication.getString("userLastName") + ProcessbaseApplication.getString("fieldRequired"));
+                	return;
+            	}
+            	
                 BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
 				if (user == null) {
                     try {
@@ -197,8 +227,7 @@ public class UserWindow extends PbWindow
 						bpmModule.updateUserProfessionalContactInfo(
 						        userNew.getUUID(), userEmail.getValue().toString(), "",
 						        "", "", "", "", "", "", "", "", "", "");
-					} catch (org.ow2.bonita.facade.exception.UserAlreadyExistsException e) {
-						// TODO Auto-generated catch block						
+					} catch (org.ow2.bonita.facade.exception.UserAlreadyExistsException e) {					
 						showError(ProcessbaseApplication.getString("userexists", "A user with username already exists."));
 						return;
 					}
@@ -234,6 +263,8 @@ public class UserWindow extends PbWindow
                         deletedMembership.add(uuid);
                     }
                 }
+            } else if (event.getButton().equals(updateRoles)) {
+            	new UserRolesSync().updateUser(user);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -243,19 +274,71 @@ public class UserWindow extends PbWindow
     }
 
     private void saveUserMembership() throws Exception {
+    	
         for (String muuid : deletedMembership) {
             ProcessbaseApplication.getCurrent().getBpmModule().removeMembershipFromUser(user.getUUID(), muuid);
         }
+        
         for (Object itemId : tableMembership.getItemIds()) {
             Item woItem = tableMembership.getItem(itemId);
             if (woItem.getItemProperty("group").getValue() instanceof ComboBox
                     && woItem.getItemProperty("role").getValue() instanceof ComboBox) {
                 ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
                 ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
+                
                 Membership membership = ProcessbaseApplication.getCurrent().getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
                 ProcessbaseApplication.getCurrent().getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
             }
         }
+        
+
+//        //Update candidates list
+//        QueryRuntimeAPI queryApi = AccessorUtil.getQueryRuntimeAPI();
+//        RuntimeAPI runtimeApi = AccessorUtil.getRuntimeAPI();
+//        
+//        List<ActivityState> states = new ArrayList<ActivityState>();
+//        states.add(ActivityState.READY);
+//        states.add(ActivityState.EXECUTING);
+//        
+//        //Find process instances
+//        Set<ProcessInstance> processInstances =  queryApi.getProcessInstancesWithTaskState(states);
+//        
+//        for (ProcessInstance process : processInstances) {
+//        	for (TaskInstance task : process.getTasks()) {
+//        		if(ActivityState.READY.equals(task.getState()) || 
+//        				ActivityState.EXECUTING.equals(task.getState())){
+//	        		try{
+//	        			String assigned = null; 
+//	        			if(task.isTaskAssigned()){
+//	        				assigned = task.getTaskUser();
+//	        			}
+//	        			
+//	        			//Current candidates
+//	    				Set<String> s = new HashSet<String>();
+//	    				s.addAll(task.getTaskCandidates());
+//	    				
+//	    				//Find new candidates
+//	    				runtimeApi.assignTask(task.getUUID());
+//	    				
+//	    				//Get new candidates and add them to list
+//	    				TaskInstance t = queryApi.getTask(task.getUUID());
+//	    				s.addAll(t.getTaskCandidates());
+//	    				
+//	    				//Set candidates
+//	    				runtimeApi.assignTask(task.getUUID(), s);
+//	    				
+//	    				if(assigned != null){
+//	    					runtimeApi.assignTask(task.getUUID(), assigned);
+//	    				}
+//	    				
+//	    			}catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//    			}
+//			}
+//		}
+         
+        
     }
 
     private HashMap<String, String> getUserMetadata() throws Exception {

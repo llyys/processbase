@@ -75,17 +75,6 @@ public class WorkPanel extends PbPanel {
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
     }
-
-	public void Show() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void Hide() {
-		// TODO Auto-generated method stub
-		
-	}
-
-    
+ 
     
 }

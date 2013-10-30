@@ -22,12 +22,13 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.ResizeEvent;
 
 /**
  *
  * @author mgubaidullin
  */
-public class TablePanel extends WorkPanel implements Button.ClickListener, Window.CloseListener {
+public class TablePanel extends WorkPanel implements Button.ClickListener, Window.CloseListener, Window.ResizeListener {
 
     protected Table table = new Table();
     public int rowCount = 0;
@@ -74,6 +75,11 @@ public class TablePanel extends WorkPanel implements Button.ClickListener, Windo
     public Table getTable() {
         return table;
     }
+
+	@Override
+	public void windowResized(ResizeEvent e) {
+		 refreshTable();
+	}
 
 
 }

@@ -16,209 +16,462 @@
  */
 package org.processbase.ui.core.bonita.process;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Table;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.light.LightProcessDefinition;
-import org.processbase.ui.core.ProcessbaseApplication;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+import org.processbase.ui.core.bonita.forms.SelectMode;
 import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetType;
-import org.processbase.ui.core.template.TableLinkButton;
+
+import com.vaadin.data.Item;
+import com.vaadin.data.Property;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.AbstractSelect.MultiSelectMode;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 /**
- *
- * @author marat
+ * {@link WidgetType#EDITABLE_GRID}
+ * 
+ * @author Margo
  */
-public class GeneratedTable extends Table implements Table.FooterClickListener, Button.ClickListener {
+public class GeneratedTable extends GridLayout implements Button.ClickListener {
 
-    private Widget widget;
-    protected List<String> columnHeaders = new ArrayList<String>();
-    protected List<String> rowHeaders = new ArrayList<String>();
-    protected List<List> values = new ArrayList<List>();
-    protected List selectedValues = new ArrayList();
-    protected int indexColumn = 0;
-//
+	/** Serial version UID */
+	private static final long serialVersionUID = -4002285075490988259L;
 
-    public GeneratedTable(Widget widget, Object value, Map<String, Object> groovyScripts) {
-        super();
-        this.widget = widget;
-        try {
-            addStyleName("striped");
-            setCaption(widget.getLabel());
-//            setSelectable(widgets.getAllowSelection() && !widgets.getReadOnly());
-//            setMultiSelect(widgets.getSelectionModeIsMultiple() && !widgets.getReadOnly());
-            setDescription(widget.getTitle() != null ? widget.getTitle() : "");
+	private static final Logger LOG = Logger.getLogger(GeneratedTable.class);
 
+	private Widget widget;
 
-//            if (task != null) {
-//                preparedForTask();
-//            } else if (task == null) {
-//                preparedForNewProcess();
-//            }
+	private List<String> horizontalHeaders = new ArrayList<String>();
+	private List<String> verticalHeaders = new ArrayList<String>();
 
-            if (groovyScripts.containsKey(widget.getHorizontalHeader()) && groovyScripts.get(widget.getHorizontalHeader()) instanceof List) {
-                columnHeaders = (List<String>) groovyScripts.get(widget.getHorizontalHeader());
-                for (String col : columnHeaders) {
-                    addContainerProperty(col, String.class, null, col, null, null);
-                }
-            }
+	private Table table;
 
+	private Button addRow;
+	private Button removeRow;
 
-            if (widget.getType().equals(WidgetType.EDITABLE_GRID) && !widget.isReadonly()) {
-                setEditable(true);
-                if (widget.isVariableRows()) {
-                    setColumnFooter(columnHeaders.get(0), ProcessbaseApplication.getCurrent().getPbMessages().getString("addRow"));
-                    setFooterVisible(true);
-                    addListener((Table.FooterClickListener) this);
-                    columnHeaders.add(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"));
-                    addContainerProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-                }
-            }
-            setVisibleColumns(columnHeaders.toArray());
+	private Button addColumn;
+	private Button removeColumn;
 
-            if (!rowHeaders.isEmpty()) {
-                setRowHeaderMode(Table.ROW_HEADER_MODE_EXPLICIT);
-            }
+	private int minRows = 0;
+	private int maxRows = -1;
 
-            if (value != null && value instanceof List) {
-                values = (List<List>) value;
-                for (int z = 0; z < values.size(); z++) {
-                    List row = values.get(z);
-                    Object id = row.get(indexColumn);
-                    Item woItem = addItem(id);
-                    for (int i = 0; i < columnHeaders.size(); i++) {
-                        if (widget.getType().equals(WidgetType.EDITABLE_GRID) && (i == columnHeaders.size() - 1)) {
-                            TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                            woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
-                        } else {
-                            woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
-                        }
-//                        if (widget.getType().equals(WidgetType.TABLE)) {
-//                            woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
-//                        } else if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
-//                            if (columnHeaders.get(i).equals(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"))) {
-//                                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-//                                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
-//                            } else {
-//                                woItem.getItemProperty(columnHeaders.get(i)).setValue(row.get(i));
-//                            }
-//                        }
-                        if (!rowHeaders.isEmpty()) {
-                            setItemCaption(row.get(indexColumn), rowHeaders.get(z));
-                        }
-                    }
-                }
-            }
-            if (!selectedValues.isEmpty()) {
-                setValue(selectedValues);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getLogger(GeneratedTable.class.getName()).log(Level.SEVERE, ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-    }
+	private int minColumns = 0;
+	private int maxColumns = -1;
 
-    public Object getTableValue() {
-        if (widget.getType().equals(WidgetType.TABLE)) {
-            return getValue();
-        } else {
-            List result = new ArrayList(getContainerDataSource().getItemIds().size());
-            for (Object id : getContainerDataSource().getItemIds()) {
-                List row = new ArrayList(getContainerPropertyIds().size());
-                for (Object prop : getContainerPropertyIds()) {
-                    row.add(this.getItem(id).getItemProperty(prop).getValue().toString());
-                }
-                result.add(row);
-            }
-            return result;
-        }
-    }
+	private int valueColumn = 0;
 
-//    private void preparedForTask() throws Exception {
-//        if (widgets.getMaxRowForPagination() != null) {
-//            setPageLength(Integer.valueOf((String) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
-//        } else {
-//            setPageLength(5);
-//        }
-//        if (widgets.getColumnForInitialSelectionIndex() != null) {
-//            indexColumn = Integer.valueOf((String) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
-//        }
-//        if (widgets.getInputWidth() != null) {
-//            setWidth(widgets.getInputWidth());
-//        }
-//        if (widgets.getHorizontalHeader() != null) {
-//            columnHeaders.addAll((Collection<? extends String>) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getHorizontalHeader(), task, true));
-//        }
-//        if (widgets.getVerticalHeader() != null) {
-//            rowHeaders.addAll((Collection<? extends String>) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getVerticalHeader(), task, true));
-//        }
-//        if (widgets.getInputScript() != null) {
-//            Collection v = (Collection) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getInputScript(), task, true);
-//            values.addAll(v != null ? v : new ArrayList());
-//        }
-//        if (widgets.getSelectedValues() != null) {
-//            Collection sv = (Collection) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getSelectedValues(), task, true);
-//            selectedValues.addAll(sv != null ? sv : new ArrayList());
-//        }
-//    }
-//
-//    private void preparedForNewProcess() throws Exception {
-//        if (widgets.getMaxRowForPagination() != null) {
-//            setPageLength(Integer.valueOf((String) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getMaxRowForPagination(), task, true)));
-//        } else {
-//            setPageLength(5);
-//        }
-//        if (widgets.getColumnForInitialSelectionIndex() != null) {
-//            indexColumn = Integer.valueOf((String) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getColumnForInitialSelectionIndex(), task, true));
-//        }
-//        if (widgets.getInputWidth() != null) {
-//            setWidth(widgets.getInputWidth());
-//        }
-//        if (widgets.getHorizontalHeader() != null) {
-//            columnHeaders.addAll((Collection<? extends String>) ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getHorizontalHeader(), processDef.getUUID()));
-//        }
-//        if (widgets.getInputScript() != null) {
-//            Object v = ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getInputScript(), processDef.getUUID());
-//            values = v != null ? (List<List>) v : new ArrayList<List>();
-//        }
-//        if (widgets.getSelectedValues() != null) {
-//            Object sv = ProcessbaseApplication.getCurrent().getBpmModule().evaluateExpression(widgets.getSelectedValues(), processDef.getUUID());
-//            selectedValues = sv != null ? (List) sv : new ArrayList();
-//        }
-//    }
-//
-    public void footerClick(FooterClickEvent event) {
-        Object id = Math.random();
-        Item woItem = addItem(id);
-        for (int i = 0; i < columnHeaders.size(); i++) {
-            if (i == columnHeaders.size() - 1) {
-                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
-            } else {
-                woItem.getItemProperty(columnHeaders.get(i)).setValue("");
-            }
-//            if (columnHeaders.get(i).equals(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"))) {
-//                TableLinkButton execBtn = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", id, this, "DELETE");
-//                woItem.getItemProperty(ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions")).setValue(execBtn);
-//            } else {
-//                woItem.getItemProperty(columnHeaders.get(i)).setValue("");
-//            }
-        }
-    }
+	@SuppressWarnings("unchecked")
+	public GeneratedTable(Widget widget, Object value,
+			Map<String, Object> values) {
+		super();
+		this.widget = widget;
+		setColumns(2);
+		setRows(2);
 
-    public void buttonClick(ClickEvent event) {
-        if (event.getButton() instanceof TableLinkButton) {
-            TableLinkButton tlb = (TableLinkButton) event.getButton();
-            removeItem(tlb.getTableValue());
-        }
-    }
+		table = new Table();
+		addComponent(table, 0, 0);
+
+		setColumnExpandRatio(0, 1);
+		setRowExpandRatio(0, 1);
+		setSpacing(true);
+
+		if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+
+			// Minimums and maximums
+			if (widget.getMinRows() != null) {
+				Object t = values.get(widget.getMinRows());
+				try {
+					minRows = Integer.parseInt(t.toString());
+				} catch (Exception e) {
+					LOG.warn("could not parse " + t + "(" + e.getMessage()
+							+ ")");
+				}
+			}
+			if (widget.getMaxRows() != null) {
+				Object t = values.get(widget.getMaxRows());
+				try {
+					maxRows = Integer.parseInt(t.toString());
+				} catch (Exception e) {
+					LOG.warn("could not parse " + t + "(" + e.getMessage()
+							+ ")");
+				}
+			}
+			if (widget.getMinColumns() != null) {
+				Object t = values.get(widget.getMinColumns());
+				try {
+					minColumns = Integer.parseInt(t.toString());
+				} catch (Exception e) {
+					LOG.warn("could not parse " + t + "(" + e.getMessage()
+							+ ")");
+				}
+			}
+			if (widget.getMaxColumns() != null) {
+				Object t = values.get(widget.getMaxColumns());
+				try {
+					maxColumns = Integer.parseInt(t.toString());
+				} catch (Exception e) {
+					LOG.warn("could not parse " + t + "(" + e.getMessage()
+							+ ")");
+				}
+			}
+			if (minRows < 0) {
+				minRows = 0;
+			}
+			if (minColumns < 0) {
+				minColumns = 0;
+			}
+
+			// ---
+
+			// Row buttons
+			HorizontalLayout rowButtons = new HorizontalLayout();
+			rowButtons.setSpacing(true);
+			addComponent(rowButtons, 0, 1);
+
+			addRow = new Button("+");
+			addRow.setVisible(false);
+			addRow.addListener(this);
+			rowButtons.addComponent(addRow);
+
+			removeRow = new Button("-");
+			removeRow.setVisible(false);
+			removeRow.addListener(this);
+			rowButtons.addComponent(removeRow);
+
+			// ---
+
+			// Column buttons
+			VerticalLayout colButtons = new VerticalLayout();
+			colButtons.setSpacing(true);
+			addComponent(colButtons, 1, 0);
+
+			addColumn = new Button("+");
+			addColumn.setVisible(false);
+			addColumn.addListener(this);
+			colButtons.addComponent(addColumn);
+
+			removeColumn = new Button("-");
+			removeColumn.setVisible(false);
+			removeColumn.addListener(this);
+			colButtons.addComponent(removeColumn);
+
+			// ---
+
+		} else if (WidgetType.TABLE.equals(widget.getType())) {
+			if (widget.getValueColumnIndex() != null) {
+				Object t = values.get(widget.getValueColumnIndex());
+				try {
+					valueColumn = Integer.parseInt(t.toString());
+				} catch (Exception e) {
+					LOG.warn("could not parse " + t + "(" + e.getMessage()
+							+ ")");
+				}
+			}
+		}
+
+		// table.setSizeFull();
+		table.setPageLength(15);
+		table.addStyleName("striped");
+		table.setCaption(widget.getLabel());
+		table.setDescription(widget.getTitle() != null ? widget.getTitle() : "");
+
+		// Disable sort
+		table.setSortDisabled(true);
+
+		// Horizontal headers
+		Object tmp = values.get(widget.getHorizontalHeader());
+		if (tmp != null && tmp instanceof List) {
+			horizontalHeaders = (List<String>) tmp;
+		}
+
+		// Vertical headers
+		tmp = values.get(widget.getVerticalHeader());
+		if (tmp != null && tmp instanceof List) {
+			verticalHeaders = (List<String>) tmp;
+		}
+
+		if (!verticalHeaders.isEmpty()) {
+			if (verticalHeaders.size() > 0) {
+				horizontalHeaders.remove(0);
+			}
+			table.setRowHeaderMode(Table.ROW_HEADER_MODE_EXPLICIT);
+		}
+
+		if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+			table.setEditable(!widget.isReadonly());
+		} else {
+			table.setEditable(false);
+
+			if (widget.getSelectMode() != null) {
+				if (SelectMode.SINGLE.equals(widget.getSelectMode())) {
+					table.setSelectable(true);
+				} else if (SelectMode.MULTIPLE.equals(widget.getSelectMode())) {
+					table.setSelectable(true);
+					table.setMultiSelect(true);
+				}
+				table.setImmediate(true);
+			}
+		}
+
+		// Find columns count
+		int maxCols = 0;
+		if (value != null && value instanceof List) {
+			List<Object> rows = (List<Object>) value;
+			for (int r = 0; r < rows.size(); r++) {
+				if (rows.get(r) instanceof List) {
+					List<Object> columns = (List<Object>) rows.get(r);
+					if (columns.size() > maxCols) {
+						maxCols = columns.size();
+					}
+				}
+			}
+		}
+
+		// Create columns
+		for (int i = 0; i < maxCols; i++) {
+			if (horizontalHeaders.size() > i) {
+				table.addContainerProperty(i, String.class, "",
+						horizontalHeaders.get(i), null, null);
+			} else {
+				table.addContainerProperty(i, String.class, "", "", null, null);
+			}
+		}
+
+		// Set values
+		if (value != null && value instanceof List) {
+
+			List<Object> rows = (List<Object>) value;
+			for (int r = 0; r < rows.size(); r++) {
+
+				if (rows.get(r) instanceof List) {
+					List<Object> columns = (List<Object>) rows.get(r);
+
+					Item item = table.addItem(r);
+
+					for (int c = 0; c < columns.size(); c++) {
+						Property p = item.getItemProperty(c);
+						if (p != null) {
+							p.setValue(columns.get(c));
+						}
+					}
+
+					if (verticalHeaders.size() > r) {
+						table.setItemCaption(r, verticalHeaders.get(r));
+					}
+				}
+			}
+		}
+
+		if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+
+			if (!widget.isReadonly()) {
+				if (widget.isVariableRows()) {
+					int rowCount = table.getContainerDataSource().size();
+					if (rowCount > minRows) {
+						removeRow.setVisible(true);
+					} else {
+						removeRow.setVisible(false);
+					}
+					if (rowCount < maxRows || maxRows == -1) {
+						addRow.setVisible(true);
+					} else {
+						addRow.setVisible(false);
+					}
+				}
+				if (widget.isVariableColumns()) {
+					int colCount = table.getContainerPropertyIds().size();
+					if (colCount > minColumns) {
+						removeColumn.setVisible(true);
+					} else {
+						removeColumn.setVisible(false);
+					}
+					if (colCount < maxColumns || maxColumns == -1) {
+						addColumn.setVisible(true);
+					} else {
+						addColumn.setVisible(false);
+					}
+
+				}
+			}
+		} else if (WidgetType.TABLE.equals(widget.getType())) {
+
+			Object selected = values.get(widget.getVariableBound());
+			if (selected == null && widget.getInitialValue() != null) {
+				selected = values.get(widget.getInitialValue().getExpression());
+			}
+
+			if(selected == null){
+				//Select first
+				for (Object id : table.getContainerDataSource()
+						.getItemIds()) {
+					Item item = table.getItem(id);
+					Property p = item.getItemProperty(valueColumn);
+					selected = p.getValue();
+					break;
+				}
+			}
+			
+			if (selected != null) {
+				Set<Object> set = new HashSet<Object>();
+
+				if (SelectMode.SINGLE.equals(widget.getSelectMode())) {
+					set.add(selected);
+
+					for (Object s : set) {
+						for (Object id : table.getContainerDataSource()
+								.getItemIds()) {
+							Item item = table.getItem(id);
+							Property p = item.getItemProperty(valueColumn);
+							if (s != null
+									&& p != null
+									&& s.toString().equals(
+											p.getValue().toString())) {
+								table.setValue(id);
+								break;
+							}
+						}
+					}
+				} else if (SelectMode.MULTIPLE.equals(widget.getSelectMode())) {
+					if (selected instanceof Collection) {
+						set.addAll((Collection<Object>) selected);
+					} else {
+						set.add(selected);
+					}
+
+					Set<Object> tableValue = new HashSet<Object>();
+
+					for (Object s : set) {
+						for (Object id : table.getContainerDataSource()
+								.getItemIds()) {
+							Item item = table.getItem(id);
+							Property p = item.getItemProperty(valueColumn);
+							if (s != null
+									&& p != null
+									&& s.toString().equals(
+											p.getValue().toString())) {
+								tableValue.add(id);
+								break;
+							}
+						}
+					}
+
+					table.setValue(tableValue);
+					table.setMultiSelectMode(MultiSelectMode.SIMPLE);
+				}
+
+			}
+		}
+
+	}
+
+	/**
+	 * Get table value.
+	 * 
+	 * @return value.
+	 */
+	public Object getTableValue() {
+		if (WidgetType.EDITABLE_GRID.equals(widget.getType())) {
+
+			List<Object> result = new ArrayList<Object>();
+			for (Object id : table.getContainerDataSource().getItemIds()) {
+				List<Object> row = new ArrayList<Object>();
+				for (Object p : table.getContainerPropertyIds()) {
+					row.add(table.getItem(id).getItemProperty(p).getValue()
+							.toString());
+				}
+				result.add(row);
+			}
+			return result;
+
+		} else if (WidgetType.TABLE.equals(widget.getType())) {
+
+			if (SelectMode.SINGLE.equals(widget.getSelectMode())) {
+				Object id = table.getValue();
+				if (id != null) {
+					Item item = table.getItem(id);
+					if (item != null) {
+						Property p = item.getItemProperty(valueColumn);
+						if (p != null) {
+							return p.getValue();
+						}
+					}
+				}
+			} else if (SelectMode.MULTIPLE.equals(widget.getSelectMode())) {
+				Collection<Object> ids = (Collection<Object>) table.getValue();
+				if (ids != null) {
+					List<Object> values = new ArrayList<Object>();
+					for (Object id : ids) {
+						Item item = table.getItem(id);
+						if (item != null) {
+							Property p = item.getItemProperty(valueColumn);
+							if (p != null) {
+								values.add(p.getValue());
+							}
+						}
+					}
+					return values;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void buttonClick(ClickEvent event) {
+
+		if (widget.getType().equals(WidgetType.EDITABLE_GRID)) {
+
+			int rowCount = table.getContainerDataSource().size();
+			int colCount = table.getContainerPropertyIds().size();
+
+			if (addRow.equals(event.getButton())) {
+				table.addItem(rowCount);
+			} else if (removeRow.equals(event.getButton())) {
+				table.removeItem(rowCount - 1);
+			} else if (addColumn.equals(event.getButton())) {
+				table.addContainerProperty(colCount, String.class, "", "",
+						null, null);
+				if (verticalHeaders.size() > colCount) {
+					table.setItemCaption(colCount,
+							verticalHeaders.get(colCount));
+				}
+			} else if (removeColumn.equals(event.getButton())) {
+				table.removeContainerProperty(colCount - 1);
+			}
+
+			if (rowCount < maxRows || maxRows == -1) {
+				addRow.setEnabled(true);
+			} else {
+				addRow.setEnabled(false);
+			}
+			if (rowCount > minRows) {
+				removeRow.setEnabled(true);
+			} else {
+				removeRow.setEnabled(false);
+			}
+
+			if (colCount < maxColumns || maxColumns == -1) {
+				addColumn.setVisible(true);
+			} else {
+				addColumn.setVisible(false);
+			}
+			if (colCount > minColumns) {
+				removeColumn.setVisible(true);
+			} else {
+				removeColumn.setVisible(false);
+			}
+		}
+	}
+
 }

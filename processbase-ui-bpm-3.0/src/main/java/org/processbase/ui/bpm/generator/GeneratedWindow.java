@@ -105,6 +105,7 @@ import org.processbase.ui.core.bonita.process.ComponentStyle;
 import org.processbase.ui.core.bonita.process.GeneratedTable;
 import org.processbase.ui.core.bonita.process.TableStyle;
 import org.processbase.ui.core.template.ByteArraySource;
+import org.processbase.ui.core.template.DownloadStreamResource;
 import org.processbase.ui.core.template.HumanTaskWindow;
 import org.processbase.ui.core.template.ImmediateUpload;
 import org.processbase.ui.core.util.YesNoDialog;
@@ -489,13 +490,16 @@ public class GeneratedWindow extends HumanTaskWindow implements
 						bytes = getBpmModule().getDocumentBytes(document);
 						ByteArraySource bas = new ByteArraySource(bytes);
 
-						StreamResource streamResource = new StreamResource(bas,
-								document.getContentFileName(), getApplication());
-						streamResource.setCacheTime(50000); // no cache (<=0)
-															// does not work
-															// with IE8
-						streamResource.setMIMEType("application/octet-stream");
-						getWindow().getWindow().open(streamResource, "_blank");
+						DownloadStreamResource streamResource = new DownloadStreamResource(bas, 
+		                		document.getContentFileName(), getApplication());
+		                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
+		                
+		                streamResource.setMIMEType("application/octet-stream");
+		                streamResource.setParameter("Content-Disposition", "attachment; filename=\"" + document.getContentFileName()+"\"");
+		                streamResource.setParameter("Cache-Control", "private, max-age=86400"); 
+		                streamResource.setParameter("X-Content-Type-Options", "nosniff");
+		                
+		                getApplication().getMainWindow().open(streamResource);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

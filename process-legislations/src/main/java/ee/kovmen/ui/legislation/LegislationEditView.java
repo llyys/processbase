@@ -6,9 +6,11 @@ import java.util.List;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Validator;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.Button;
@@ -24,8 +26,10 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window.CloseEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.caliburn.viewmodels.ViewModelBinder;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.bonita.forms.Validators;
 import org.processbase.ui.core.template.ConfirmDialog;
 import org.processbase.ui.core.template.PbWindow;
 import org.processbase.ui.core.template.WorkPanel;
@@ -56,29 +60,48 @@ public class LegislationEditView extends PbWindow{
 		FormLayout form=new FormLayout();
 		addComponent(form);
 		
-		String cap=isNew()?"Lisa uus ":"";
-		setCaption(cap+"'"+data.getCategory().getName()+"' õigusakt");
+		String cap=isNew() ? getMessage("legislationAddNew"): getMessage("legislationEdit");
+		setCaption(cap);
 		
-		OptionGroup citySelect = new OptionGroup("Tüüp", liigid);		
-		binder = new ViewModelBinder<KovLegislation>(form, data==null?new KovLegislation():data);
-		binder.addComponent(citySelect, "type");
-		TextField component = new TextField("Õigusakt");
+		binder = new ViewModelBinder<KovLegislation>(form, data == null ? new KovLegislation() : data);
+		
+		final OptionGroup typeSelect = new OptionGroup(getMessage("legislationType"), liigid);		
+		typeSelect.setRequired(true);
+		typeSelect.setRequiredError(getMessage("requiredField"));
+		typeSelect.setValidationVisible(true);
+		binder.addComponent(typeSelect, "type");
+		
+		final TextField component = new TextField(getMessage("legislation"));
 		component.setWidth("100%");
+		component.setRequired(true);
+		component.setRequiredError(getMessage("requiredField"));
+		component.setValidationVisible(true);
 		binder.addComponent(component, "name");
-		TextField component2 = new TextField("Viide");
+		
+		final TextField component2 = new TextField(getMessage("legislationUrl"));
 		component2.setWidth("100%");
+		component2.setRequired(true);
+		component2.setRequiredError(getMessage("requiredField"));
+		component2.setValidationVisible(true);
 		binder.addComponent(component2, "url");
 		
-		TextArea component3 = new TextArea("Kirjeldus");
+		TextArea component3 = new TextArea(getMessage("legislationDescription"));
 		component3.setWidth("100%");
 		binder.addComponent(component3, "description");
 		 
 		
 		if(isNew()){
-			form.addComponent(new Button("Lisa uus", new ClickListener() {			
+			form.addComponent(new Button(getMessage("btnAdd"), new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
-					LegislationData.getCurrent().getHibernate().save(binder.getBean());
-					close();
+					try{
+						if(typeSelect.isValid() && component.isValid() && component2.isValid()){
+							KovLegislation legislation = binder.getBean();
+							LegislationData.getCurrent().getHibernate().save(legislation);
+							close();
+						}
+					}catch (Exception e) {
+						LOGGER.error("", e);
+					}
 				}
 			}));
 		}
@@ -86,16 +109,23 @@ public class LegislationEditView extends PbWindow{
 			HorizontalLayout hl=new HorizontalLayout();
 			form.addComponent(hl);
 			hl.setSpacing(true);
-			hl.addComponent(new Button("Kustuta", new ClickListener() {			
+			hl.addComponent(new Button(getMessage("btnDelete"), new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
 					DeleteTask();
 					close();
 				}
 			}));
-			hl.addComponent(new Button("Muuda", new ClickListener() {			
+			hl.addComponent(new Button(getMessage("btnEdit"), new ClickListener() {			
 				public void buttonClick(ClickEvent event) {
-					LegislationData.getCurrent().getHibernate().saveOrUpdate(binder.getBean());
-					close();
+					try{
+						if(typeSelect.isValid() && component.isValid() && component2.isValid()){
+							KovLegislation legislation = binder.getBean();
+							LegislationData.getCurrent().getHibernate().saveOrUpdate(legislation);
+							close();
+						}
+					}catch (Exception e) {
+						LOGGER.error("", e);
+					}
 				}
 			}));
 			
@@ -105,15 +135,14 @@ public class LegislationEditView extends PbWindow{
 	}
 	private void DeleteTask(){
 		ConfirmDialog.show(this.getParent(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),"Kas kustutada antud teenus?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+				getMessage("windowCaptionConfirm"),getMessage("legislationDeleteConfirm"),
+				getMessage("btnYes"),getMessage("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
                         if (dialog.isConfirmed()) {
                             try {
-                            	LegislationData.getCurrent().DeleteLegislation(binder.getBean());
+                            	LegislationData.getCurrent().DeleteLegislation(data);
                             	close();
                                 
                             } catch (Exception ex) {
@@ -135,5 +164,13 @@ public class LegislationEditView extends PbWindow{
 		return is_new;
 	}
 
+	private String getMessage(String key){
+		try {
+			return ProcessbaseApplication.getCurrent().getPbMessages().getString(key);
+		} catch (Exception e) {
+			//ignore
+		}
+		return key;
+	}
 
 }

@@ -2,11 +2,16 @@ package org.processbase.ui.bpm.generator.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-
-import javax.swing.text.html.parser.ContentModel;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.bonitasoft.forms.server.validator.RegexFieldValidator;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.services.Document;
 import org.ow2.bonita.util.GroovyException;
@@ -14,29 +19,30 @@ import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.forms.AvailableValues; 
+import org.processbase.ui.core.bonita.forms.Actions.Action;
+import org.processbase.ui.core.bonita.forms.AvailableValues;
 import org.processbase.ui.core.bonita.forms.SelectMode;
+import org.processbase.ui.core.bonita.forms.Validators;
 import org.processbase.ui.core.bonita.forms.ValuesList;
 import org.processbase.ui.core.bonita.forms.Widget;
 import org.processbase.ui.core.bonita.forms.WidgetType;
-import org.processbase.ui.core.bonita.forms.Actions.Action;
 import org.processbase.ui.core.bonita.process.GeneratedTable;
 import org.processbase.ui.core.template.ByteArraySource;
+import org.processbase.ui.core.template.DownloadStreamResource;
 import org.processbase.ui.core.template.ImmediateUpload;
 
 import com.vaadin.data.Validator.EmptyValueException;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.terminal.StreamResource;
+import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.terminal.UserError;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.OptionGroup;
@@ -45,7 +51,6 @@ import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -57,12 +62,15 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class TaskField {
 	
+	private static final Logger LOG = Logger.getLogger(TaskField.class);
+	
 	private List<Action> actions;
 	private Component component;
 	private final TaskManager taskManager;	
 	private Object value;
 	private Widget widget;
 	private boolean readOnly;
+	
 	
 	public TaskField(TaskManager taskManager, Widget widget) {
 		this.taskManager = taskManager;		
@@ -84,6 +92,7 @@ public class TaskField {
 		
 		//TaskField field=taskManager.getWidgetField(widget);
 		this.component=initComponent();
+		
 		this.component = (this.component != null) ? this.component : new Label("");
 		registerActions(taskManager.getActions());
 		if (!(this.component instanceof Button) 
@@ -99,7 +108,21 @@ public class TaskField {
 			((AbstractField) this.component).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
 			((AbstractField) this.component).setInvalidCommitted(false);
 			((AbstractField) this.component).setWriteThrough(false);
+			
+			if(widget.getValidators() != null){
+				for (Validators.Validator v : widget.getValidators().getValidators()){
+					if("org.bonitasoft.forms.server.validator.MailValidator".equals(v.getClassname())){
+						((AbstractField) this.component).addValidator(new EmailValidator(
+								ProcessbaseApplication.getString("errorInvalidEmail", "Invalid email address!")));
+					}
+				}
+			}
+		}else if (this.component instanceof CheckBox){
+			if (value != null) {
+				((CheckBox) this.component).setValue(value);
+			}
 		}
+		
 		if (widget.isReadonly() != null) {
 			this.component.setReadOnly(widget.isReadonly());
 		}
@@ -137,16 +160,15 @@ public class TaskField {
 				}
 				WidgetType type = widget.getType();
 				if (type.equals(WidgetType.MESSAGE)) {
-					String escaped = StringEscapeUtils.unescapeHtml(value.toString());
+					String escaped = StringEscapeUtils.unescapeHtml((value != null ? value.toString() :  ""));
 					Label component = new Label(escaped);
-					
 					component.setWidth("100%");
 					component.setContentMode(Label.CONTENT_XHTML);
 					setReadOnly(true);
 					return component;
 				}
 				if (type.equals(WidgetType.TEXT)) {
-					String val = value == null ? "" : value.toString();
+					String val = (value == null ? "" : value.toString());
 					String escaped = StringEscapeUtils.unescapeHtml(val.toString());
 					String content = label + "<br/>" + escaped;
 					if("".equals(label))
@@ -169,6 +191,7 @@ public class TaskField {
 					TextField component = new TextField(label);
 					component.setNullRepresentation("");
 					component.setValue(value);
+					//component.setWidth("100%");
 					return component;
 				}
 				if (type.equals(WidgetType.DATE)) {
@@ -178,6 +201,8 @@ public class TaskField {
 				}
 				if (type.equals(WidgetType.TEXTAREA)) {
 					TextArea component = new TextArea(label);
+					//component.setWidth("100%");
+					//component.setHeight("100%");
 					component.setNullRepresentation("");
 					return component;
 				}
@@ -195,6 +220,8 @@ public class TaskField {
 
 				if (type.equals(WidgetType.LISTBOX_SIMPLE)) {
 					NativeSelect component = new NativeSelect(label, (Collection)value);
+					component.setValue(getInitialValue());
+					//component.setWidth("100%");
 					return component;
 				}
 				if (type.equals(WidgetType.SUGGESTBOX)) {
@@ -214,13 +241,101 @@ public class TaskField {
 					
 					ListSelect component = new ListSelect(label, (Collection)value);
 					component.setMultiSelect(true);
+					//component.setWidth("100%");
+					
 					return component;
 				}
 				if (type.equals(WidgetType.CHECKBOX)) {
-					return new CheckBox(label);				
+					CheckBox c = new CheckBox(label);	
+					c.setRequired(widget.isMandatory());
+					return c;
 				}
 				if (type.equals(WidgetType.EDITABLE_GRID)) {
-					//c = new GeneratedTable(widget, value, groovyScripts);
+					
+					//Find expressions to evaluate
+					Set<String> expressions = new HashSet<String>();
+					if (widget.getInitialValue() != null && widget.getInitialValue().getExpression() != null) {
+                        expressions.add(widget.getInitialValue().getExpression());
+                    }
+                    if (widget.getAvailableValues() != null && widget.getAvailableValues().getExpression() != null) {
+                        expressions.add(widget.getAvailableValues().getExpression());
+                    }
+                    if (widget.getHorizontalHeader() != null) {
+                        expressions.add(widget.getHorizontalHeader());
+                    }
+                    if (widget.getVerticalHeader() != null) {
+                        expressions.add(widget.getVerticalHeader());
+                    }
+                    if (widget.getMinRows() != null) {
+                        expressions.add(widget.getMinRows());
+                    }
+                    if (widget.getMaxRows() != null) {
+                        expressions.add(widget.getMaxRows());
+                    }
+                    if (widget.getMinColumns() != null) {
+                        expressions.add(widget.getMinColumns());
+                    }
+                    if (widget.getMaxColumns() != null) {
+                        expressions.add(widget.getMaxColumns());
+                    }
+					
+					Map<String, Object> values = new HashMap<String, Object>();
+					
+					for (String expression : expressions) {
+						Object value = expression;
+						if (GroovyExpression.isGroovyExpression(expression)) {
+							try {
+								value = taskManager
+										.evalGroovyExpression(expression);
+							} catch (Exception e) {
+								LOG.warn("could not evaluate " + expression, e);
+							}
+						}
+						values.put(expression, value);
+					}
+					
+					return new GeneratedTable(widget, value, values);
+				}
+				if (type.equals(WidgetType.TABLE)) {
+					
+					Set<String> expressions = new HashSet<String>();
+					if (widget.getInitialValue() != null && widget.getInitialValue().getExpression() != null) {
+                        expressions.add(widget.getInitialValue().getExpression());
+                    }
+                    if (widget.getAvailableValues() != null && widget.getAvailableValues().getExpression() != null) {
+                        expressions.add(widget.getAvailableValues().getExpression());
+                    }
+                    if (widget.getHorizontalHeader() != null) {
+                        expressions.add(widget.getHorizontalHeader());
+                    }
+                    if (widget.getVerticalHeader() != null) {
+                        expressions.add(widget.getVerticalHeader());
+                    }
+                    if (widget.getValueColumnIndex() != null) {
+                        expressions.add(widget.getValueColumnIndex());
+                    }
+                    if (widget.getVariableBound() != null) {
+                        expressions.add(widget.getVariableBound());
+                    }
+                    
+                    Map<String, Object> values = new HashMap<String, Object>();
+                    
+                    for (String expression : expressions) {
+						Object value = expression;
+						if (GroovyExpression.isGroovyExpression(expression)) {
+							try {
+								value = taskManager
+										.evalGroovyExpression(expression);
+							} catch (Exception e) {
+								LOG.warn("could not evaluate " + expression, e);
+							}
+						}
+						values.put(expression, value);
+					}
+				
+                    Object availableValues = values.get(widget.getAvailableValues().getExpression());
+					
+					return new GeneratedTable(widget, availableValues, values);
 				}
 				if (type.equals(WidgetType.CHECKBOX_GROUP)) {
 					OptionGroup component = new OptionGroup(label, (Collection)value);
@@ -230,9 +345,10 @@ public class TaskField {
 					return component;
 				}
 				if (type.equals(WidgetType.FILEUPLOAD)) {
+
 					//hasAttachments = true;
-					return getUpload((String)value);					
-					
+					ImmediateUpload iu = getUpload((String)value);					
+					return iu;
 				}
 				if (type.equals(WidgetType.FILEDOWNLOAD)) {
 					//hasAttachments = true;
@@ -259,7 +375,7 @@ public class TaskField {
 					return component;
 				}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return new Label("Error:"+widget.getLabel()+" - "+e.getMessage(), Label.CONTENT_XHTML);
 		}			
 			
@@ -267,6 +383,26 @@ public class TaskField {
 		return new Label("");
 	}
 	
+	public Object getInitialValue() throws Exception {
+
+		if (widget.getInitialValue() != null
+				&& widget.getInitialValue().getExpression() != null) {
+
+			String expression = widget.getInitialValue().getExpression();
+			if (GroovyExpression.isGroovyExpression(expression)) {
+				try {
+					return taskManager.evalGroovyExpression(expression);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				return expression;
+			}
+		}
+		
+		return null;
+	}
+
 
 	public Object updateComponentValue() throws Exception{
 		if (widget.getInitialValue() != null 
@@ -278,7 +414,6 @@ public class TaskField {
 				try {
 					value = taskManager.evalGroovyExpression(expression);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					throw new Exception(expression, e);
 				}
 			else
@@ -325,7 +460,6 @@ public class TaskField {
 					} catch (GroovyException e) {
 						throw new RuntimeException(e);						
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						return null;
 					}
 					
@@ -351,7 +485,7 @@ public class TaskField {
 		String processUUID = processManager.getProcessInstanceUUID().toString();
 		String fileVariable = widget.getVariableBound();
 		
-		if(ProcessbaseApplication.getCurrent().getApplicationType()==ProcessbaseApplication.LIFERAY_PORTAL){
+		//if(ProcessbaseApplication.getCurrent().getApplicationType()==ProcessbaseApplication.LIFERAY_PORTAL){
 			//in liferay we cannot use simple link to download the file
 			Button b = new Button(getName());
 			b.setStyleName(Reindeer.BUTTON_LINK);
@@ -376,14 +510,17 @@ public class TaskField {
 							bytes = bpmModule.getDocumentBytes(document);
 							ByteArraySource bas = new ByteArraySource(bytes);
 
-							StreamResource streamResource = new StreamResource(bas,document.getContentFileName(), processManager.getApplication());
-							streamResource.setCacheTime(50000); // no cache (<=0)
-																// does not work
-																// with IE8
-							streamResource.setMIMEType(document.getContentMimeType());
-							processManager.getWindow().open(streamResource, "_blank");
+							DownloadStreamResource streamResource = new DownloadStreamResource(bas, 
+			                		document.getContentFileName(), processManager.getApplication());
+			                streamResource.setCacheTime(50000); // no cache (<=0) does not work with IE8
+			                
+			                streamResource.setMIMEType("application/octet-stream");
+			                streamResource.setParameter("Content-Disposition", "attachment; filename=\"" + document.getContentFileName()+"\"");
+			                streamResource.setParameter("Cache-Control", "private, max-age=86400"); 
+			                streamResource.setParameter("X-Content-Type-Options", "nosniff");
+			                
+							processManager.getApplication().getMainWindow().open(streamResource);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -391,13 +528,13 @@ public class TaskField {
 			}
 			return b;
 
-		}
-		else{
-			WebApplicationContext ctx = (WebApplicationContext) processManager.getWindow().getApplication().getContext();
-			String path = ctx.getHttpSession().getServletContext().getContextPath();
-	        Link link = new Link(getName(), new ExternalResource(path + "/process_file?download="+processUUID+"&file="+fileVariable));
-	        return link;
-		}
+//		}
+//		else{
+//			WebApplicationContext ctx = (WebApplicationContext) processManager.getApplication().getContext();
+//			String path = ctx.getHttpSession().getServletContext().getContextPath();
+//	        Link link = new Link(getName(), new ExternalResource(path + "/process_file?download="+processUUID+"&file="+fileVariable));
+//	        return link;
+//		}
        
         
 	}
@@ -419,15 +556,19 @@ public class TaskField {
 				//AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,boundVariable);
 				Document document=processManager.getBpmModule().getDocument(processManager.getTaskInstance().getProcessInstanceUUID(), boundVariable);
 				//fileName=attachment.getFileName();
+				
 				fileName=document.getContentFileName();
+				if (document.getContentSize() > 0) {
+					hasFile = true;
+				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//fileName = attachmentFileNames.get(widget.getInitialValue().getExpression());
-			if (fileName != null) {
-				hasFile = true;
-			}		
+//			if (fileName != null) {
+//				hasFile = true;
+//			}	
+			
 		}
 		
 		String expression="";
@@ -451,6 +592,10 @@ public class TaskField {
 			}
 			
 		});
+		
+		component.setMandatory(widget.isMandatory());
+		component.setValidators(widget.getValidators());
+		
 		return component;
 	}
 	
@@ -489,19 +634,101 @@ public class TaskField {
 	public String validate(){
 		
 		StringBuilder errorMsg=new StringBuilder();
-		if(this.component!=null && component instanceof AbstractField){
-			try {
-				((AbstractField) component).setComponentError(null);
-				((AbstractField) component).validate();
-			} catch (InvalidValueException ex) {
+		if(this.component!=null){
+			if(component instanceof AbstractField){
 				
-				if (ex instanceof EmptyValueException){
-					((AbstractField) component).setComponentError(new UserError(
-							((AbstractField) component).getRequiredError()));
-					errorMsg.append("Required"+ex.getMessage());
+				if(component instanceof CheckBox){
+					CheckBox c = (CheckBox) component;
+					if(c.isRequired() && !((Boolean)c.getValue())){
+						String error = c.getCaption() + ProcessbaseApplication.getString("fieldRequired", " is required!");
+						c.setComponentError(new UserError(error));
+						errorMsg.append(error);
+					}
 				}
-				errorMsg.append("Invalid value"+ex.getMessage());
-				throw ex;
+				
+				try {
+					((AbstractField) component).setComponentError(null);
+					((AbstractField) component).validate();
+				} catch (InvalidValueException ex) {
+					
+					if (ex instanceof EmptyValueException){
+						((AbstractField) component).setComponentError(new UserError(
+								((AbstractField) component).getRequiredError()));
+						errorMsg.append("Required"+ex.getMessage());
+					}
+					errorMsg.append("Invalid value"+ex.getMessage());
+					throw ex;
+				}
+				
+				if(component instanceof AbstractComponent){
+					
+					AbstractField c = (AbstractField) component;
+					
+					// Validators
+					if (widget.getValidators() != null
+							&& widget.getValidators().getValidators() != null) {
+	
+						for (Validators.Validator v : widget.getValidators().getValidators()) {
+							if (v.getClassname().equals("org.bonitasoft.forms.server.validator.GroovyFieldValidator")
+									&& v.getParameter() != null) {
+								
+								boolean valid = false;
+								try {
+									Map<String, Object> ctx = new HashMap<String, Object>();
+									ctx.putAll(taskManager.getProcessManager().getGroovyContext());
+									if(widget.getVariableBound() != null){
+										ctx.put(TaskManager.stripGroovyExpression(widget.getVariableBound()), c.getValue());
+									}
+									ctx.put("field_" + widget.getId(), c.getValue());
+									
+									Object tmp = GroovyUtil.evaluate(GroovyExpression.START_DELIMITER + v.getParameter() 
+											+ GroovyExpression.END_DELIMITER, ctx);
+									valid = Boolean.parseBoolean(tmp.toString());
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+								
+								if(!valid){
+									c.setComponentError(new UserError(v.getLabel()));
+									errorMsg.append("\n").append(v.getLabel());
+								}
+							}
+						}
+						
+					}
+					
+				}
+				
+				
+			}else if(component instanceof ImmediateUpload){
+				
+				ImmediateUpload iu = (ImmediateUpload) component;
+				if(iu.isMandatory() && StringUtils.isEmpty(iu.getFileName())){
+					iu.setComponentError(new UserError(iu.getLabel() + 
+							ProcessbaseApplication.getString("fieldRequired", " is required!")));
+					errorMsg.append(iu.getLabel() + 
+							ProcessbaseApplication.getString("fieldRequired", " is required!"));
+					
+				}else if(iu.getValidators() != null){
+					for (Validators.Validator v : iu.getValidators().getValidators()) {
+						
+						//Regex validator
+						if(v.getClassname().equals(RegexFieldValidator.class.getName()) 
+								&& v.getLabel() != null && iu.getFileName() != null){
+							try{
+								boolean result = iu.getFileName().matches(v.getLabel());
+								if(!result){
+									String error = ProcessbaseApplication.getString("errorFileNotCorrect", "File is not correct!");
+									iu.setComponentError(new UserError(error));
+									errorMsg.append(error);
+								}
+							}catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+						
+					}
+				}
 			}
 		}
 		return errorMsg.length()==0?null:errorMsg.toString();
@@ -516,8 +743,6 @@ public class TaskField {
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
-		// TODO Auto-generated method stub
-		
 	}
 	
 	public boolean isReadOnly(){

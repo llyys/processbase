@@ -16,42 +16,39 @@
  */
 package org.processbase.ui.portlet;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+
+import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
-import com.vaadin.terminal.gwt.server.PortletRequestListener;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-
-import java.util.Locale;
-import java.util.ResourceBundle;
-import javax.portlet.PortletConfig;
 import javax.portlet.PortletSession;
-import javax.servlet.http.Cookie;
 
-import org.caliburn.application.event.imp.DefaultEventAggregator;
+import org.apache.commons.lang.StringUtils;
+import org.ow2.bonita.facade.IdentityAPI;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
+import org.ow2.bonita.facade.identity.Group;
+import org.ow2.bonita.facade.identity.Membership;
+import org.ow2.bonita.facade.identity.Role;
+import org.ow2.bonita.light.LightProcessDefinition;
+import org.ow2.bonita.util.AccessorUtil;
 import org.processbase.raports.ui.RaportModule;
 import org.processbase.ui.bam.panel.BAMConfigurationPanel;
 import org.processbase.ui.bam.panel.BPMMonitoringPanel;
-
 import org.processbase.ui.bpm.admin.AdminCaseList;
+import org.processbase.ui.bpm.admin.AdminTaskList;
 import org.processbase.ui.bpm.admin.CategoriesPanel;
 import org.processbase.ui.bpm.admin.DisabledProcessDefinitionsPanel;
 import org.processbase.ui.bpm.admin.ProcessDefinitionsPanel;
-import org.processbase.ui.bpm.admin.AdminTaskList;
+import org.processbase.ui.bpm.identity.sync.UserRolesSync;
 import org.processbase.ui.bpm.panel.BPMConfigurationPanel;
-import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.panel.IdentityPanel;
-import org.processbase.ui.bpm.panel.events.TaskListEvent;
-import org.processbase.ui.bpm.panel.events.TaskListEvent.ActionType;
+import org.processbase.ui.bpm.panel.TaskListPanel;
 import org.processbase.ui.bpm.worklist.CandidateCaseList;
 import org.processbase.ui.bpm.worklist.CandidateTaskList;
 import org.processbase.ui.bpm.worklist.NewProcesses;
@@ -60,14 +57,44 @@ import org.processbase.ui.bpm.worklist.UserTaskList;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.IPbTable;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
-import org.processbase.ui.osgi.PbPanelModule;
+import org.processbase.ui.core.template.PbWindow.OpenEvent;
 import org.processbase.ui.osgi.PbPanelModuleService;
-import org.processbase.ui.servlet.PbModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Company;
+import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.model.User;
+import com.liferay.portal.model.UserGroupRole;
+import com.liferay.portal.service.RoleLocalServiceUtil;
+import com.liferay.portal.service.UserGroupRoleLocalService;
+import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
+import com.vaadin.data.Item;
+import com.vaadin.event.FieldEvents;
+import com.vaadin.event.FieldEvents.BlurEvent;
+import com.vaadin.event.FieldEvents.FocusEvent;
+import com.vaadin.terminal.gwt.server.PortletApplicationContext2;
+import com.vaadin.terminal.gwt.server.PortletRequestListener;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.ComponentContainer.ComponentAttachEvent;
+import com.vaadin.ui.ComponentContainer.ComponentDetachEvent;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.ResizeEvent;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  *
@@ -90,6 +117,8 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 
     private boolean inited = false;
 	private User portalUser;
+	
+	Button refresh = null;
 
     public void initUI() {
         logger.debug("PbPortlet init ");
@@ -102,6 +131,85 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         setMainWindow(mainWindow);
         if(userName!=null)
         {
+        	// create user if user does not exit
+			try {
+				BPMModule bpmModule = ProcessbaseApplication.getCurrent()
+				.getBpmModule();
+				
+				org.ow2.bonita.facade.identity.User bonitaUser = null;
+				//Try to find Bonita user
+				try {
+					bonitaUser = bpmModule.findUserByUserName(userName);
+				} catch (Exception e) {
+					// ignore
+				}
+				
+				//If Bonita user does not exist create one
+				if (bonitaUser == null) {
+					bonitaUser = bpmModule.addUser(userName, "",
+							portalUser.getFirstName(),
+							portalUser.getLastName(), "", "", null,
+							new HashMap<String, String>());
+					
+					
+					bpmModule.updateUserProfessionalContactInfo(
+							bonitaUser.getUUID(), StringUtils.isNotBlank(portalUser.getEmailAddress()) ? 
+									portalUser.getEmailAddress() : userName + "@eesti.ee",
+							"", "", "", "", "", "", "", "", "", "", "");
+					
+
+					IdentityAPI idapi = AccessorUtil.getIdentityAPI();
+					
+					boolean admin = false;
+					
+					try{
+						User u = ((PortalUser) portalUser).getPortalUser();
+						
+						List<UserGroupRole> ugrs = UserGroupRoleLocalServiceUtil.getUserGroupRoles(u.getUserId());
+
+						com.liferay.portal.model.Role adminRole = RoleLocalServiceUtil.getRole(u.getCompanyId(), 
+								RoleConstants.ORGANIZATION_ADMINISTRATOR);
+						
+						for (UserGroupRole ugr : ugrs) {
+							if(adminRole.getRoleId() == ugr.getRole().getRoleId()){
+								admin = true;
+								break;
+							}
+						}	
+					}catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					List<String> path = new ArrayList<String>();
+					path.add("platform");
+					
+					Group g = idapi.getGroupUsingPath(path);
+					
+					Role r = null;
+					if(admin){
+						r = idapi.findRoleByName("admin");
+					}else{
+						r = idapi.findRoleByName("guest");
+					}
+					
+					Membership m = idapi.getMembershipForRoleAndGroup(r.getUUID(), g.getUUID());
+					idapi.addMembershipToUser(bonitaUser.getUUID(), m.getUUID());
+					
+				}
+				
+				if(bonitaUser != null && !"guest".equals(bonitaUser.getUsername())){
+					try {
+						// Sync user roles
+						new UserRolesSync().updateUser(bonitaUser);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+        	
         	PbPanel ui=null;
 	        String initParameter = config.getInitParameter("ui");
 			if (initParameter.equalsIgnoreCase("ConsolePanel")) {
@@ -140,7 +248,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 				ui = new AdminTaskList();	         
 			}
 			else if (initParameter.equalsIgnoreCase("AdminCaseList")) {
-				ui = new AdminCaseList();	         
+				ui = new AdminCaseList();         
 			}
 			else if (initParameter.equalsIgnoreCase("AdminCategoriesPanel")) {
 				ui = new CategoriesPanel();	         
@@ -163,13 +271,10 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
 	           			ui = (PbPanel) class1.newInstance();           			  
 	           		  }
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					
 				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
            		  
@@ -181,20 +286,86 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             	//final DefaultEventAggregator e = new DefaultEventAggregator();
             	VerticalLayout bpPanel=new VerticalLayout();
             	
-            	Button refresh=new Button("Uuenda", new Button.ClickListener() {
-					public void buttonClick(ClickEvent event) {					
-						((IPbTable)event.getButton().getData()).refreshTable();
+            	ButtonBar buttonBar = new ButtonBar();
+            	bpPanel.addComponent(buttonBar);
+            	buttonBar.setWidth("100%");
+            	
+            	CheckBox showFinished = new CheckBox(ProcessbaseApplication.getString("chkboxShowFinished"));
+                showFinished.setVisible(true);
+                
+                buttonBar.addComponent(showFinished); 
+                buttonBar.setComponentAlignment(showFinished, Alignment.MIDDLE_RIGHT);        
+                buttonBar.setExpandRatio(showFinished, 1);
+             
+                
+                TextField additionalFilter = null;
+                
+                if(ui instanceof AdminCaseList || ui instanceof AdminTaskList 
+                		|| ui instanceof CandidateCaseList || ui instanceof CandidateTaskList ){
+            		
+                	additionalFilter = new TextField();
+                	buttonBar.addComponent(additionalFilter);
+					buttonBar.setComponentAlignment(additionalFilter,
+							Alignment.MIDDLE_LEFT);
+					additionalFilter.setVisible(false);
+					
+            	}
+            	
+                
+            	refresh=new Button(ProcessbaseApplication.getString("btnRefresh"), new Button.ClickListener() {
+					public void buttonClick(ClickEvent event) {	
+						IPbTable table = ((IPbTable)event.getButton().getData());
+						table.refreshTable();
 					}
 				});
             	refresh.setData(ui);
-            	bpPanel.addComponent(refresh);
-            	bpPanel.setMargin(true, true, false, false);
+            	buttonBar.addComponent(refresh);
+            	//buttonBar.setMargin(true, true, false, false);
+            	buttonBar.setComponentAlignment(refresh, Alignment.MIDDLE_RIGHT);
             	
-            	bpPanel.setComponentAlignment(refresh, Alignment.MIDDLE_RIGHT);
             	bpPanel.addComponent(ui);
+            	
+            	
+            	if(ui instanceof AdminCaseList){
+            		((AdminCaseList) ui).setShowFinished(showFinished);
+            		((AdminCaseList) ui).setAdditionalFilter(additionalFilter);
+            		additionalFilter.setVisible(true);
+            	} else if(ui instanceof AdminTaskList){
+            		((AdminTaskList) ui).setShowFinished(showFinished);
+            		((AdminTaskList) ui).setAdditionalFilter(additionalFilter);
+            		additionalFilter.setVisible(true);
+            	}else if(ui instanceof UserCaseList){
+            		((UserCaseList) ui).setShowFinished(showFinished);
+            	} else if(ui instanceof CandidateCaseList){
+            		((CandidateCaseList) ui).setShowFinished(showFinished);
+            		((CandidateCaseList) ui).setAdditionalFilter(additionalFilter);
+            		additionalFilter.setVisible(true);
+            	} else if(ui instanceof CandidateTaskList){
+            		((CandidateTaskList) ui).setAdditionalFilter(additionalFilter);
+            		additionalFilter.setVisible(true);
+            		showFinished.setVisible(false);
+            	}else{
+            		showFinished.setVisible(false);
+            	}
+            	
             	
             	//e.Subscribe(ui);
             	mainWindow.setContent(bpPanel);
+            	
+            	mainWindow.addListener(new PbWindow.OpenListener() {
+					
+					public void windowOpen(OpenEvent e) {
+						if(refresh != null){
+							Object o = refresh.getData();
+							if(o != null && o instanceof IPbTable){
+								((IPbTable)o).refreshTable();
+							}
+						}
+					}
+					
+				});
+            	
+            	
             	
             	bpPanel.setExpandRatio(ui, 1);
             	ui.initUI();
@@ -208,6 +379,7 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
         }
         
     }
+
 
     public void authenticate(String login, String password, boolean rememberMe, String domainName) throws Exception {
         BPMModule bpmm = new BPMModule(login, domainName);
@@ -251,11 +423,11 @@ public class PbPortlet extends ProcessbaseApplication implements PortletRequestL
             		bonitaUser=new PortalUser(userName, userName);            				
                 }	                               
                 if(bpmModule==null)
-                	
             		setBpmModule(new BPMModule(userName, getDomain(company)));
-                	bpmModule.checkUserCredentials(BPMModule.USER_GUEST, BPMModule.USER_GUEST);
-					bonitaUser=bpmModule.authUser(bonitaUser);
-					setSessionAttribute(AUTH_KEY, bonitaUser);					
+                
+            	bpmModule.checkUserCredentials(BPMModule.USER_GUEST, BPMModule.USER_GUEST);
+				bonitaUser=bpmModule.authUser(bonitaUser);
+				setSessionAttribute(AUTH_KEY, bonitaUser);					
 				
                 setLocale(request.getLocale());
                 setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));

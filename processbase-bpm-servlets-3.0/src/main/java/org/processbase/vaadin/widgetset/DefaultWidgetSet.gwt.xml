@@ -14,5 +14,5 @@
 
     <inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
 
-    <inherits name="ee.smartlink.esteid.widgetset.EsteidWidgetset" />
+    
 </module>

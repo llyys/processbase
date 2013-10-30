@@ -1,0 +1,50 @@
+<connector>
+  <connectorId>AditJoin</connectorId>
+  <version>5.0</version>
+  <categories>
+    <category>
+      <name>ADIT</name>
+    </category>
+  </categories>
+  <inputs>
+    <setter>
+      <setterName>setIsikukood</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
+      <setterName>setKasutajaNimi</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+  </inputs>
+  <outputs>
+    <getter>
+      <name>success</name>
+      <metadata/>
+    </getter>
+  </outputs>
+  <pages>
+    <page>
+      <pageId>Parameters</pageId>
+      <widgets>
+        <text>
+          <labelId>isikukood</labelId>
+          <setter reference="/connector/inputs/setter"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+        <text>
+          <labelId>kasutajaNimi</labelId>
+          <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
+      </widgets>
+    </page>
+  </pages>
+</connector>

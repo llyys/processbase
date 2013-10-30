@@ -39,18 +39,24 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.exception.ActivityNotFoundException;
+import org.ow2.bonita.facade.exception.IllegalTaskStateException;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.ParticipantNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
+import org.ow2.bonita.facade.exception.TaskNotFoundException;
 import org.ow2.bonita.facade.exception.VariableNotFoundException;
+import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.AssignUpdate;
 import org.ow2.bonita.facade.runtime.StateUpdate;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.light.LightActivityInstance;
+import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbColumnGenerator;
 import org.processbase.ui.core.template.PbWindow;
@@ -68,8 +74,9 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     private Set<DataFieldDefinition> dfds = null;
     private HorizontalLayout buttons = new HorizontalLayout();
     private Button closeBtn;
+    private Button addCandidateBtn;
     private Button reassignBtn;
-    private CheckBox unAssignBtn;
+    private Button unAssignBtn;
     private Button assignBtn;
     private ListSelect candidatesList;
     private ListSelect groupList;
@@ -80,6 +87,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
     protected Table assignUpdatesTable = new Table();
     protected Table stateUpdatesTable = new Table();
     protected Table variablesTable;
+    
 
     public ActivityWindow(LightActivityInstance lightActivity) {
         super(lightActivity.getActivityLabel());
@@ -102,19 +110,24 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         }
         closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
         reassignBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnReassign"), this);
-        unAssignBtn = new CheckBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUnassign"), this);
+        unAssignBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUnassign"), this);
         assignBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAssign"), this);
         candidatesList = new ListSelect(ProcessbaseApplication.getCurrent().getPbMessages().getString("candidates"));
         groupList = new ListSelect(ProcessbaseApplication.getCurrent().getPbMessages().getString("actorsGroups"));
         variablesTable = new Table(ProcessbaseApplication.getCurrent().getPbMessages().getString("processVariables"));
+        addCandidateBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAddCandidate"), this);
 
 
         tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
         tabSheet.setSizeFull();
         if (task != null) {
-            addParticipantInfo();
-            participantLayout.setSizeFull();
-            tabSheet.addTab(participantLayout, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskPerformer"), null);
+        	if(!ActivityState.FINISHED.equals(task.getState()) && 
+        			!ActivityState.CANCELLED.equals(task.getState()) && !ActivityState.ABORTED.equals(task.getState())){
+	            addParticipantInfo();
+	            participantLayout.setSizeFull();
+	            tabSheet.addTab(participantLayout, ProcessbaseApplication.getCurrent()
+	            		.getPbMessages().getString("taskPerformer"), null);
+            }
         }
         try {
             addVariablesInfo();
@@ -148,6 +161,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         setHeight("600px");
         setModal(true);
         setResizable(false);
+        
     }
 
     public void addVariablesInfo() throws ProcessNotFoundException, VariableNotFoundException, InstanceNotFoundException, ProcessNotFoundException, ActivityNotFoundException, ParticipantNotFoundException, Exception {
@@ -269,12 +283,21 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         participantLayout.addComponent(reassignBtn, 1, 2, 1, 2);
         participantLayout.setComponentAlignment(reassignBtn, Alignment.MIDDLE_LEFT);
 
-        participantLayout.addComponent(assignBtn, 2, 2, 2, 2);
-        participantLayout.setComponentAlignment(assignBtn, Alignment.MIDDLE_RIGHT);
+        HorizontalLayout h = new HorizontalLayout();
+        h.setSpacing(true);
+        participantLayout.addComponent(h, 2, 2, 2, 2);
+        
+        h.addComponent(assignBtn);
+        h.setComponentAlignment(assignBtn, Alignment.MIDDLE_RIGHT);
 
+        h.addComponent(unAssignBtn);
+        h.setComponentAlignment(unAssignBtn, Alignment.MIDDLE_RIGHT);
+        
+        h.addComponent(addCandidateBtn);
+        h.setComponentAlignment(addCandidateBtn, Alignment.MIDDLE_RIGHT);
 
         participantLayout.addComponent(taskUserField, 3, 0, 3, 0);
-        participantLayout.addComponent(unAssignBtn, 3, 1, 3, 1);
+        
 
         assignUpdatesTable.removeAllItems();
         assignUpdatesTable.removeGeneratedColumn("UpdatedDate");
@@ -282,7 +305,7 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
         assignUpdatesTable.addGeneratedColumn("UpdatedDate", new PbColumnGenerator());
         assignUpdatesTable.addContainerProperty("UpdatedBy", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskUpdatedBy"), null, null);
         assignUpdatesTable.addContainerProperty("Candidates", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskCandidates"), null, null);
-        assignUpdatesTable.addContainerProperty("AssignedUserId", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskAssignedBy"), null, null);
+        assignUpdatesTable.addContainerProperty("AssignedUserId", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("taskAssignedTo"), null, null);
         for (AssignUpdate assignUpdate : task.getAssignUpdates()) {
             Item woItem = assignUpdatesTable.addItem(assignUpdate);
             woItem.getItemProperty("UpdatedDate").setValue(assignUpdate.getUpdatedDate());
@@ -347,16 +370,81 @@ public class ActivityWindow extends PbWindow implements ClickListener, TabSheet.
             close();
         } else {
             try {
-                if (event.getButton().equals(unAssignBtn) && !unAssignBtn.booleanValue()) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().unassignTask(task.getUUID());
+                if (event.getButton().equals(unAssignBtn) /*&& !unAssignBtn.booleanValue()*/) {
+                   //ProcessbaseApplication.getCurrent().getBpmModule().unassignTask(task.getUUID());
+                	if(candidatesList.getValue() != null){
+                		
+                		String remove = candidatesList.getValue().toString();
+                		
+	                	Set<String> assigned = new HashSet<String>();
+	                	assigned.addAll(task.getTaskCandidates());
+	                	assigned.remove(remove);
+	                	
+	                	boolean set = task.isTaskAssigned();
+	                	String to = task.getTaskUser();
+	                	
+	                	if(to.equals(remove)){
+	                		set = false;
+	                	}
+	                	
+	                	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+	                	try {
+	                		bpmModule.assignTask(task.getUUID(), assigned);
+							if(set){
+								bpmModule.assignTask(task.getUUID(), to);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
                 } else if (event.getButton().equals(reassignBtn)) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().assignTask(task.getUUID());
+                	BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
+                	
+                	//Refresh candidates
+                    bpmModule.assignTask(task.getUUID());                    
+                    
                 } else if (event.getButton().equals(assignBtn) && candidatesList.getValue() != null) {
-                    ProcessbaseApplication.getCurrent().getBpmModule().assignTask(task.getUUID(), candidatesList.getValue().toString());
+                	String user = candidatesList.getValue().toString();
+                	ProcessbaseApplication.getCurrent().getBpmModule().assignTask(task.getUUID(), user);
+                } else if (event.getButton().equals(addCandidateBtn)) {
+                	SelectUserWindow usersWindow = new SelectUserWindow();
+                	this.getApplication().getMainWindow().addWindow(usersWindow);
+                	usersWindow.initUI();
+                	usersWindow.setUserSelectedListener(new SelectUsersPanel.UserSelectedListener() {
+						
+						public void userSelected(User user) {
+							Set<String> assigned = new HashSet<String>();
+							assigned.addAll(task.getTaskCandidates());
+							assigned.add(user.getUsername());
+							
+							candidatesList.removeAllItems();
+							for (String candidate :assigned) {
+				                candidatesList.addItem(candidate);
+				            }
+							candidatesList.requestRepaint();
+							
+							try {
+								ProcessbaseApplication.getCurrent().getBpmModule().assignTask(task.getUUID(), assigned);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							
+							
+						}
+					});
                 }
                 this.task = ProcessbaseApplication.getCurrent().getBpmModule().getTaskInstance(task.getUUID());
                 addParticipantInfo();
                 addStateInfo();
+                
+                candidatesList.removeAllItems();
+				for (String candidate : task.getTaskCandidates()) {
+	                candidatesList.addItem(candidate);
+	            }
+				
+				participantLayout.requestRepaint();
+				candidatesList.requestRepaint();
+                
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showError(ex.getMessage());
