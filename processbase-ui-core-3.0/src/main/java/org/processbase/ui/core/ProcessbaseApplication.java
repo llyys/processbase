@@ -49,7 +49,7 @@ import org.ow2.bonita.facade.identity.User;
 
 import org.processbase.ui.core.template.LazyLoadingLayout;
 import org.processbase.ui.osgi.PbPanelModuleService;
-
+//import org.xeustechnologies.jcl.JarClassLoader;
 
 
 /**
@@ -128,12 +128,17 @@ public abstract class ProcessbaseApplication extends Application implements Tran
         if (!Constants.LOADED) {
             Constants.loadConstants();
         }
+        //load libraries from bonitahome
+       /* JarClassLoader jcl = new JarClassLoader();
+        jcl.add(System.getProperty("BONITA_HOME")+"/lib");
+        jcl.initialize();
+        Thread.currentThread().setContextClassLoader(jcl);
+*/
+
         initUI();
         if (getContext() != null) {
             getContext().addTransactionListener(this);
         }
-        
-        
         getMainWindow().addURIHandler(new ParameterizedResource()); 
     }
 

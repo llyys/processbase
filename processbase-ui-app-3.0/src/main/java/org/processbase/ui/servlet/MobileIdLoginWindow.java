@@ -5,8 +5,9 @@ import org.processbase.ui.core.template.PbWindow;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
-/*
-public class MobileIdLoginWindow extends Form {
+
+public class MobileIdLoginWindow{
+ /*extends Form {
 	private FormLayout form;
 	private TextField mobileNr;
 
@@ -20,6 +21,5 @@ public class MobileIdLoginWindow extends Form {
 		                  "You can use any layout here. "+
 		                  "This is nice for buttons."));
 		confirmationCodeNr=new Label("")
-	}
+	}*/
 }
-*/
