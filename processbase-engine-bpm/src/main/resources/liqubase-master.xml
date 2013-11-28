@@ -1,0 +1,32 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="lauri" id="001">
+        <createSequence sequenceName="BN_DOCUMENT_FILE_SEQ"/>
+    </changeSet>
+    <changeSet id="002" author="lauri">
+        <createTable tableName="BN_DOCUMENT_FILE">
+            <column name="ID" type="bigint" defaultValueComputed="NEXTVAL('BN_DOCUMENT_FILE_SEQ')" />
+            <column name="DOCUMENT_REF" type="varchar(255)"/>
+            <column name="DOCUMENT_NAME" type="varchar(255)"/>
+            <column name="FILE_NAME" type="varchar(255)"/>
+            <column name="CONTENT_MIME_TYPE" type="varchar(50)"/>
+            <column name="BN_FOLDER_ID" type="varchar(255)"/>
+            <column name="AUTHOR" type="varchar(255)"/>
+            <column name="CREATION_DATE" type="timestamp without time zone"/>
+            <column name="LAST_MODIFIED_BY" type="varchar(255)"/>
+            <column name="LAST_MODIFICATION_DATE" type="timestamp without time zone"/>
+            <column name="CONTENT_SIZE" type="bigint"/>
+            <column name="BLOB_VALUE" type="oid"/>
+            <column name="XML_VALUE" type="text"/>
+            <column name="DEFINITION_UUID" type="varchar(255)"/>
+            <column name="INSTANCE_UUID" type="varchar(255)"/>
+        </createTable>
+        <addPrimaryKey columnNames="ID"
+               constraintName="PK_BN_DOCUMENT_FILE_ID"
+               tableName="BN_DOCUMENT_FILE"
+        />
+    </changeSet>
+</databaseChangeLog>

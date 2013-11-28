@@ -3,49 +3,27 @@ package org.processbase.bonita.services.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.ow2.bonita.facade.def.InternalProcessDefinition;
-import org.ow2.bonita.facade.def.element.AttachmentDefinition;
-import org.ow2.bonita.facade.def.element.impl.AttachmentDefinitionImpl;
 import org.ow2.bonita.facade.exception.DocumentAlreadyExistsException;
 import org.ow2.bonita.facade.exception.DocumentNotFoundException;
 import org.ow2.bonita.facade.exception.DocumentationCreationException;
-import org.ow2.bonita.facade.exception.FolderAlreadyExistsException;
-import org.ow2.bonita.facade.exception.ProcessNotFoundException;
-import org.ow2.bonita.facade.impl.FacadeUtil;
 import org.ow2.bonita.facade.impl.SearchResult;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.search.DocumentCriterion;
 import org.ow2.bonita.search.DocumentSearchBuilder;
 import org.ow2.bonita.search.index.DocumentIndex;
-import org.ow2.bonita.services.CmisUserProvider;
 import org.ow2.bonita.services.Document;
-import org.ow2.bonita.services.DocumentationManager;
-import org.ow2.bonita.services.Folder;
-import org.ow2.bonita.services.LargeDataRepository;
-import org.ow2.bonita.services.impl.AuthAwareCookieManager;
 import org.ow2.bonita.services.impl.DocumentImpl;
 import org.ow2.bonita.util.EnvTool;
-import org.ow2.bonita.util.Misc;
 import org.ow2.bonita.util.xml.XStreamUtil;
-import org.processbase.bonita.services.impl.filedocument.FileDocument;
-import org.processbase.ui.core.ProcessbaseApplication;
-import org.processbase.ui.core.bonita.process.BarResource;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -59,23 +37,22 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import com.thoughtworks.xstream.XStream;
 
-public class FileDocumentManager implements DocumentationManager{
-	private static final String LENGHT = "Lenght";
+public class MongoDbDocumentManager extends AbstractDocumentationManager{
+    private static final String LENGHT = "Lenght";
 	private static final String FILE_ID = "FileId";
 	private static final String NAME = "Name";
 	private static final String DOCUMENT_ID = "ID";
-	private static ResourceBundle  mimeProperties=null;
-	private static final String DOCUMENT = "document";
+    private static final String DOCUMENT = "document";
 	private static final String PROCESS_INSTANCE_UUID = "ProcessInstanceUUID";
 	private static final String AUTHOR = "author";
 	private static final String PROCESS_DEFINITION_UUID = "ProcessDefinitionUUID";
 	private static final String DOCUMENTS = "documents";
-	private String pathOfRootFolder;
+    private String pathOfRootFolder;
 	private File rootFolder;
 	private DB db=null;
 	private static Mongo mongo=null;
 	
-	public FileDocumentManager(String host, String database) {
+	public MongoDbDocumentManager(String host, String database) {
 		 if(mongo==null)
 		 {
 			 try {
@@ -117,7 +94,7 @@ public class FileDocumentManager implements DocumentationManager{
 				doc.put(PROCESS_DEFINITION_UUID, definitionUUID.toString());
 				
 			
-			String instance = instanceUUID != null ? instanceUUID.toString() : "DEFINITION_LEVEL_DOCUMENT";
+			String instance = instanceUUID != null ? instanceUUID.toString() : DEFINITION_LEVEL_DOCUMENT;
 			doc.put(PROCESS_INSTANCE_UUID, instance);
 			
 			//String folderId=definitionUUID.toString()+"/"+instance;
@@ -248,7 +225,7 @@ public class FileDocumentManager implements DocumentationManager{
             query.put(NAME, documentName);
     
         if(processInstanceUUID == null)
-        	processInstanceUUID=new ProcessInstanceUUID("DEFINITION_LEVEL_DOCUMENT");
+        	processInstanceUUID=new ProcessInstanceUUID(DEFINITION_LEVEL_DOCUMENT);
         
     	query.put(PROCESS_INSTANCE_UUID, processInstanceUUID.toString());
     	processInstanceUUID = new ProcessInstanceUUID(processInstanceUUID.toString());
@@ -279,7 +256,7 @@ public class FileDocumentManager implements DocumentationManager{
         ProcessDefinitionUUID processDefinitionUUID=null;
         
         String procDefString = crits.containsKey(DocumentIndex.PROCESS_DEFINITION_UUID) ? crits.get(DocumentIndex.PROCESS_DEFINITION_UUID).getValue().toString() : null;
-        String procInstString = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : "DEFINITION_LEVEL_DOCUMENT";
+        String procInstString = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : DEFINITION_LEVEL_DOCUMENT;
         
         String attachmentName = crits.containsKey(DocumentIndex.NAME) ? crits.get(DocumentIndex.NAME).getValue().toString() : null;
 
@@ -301,27 +278,7 @@ public class FileDocumentManager implements DocumentationManager{
             
             files = getDocuments(query);
             if(files.size()==0 && attachmentName!=null){
-            	//try load attachments from processdefinition and initialize.
-            	//this happens when document repository does not have documents in it but 
-            	
-            	files=new ArrayList<Document>();
-				//BarResource resource=BarResource.getBarResource(processDefinitionUUID);
-            	
-            	AttachmentInstnce attachemnt=getLargeDataRepositoryAttachment(processDefinitionUUID, attachmentName);
-            	
-            	if(attachemnt!=null){
-            		String fileType=null;
-            		String mimeType=null;
-            		AttachmentDefinition attachmentDefinition = attachemnt.getAttachmentDefinition();
-					if(attachmentDefinition.getFileName()!=null){
-	            		fileType=attachmentDefinition.getFileName().substring(attachmentDefinition.getFileName().lastIndexOf('.')+1);
-	            		mimeType=mimeProperties.getString(fileType);
-            		}
-            		Document doc = createDocument(attachmentDefinition.getName(), 
-            				processDefinitionUUID, processInstanceUUID, attachmentDefinition.getFileName(), mimeType, attachemnt.getData());
-            		
-            		files.add(doc);
-            	}
+                files = getProcessDefinitionDocuments(processInstanceUUID, processDefinitionUUID, attachmentName);
             }
             if (!files.isEmpty()) {
             	return new SearchResult(files, files.size());
@@ -334,72 +291,10 @@ public class FileDocumentManager implements DocumentationManager{
         }
 		return null;        
 	}
-	
-	private AttachmentInstnce getLargeDataRepositoryAttachment(ProcessDefinitionUUID processDefinitionUUID, String attachmentName) {
-		if(processDefinitionUUID==null)
-			return null;
-		List<String> attachmentCategories = Misc.getBusinessArchiveCategories(processDefinitionUUID);
-		final LargeDataRepository ldr = EnvTool.getLargeDataRepository();
-		
-		try {
-			InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
-			
-			AttachmentDefinition attachmentdef = process.getAttachment(attachmentName);
-			AttachmentInstnce attachment=new AttachmentInstnce();
-			attachment.setAttachmentDefinition(attachmentdef);
-			
-			if(attachmentdef.getFilePath()!=null){
-				byte[] data = ldr.getData(byte[].class,attachmentCategories, attachmentdef.getFilePath());
-				attachment.setData(data);
-			}
-			return attachment;						
-			
-		} catch (ProcessNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	   	return null;			
-	}
-	
-	public Folder createFolder(String folderName) throws FolderAlreadyExistsException {
-		throw new NotImplementedException("createFolder1");
-	}
 
-	public Folder createFolder(String folderName, String parentFolderId) throws FolderAlreadyExistsException {
-		throw new NotImplementedException("createDocument2");
-	}
-
-	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		return createDocument(name, definitionUUID, instanceUUID, "null", "null", new byte[0]);
-	}
-
-	public Document createDocument(String name, String folderId, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		throw new NotImplementedException("createDocument3");
-	}
-
-	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		throw new NotImplementedException("createDocument4");
-	}
-
-	public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String author, Date versionDate, String fileName, String mimeType, byte[] content) throws DocumentationCreationException, DocumentAlreadyExistsException {
-		throw new NotImplementedException("createDocument5");
-	}
-	public List<Folder> getFolders(String folderName) {
-		throw new NotImplementedException("getFolders");
-	}
-
-	public Folder getRootFolder() {
-		throw new NotImplementedException("getRootFolder");
-	}
-
-	public List<Document> getChildrenDocuments(String folderId) {
-		throw new NotImplementedException("getChildrenDocuments");
-	}
-
-	public List<Folder> getChildrenFolder(String folderId) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("cetChildrenFolder");
-	}
+    public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) throws DocumentationCreationException, DocumentAlreadyExistsException {
+        return createDocument(name, definitionUUID, instanceUUID, "null", "null", new byte[0]);
+    }
 
 	public List<Document> getVersionsOfDocument(String documentId)
 			throws DocumentNotFoundException {
@@ -412,22 +307,6 @@ public class FileDocumentManager implements DocumentationManager{
 		 Document doc = DeserializeDocument(dbObject);
 		 docs.add(doc);
 		return docs;
-	}
-
-	public String getDocumentPath(String documentId)
-			throws DocumentNotFoundException {
-		throw new NotImplementedException("getDocumentPath");
-	}
-
-	public Document createVersion(String documentId, boolean isMajorVersion)
-			throws DocumentationCreationException {
-		throw new NotImplementedException("create version4");
-	}
-
-	public Document createVersion(String documentId, boolean isMajorVersion,
-			String author, Date versionDate)
-			throws DocumentationCreationException {
-		throw new NotImplementedException("create version3");
 	}
 
 	public Document createVersion(String documentId, boolean isMajorVersion,
@@ -464,32 +343,7 @@ public class FileDocumentManager implements DocumentationManager{
 		return impl2;
 	}
 
-	public Document createVersion(String documentId, boolean isMajorVersion,
-			String author, Date versionDate, String fileName, String mimeType,
-			byte[] content) throws DocumentationCreationException {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("creteVersion");
-		
-	}
 
-	
-	public void clear() throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void updateDocumentContent(String documentId, String fileName,
-			String mimeType, int size, byte[] content)
-			throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("updateDocumentContent");
-	}
-
-	public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID,
-			String documentId) throws DocumentNotFoundException {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("attachDocumentTo");
-	}
 
 	public void attachDocumentTo(ProcessDefinitionUUID processDefinitionUUID,
 			ProcessInstanceUUID processInstanceUUID, String documentId)
@@ -514,8 +368,7 @@ public class FileDocumentManager implements DocumentationManager{
 
 	public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
 		System.out.println("deleteDocument");
-	    Document document = null;
-	    try {
+        try {
 		   
 			DBCollection table = db.getCollection(DOCUMENTS);
 
@@ -535,29 +388,5 @@ public class FileDocumentManager implements DocumentationManager{
         }
 	}
 
-	public void deleteFolder(Folder folder) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("deleteFolder");
-	}	
-	private class AttachmentInstnce {
-		
-		private byte[] _data;
-		private AttachmentDefinition attachmentDefinition;
-		public void setData(byte[] _data) {
-			this._data = _data;
-		}
 
-		public byte[] getData() {
-			return _data;
-		}
-
-		public void setAttachmentDefinition(AttachmentDefinition attachmentDefinition) {
-			this.attachmentDefinition = attachmentDefinition;
-		}
-
-		public AttachmentDefinition getAttachmentDefinition() {
-			return attachmentDefinition;
-		}
-		
-	}
 }

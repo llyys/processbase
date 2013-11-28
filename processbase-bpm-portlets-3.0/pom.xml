@@ -89,6 +89,11 @@
 			<version>${gwt-user.version}</version>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>3.0.7</version>
+        </dependency>
 					
 	</dependencies>
 

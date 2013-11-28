@@ -10,7 +10,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.processbase.bonita.services.impl;
+package org.processbase.bonita.services.impl.liferay;
 
 import com.liferay.documentlibrary.DuplicateFileException;
 import com.liferay.portal.kernel.exception.PortalException;

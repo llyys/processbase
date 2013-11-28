@@ -1,11 +1,22 @@
 package org.processbase.bonita.services.impl.filedocument;
 
 import java.io.File;
+import java.io.Serializable;
 
 import org.ow2.bonita.services.Folder;
 
-public class FileFolder implements Folder{
-	private File folder;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="FileFolder")
+public class FileFolder implements Folder, Serializable {
+    @Id
+    String id;
+
+    private File folder;
 	public FileFolder(File folder){
 		this.folder=folder;
 	}

@@ -33,6 +33,7 @@ import org.ow2.bonita.services.Folder;
 import org.ow2.bonita.services.impl.DocumentImpl;
 
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import org.processbase.bonita.services.impl.liferay.LiferayDocumentLibrary;
 
 /**
  *

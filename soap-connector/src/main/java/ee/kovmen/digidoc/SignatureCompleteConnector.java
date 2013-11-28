@@ -54,7 +54,7 @@ public class SignatureCompleteConnector extends ProcessConnector {
 			
 			String tempDir = Sign.getProcessTempDirectory(getProcessInstanceUUID().toString());
 			if(new File(tempDir+File.separator+Sign.SIGNED_DOC+".obj").exists()==false)
-				errors.add(new ConnectorError("bdoc", new Exception("SignaturePrepare connector peab olema k�ivitatud enne SignatureComplete connectorit!")));
+				errors.add(new ConnectorError("bdoc", new Exception("SignaturePrepare connector peab olema käivitatud enne SignatureComplete connectorit!")));
 		} catch (Exception e) {
 			errors.add(new ConnectorError("viga", e)); 
 		}		

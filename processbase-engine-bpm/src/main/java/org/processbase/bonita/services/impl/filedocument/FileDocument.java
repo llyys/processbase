@@ -7,6 +7,9 @@ import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.services.impl.DocumentImpl;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 public class FileDocument extends DocumentImpl implements Serializable  {
 
 	public FileDocument(String name){

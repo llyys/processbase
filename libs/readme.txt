@@ -12,3 +12,6 @@ mvn install:install-file -Dfile=engineapi.jar -DartifactId=report.engine.api -Dg
 mvn install:install-file -Dfile=modelapi.jar -DartifactId=report.model.api -DgroupId=org.eclipse.birt -Dversion=2.6.1 -Dpackaging=jar
 mvn install:install-file -Dfile=scriptapi.jar -DartifactId=script.api -DgroupId=org.eclipse.birt -Dversion=2.6.1 -Dpackaging=jar
 
+mvn install:install-file -Dfile=jdigidoc\jdigidoc-3.7.2.652.jar -DartifactId=jdigidoc -DgroupId=ee.eesti.id -Dversion=3.7.2.652 -Dpackaging=jar
+mvn install:install-file -Dfile=jdigidoc\jdigidoc-3.7.2.652-source.jar -DartifactId=jdigidoc -DgroupId=ee.eesti.id -Dversion=3.7.2.652 -Dpackaging=jar  -Dclassifier=sources
+

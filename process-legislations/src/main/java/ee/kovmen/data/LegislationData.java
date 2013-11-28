@@ -61,44 +61,6 @@ public class LegislationData {
 			}
 		}
 		return sessionFactory;
-		
-//        if (sessionFactory!=null) return sessionFactory;
-//        try {
-//       	 String userHomeDir=BonitaConstants.getBonitaHomeFolder();
-//            File file=new File(userHomeDir+"/server/default/conf/bonita-journal.properties");
-//            FileInputStream fis = new FileInputStream(file);
-//            Properties properties = null;
-//			 
-//            if(properties==null)
-//            	properties=new Properties(); 
-//            
-//            properties.load(fis);
-//            fis.close();
-//           
-//            
-//            AnnotationConfiguration configuration=new AnnotationConfiguration();
-//            /*configuration.addPackage("ee.kovmen.entities");
-//            configuration.addAnnotatedClass(Oigusakt.class);
-//            configuration.addAnnotatedClass(Teenus.class);
-//            */
-//            configure = configuration.configure();
-//            /*
-//            for (Entry<Object, Object> p : properties.entrySet()) {
-//				configure.setProperty(p.getKey().toString(), p.getValue().toString());
-//			}
-//            */
-//            
-//       	
-//           
-//           sessionFactory = configure.buildSessionFactory();
-//           
-//           
-//       } catch (Exception ex) {
-//           // Make sure you log the exception, as it might be swallowed
-//           System.err.println("Initial SessionFactory creation failed." + ex);
-//           throw new ExceptionInInitializerError(ex);
-//       }
-//		return sessionFactory;
     }
 	
 	public Session getSession(){
@@ -121,10 +83,6 @@ public class LegislationData {
 		}
 		return hibernateTemplate;
 
-//		if(hibernateTemplate==null)
-//			hibernateTemplate=new HibernateTemplate(getSessionFactory());
-//		
-//		return hibernateTemplate;
 	}
 	
 	

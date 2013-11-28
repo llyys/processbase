@@ -1,4 +1,4 @@
-package org.processbase.bonita.services.impl;
+package org.processbase.bonita.services.impl.liferay;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
