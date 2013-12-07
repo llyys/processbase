@@ -170,6 +170,9 @@ public class BPMModule {
     	if (!Constants.LOADED) {
             Constants.loadConstants();
             AccessorUtil.getAPIAccessor(Constants.BONITA_EJB_ENV);
+
+
+
         }
     	setCurrentDomain(currentDomain.replaceAll("\\s", "_"));
     	
@@ -211,6 +214,7 @@ public class BPMModule {
     }
     public void setCurrentDomain(String currentDomain) {
 		this.currentDomain=currentDomain;
+
 		
 	}
 
@@ -222,6 +226,8 @@ public class BPMModule {
     		DomainOwner.setDomain(currentDomain);
     		
         UserOwner.setUser(currentUserUID);
+
+       // DocumentationManager manager = EnvTool.getDocumentationManager();
     }
     
     private Method findMethod(String name, Class c)

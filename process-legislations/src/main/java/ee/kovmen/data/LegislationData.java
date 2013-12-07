@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.h2.util.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.ow2.bonita.util.BonitaConstants;
+import org.processbase.ui.core.Constants;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -31,7 +33,8 @@ public class LegislationData {
 		
 		String currentDomain = ProcessbaseApplication.getCurrent()
 				.getBpmModule().getCurrentDomain();
-
+        if(StringUtils.isNullOrEmpty(currentDomain) || "null".equalsIgnoreCase(currentDomain))
+            currentDomain= Constants.BONITA_DOMAIN;
 		SessionFactory sessionFactory =  sessionFactoryMap.get(currentDomain);
 		if (sessionFactory == null) {
 			try {

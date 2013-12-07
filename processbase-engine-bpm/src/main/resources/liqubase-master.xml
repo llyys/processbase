@@ -29,4 +29,9 @@
                tableName="BN_DOCUMENT_FILE"
         />
     </changeSet>
+    <changeSet id="addhash" author="laurly">
+        <addColumn tableName="BN_DOCUMENT_FILE">
+            <column name="content_hash" type="varchar(255)"></column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -182,7 +182,7 @@ public class ImmediateUpload extends VerticalLayout
                 	setVisible(false);
                 }
                 BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-                bpmModule.deleteDocument(new ProcessInstanceUUID(processUUID), fileName, fileName);
+                bpmModule.deleteDocument(new ProcessInstanceUUID(processUUID), attachmentName, fileName);
                 setComponentError(null);
                 fileName = null;
             } else if (event.getButton().equals(downloadBtn)) {
@@ -190,7 +190,7 @@ public class ImmediateUpload extends VerticalLayout
             	//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
 				//AttachmentInstance attachment = bpmModule.getAttachment(processUUID, attachmentName);
 				
-				Document document = bpmModule.getDocument(new ProcessInstanceUUID(processUUID), fileName);
+				Document document = bpmModule.getDocument(new ProcessInstanceUUID(processUUID), attachmentName);
 				
                 byte[] bytes = bpmModule.getDocumentBytes(document);
                 
@@ -270,7 +270,7 @@ public class ImmediateUpload extends VerticalLayout
         if(isNeedToSave()){
         	try{
         		BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-		        bpmModule.addDocument(new ProcessInstanceUUID(processUUID), fileName, 
+		        bpmModule.addDocument(new ProcessInstanceUUID(processUUID), attachmentName,
 		        		fileName, mtype, baos.toByteArray());
 		        needToSave = false;
 	        }catch (Exception e) {

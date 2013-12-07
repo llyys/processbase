@@ -154,7 +154,7 @@ public abstract class AbstractDocumentationManager implements DocumentationManag
                 mimeType=mimeProperties.getString(fileType);
             }
 
-            Document document = new DocumentImpl(attachmentDefinition.getName(), DEFINITION_LEVEL_DOCUMENT, EnvTool.getUserId(), new Date(), new Date(), true, true,null, null, attachmentDefinition.getFileName(), mimeType, 0, processDefinitionUUID, null);
+            Document document = new DocumentImpl(attachmentDefinition.getName(), null, EnvTool.getUserId(), new Date(), new Date(), true, true,null, null, attachmentDefinition.getFileName(), mimeType, 0, processDefinitionUUID, null);
             files.add(document);
         }
         return files;

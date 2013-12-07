@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.bonitasoft.forms.server.exception.InvalidFormDefinitionException;
 import org.bonitasoft.forms.server.validator.RegexFieldValidator;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.services.Document;
@@ -553,6 +554,8 @@ public class TaskField {
 		if (processManager.getTaskInstance() != null) {
 			processUUID = processManager.getTaskInstance().getProcessInstanceUUID().toString();
 			try {
+                if(boundVariable==null)
+                    throw new InvalidFormDefinitionException("process definition does not have bound variable for "+widget.getId());
 				//AttachmentInstance attachment = processManager.getBpmModule().getAttachment(processUUID,boundVariable);
 				Document document=processManager.getBpmModule().getDocument(processManager.getTaskInstance().getProcessInstanceUUID(), boundVariable);
 				//fileName=attachment.getFileName();

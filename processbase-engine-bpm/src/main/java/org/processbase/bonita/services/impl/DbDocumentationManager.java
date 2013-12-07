@@ -1,18 +1,18 @@
 package org.processbase.bonita.services.impl;
 
-import com.mongodb.DBObject;
 import com.thoughtworks.xstream.XStream;
 import liquibase.Liquibase;
 import liquibase.database.core.PostgresDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.ResourceAccessor;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.ow2.bonita.facade.def.element.AttachmentDefinition;
 import org.ow2.bonita.facade.exception.DocumentAlreadyExistsException;
 import org.ow2.bonita.facade.exception.DocumentNotFoundException;
 import org.ow2.bonita.facade.exception.DocumentationCreationException;
 import org.ow2.bonita.facade.impl.SearchResult;
+import org.ow2.bonita.facade.uuid.AbstractUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.search.DocumentCriterion;
@@ -27,14 +27,24 @@ import org.ow2.bonita.util.Misc;
 import org.ow2.bonita.util.xml.XStreamUtil;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
+import org.processbase.bonita.services.impl.db.DbDocument;
+import org.processbase.bonita.services.impl.db.LargeDbDataDao;
+import org.processbase.bonita.services.impl.filedocument.AttachmentInstance;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import javax.sql.DataSource;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,9 +53,10 @@ import java.util.logging.Logger;
 
 public class DbDocumentationManager extends AbstractDocumentationManager {
     private static final Logger LOG = Logger.getLogger(DocumentationManager.class.getName());
-   // private SessionFactory sessionFactory;
-    JdbcTemplate jdbc=null;
 
+    JdbcTemplate jdbc=null;
+    LargeDbDataDao oidDao=null;
+    DbDocument active;
     public DbDocumentationManager(String value) throws Exception {
         Properties properties=loadProperties(value);
         String driver=properties.getProperty("hibernate.connection.driver_class");
@@ -60,6 +71,7 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
             SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driverInstance, url, username, password);
 
             jdbc=new JdbcTemplate(dataSource);
+            oidDao = new LargeDbDataDao(jdbc);
 
             JdbcConnection connection = new JdbcConnection(dataSource.getConnection());
             db.setConnection(connection);
@@ -104,47 +116,154 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
         return null;
     }
 
+    public static String getMd5(byte[] data){
+        MessageDigest m = null;
+        try {
+            if(data==null || data.length==0)
+                return null;
+            m = MessageDigest.getInstance("MD5");
+            m.reset();
+            m.update(data);
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1,digest);
+            String hashtext = bigInt.toString(16);
+            // Now we need to zero pad it if you actually want the full 32 chars.
+            while(hashtext.length() < 32 ){
+                hashtext = "0"+hashtext;
+            }
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
     @Override
-    public Document createDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, byte[] fileContent) throws DocumentationCreationException {
-        DocumentImpl doc = new DocumentImpl(name, null, EnvTool.getUserId(), new Date(), new Date(), true, true,null, null, fileName, contentMimeType, fileContent==null?0:fileContent.length, definitionUUID, instanceUUID);
-        if(fileContent==null || fileContent.length==0)
-            return doc;
-        long id=jdbc.queryForLong("select nextval('BN_DOCUMENT_FILE_SEQ')");
-        doc.setId(Long.toString(id));
-        long oid = createOid(fileContent);
-        jdbc.update("insert into BN_DOCUMENT_FILE (id, document_name, definition_uuid, instance_uuid, last_modified_by, creation_date, last_modification_date, file_name, content_mime_type, content_size, BLOB_VALUE, XML_VALUE) " +
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
-                , id
-                , name
-                , doc.getProcessDefinitionUUID().getValue()
-                , doc.getProcessInstanceUUID().getValue()
-                , doc.getLastModifiedBy()
-                , doc.getCreationDate()
-                , doc.getLastModificationDate()
-                , doc.getContentFileName()
-                , doc.getContentMimeType()
-                , doc.getContentSize()
-                , oid<0?null:oid
-                , doc.toString()
-        );
+    public Document createDocument(final String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID, String fileName, String contentMimeType, final byte[] fileContent) throws DocumentationCreationException {
+        String md5 = getMd5(fileContent);
+        //if(instanceUUID==null)
+        //    instanceUUID=new ProcessInstanceUUID(DEFINITION_LEVEL_DOCUMENT);
+        DbDocument d = (DbDocument) getDocument(name, definitionUUID, instanceUUID);
+        if(d!=null)
+        {
+            if(!StringUtils.equalsIgnoreCase(md5, d.getHash())){
+                long oid = oidDao.createOid(fileContent);
+
+                d.setHash(md5);
+                d.setOid(oid);
+                d.setContentSize(fileContent == null ? 0 : fileContent.length);
+                d.setContentMimeType(contentMimeType);
+                d.setContentFileName(fileName);
+                d.setLastModificationDate(new Date());
+                d.setLastModifiedBy(EnvTool.getUserId());
+
+                long id=Long.parseLong(d.getId());
+
+                int result=jdbc.update("update BN_DOCUMENT_FILE set " +
+                        "file_name = ?, last_modified_by = ?, last_modification_date=?, content_mime_type=?, " +
+                        "content_size=?, content_hash=?, blob_value=?, xml_value=?" +
+                        " WHERE id =?"
+                    , d.getContentFileName()
+                    , d.getLastModifiedBy()
+                    , d.getLastModificationDate()
+                    , d.getContentMimeType()
+                    , d.getContentSize()
+                    , d.getHash()
+                    , d.getOid()
+                    , d.toString()
+                    , id
+                );
+            }
+            return d;
+        }
+
+        final DbDocument doc = new DbDocument(name, null, EnvTool.getUserId(), new Date(), new Date(), true, true, null, null, fileName, contentMimeType, fileContent == null ? 0 : fileContent.length, definitionUUID, instanceUUID);
+
+        try {
+            long id=jdbc.queryForLong("select nextval('BN_DOCUMENT_FILE_SEQ')");
+            doc.setId(Long.toString(id));
+            Connection connection = jdbc.getDataSource().getConnection();
+
+            long oid=0;
+            String hash="";
+            if(active!=null)
+            {
+                oid=active.getOid();
+                hash=active.getHash();
+            }
+
+
+            if(fileContent!=null && fileContent.length>0 && !hash.equalsIgnoreCase(md5))
+            {
+               oid = oidDao.createOid(fileContent);
+            }
+
+            doc.setOid(oid);
+            doc.setHash(md5);
+            if(getDocument(name, definitionUUID, instanceUUID)==null){
+
+                doc.setLastModificationDate(new Date());
+                doc.setLastModifiedBy(EnvTool.getUserId());
+
+                jdbc.update("insert into BN_DOCUMENT_FILE (" +
+                    "id, document_name, definition_uuid, instance_uuid, last_modified_by, " +
+                    "creation_date, last_modification_date, file_name, content_mime_type, " +
+                    "content_size, content_hash, blob_value, xml_value, author) " +
+                    " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                    , id
+                    , name
+                    , getUuidValue(doc.getProcessDefinitionUUID())
+                    , getUuidValue(doc.getProcessInstanceUUID())
+                    , doc.getLastModifiedBy()
+                    , doc.getCreationDate()
+                    , doc.getLastModificationDate()
+                    , doc.getContentFileName()
+                    , doc.getContentMimeType()
+                    , doc.getContentSize()
+                    , doc.getHash()
+                    , doc.getOid()
+                    , doc.toString()
+                    , doc.getAuthor()
+                );
+
+            }
+
+            connection.commit();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return doc;
     }
 
-    public static Document deSerialize(String xml, String name){
-        XStream xstream = XStreamUtil.getDefaultXstream();
-        DocumentImpl document1=new DocumentImpl(name);
-        return (DocumentImpl)xstream.fromXML(xml, document1);
-    }
+
 
     @Override
     public Document getDocument(String documentId) throws DocumentNotFoundException {
         String obj=jdbc.queryForObject("select XML_VALUE from BN_DOCUMENT_FILE where id=?", new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getString(0);
+                return rs.getString(1);
             }
-        }, documentId);
-        return deSerialize(obj, documentId);
+        }, new Long(documentId));
+        return DbDocument.deSerialize(obj);
+    }
+
+    public Document getDocument(String name, ProcessDefinitionUUID definitionUUID, ProcessInstanceUUID instanceUUID) {
+        try{
+            String obj=jdbc.queryForObject("select XML_VALUE from BN_DOCUMENT_FILE where document_name=? and definition_uuid=? and instance_uuid = ?", new RowMapper<String>() {
+                    @Override
+                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        return rs.getString(1);
+                    }
+                },
+                name,
+                getUuidValue(definitionUUID),
+                getUuidValue(instanceUUID));
+
+            return DbDocument.deSerialize(obj);
+        }catch (IncorrectResultSizeDataAccessException ex){
+            return null;
+        }
     }
 
     @Override
@@ -152,104 +271,72 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
         long oid=jdbc.queryForLong("select BLOB_VALUE from BN_DOCUMENT_FILE where id=?", documentId);
         jdbc.update("delete from BN_DOCUMENT_FILE where id=?", documentId);
         try {
-            deleteOid(oid);
+            oidDao.deleteOid(oid);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    public String getUuidValue(AbstractUUID uuid){
+        if(uuid==null || uuid.getValue()==null)
+            return "NULL";
+        return uuid.getValue();
+    }
+
     @Override
     public byte[] getContent(Document document) throws DocumentNotFoundException {
-        if(StringUtils.isEmpty(document.getId()))
-            return null;
 
         try {
-            Long oid=jdbc.queryForLong("SELECT blob_value from bn_document_file where Id=?", document.getId());
-            LargeObjectManager lobj = ((org.postgresql.PGConnection)jdbc.getDataSource().getConnection()).getLargeObjectAPI();
-            if(oid>0){
-                LargeObject obj = lobj.open(oid, LargeObjectManager.READ);
-                byte buf[] = new byte[obj.size()];
-                obj.read(buf, 0, obj.size());
-                // Do something with the data read here
-                ByteArrayOutputStream stream=new ByteArrayOutputStream();
-                try {
-                    IOUtils.copy(obj.getInputStream(), stream);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                obj.close();
-                buf = stream.toByteArray();
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return buf;
+            active = (DbDocument) document;
+            ProcessDefinitionUUID definitionUUID = document.getProcessDefinitionUUID();
+            ProcessInstanceUUID processInstanceUUID = document.getProcessInstanceUUID();
+            //Long oid=jdbc.queryForLong("SELECT blob_value from bn_document_file where document_name=? and definition_uuid=? and COALESCE(instance_uuid, '') = ?", document.getName(), getUuidValue(definitionUUID), getUuidValue(processInstanceUUID));
+
+            if(active.getOid()>0){
+                return oidDao.readObject(active.getOid());
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return new byte[0];
     }
 
     @Override
     public List<Document> getVersionsOfDocument(String documentId) throws DocumentNotFoundException {
-        return null;
+        List<Document> files = new ArrayList<Document>();
+        files.add(getDocument(documentId));
+        return files;
+    }
+
+    @Override
+    protected List<Document> getProcessDefinitionDocuments(ProcessInstanceUUID processInstanceUUID, ProcessDefinitionUUID processDefinitionUUID, String attachmentName) throws DocumentationCreationException {
+        List<Document> files = new ArrayList<Document>();//try load attachments from processdefinition and initialize.
+        //this happens when document repository does not have documents in it but
+
+        AttachmentInstance attachemnt=getLargeDataRepositoryAttachment(processDefinitionUUID, attachmentName);
+
+        if(attachemnt!=null){
+            String fileType=null;
+            String mimeType=null;
+            AttachmentDefinition attachmentDefinition = attachemnt.getAttachmentDefinition();
+            if(attachmentDefinition.getFileName()!=null){
+                fileType=attachmentDefinition.getFileName().substring(attachmentDefinition.getFileName().lastIndexOf('.')+1);
+                mimeType=mimeProperties.getString(fileType);
+            }
+            active=null;
+            //DbDocument document = new DbDocument(attachmentDefinition.getName(), null, EnvTool.getUserId(), new Date(), new Date(), true, true, null, null, attachmentDefinition.getFileName(), mimeType, 0, processDefinitionUUID, null);
+            DbDocument document = (DbDocument) createDocument(attachmentName, processDefinitionUUID,processInstanceUUID , attachmentDefinition.getFileName(), mimeType, attachemnt.getData());
+            files.add(document);
+        }
+        return files;
     }
 
     @Override
     public Document createVersion(String documentId, boolean isMajorVersion, String fileName, String mimeType, byte[] content) throws DocumentationCreationException {
         long oid=jdbc.queryForLong("select BLOB_VALUE from BN_DOCUMENT_FILE where id=?", documentId);
-        updateOid(content, oid);
+        oidDao.updateOid(content, oid);
         return null;
-    }
-    private long updateOid(byte[] content, long oid) {
-
-        try {
-            LargeObjectManager lobj = deleteOid(oid);
-            oid = lobj.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
-            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
-            storeDataToOid(content, obj);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return oid;
-    }
-
-    private LargeObjectManager deleteOid(long oid) throws SQLException {
-        LargeObjectManager lobj = ((org.postgresql.PGConnection)jdbc.getDataSource().getConnection()).getLargeObjectAPI();
-        lobj.delete(oid);
-        return lobj;
-    }
-
-    private long createOid(byte[] content) {
-        long oid=0;
-        if(content==null)
-            return 0;
-        try {
-            LargeObjectManager lobj = ((org.postgresql.PGConnection)jdbc.getDataSource().getConnection()).getLargeObjectAPI();
-
-            oid = lobj.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
-            // Open the large object for writing
-            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
-            storeDataToOid(content, obj);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return oid;
-    }
-
-    private void storeDataToOid(byte[] content, LargeObject obj) throws SQLException {
-        ByteArrayInputStream bis=new ByteArrayInputStream(content);
-        // Copy the data from the file to the large object
-        byte buf[] = new byte[2048];
-        int s, tl = 0;
-        while ((s = bis.read(buf, 0, 2048)) > 0) {
-            obj.write(buf, 0, s);
-            tl += s;
-        }
-        obj.close();
     }
 
     @Override
@@ -266,32 +353,72 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
         ProcessInstanceUUID processInstanceUUID=null;
         ProcessDefinitionUUID processDefinitionUUID=null;
 
-        String procDefString = crits.containsKey(DocumentIndex.PROCESS_DEFINITION_UUID) ? crits.get(DocumentIndex.PROCESS_DEFINITION_UUID).getValue().toString() : null;
-        String procInstString = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : "DEFINITION_LEVEL_DOCUMENT";
+        String instId = crits.containsKey(DocumentIndex.PROCESS_INSTANCE_UUID) ? crits.get(DocumentIndex.PROCESS_INSTANCE_UUID).getValue().toString() : null;
+        if(StringUtils.isNotEmpty(instId))
+            processInstanceUUID = new ProcessInstanceUUID(instId);
+
+        String defId = crits.containsKey(DocumentIndex.PROCESS_DEFINITION_UUID) ? crits.get(DocumentIndex.PROCESS_DEFINITION_UUID).getValue().toString() : null;
+        if(StringUtils.isNotEmpty(defId))
+            processDefinitionUUID=new ProcessDefinitionUUID(defId);
+
+        if(processDefinitionUUID==null)
+            processDefinitionUUID=getDefinitionFromInstance(processInstanceUUID);
+
+
+
         String attachmentName = crits.containsKey(DocumentIndex.NAME) ? crits.get(DocumentIndex.NAME).getValue().toString() : null;
         List<Document> files = null;
         final String userId = EnvTool.getUserId();
 
-        files= (List<Document>) jdbc.query("select id, document_name, definition_uuid, instance_uuid, last_modified_by, creation_date, last_modification_date, file_name, content_mime_type, content_size from BN_DOCUMENT_FILE where DOCUMENT_NAME=? and definition_uuid=? and instance_uuid=?", new RowMapper<Document>() {
+        List<Object> params=new ArrayList<Object>();
+        List<String> paramKeys=new ArrayList<String>();
+        paramKeys.add(" definition_uuid = ? ");
+        params.add(getUuidValue(processDefinitionUUID));
+        if(attachmentName!=null)
+        {
+            params.add(attachmentName);
+            paramKeys.add(" DOCUMENT_NAME = ? ");
+        }
+        if(processInstanceUUID!=null){
+           params.add(getUuidValue(processInstanceUUID));
+           paramKeys.add(" instance_uuid = ? ");
+        }
+        Object[] objects = params.toArray();
+
+        files= (List<Document>) jdbc.query("select id, document_name, definition_uuid, instance_uuid, last_modified_by, creation_date, last_modification_date, file_name, content_mime_type, content_size, content_hash, blob_value from BN_DOCUMENT_FILE where "+ StringUtils.join(paramKeys.toArray(), " and "), new RowMapper<Document>() {
 
             @Override
             public Document mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Document document;
+                DbDocument document;
                 ProcessDefinitionUUID definition_uuid = new ProcessDefinitionUUID(rs.getString("definition_uuid"));
-                ProcessInstanceUUID instance_uuid = new ProcessInstanceUUID(rs.getString("instance_uuid"));
-                document = new DocumentImpl(rs.getString("document_name"), null, rs.getString("last_modified_by"), rs.getDate("creation_date"), rs.getDate("last_modification_date"), true, true,null, null, rs.getString("file_name"), rs.getString("content_mime_type"), rs.getLong("content_size"), definition_uuid, instance_uuid);
+                String uid = rs.getString("instance_uuid");
+                ProcessInstanceUUID instance_uuid = null;
+                if (!StringUtils.isEmpty(uid) && !"NULL".equalsIgnoreCase(uid))
+                    instance_uuid = new ProcessInstanceUUID(uid);
+
+                document = new DbDocument(rs.getString("document_name"), null, rs.getString("last_modified_by"), rs.getDate("creation_date"), rs.getDate("last_modification_date"), true, true, null, null, rs.getString("file_name"), rs.getString("content_mime_type"), rs.getLong("content_size"), definition_uuid, instance_uuid);
                 document.setId(Long.toString(rs.getLong("id")));
+                document.setOid(rs.getLong("blob_value"));
+                document.setHash(rs.getString("content_hash"));
                 return document;
             }
-        }, attachmentName, procDefString, procInstString);
+        }, objects);
         if(files.size()==0 && attachmentName!=null){
             try {
-                files = getProcessDefinitionDocuments(new ProcessInstanceUUID(procInstString), new ProcessDefinitionUUID(procDefString), attachmentName);
+                Document doc=getDocument(attachmentName, processDefinitionUUID, processInstanceUUID);
+                if(doc!=null)
+                    files.add(doc);
+                else
+                    files = getProcessDefinitionDocuments(processInstanceUUID, processDefinitionUUID, attachmentName);
             } catch (DocumentationCreationException e) {
                 LOG.severe(e.getMessage());
             }
         }
         return new SearchResult(files, files.size());
+    }
+
+    private ProcessDefinitionUUID getDefinitionFromInstance(ProcessInstanceUUID processInstanceUUID) {
+        return processInstanceUUID.getProcessDefinitionUUID();
     }
 
     @Override

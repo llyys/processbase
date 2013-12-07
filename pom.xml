@@ -15,10 +15,10 @@
 		
 		<project.base.dir>D:\dev\processbase</project.base.dir>
 		
-		<tomcat.home>D:\dev_env\BOS-5.5.1-Tomcat-6.0.32</tomcat.home>
+		<tomcat.home>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32</tomcat.home>
 		<liferay.home>D:\dev_env\kovmen\tomcat\liferay-portal-6.0.5\tomcat-6.0.26</liferay.home>
 		
-		<server.deploy.path>D:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
+		<server.deploy.path>C:\dev_env\BOS-5.5.1-Tomcat-6.0.32\webapps</server.deploy.path>
 		<liferay.deploy.path>D:\dev_env\liferay-portal-6.0.5\deploy</liferay.deploy.path>
 		
 		<container.port>8080</container.port>
