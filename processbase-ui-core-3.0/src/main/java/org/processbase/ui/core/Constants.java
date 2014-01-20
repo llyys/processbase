@@ -21,10 +21,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Driver;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.ow2.bonita.util.BonitaConstants;
 import org.processbase.engine.bam.db.HibernateUtil;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  *
@@ -95,6 +102,63 @@ public class Constants {
     public static String getBonitaHomeDir(){
     	return System.getProperty(BONITA_HOME);
     }
+
+    private static Map<String, Properties> journalProperties=new HashMap<String, Properties>();
+
+    public static Properties getJournalProperties(String domain){
+        if(StringUtils.isEmpty(domain))
+            domain="default";
+        if(journalProperties.containsKey(domain))
+            return journalProperties.get(domain);
+
+        String userHomeDir = BonitaConstants.getBonitaHomeFolder();
+        File file = new File(userHomeDir + "/server/" + domain
+                + "/conf/bonita-journal.properties");
+
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            Properties properties = new Properties();
+            properties.load(in);
+            journalProperties.put(domain, properties);
+            return properties;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static JdbcTemplate getJdbcTemplate(Properties properties){
+        String driver=properties.getProperty("hibernate.connection.driver_class");
+        String url=properties.getProperty("hibernate.connection.url");
+        String username=properties.getProperty("hibernate.connection.username");
+        String password=properties.getProperty("hibernate.connection.password");
+        Driver driverInstance= null;
+        try {
+            driverInstance = (Driver) Driver.class.forName(driver).newInstance();
+            SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driverInstance, url, username, password);
+            return new JdbcTemplate(dataSource);
+
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
 
     private static void load(File file) throws FileNotFoundException, IOException {
         

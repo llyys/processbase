@@ -121,6 +121,9 @@ public abstract class AbstractDocumentationManager implements DocumentationManag
             InternalProcessDefinition process = FacadeUtil.getProcessDefinition(processDefinitionUUID);
 
             AttachmentDefinition attachmentdef = process.getAttachment(attachmentName);
+            if(attachmentdef==null)
+                return null;
+
             AttachmentInstance attachment=new AttachmentInstance();
             attachment.setAttachmentDefinition(attachmentdef);
 

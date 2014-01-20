@@ -62,9 +62,6 @@
 								<copy todir="${tomcat.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
 									<fileset dir="target" includes="process-legislations-${project.version}.jar" />
 								</copy>
-								<copy todir="${liferay.home}/lib/bonita/" flatten="true" overwrite="true"	verbose="true" failonerror="true">
-									<fileset dir="target" includes="process-legislations-${project.version}.jar" />
-								</copy>
 							</tasks>
 						</configuration>
 						<goals>

@@ -17,51 +17,37 @@
 package org.processbase.ui.core;
 
 import com.vaadin.Application;
-import com.vaadin.Application.SystemMessages;
 import com.vaadin.service.ApplicationContext.TransactionListener;
-import com.vaadin.terminal.DownloadStream;
 import com.vaadin.terminal.Terminal;
-import com.vaadin.terminal.URIHandler;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.caliburn.application.event.IEventAggregator;
-import org.caliburn.application.event.IHandle;
 import org.caliburn.application.event.imp.DefaultEventAggregator;
-import org.ow2.bonita.connector.core.configuration.Configuration;
 import org.ow2.bonita.facade.identity.User;
-
 import org.processbase.ui.core.template.LazyLoadingLayout;
 import org.processbase.ui.osgi.PbPanelModuleService;
-//import org.xeustechnologies.jcl.JarClassLoader;
 
-
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+import java.util.ResourceBundle;
 /**
  *
  * @author mgubaidullin
  */
 public abstract class ProcessbaseApplication extends Application implements TransactionListener, HttpServletRequestListener  {
 
+    public static final String USER = "USER";
     static ThreadLocal<ProcessbaseApplication> current = new ThreadLocal<ProcessbaseApplication>();
     public static int LIFERAY_PORTAL = 0;
     public static int STANDALONE = 1;
     public static String AUTH_KEY="AUTH_KEY";
+    public static String AUTH_MESSAGE="AUTH_MESSAGE";
     protected static Logger LOGGER = Logger.getLogger(ProcessbaseApplication.class);
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
@@ -87,7 +73,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 
     public abstract String getUserName();
     
-    public abstract void authenticate(String login, String password, boolean rememberMe, String domainName) throws Exception;
+
     
     public User getCurrentUser(){
     	try {
@@ -98,7 +84,6 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 		}
     }
 
-    public abstract void setUserName(String userName);
 
     public abstract BPMModule getBpmModule();
 
@@ -179,9 +164,9 @@ public abstract class ProcessbaseApplication extends Application implements Tran
             current.set(application);
         }
     }
-    
-    public static void Publish(Object message) { 
-    	
+
+    public static void Publish(Object message) {
+
         getCurrent().events.Publish(message);
     }
 
@@ -253,6 +238,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
     public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
     	this.httpServletRequest = request;
     	this.httpServletResponse=response;
+
 	/*	LOGGER.debug("[Start of request");
 		LOGGER.debug(" Query string: " + request.getQueryString());
 		LOGGER.debug(" Path: " + request.getPathInfo());*/
@@ -261,7 +247,26 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
 		//LOGGER.debug(" End of request]");
 		this.httpServletResponse=response;
-		this.httpServletRequest=null;		
+		this.httpServletRequest=null;
+            if(request.getRequestURI().contains("UIDL"))
+            return;
+
+       /* PbUser user = (PbUser) request.getSession().getAttribute(USER);
+        if(getMainWindow()!=null
+                && getMainWindow().getApplication()!=null
+                && user !=null){
+            if(getCurrent()==null)
+                setCurrent(this);
+            Application application = getMainWindow().getApplication();
+            if(application.getUser()==null || !((PbUser)application.getUser()).username.equalsIgnoreCase(user.username))
+                application.setUser(user);
+
+            if(!application.getMainWindow().getComponentIterator().hasNext())
+                application.init();
+
+
+        }*/
+
 	}
 	
 
@@ -275,7 +280,7 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 	}
 
 	public static void Register(Object handler) {
-		getCurrent().events.Subscribe(handler);		
+		getCurrent().events.Subscribe(handler);
 	}
 	/**
      * Creates and starts a new thread. This method must be used instead of <code>new
@@ -294,7 +299,12 @@ public abstract class ProcessbaseApplication extends Application implements Tran
 	public void invokeLater(LazyLoadingLayout lazyLoadingLayout) {
 		
 	}
-	private class TPTRunnable implements Runnable
+
+    public ServletContext getServletContext() {
+        return getCurrent().getHttpServletRequest().getSession().getServletContext();
+    }
+
+    private class TPTRunnable implements Runnable
     {
 
         private ProcessbaseApplication application;

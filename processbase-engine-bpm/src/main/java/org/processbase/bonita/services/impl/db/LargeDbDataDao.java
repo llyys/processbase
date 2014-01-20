@@ -32,12 +32,26 @@ public class LargeDbDataDao {
             oid = lobj.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
             LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
             storeDataToOid(content, obj);
-            connection.commit();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally {
+            closeConnection();
+        }
+
         return oid;
     }
+    private void closeConnection(){
+        if(connection!=null)
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        connection=null;
+    }
+
     private Connection connection;
     private LargeObjectManager getLargeObjectManager() {
         try {
@@ -61,6 +75,7 @@ public class LargeDbDataDao {
             tl += s;
         }
         obj.close();
+        closeConnection();
     }
 
     public long updateOid(byte[] content, long oid) {
@@ -73,12 +88,19 @@ public class LargeDbDataDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally {
+            closeConnection();
+        }
         return oid;
     }
 
     public LargeObjectManager deleteOid(long oid) throws SQLException {
-        LargeObjectManager lobj = getLargeObjectManager();
-        lobj.delete(oid);
-        return lobj;
+        try {
+            LargeObjectManager lobj = getLargeObjectManager();
+            lobj.delete(oid);
+            return lobj;
+        }finally {
+            closeConnection();
+        }
     }
 }

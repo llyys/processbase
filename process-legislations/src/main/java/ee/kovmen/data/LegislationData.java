@@ -31,11 +31,11 @@ public class LegislationData {
 	
 	public static SessionFactory getSessionFactory() {
 		
-		String currentDomain = ProcessbaseApplication.getCurrent()
-				.getBpmModule().getCurrentDomain();
+		String currentDomain = ProcessbaseApplication.getCurrent().getBpmModule().getCurrentDomain();
         if(StringUtils.isNullOrEmpty(currentDomain) || "null".equalsIgnoreCase(currentDomain))
             currentDomain= Constants.BONITA_DOMAIN;
-		SessionFactory sessionFactory =  sessionFactoryMap.get(currentDomain);
+
+        SessionFactory sessionFactory =  sessionFactoryMap.get(currentDomain);
 		if (sessionFactory == null) {
 			try {
 				String userHomeDir = BonitaConstants.getBonitaHomeFolder();
@@ -51,8 +51,7 @@ public class LegislationData {
 
 				AnnotationConfiguration configuration = new AnnotationConfiguration();
 				
-				configuration
-						.setProperties(properties);
+				configuration.setProperties(properties);
 
 				AnnotationConfiguration configure = configuration.configure();
 				sessionFactory = configure.buildSessionFactory();

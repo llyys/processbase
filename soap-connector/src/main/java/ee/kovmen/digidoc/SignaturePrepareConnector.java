@@ -1,24 +1,22 @@
 package ee.kovmen.digidoc;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
+import com.codeborne.security.signature.SignatureSession;
+import com.codeborne.security.signature.SmartcardSigner;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.ow2.bonita.connector.core.ConnectorError;
 import org.ow2.bonita.connector.core.ProcessConnector;
 import org.ow2.bonita.facade.QueryRuntimeAPI;
-import org.ow2.bonita.facade.RuntimeAPI;
 import org.ow2.bonita.facade.runtime.AttachmentInstance;
 import org.ow2.bonita.facade.runtime.Document;
 import org.ow2.bonita.util.AccessorUtil;
 
-import ee.sk.digidoc.SignedDoc;
+import java.io.File;
+import java.util.*;
 
 public class SignaturePrepareConnector extends ProcessConnector {
-
+    final static Logger logger = Logger.getLogger(SignaturePrepareConnector.class);
 	
 	
 	// DO NOT REMOVE NOR RENAME THIS FIELD
@@ -26,60 +24,73 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	// DO NOT REMOVE NOR RENAME THIS FIELD
 	private java.lang.String cert;
 	private String signatureHash;
-	
+    private List<ConnectorError> errors = new ArrayList<ConnectorError>();
 
 	@Override
 	protected void executeConnector() throws Exception {
-	
-		Sign sign=new Sign(getProcessInstanceUUID().toString());
-		sign.initSettings(Sign.getBonitaHomeDir());
-		
-		List<Document> documents=new ArrayList<Document>();
-		
-		QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getQueryRuntimeAPI();
-		sign.setQueryRuntimeAPI(queryRuntimeAPI);
-		
-		for (int i = 0; i < files.size(); i++) {
-			if(files.get(i) instanceof AttachmentInstance){
-				AttachmentInstance attachment = (AttachmentInstance) files.get(i);
-				org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
-				if(bonita_doc != null){
-					documents.add(bonita_doc);
-				}
-			} else if(files.get(i) instanceof List) {
-				List list = (List) files.get(i);
-				for (int j = 0; j < list.size(); j++) {
-					if(list.get(j) instanceof AttachmentInstance){
-						AttachmentInstance attachment = (AttachmentInstance) list.get(j);
-						org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
-						if(bonita_doc != null){
-							documents.add(bonita_doc);
-						}
-					}
-				}
-			}
-		}
-		
-//		for (AttachmentInstance attachment : files) {
-//				org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
-//				documents.add(bonita_doc);
-//		}
 
-		//kui on cert topelt kodeeritud (sest cerdi andmed on sisestatud <input type="text"> v�ljale ja see s��b �ra reavahetused ning cert selle t�ttu ei t��ta
-		if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
-		{
-			byte[] decodeBase64 = Base64.decodeBase64(cert);
-			cert=new String(decodeBase64);
-		}
-		
-		signatureHash= sign.appendFilesAndGenerateHash(cert, documents);
-		sign.SerializeDoc(Sign.SIGNED_DOC+".obj");
-		
+        String path = SignatureHelper.getTempDirectoryForProcess(getProcessInstanceUUID().toString());
+        logger.info("executeConnector path:"+path);
+        try {
+            SignatureHelper.initializeKeystore();
+            Properties conf = SignatureHelper.getProperties(new File(SignatureHelper.getBonitaHomeDir(), "esteid.properties"));
+
+            for (Object name : Collections.list(conf.propertyNames()))
+            {
+                logger.info(name.toString() + "=" + conf.getProperty(name.toString()));
+            }
+
+            SignatureHelper.getProperties(new File(SignatureHelper.getBonitaHomeDir(), "esteid.properties"));
+            SmartcardSigner signer = new SmartcardSigner(conf.getProperty("DIGIDOC_SERVICE_URL"), conf.getProperty("DIGIDOC_SERVICE_TITLE"));
+            SignatureSession session=null;
+
+
+            List<Document> documents=new ArrayList<Document>();
+            List<File> documentFiles=new ArrayList<File>();
+            QueryRuntimeAPI queryRuntimeAPI = AccessorUtil.getQueryRuntimeAPI();
+
+            for (int i = 0; i < files.size(); i++) {
+                if(files.get(i) instanceof AttachmentInstance){
+                    AttachmentInstance attachment = (AttachmentInstance) files.get(i);
+                    org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
+                    if(bonita_doc != null){
+                        //documents.add(bonita_doc);
+                        documentFiles.add(SignatureHelper.getFileFromProcess(queryRuntimeAPI, bonita_doc, path));
+                    }
+                } else if(files.get(i) instanceof List) {
+                    List list = (List) files.get(i);
+                    for (int j = 0; j < list.size(); j++) {
+                        if(list.get(j) instanceof AttachmentInstance){
+                            AttachmentInstance attachment = (AttachmentInstance) list.get(j);
+                            org.ow2.bonita.facade.runtime.Document bonita_doc = queryRuntimeAPI.getDocument(attachment.getUUID());
+                            if(bonita_doc != null){
+                                documentFiles.add(SignatureHelper.getFileFromProcess(queryRuntimeAPI, bonita_doc, path));
+                            }
+                        }
+                    }
+                }
+            }
+            session = signer.startSession(documentFiles);
+
+            if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
+            {
+                cert=new String(Base64.decodeBase64(cert));
+            }
+            //kui on cert topelt kodeeritud (sest cerdi andmed on sisestatud <input type="text"> valjale ja see soob ara reavahetused ning cert selle tottu ei toota
+            signatureHash=signer.PrepareSignature(session, cert, "S0", "", "", "", "", "", "");
+            SignatureHelper.serializeToDisc(path, "Signature.obj", session);
+
+        }catch (Exception e){
+            logger.error("executeConnector", e);
+            errors.add(new ConnectorError("allkiri", e));
+            FileUtils.deleteDirectory(new File(path));
+            // throw e;
+        }
 	}
 
 	@Override
 	protected List<ConnectorError> validateValues() {
-		List<ConnectorError> errors = new ArrayList<ConnectorError>();
+
 		if(this.cert==null){
 			errors.add(new ConnectorError("Cert", new Exception("Cert is missing!")));
 		}
@@ -102,7 +113,11 @@ public class SignaturePrepareConnector extends ProcessConnector {
 		}
 		if(filesToSign==0){
 			errors.add(new ConnectorError("files", new Exception("No files to sign!")));
-		}		
+		}
+        if(errors.size()>0)
+            for (ConnectorError error:errors){
+                logger.error(error.getField(), error.getError());
+            }
 		return errors.size()==0?null:errors;
 	}
 

@@ -26,12 +26,13 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.vaadin.ui.Window;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.ow2.bonita.facade.identity.User;
+import org.ow2.bonita.facade.identity.impl.UserImpl;
 import org.processbase.ui.bpm.identity.sync.UserRolesSync;
-import org.processbase.ui.core.BPMModule;
-import org.processbase.ui.core.Constants;
-import org.processbase.ui.core.ProcessbaseApplication;
+import org.processbase.ui.core.*;
 import org.processbase.ui.osgi.PbPanelModule;
 import org.processbase.ui.osgi.PbPanelModuleService;
 import org.processbase.ui.osgi.PbPanelModuleServiceListener;
@@ -61,7 +62,13 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 	private UriFragmentUtility uriFragment;
 
 	private String currentDomain;
-    
+    private PbUser user;
+
+    @Override
+    public Object getUser(){
+        return user;
+    }
+
 //    int type = STANDALONE;
 
     public PbApplication(PbPanelModuleService panelModuleService) {
@@ -69,106 +76,81 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     	 
     }
 
-    public void initUI() {
+    private HttpSession getHttpSession() {
+        HttpServletRequest httpServletRequest = getHttpServletRequest();
+        String sessionId = httpServletRequest.getParameter("sid");
 
+        if(StringUtils.isBlank(sessionId)) {
+            return httpServletRequest.getSession();
+        }
+
+        HttpSession session = (HttpSession) httpServletRequest.getAttribute(sessionId);
+        return session;
+    }
+
+    public void initUI() {
         System.out.println("PbApplication init ");
-//        if (!Constants.LOADED) {
-//            Constants.loadConstants();
-//        }
-       // setTheme("processbaseruno");
         try {
         	DOMConfigurator.configure(Constants.getBonitaHomeDir()+"/log4j.xml");        	
-        	
         	LOGGER.info("PbApplication initialized");
-        	
             WebApplicationContext applicationContext = (WebApplicationContext) this.getContext();
-            
-            httpSession = applicationContext.getHttpSession();
-            ServletContext servletContext = httpSession.getServletContext();
-            
-            //context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-            
+            httpSession = getHttpSession();
+            HttpServletRequest servletRequest = getHttpServletRequest();
             setLocale(applicationContext.getBrowser().getLocale());
-            
             setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
-            
 
-            
             mainWindow = new MainWindow();
             setMainWindow(mainWindow);
 
-            
             uriFragment = new UriFragmentUtility();
             mainWindow.addComponent(uriFragment);
             
-            User authUser=(User) getHttpServletRequest().getSession().getAttribute(AUTH_KEY);
+            PbUser authUser=(PbUser) getHttpSession().getAttribute(USER);
             if(authUser!=null)
             {
             	if(bpmModule==null)
             	{
-            		BPMModule bpmm = new BPMModule(authUser.getUsername());
+            		BPMModule bpmm = new BPMModule(authUser.username);
             		setBpmModule(bpmm);
         		}
-            	authUser=getBpmModule().authUser(authUser); 
-            	setUserName(authUser.getUsername());
-            	mainWindow.initUI();
+            	//authUser=getBpmModule().authUser(authUser.id);
+                if(authenticate(authUser))
+                {
+                    mainWindow.initUI();
+                    return;
+                }
             	//return;
             } else {
-				HttpServletRequest servletRequest = getHttpServletRequest();
-				if(servletRequest.getParameter(BPMModule.USER_GUEST)!=null 
-						&& getHttpServletRequest().getParameter(BPMModule.USER_GUEST).equalsIgnoreCase(BPMModule.USER_GUEST))
+
+                String guest_parameter = servletRequest.getParameter(BPMModule.USER_GUEST);
+                if(guest_parameter !=null
+				    && BPMModule.USER_GUEST.equalsIgnoreCase(guest_parameter))
 				{
-					setUserName(BPMModule.USER_GUEST);
-					String domain=servletRequest.getParameter("domain");
-					if(domain==null)
-						domain=Constants.BONITA_DOMAIN;
+                    //anonymous user
+                    PbUser user=new PbUser();
+                    user.username=BPMModule.USER_GUEST;
+					user.password=BPMModule.USER_GUEST;
+                    user.rememberMe=false;
+					user.domain=servletRequest.getParameter("domain");
+					if(user.domain==null)
+                        user.domain=Constants.BONITA_DOMAIN;
+
 					LOGGER.debug("log in as "+BPMModule.USER_GUEST);
-					authenticate(BPMModule.USER_GUEST, BPMModule.USER_GUEST, false, domain);   
-					setUserName(BPMModule.USER_GUEST);
-					mainWindow.initUI();
-				}
-				else if(servletRequest.getParameter("p")!=null){
-					if(getBpmModule()==null)						
-            			setBpmModule(new BPMModule(BPMModule.USER_GUEST));
-					
-					mainWindow.initProcess(servletRequest.getParameter("p"));
-				}
-				else if(servletRequest.getParameter("t")!=null){
-					if(getBpmModule()==null)						
-            			setBpmModule(new BPMModule(BPMModule.USER_GUEST));
-					
-					mainWindow.initTask(servletRequest.getParameter("t"));
-				}
-				else
-				{
-					
-					Cookie cookie=null;
-					for (Cookie c : getCookies()) {
-						if("username".equals(c.getName())){
-							cookie=c;
-							break;
-						}
-					}
-					
-					if(cookie!=null && "username".equals(cookie.getName()) && org.apache.commons.lang.StringUtils.isNotEmpty(cookie.getValue()))
-					{
-						String userName2 = cookie.getValue();
-						setUserName(userName2);
-						BPMModule bpmm = new BPMModule(userName2);
-						setBpmModule(bpmm);
-						mainWindow.initUI();
-					}
-					else{
-						mainWindow.initLogin(); 
-					}
+					if(authenticate(user))
+                    {
+                        mainWindow.initUI();
+                        return;
+                    }
 				}
 			}
+            mainWindow.initLogin("User not found in system");
             
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
+
 
     private Cookie[] getCookies(){
     	if(getHttpServletRequest()==null || getHttpServletRequest().getCookies()==null)
@@ -182,37 +164,58 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         super.close();
     }
 
-    public void authenticate(String login, String password, boolean rememberMe, String domainName) throws Exception {
-    	this.currentDomain=domainName;
-        BPMModule bpmm = new BPMModule(login, domainName);
-        
-        if (bpmm.checkUserCredentials(login, password)) {
-            setUserName(login);
-            String locale = bpmm.getUserMetadata("locale");
-            if (locale != null) {
-                setLocale(new Locale(locale));
-                setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
+    @Override
+    public void setUser(Object u) {
+        PbUser user= (PbUser) u;
+        this.user=user;
+    }
+
+
+    public boolean authenticate(PbUser u) throws Exception {
+        try {
+            if(u.username==null)
+                return false;
+            BPMModule bpmm = new BPMModule(u.username, u.domain);
+
+            boolean checkCredentials = PbUser.AuthMethod.regular.equals(u.authMethod);
+            if (!checkCredentials || (checkCredentials && bpmm.checkUserCredentials(u.username, u.password)))
+            {
+                User usr = bpmm.findUserByUserName(u.username);
+                u.firstName=usr.getFirstName();
+                u.lastName=usr.getLastName();
+
+                String locale = bpmm.getUserMetadata("locale");
+                if (locale != null) {
+                    setLocale(new Locale(locale));
+                    setMessages(ResourceBundle.getBundle("MessagesBundle", getLocale()));
+                }
+                if(u.rememberMe){
+                    Cookie cookie = new Cookie("username", u.username);
+                    cookie.setMaxAge(3600); // One hour
+                    getHttpServletResponse().addCookie(cookie);
+                    System.out.println("Set cookie.");
+                }
+                setBpmModule(bpmm);
+                setUser(u);
+
+
+    //            try {
+    //				// Sync user roles
+    //				new UserRolesSync().updateUser(bpmm.findUserByUserName(userName));
+    //			} catch (Exception e) {
+    //				e.printStackTrace();
+    //			}
+    //
+                //mainWindow.initUI();
+                return true;
             }
-            if(rememberMe){
-            	Cookie cookie = new Cookie("username", login);
-				cookie.setMaxAge(3600); // One hour
-				getHttpServletResponse().addCookie(cookie);
-				System.out.println("Set cookie.");
-            }
-            setBpmModule(bpmm);
-            
-            try {
-				// Sync user roles
-				new UserRolesSync().updateUser(bpmm.findUserByUserName(userName));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-            
-            mainWindow.initUI();
-            
-        } else {
-            throw new Exception(getPbMessages().getString("loginWindowException2"));
-        }
+            setUser(null);
+        } catch (Exception e) {
+			e.printStackTrace();
+
+		}
+        setUser(null);
+        return false;
     }
 
     public void setSessionAttribute(String name, Object value) {
@@ -228,12 +231,9 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     }
 
     public String getUserName() {
-        return userName;
+        return user.username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public BPMModule getBpmModule() {
     	if(bpmModule==null)
@@ -250,6 +250,7 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
     	//return ProcessbaseApplication.getCurrent().getPbMessages();
     	return messages;
     }
+
 
     public void setMessages(ResourceBundle messages) {
         this.messages = messages;
@@ -295,17 +296,22 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
 
 /**
  * URI fragment utility allows to controlling url # tags in this case for navigating panels
- * @see http://vaadin.com/book/-/page/advanced.urifu.html
+
  * @return
  */    
 	public UriFragmentUtility getUriFragmentUtility() {
 		return uriFragment;
 	}
 
-public void setCurrentDomain(String currentDomain) {
-	this.currentDomain = currentDomain;
-	
-	
-}
+    public void showMainWindow() {
+        mainWindow.initUI();
+    }
 
+    public void showNotification(String message) {
+        mainWindow.showNotification(message);
+    }
+
+    public void showError(String message) {
+        mainWindow.showNotification("Error", message, Window.Notification.TYPE_ERROR_MESSAGE);
+    }
 }

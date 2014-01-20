@@ -83,6 +83,11 @@
             <artifactId>liquibase-core</artifactId>
             <version>3.0.7</version>
         </dependency>
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>mobileid</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 	</dependencies>
 
 

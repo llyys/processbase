@@ -32,6 +32,7 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +51,7 @@ import org.processbase.ui.bpm.generator.view.ProcessController;
 import org.processbase.ui.bpm.generator.view.ProcessManager;
 import org.processbase.ui.bpm.panel.*;
 import org.processbase.ui.core.BPMModule;
+import org.processbase.ui.core.PbUser;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.PbPanel;
 import org.processbase.ui.core.template.PbWindow;
@@ -73,7 +75,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private DevelopmentPanel developmentPanel;
     private RaportModule raportListPanel;
     
-    private User user;
+    private PbUser user;
     private List<Group> userGroups;
     private Group activeGroup;
     private List<String> accessSet;
@@ -83,19 +85,40 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         super(ProcessbaseApplication.getString("appName","BPMS"));
     }
 
-   
 
-	public void initLogin() {
+    LoginPanel loginPanel;
+	public void initLogin(String message) {
+
+
         mainLayout = (VerticalLayout) getContent();
-        LoginPanel loginPanel = new LoginPanel();
+        mainLayout.removeAllComponents();
+        loginPanel = new LoginPanel();
         mainLayout.addComponent(loginPanel);
-        loginPanel.initUI();
+
+        loginPanel.initUI(message);
 
     }
 
     public void initUI() {
         try {
+
+            if(getPbApplication().getUser()==null)
+            {
+                initLogin(null);
+                return;
+            }
             defineAccess();
+            HttpServletRequest servletRequest = getPbApplication().getHttpServletRequest();
+            //if opened a p as process and t as task parameter
+            if(servletRequest.getParameter("p")!=null){
+                initProcess(servletRequest.getParameter("p"));
+                return;
+            }
+            else if(servletRequest.getParameter("t")!=null){
+                initTask(servletRequest.getParameter("t"));
+                return;
+            }
+
             mainLayout = (VerticalLayout) getContent();
             mainLayout.removeAllComponents();
             mainLayout.setMargin(true);
@@ -105,7 +128,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             
 
             // prepare tabs
-            String userName = ProcessbaseApplication.getCurrent().getUserName();
+            //String userName = getPbApplication().getUserName();
             prepareTabs();
             mainLayout.addComponent(getHeader());
             /*if (accessSet.contains("tasklist")) {
@@ -189,16 +212,16 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         header.addComponent(logo);
         header.setExpandRatio(logo, 1.0f);
         Label helloUser; 
-        if(StringUtils.isEmpty(user.getFirstName()) && StringUtils.isEmpty(user.getLastName()))
-        	helloUser = new Label(getPbMessages("welcome")+", " + user.getUsername());
+        if(StringUtils.isEmpty(user.firstName) && StringUtils.isEmpty(user.lastName))
+        	helloUser = new Label(getPbMessages("welcome")+", " + user.username);
         else 
-        	helloUser = new Label(getPbMessages("welcome")+", " + user.getFirstName() + " " + user.getLastName());
+        	helloUser = new Label(getPbMessages("welcome")+", " + user.firstName + " " + user.lastName);
 //        helloUser.setStyleName(Runo.LABEL_H2);
         header.addComponent(helloUser);
         header.setComponentAlignment(helloUser, Alignment.MIDDLE_RIGHT);
         header.setExpandRatio(helloUser, 1.0f);
-        String userName = ProcessbaseApplication.getCurrent().getUserName();
-        if(!userName.equals(BPMModule.USER_GUEST)){
+
+        if(!BPMModule.USER_GUEST.equals(user.username)){
 	        Button profile = new Button(getPbMessages("btnProfile"), new Button.ClickListener() {
 	
 	            public void buttonClick(ClickEvent event) {
@@ -244,6 +267,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
             public void buttonClick(ClickEvent event) {
             	
             	PbApplication app=(PbApplication)getApplication();
+                app.setUser(null);
             	Cookie cookie=null;
             	for (Cookie c : app.getHttpServletRequest().getCookies()) {
 					if("username".equals(c.getName())){
@@ -297,17 +321,23 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         nuw.setProfileView();
     }
 
+    public PbApplication getPbApplication()
+    {
+        return ((PbApplication)getApplication());
+    }
+
     private void defineAccess() throws Exception {
         accessSet = new ArrayList<String>();
-        String userName = ProcessbaseApplication.getCurrent().getUserName();
-        BPMModule bpmModule = ProcessbaseApplication.getCurrent().getBpmModule();
-        
-        user = bpmModule.findUserByUserName(userName);
-        if(userName.equals(BPMModule.USER_GUEST)){
+        user = (PbUser) getPbApplication().getUser();
+
+        BPMModule bpmModule = getPbApplication().getBpmModule();
+
+        User bonita_user = bpmModule.findUserByUserName(user.username);
+        if(user.username.equals(BPMModule.USER_GUEST)){
         	accessSet.add("tasklist");
         	return;
         }
-        for (Membership membership : user.getMemberships()) {
+        for (Membership membership : bonita_user.getMemberships()) {
         	
             if (membership.getRole().getName().equals(IdentityAPI.ADMIN_ROLE_NAME)) {
                 if (membership.getGroup().getName().equalsIgnoreCase("bpm")) {
@@ -323,7 +353,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
                 }
             }                
         }
-        if (bpmModule.isUserAdmin() || "admin".equals(userName)) {
+        if (bpmModule.isUserAdmin() || "admin".equals(user.username)) {
         	accessSet.add("admin");
             /*accessSet.add("bpm");
             accessSet.add("bam");
@@ -341,14 +371,16 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
         Gson gson = gb.create();
         Type collectionType = new TypeToken<LinkedHashMap<Integer, String>>(){}.getType();
         TreeMap<Integer, String> tabList = new TreeMap<Integer, String>();
-        String metaDataString = ProcessbaseApplication.getCurrent().getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
+        String metaDataString = getPbApplication().getBpmModule().getMetaData("PROCESSBASE_TABSHEETS_LIST");
         if (metaDataString != null) {
                 LinkedHashMap<Integer, String> tabs2 = gson.fromJson(metaDataString, collectionType);
             if (!tabs2.isEmpty()) {
                 tabList.putAll(tabs2);
             }
         }
-        PbPanelModuleService pms = ((PbApplication) getApplication()).getPanelModuleService();
+
+        PbPanelModuleService pms = getPbApplication().getPanelModuleService();
+
         for (Entry<String, PbPanelModule> pm : pms.getModules().entrySet()) {
             System.out.println("moduleName = " + pm.getKey());
             
@@ -411,7 +443,7 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 		processController = new ProcessController();
 		ProcessDefinition processDefinition;
 		try {
-			processDefinition = PbApplication.getCurrent().getBpmModule().getProcessDefinition(new ProcessDefinitionUUID(processDefinitionUUID));
+			processDefinition = getPbApplication().getBpmModule().getProcessDefinition(new ProcessDefinitionUUID(processDefinitionUUID));
 			processController.initProcess(processDefinition);
 			processController.setWindow(this);
 			processController.initUI();
@@ -434,4 +466,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+    public void setLoginStatus(String loginStatus) {
+        loginPanel.setStatus(loginStatus);
+    }
 }

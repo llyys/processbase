@@ -43,6 +43,7 @@ import org.ow2.bonita.facade.identity.ProfileMetadata;
 import org.ow2.bonita.facade.identity.Role;
 import org.ow2.bonita.facade.identity.User;
 import org.processbase.ui.core.Constants;
+import org.processbase.ui.core.PbUser;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.template.ButtonBar;
 import org.processbase.ui.core.template.PbWindow;
@@ -55,7 +56,7 @@ import org.processbase.ui.core.template.TableLinkButton;
 public class ProfileWindow extends PbWindow
         implements ClickListener, TabSheet.SelectedTabChangeListener {
 
-    private User user = null;
+    private PbUser user = null;
     private ButtonBar buttons = new ButtonBar();
     private VerticalLayout userInfofmation = new VerticalLayout();
     private VerticalLayout userMembership = new VerticalLayout();
@@ -74,7 +75,7 @@ public class ProfileWindow extends PbWindow
     private Table tableMetadata = new Table();
     private ArrayList<String> deletedMembership = new ArrayList<String>();
 
-    public ProfileWindow(User user) {
+    public ProfileWindow(PbUser user) {
         super();
         this.user = user;
     }
@@ -159,12 +160,12 @@ public class ProfileWindow extends PbWindow
             addComponent(buttons);
 
             if (user != null) {
-                userFirstName.setValue(user.getFirstName());
-                userLastName.setValue(user.getLastName());
-                userName.setValue(user.getUsername());
-                userEmail.setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
-                userJobTitle.setValue(user.getJobTitle());
-                password.setValue(user.getPassword());
+                userFirstName.setValue(user.firstName);
+                userLastName.setValue(user.lastName);
+                userName.setValue(user.username);
+//                userEmail.setValue(user.getProfessionalContactInfo() != null ? user.getProfessionalContactInfo().getEmail() : "");
+//                userJobTitle.setValue(user.getJobTitle());
+//                password.setValue(user.getPassword());
                 refreshTableMembership();
                 refreshTableMetadata();
                 userName.setReadOnly(true);
@@ -196,7 +197,7 @@ public class ProfileWindow extends PbWindow
                             "", "", "", "", "", "", "", "", "", "");
                 } else {
                     ProcessbaseApplication.getCurrent().getBpmModule().updateUserByUUID(
-                            user.getUUID(),
+                            user.id,
                             userName.getValue().toString(),
                             userFirstName.getValue().toString(),
                             userLastName.getValue().toString(),
@@ -204,10 +205,10 @@ public class ProfileWindow extends PbWindow
                             userJobTitle.getValue() != null ? userJobTitle.getValue().toString() : "",
                             null, getUserMetadata());
                     ProcessbaseApplication.getCurrent().getBpmModule().updateUserProfessionalContactInfo(
-                            user.getUUID(), userEmail.getValue().toString(), "",
+                            user.id, userEmail.getValue().toString(), "",
                             "", "", "", "", "", "", "", "", "", "");
-                    if (!user.getPassword().equals(password.getValue().toString())) {
-                        ProcessbaseApplication.getCurrent().getBpmModule().updateUserPassword(user.getUUID(), password.getValue().toString());
+                    if (!user.password.equals(password.getValue().toString())) {
+                        ProcessbaseApplication.getCurrent().getBpmModule().updateUserPassword(user.id, password.getValue().toString());
                     }
 
                 }
@@ -236,7 +237,7 @@ public class ProfileWindow extends PbWindow
 
     private void saveUserMembership() throws Exception {
         for (String muuid : deletedMembership) {
-            ProcessbaseApplication.getCurrent().getBpmModule().removeMembershipFromUser(user.getUUID(), muuid);
+            ProcessbaseApplication.getCurrent().getBpmModule().removeMembershipFromUser(user.id, muuid);
         }
         for (Object itemId : tableMembership.getItemIds()) {
             Item woItem = tableMembership.getItem(itemId);
@@ -245,7 +246,7 @@ public class ProfileWindow extends PbWindow
                 ComboBox groups = (ComboBox) woItem.getItemProperty("group").getValue();
                 ComboBox roles = (ComboBox) woItem.getItemProperty("role").getValue();
                 Membership membership = ProcessbaseApplication.getCurrent().getBpmModule().getMembershipForRoleAndGroup(roles.getValue().toString(), groups.getValue().toString());
-                ProcessbaseApplication.getCurrent().getBpmModule().addMembershipToUser(user.getUUID(), membership.getUUID());
+                ProcessbaseApplication.getCurrent().getBpmModule().addMembershipToUser(user.id, membership.getUUID());
             }
         }
     }
@@ -284,9 +285,9 @@ public class ProfileWindow extends PbWindow
     private void refreshTableMembership() {
         try {
             tableMembership.removeAllItems();
-            for (Membership membership : user.getMemberships()) {
-                addTableMembershipRow(membership);
-            }
+//            for (Membership membership : user.getMemberships()) {
+//                addTableMembershipRow(membership);
+//            }
         } catch (Exception ex) {
         }
     }
@@ -309,11 +310,11 @@ public class ProfileWindow extends PbWindow
     }
 
     private String getUserMetadataValue(String metadataName) {
-        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-            if (profileMetadata.getName().equals(metadataName)) {
-                return user.getMetadata().get(profileMetadata);
-            }
-        }
+//        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
+//            if (profileMetadata.getName().equals(metadataName)) {
+//                return user.getMetadata().get(profileMetadata);
+//            }
+//        }
         return null;
     }
 

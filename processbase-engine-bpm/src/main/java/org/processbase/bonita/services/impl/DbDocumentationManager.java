@@ -6,6 +6,7 @@ import liquibase.database.core.PostgresDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.ResourceAccessor;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.def.element.AttachmentDefinition;
 import org.ow2.bonita.facade.exception.DocumentAlreadyExistsException;
@@ -66,6 +67,7 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
 
         PostgresDatabase db = new PostgresDatabase();
 
+        JdbcConnection connection = null;
         try {
             Driver driverInstance= (Driver) Driver.class.forName(driver).newInstance();
             SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driverInstance, url, username, password);
@@ -73,7 +75,7 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
             jdbc=new JdbcTemplate(dataSource);
             oidDao = new LargeDbDataDao(jdbc);
 
-            JdbcConnection connection = new JdbcConnection(dataSource.getConnection());
+            connection = new JdbcConnection(dataSource.getConnection());
             db.setConnection(connection);
             ResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor();
 
@@ -85,6 +87,9 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
+        }
+        finally {
+            connection.close();
         }
     }
 
@@ -156,32 +161,18 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
                 d.setLastModificationDate(new Date());
                 d.setLastModifiedBy(EnvTool.getUserId());
 
-                long id=Long.parseLong(d.getId());
-
-                int result=jdbc.update("update BN_DOCUMENT_FILE set " +
-                        "file_name = ?, last_modified_by = ?, last_modification_date=?, content_mime_type=?, " +
-                        "content_size=?, content_hash=?, blob_value=?, xml_value=?" +
-                        " WHERE id =?"
-                    , d.getContentFileName()
-                    , d.getLastModifiedBy()
-                    , d.getLastModificationDate()
-                    , d.getContentMimeType()
-                    , d.getContentSize()
-                    , d.getHash()
-                    , d.getOid()
-                    , d.toString()
-                    , id
-                );
+                UpdateDocument(d);
             }
             return d;
         }
 
         final DbDocument doc = new DbDocument(name, null, EnvTool.getUserId(), new Date(), new Date(), true, true, null, null, fileName, contentMimeType, fileContent == null ? 0 : fileContent.length, definitionUUID, instanceUUID);
 
+        Connection connection = null;
         try {
             long id=jdbc.queryForLong("select nextval('BN_DOCUMENT_FILE_SEQ')");
             doc.setId(Long.toString(id));
-            Connection connection = jdbc.getDataSource().getConnection();
+            connection = jdbc.getDataSource().getConnection();
 
             long oid=0;
             String hash="";
@@ -228,13 +219,43 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
             }
 
             connection.commit();
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            closeConnection(connection);
         }
         return doc;
     }
 
+    private void closeConnection(Connection connection) {
+        if(connection!=null)
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+
+
+    private void UpdateDocument(DbDocument d) {
+
+        long id=Long.parseLong(d.getId());
+        int result=jdbc.update("update BN_DOCUMENT_FILE set " +
+                "file_name = ?, last_modified_by = ?, last_modification_date=?, content_mime_type=?, " +
+                "content_size=?, content_hash=?, blob_value=?, xml_value=?" +
+                " WHERE id =?"
+            , d.getContentFileName()
+            , d.getLastModifiedBy()
+            , d.getLastModificationDate()
+            , d.getContentMimeType()
+            , d.getContentSize()
+            , d.getHash()
+            , d.getOid()
+            , d.toString()
+            , id
+        );
+    }
 
 
     @Override
@@ -334,9 +355,25 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
 
     @Override
     public Document createVersion(String documentId, boolean isMajorVersion, String fileName, String mimeType, byte[] content) throws DocumentationCreationException {
-        long oid=jdbc.queryForLong("select BLOB_VALUE from BN_DOCUMENT_FILE where id=?", documentId);
-        oidDao.updateOid(content, oid);
-        return null;
+
+        DbDocument doc = null;
+        try {
+            doc = (DbDocument) getDocument(documentId);
+            doc.setContentFileName(fileName);
+            doc.setContentMimeType(mimeType);
+            long oid = oidDao.updateOid(content, doc.getOid());
+            doc.setOid(oid);
+            doc.setContentSize(content.length);
+            String md5 = getMd5(content);
+            doc.setHash(md5);
+            UpdateDocument(doc);
+
+        } catch (DocumentNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+        return doc;
     }
 
     @Override

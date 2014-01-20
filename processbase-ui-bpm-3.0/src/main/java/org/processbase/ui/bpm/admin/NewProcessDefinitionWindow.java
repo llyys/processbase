@@ -58,6 +58,7 @@ import org.ow2.bonita.facade.privilege.Rule.RuleType;
 import org.ow2.bonita.light.LightProcessDefinition;
 import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.BusinessArchiveFactory;
+import org.ow2.bonita.util.Misc;
 import org.processbase.ui.core.BPMModule;
 import org.processbase.ui.core.ProcessbaseApplication;
 import org.processbase.ui.core.bonita.process.BarResource;
@@ -122,49 +123,52 @@ public class NewProcessDefinitionWindow extends PbWindow
             fis = new FileInputStream(file);
             int i = fis.read(readData);
             fis.close();
+            BPMModule bpmModule = getBpmModule();
             if (FILE_BAR.equals(this.fileType)) {
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
+
+                
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = getBpmModule().deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
+                ProcessDefinition deployResult = bpmModule.deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
                 
                 if(cbDisableOtherInstances.booleanValue()==false)//disable other instances
                 {
-                	for (LightProcessDefinition process : getBpmModule().getLightProcessDefinitions()) {
+                	for (LightProcessDefinition process : bpmModule.getLightProcessDefinitions()) {
 						if(process.getName().equals(deployResult.getName())
 								&& process.getUUID().equals(deployResult.getUUID())==false)
 						{
 							if(process.getState()==ProcessState.ENABLED)
-								getBpmModule().disableProcessDefinitions(process.getUUID());
+								bpmModule.disableProcessDefinitions(process.getUUID());
 						}
 					}	 
                 }
                 //Add default ENTITY_PROCESS_START rule for administrator
-            	Role admin=getBpmModule().findRoleByName(IdentityAPI.ADMIN_ROLE_NAME);
-            	Group defaultGroup = getBpmModule().findGroupByName(IdentityAPI.DEFAULT_GROUP_NAME);
+            	Role admin= bpmModule.findRoleByName(IdentityAPI.ADMIN_ROLE_NAME);
+            	Group defaultGroup = bpmModule.findGroupByName(IdentityAPI.DEFAULT_GROUP_NAME);
             	if(admin!=null && defaultGroup!=null)
             	{
-            		Membership membership = getBpmModule().getMembershipForRoleAndGroup(admin.getUUID(), defaultGroup.getUUID());
+            		Membership membership = bpmModule.getMembershipForRoleAndGroup(admin.getUUID(), defaultGroup.getUUID());
             		Set<String> membershipUUIDs = new HashSet<String>();
             		membershipUUIDs.add(membership.getUUID());
             		
             		Set<String> entityUUIDs = new HashSet<String>();
     				entityUUIDs.add(deployResult.getUUID().toString());
     				
-            		Rule rule = getBpmModule().findRule(deployResult.getUUID().toString());
+            		Rule rule = bpmModule.findRule(deployResult.getUUID().toString());
             		if(rule==null || rule.getType()!=RuleType.PROCESS_START)
             		{
-            			rule=getBpmModule().createRule(deployResult.getUUID().toString(), "ENTITY_PROCESS_START", "Rule to start a process", RuleType.PROCESS_START);
+            			rule= bpmModule.createRule(deployResult.getUUID().toString(), "ENTITY_PROCESS_START", "Rule to start a process", RuleType.PROCESS_START);
             		}
-    				getBpmModule().applyRuleToEntities(rule.getUUID(), null, null, null,membershipUUIDs, entityUUIDs);
+    				bpmModule.applyRuleToEntities(rule.getUUID(), null, null, null, membershipUUIDs, entityUUIDs);
             	}            	
             	BarResource bar=BarResource.getBarResource(businessArchive.getProcessUUID());
-            	getBpmModule().updateUserGroups(businessArchive.getProcessUUID());
+            	bpmModule.updateUserGroups(businessArchive.getProcessUUID());
             	
                 showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
                 close();
             } else if (FILE_JAR.equals(this.fileType)) {
-                getBpmModule().deployJar(originalFilename, readData);
+                bpmModule.deployJar(originalFilename, readData);
                 showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
             }else{
             	 showWarning(ProcessbaseApplication.getString("error.incorrectFileType"));

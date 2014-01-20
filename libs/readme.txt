@@ -15,3 +15,7 @@ mvn install:install-file -Dfile=scriptapi.jar -DartifactId=script.api -DgroupId=
 mvn install:install-file -Dfile=jdigidoc\jdigidoc-3.7.2.652.jar -DartifactId=jdigidoc -DgroupId=ee.eesti.id -Dversion=3.7.2.652 -Dpackaging=jar
 mvn install:install-file -Dfile=jdigidoc\jdigidoc-3.7.2.652-source.jar -DartifactId=jdigidoc -DgroupId=ee.eesti.id -Dversion=3.7.2.652 -Dpackaging=jar  -Dclassifier=sources
 
+
+mvn install:install-file -Dfile=xtee-client-adit-1.0.0.jar -DartifactId=xtee-client-adit -DgroupId=ee.finestmedia.xtee -Dversion=1.0.0 -Dpackaging=jar  -Dclassifier=sources
+mvn install:install-file -Dfile=jdigidoc\mobileid-0.9.7-SNAPSHOT.jar -DartifactId=mobileid -DgroupId=com.codeborne -Dversion=0.9.7-SNAPSHOT -Dpackaging=jar
+
