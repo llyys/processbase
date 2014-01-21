@@ -1,5 +1,6 @@
 package org.processbase.bonita.services.impl.db;
 
+import org.apache.commons.io.IOUtils;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
@@ -17,53 +18,45 @@ public class LargeDbDataDao {
     }
 
     public byte[] readObject(long id) throws SQLException {
-        LargeObject obj = getLargeObjectManager().open(id, LargeObjectManager.READ);
-        byte buf[] = new byte[obj.size()];
-        obj.read(buf, 0, obj.size());
-        return buf;
+        OidConnection oidConnection = null;
+        try {
+            oidConnection = new OidConnection(this.jdbc);
+            LargeObject obj = oidConnection.getLargeObjectManager().open(id, LargeObjectManager.READ);
+            byte buf[] = new byte[obj.size()];
+            obj.read(buf, 0, obj.size());
+            return buf;
+        }
+        finally {
+            OidConnection.commitAndClose(oidConnection);
+        }
     }
 
     public long createOid(byte[] content) {
         long oid=0;
-        if(content==null)
+        OidConnection oidConnection = null;
+        if(content==null) {
             return 0;
+        }
         try {
-            LargeObjectManager lobj = getLargeObjectManager();
-            oid = lobj.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
-            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            oidConnection = new OidConnection(this.jdbc);
+
+            oid = oidConnection.getLargeObjectManager().createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
+            LargeObject obj = oidConnection.getLargeObjectManager().open(oid, LargeObjectManager.WRITE);
             storeDataToOid(content, obj);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         finally {
-            closeConnection();
+            OidConnection.commitAndClose(oidConnection);
         }
 
         return oid;
     }
-    private void closeConnection(){
-        if(connection!=null)
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        connection=null;
-    }
 
-    private Connection connection;
-    private LargeObjectManager getLargeObjectManager() {
-        try {
 
-            connection = jdbc.getDataSource().getConnection();
-            connection.setAutoCommit(false);
-            return ((PGConnection)connection).getLargeObjectAPI();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
+
 
     public void storeDataToOid(byte[] content, LargeObject obj) throws SQLException {
         ByteArrayInputStream bis=new ByteArrayInputStream(content);
@@ -75,32 +68,28 @@ public class LargeDbDataDao {
             tl += s;
         }
         obj.close();
-        closeConnection();
+
     }
 
     public long updateOid(byte[] content, long oid) {
-
+        OidConnection oidConnection = null;
         try {
-            LargeObjectManager lobj = deleteOid(oid);
-            oid = lobj.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
-            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            oidConnection=new OidConnection(jdbc);
+            deleteOid(oid, oidConnection);
+            LargeObjectManager manager = oidConnection.getLargeObjectManager();
+            oid = manager.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
+            LargeObject obj = manager.open(oid, LargeObjectManager.WRITE);
             storeDataToOid(content, obj);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         finally {
-            closeConnection();
+            OidConnection.commitAndClose(oidConnection);
         }
         return oid;
     }
 
-    public LargeObjectManager deleteOid(long oid) throws SQLException {
-        try {
-            LargeObjectManager lobj = getLargeObjectManager();
-            lobj.delete(oid);
-            return lobj;
-        }finally {
-            closeConnection();
-        }
+    public void deleteOid(long oid, OidConnection oidConnection) throws SQLException {
+           oidConnection.getLargeObjectManager().delete(oid);
     }
 }

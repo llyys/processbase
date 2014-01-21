@@ -128,7 +128,7 @@ public class NewProcessDefinitionWindow extends PbWindow
                 System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema",
                         "com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
 
-                
+
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
                 ProcessDefinition deployResult = bpmModule.deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
                 

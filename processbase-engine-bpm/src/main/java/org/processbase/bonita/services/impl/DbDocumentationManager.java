@@ -1,12 +1,10 @@
 package org.processbase.bonita.services.impl;
 
-import com.thoughtworks.xstream.XStream;
 import liquibase.Liquibase;
 import liquibase.database.core.PostgresDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.ResourceAccessor;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ow2.bonita.facade.def.element.AttachmentDefinition;
 import org.ow2.bonita.facade.exception.DocumentAlreadyExistsException;
@@ -21,26 +19,18 @@ import org.ow2.bonita.search.DocumentSearchBuilder;
 import org.ow2.bonita.search.index.DocumentIndex;
 import org.ow2.bonita.services.Document;
 import org.ow2.bonita.services.DocumentationManager;
-import org.ow2.bonita.services.impl.DocumentImpl;
 import org.ow2.bonita.util.BonitaConstants;
 import org.ow2.bonita.util.EnvTool;
 import org.ow2.bonita.util.Misc;
-import org.ow2.bonita.util.xml.XStreamUtil;
-import org.postgresql.largeobject.LargeObject;
-import org.postgresql.largeobject.LargeObjectManager;
 import org.processbase.bonita.services.impl.db.DbDocument;
 import org.processbase.bonita.services.impl.db.LargeDbDataDao;
+import org.processbase.bonita.services.impl.db.OidConnection;
 import org.processbase.bonita.services.impl.filedocument.AttachmentInstance;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
 import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -291,10 +281,15 @@ public class DbDocumentationManager extends AbstractDocumentationManager {
     public void deleteDocument(String documentId, boolean allVersions) throws DocumentNotFoundException {
         long oid=jdbc.queryForLong("select BLOB_VALUE from BN_DOCUMENT_FILE where id=?", documentId);
         jdbc.update("delete from BN_DOCUMENT_FILE where id=?", documentId);
+        OidConnection oidConnection = null;
         try {
-            oidDao.deleteOid(oid);
+            oidConnection=new OidConnection(jdbc);
+            oidDao.deleteOid(oid, oidConnection);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+           OidConnection.commitAndClose(oidConnection);
         }
     }
 
