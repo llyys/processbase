@@ -95,19 +95,19 @@ public class ProcessDefinitionWindow extends PbWindow implements
             descPanel.setProcessDefinition(processDefinition);
             descPanel.setParentWindow(this);
             descPanel.initUI();
-            tabSheet.addTab(descPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("tabDescription"), null);
+            tabSheet.addTab(descPanel, ProcessbaseApplication.getString("tabDescription"), null);
             /*
             uiPanel.setProcessDefinition(processDefinition);
             uiPanel.setParentWindow(this);
             uiPanel.initUI();
             uiPanel.onActivate(false);
-            tabSheet.addTab(uiPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("tabCustomUI"), null);
+            tabSheet.addTab(uiPanel, ProcessbaseApplication.getString("tabCustomUI"), null);
              */
             accessPanel.setProcessDefinition(processDefinition);
             accessPanel.setParentWindow(this);
             accessPanel.initUI();
             accessPanel.onActivate(false);
-            tabSheet.addTab(accessPanel, ProcessbaseApplication.getCurrent().getPbMessages().getString("processAccess"), null);
+            tabSheet.addTab(accessPanel, ProcessbaseApplication.getString("processAccess"), null);
             
             resourcesPanel.setProcessDefinition(processDefinition);
             resourcesPanel.setParentWindow(this);
@@ -130,7 +130,7 @@ public class ProcessDefinitionWindow extends PbWindow implements
             layout.addComponent(tabSheet);
             layout.setExpandRatio(tabSheet, 1);
 
-            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
+            closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
                        
             Label expand = new Label("");
             getButtons().addComponent(expand);

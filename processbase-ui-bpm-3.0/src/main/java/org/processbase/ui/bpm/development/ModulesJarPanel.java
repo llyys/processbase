@@ -64,7 +64,7 @@ public class ModulesJarPanel extends TablePanel implements
         table.addContainerProperty("bungleName", String.class, null, "Bundle-Name", null, null);
         table.addContainerProperty("bungleVersion", String.class, null, "Bundle-Version", null, null);
         table.setColumnWidth("bungleVersion", 100);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 80);
         table.setImmediate(true);
     }
@@ -102,7 +102,7 @@ public class ModulesJarPanel extends TablePanel implements
                 woItem.getItemProperty("fileName").setValue(teb);
                 woItem.getItemProperty("bungleName").setValue(bungleName);
                 woItem.getItemProperty("bungleVersion").setValue(bungleVersion);
-                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", name, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", name, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("fileName");
@@ -151,10 +151,10 @@ public class ModulesJarPanel extends TablePanel implements
 
     private void removeJar(final String fileName) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteJar") + "?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("deleteJar") + "?",
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

@@ -92,26 +92,26 @@ public class BAMConfigurationPanel extends PbPanelModule
 
     private void prepareButtonBar() {
         // prepare dimensionsBtn button
-        dimensionsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensions"), this);
+        dimensionsBtn = new Button(ProcessbaseApplication.getString("dimensions"), this);
         dimensionsBtn.setStyleName("special");
         dimensionsBtn.setEnabled(false);
         buttonBar.addComponent(dimensionsBtn, 0);
         buttonBar.setComponentAlignment(dimensionsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare factsBtn button
-        factsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("facts"), this);
+        factsBtn = new Button(ProcessbaseApplication.getString("facts"), this);
         factsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(factsBtn, 1);
         buttonBar.setComponentAlignment(factsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare kpisBtn button
-        kpisBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("kpis"), this);
+        kpisBtn = new Button(ProcessbaseApplication.getString("kpis"), this);
         kpisBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(kpisBtn, 2);
         buttonBar.setComponentAlignment(kpisBtn, Alignment.MIDDLE_LEFT);
 
         // prepare schemesBtn button
-        schemesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("schemes"), this);
+        schemesBtn = new Button(ProcessbaseApplication.getString("schemes"), this);
         schemesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(schemesBtn, 3);
         buttonBar.setComponentAlignment(schemesBtn, Alignment.MIDDLE_LEFT);
@@ -122,12 +122,12 @@ public class BAMConfigurationPanel extends PbPanelModule
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare add button
-        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 5);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare refresh button
-        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 6);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");

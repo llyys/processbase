@@ -50,9 +50,9 @@ public class MetadataWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (metadata == null) {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newMetadata"));
+                setCaption(ProcessbaseApplication.getString("newMetadata"));
             } else {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadata"));
+                setCaption(ProcessbaseApplication.getString("metadata"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -60,10 +60,10 @@ public class MetadataWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
-            metadataName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataName"));
-            metadataLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataLabel"));
+            cancelBtn = new Button(ProcessbaseApplication.getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
+            metadataName = new TextField(ProcessbaseApplication.getString("metadataName"));
+            metadataLabel = new TextField(ProcessbaseApplication.getString("metadataLabel"));
             
             metadataName.setRequired(true);
            

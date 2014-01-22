@@ -53,17 +53,17 @@ public class ProcessDefinitionsPanel extends TablePanel implements
     public void initUI() {
         super.initUI();
         table.setSortDisabled(false);
-        table.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
+        table.addContainerProperty("version", String.class, null, ProcessbaseApplication.getString("tableCaptionVersion"), null, null);
         table.setColumnWidth("version", 50);
         
-        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionProcessName"), null, null);
         table.setColumnExpandRatio("name", 1);
         
-        table.addContainerProperty("procId", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcessID"), null, null);
+        table.addContainerProperty("procId", String.class, null, ProcessbaseApplication.getString("tableCaptionProcessID"), null, null);
         
-        table.addContainerProperty("deployedBy", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedBy"), null, null);
-        //table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
-        table.addContainerProperty("deployedDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDeployedDate"), null, null);
+        table.addContainerProperty("deployedBy", String.class, null, ProcessbaseApplication.getString("tableCaptionDeployedBy"), null, null);
+        //table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getString("tableCaptionState"), null, null);
+        table.addContainerProperty("deployedDate", Date.class, null, ProcessbaseApplication.getString("tableCaptionDeployedDate"), null, null);
         table.addGeneratedColumn("deployedDate", new PbColumnGenerator());
         table.setImmediate(true);
     }

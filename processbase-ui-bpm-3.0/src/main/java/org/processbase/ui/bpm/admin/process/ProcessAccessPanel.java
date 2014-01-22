@@ -45,7 +45,7 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 	public void initUI() {
 		setSpacing(true);
 
-		addBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd")
+		addBtn = new Button(ProcessbaseApplication.getString("btnAdd")
 				, new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
 						try {
@@ -62,7 +62,7 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 		addComponent(addBtn);
 		setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
 
-		saveAccessBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSaveProcessAccess"), new Button.ClickListener() {
+		saveAccessBtn = new Button(ProcessbaseApplication.getString("btnSaveProcessAccess"), new Button.ClickListener() {
 			
 			public void buttonClick(ClickEvent event) {
 				saveProcessAccess();
@@ -125,7 +125,7 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 
 		}
 
-		TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, 
+		TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", uuid,
 				new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
 						TableLinkButton tlb = (TableLinkButton) event.getButton();
@@ -239,9 +239,9 @@ public class ProcessAccessPanel extends PbPanel implements ITabsheetPanel  {
 
 	private void prepareTableMembership() {
 		
-		tableMembership.addContainerProperty("group",Component.class,null,ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionGroup"), null, null);
-		tableMembership.addContainerProperty("role",Component.class,null,ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionRole"), null, null);		
-		tableMembership.addContainerProperty("actions",Component.class,null,ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+		tableMembership.addContainerProperty("group",Component.class,null,ProcessbaseApplication.getString("tableCaptionGroup"), null, null);
+		tableMembership.addContainerProperty("role",Component.class,null,ProcessbaseApplication.getString("tableCaptionRole"), null, null);
+		tableMembership.addContainerProperty("actions",Component.class,null,ProcessbaseApplication.getString("tableCaptionActions"), null, null);
 	
 		tableMembership.setColumnWidth("actions", 50);
 		tableMembership.setImmediate(true);

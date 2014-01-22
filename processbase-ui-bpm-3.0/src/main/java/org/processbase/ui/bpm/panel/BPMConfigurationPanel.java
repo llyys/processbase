@@ -139,14 +139,14 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.removeAllComponents();
         int btnCnt=0;
         // prepare categoriesBtn button
-        categoriesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtn"), this);
-        categoriesBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoriesBtnTooltip"));
+        categoriesBtn = new Button(ProcessbaseApplication.getString("categoriesBtn"), this);
+        categoriesBtn.setDescription(ProcessbaseApplication.getString("categoriesBtnTooltip"));
         categoriesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(categoriesBtn, btnCnt++);
         buttonBar.setComponentAlignment(categoriesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare myProcessesBtn button
-        processDefinitionBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processDefinitionBtn"), this);
+        processDefinitionBtn = new Button(ProcessbaseApplication.getString("processDefinitionBtn"), this);
         processDefinitionBtn.setStyleName("special");
         processDefinitionBtn.setEnabled(false);
         buttonBar.addComponent(processDefinitionBtn, btnCnt++);
@@ -163,7 +163,7 @@ public class BPMConfigurationPanel extends PbPanelModule
         // prepare myTaskListBtn button
         if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
 				.getCurrent().getApplicationType()) {
-	        processInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("processInstancesBtn"), this);
+	        processInstancesBtn = new Button(ProcessbaseApplication.getString("processInstancesBtn"), this);
 	        processInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
 	        buttonBar.addComponent(processInstancesBtn, btnCnt++);
 	        buttonBar.setComponentAlignment(processInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -172,7 +172,7 @@ public class BPMConfigurationPanel extends PbPanelModule
         // prepare myTaskArchiveBtn button
         if (ProcessbaseApplication.STANDALONE == ProcessbaseApplication
 				.getCurrent().getApplicationType()) {
-	        activityInstancesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("activityInstancesBtn"), this);
+	        activityInstancesBtn = new Button(ProcessbaseApplication.getString("activityInstancesBtn"), this);
 	        activityInstancesBtn.setStyleName(Reindeer.BUTTON_LINK);
 	        buttonBar.addComponent(activityInstancesBtn, btnCnt++);
 	        buttonBar.setComponentAlignment(activityInstancesBtn, Alignment.MIDDLE_LEFT);
@@ -197,12 +197,12 @@ public class BPMConfigurationPanel extends PbPanelModule
         buttonBar.setComponentAlignment(showFinished, Alignment.MIDDLE_RIGHT);
 
         // prepare refresh button
-        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, btnCnt++);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, btnCnt++);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
         buttonBar.setWidth("100%");

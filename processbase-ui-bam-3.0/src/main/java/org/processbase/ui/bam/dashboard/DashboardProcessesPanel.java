@@ -103,7 +103,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
     private InvientCharts createchart(ArrayList<String> processNames, ArrayList<XYSeries> xySeries) {
 
         InvientChartsConfig chartConfig = new InvientChartsConfig();
-        chartConfig.getTitle().setText(ProcessbaseApplication.getCurrent().getPbMessages().getString("startedProcesses"));
+        chartConfig.getTitle().setText(ProcessbaseApplication.getString("startedProcesses"));
         chartConfig.getSubtitle().setText("Source: PROCESSBASSE BPMS");
 
         CategoryAxis xAxis = new CategoryAxis();
@@ -117,7 +117,7 @@ public class DashboardProcessesPanel extends DashboardPanel {
 
         NumberYAxis yAxis = new NumberYAxis();
         yAxis.setAllowDecimals(false);
-        yAxis.setTitle(new AxisTitle(ProcessbaseApplication.getCurrent().getPbMessages().getString("processCount")));
+        yAxis.setTitle(new AxisTitle(ProcessbaseApplication.getString("processCount")));
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);
         chartConfig.setYAxes(yAxesSet);

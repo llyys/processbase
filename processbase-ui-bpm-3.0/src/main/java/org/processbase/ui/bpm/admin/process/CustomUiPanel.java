@@ -35,14 +35,14 @@ public class CustomUiPanel extends PbPanel  implements ITabsheetPanel {
 		        
         setSizeFull();
         
-        activitiesTable.addContainerProperty("activityLabel", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActivityName"), null, null);
-        activitiesTable.addContainerProperty("url", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tabCaptionTaskURL"), null, null);
+        activitiesTable.addContainerProperty("activityLabel", String.class, null, ProcessbaseApplication.getString("tableCaptionActivityName"), null, null);
+        activitiesTable.addContainerProperty("url", String.class, null, ProcessbaseApplication.getString("tabCaptionTaskURL"), null, null);
         activitiesTable.setColumnWidth("url", 300);
         activitiesTable.setTableFieldFactory(new PbTableFieldFactory());
         activitiesTable.setEditable(true);
         activitiesTable.setImmediate(true);
         
-        applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSaveCustomUI"), new Button.ClickListener(){
+        applyBtn = new Button(ProcessbaseApplication.getString("btnSaveCustomUI"), new Button.ClickListener(){
 			public void buttonClick(ClickEvent event) {
 				try {
 					save();

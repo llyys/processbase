@@ -70,7 +70,7 @@ public class NewJarWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
             // prepare upload button
-            upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
+            upload.setButtonCaption(ProcessbaseApplication.getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -94,7 +94,7 @@ public class NewJarWindow extends PbWindow
             if (this.fileType.equals(FILE_JAR)) {
                 saveJar(originalFilename, readData);
                 saveJarInfo(originalFilename);
-                showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
+                showWarning(ProcessbaseApplication.getString("jarUploaded") + ": " + originalFilename);
             }
             file.delete();
             close();

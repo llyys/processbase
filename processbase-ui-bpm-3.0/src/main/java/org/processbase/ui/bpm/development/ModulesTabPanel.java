@@ -58,7 +58,7 @@ public class ModulesTabPanel extends TablePanel implements
         table.addContainerProperty("title", String.class, null, "Title", null, null);
         table.addContainerProperty("inMetadata", String.class, null, "PB Metadata", null, null);
         table.addContainerProperty("inOSGI", String.class, null, "OSGI", null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 80);
         table.setImmediate(true);
     }
@@ -93,11 +93,11 @@ public class ModulesTabPanel extends TablePanel implements
                     teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
                 } else if (!pms.getModules().containsKey(moduleName) && tabList.containsValue(moduleName)) {
                     teb = new TableLinkButton(moduleName, moduleName, null, moduleName, this, Constants.ACTION_OPEN);
-                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDeleteFromMetadta"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
+                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDeleteFromMetadta"), "icons/cancel.png", moduleName, this, Constants.ACTION_DELETE);
                     woItem.getItemProperty("actions").setValue(tlb);
                 } else if (pms.getModules().containsKey(moduleName) && !tabList.containsValue(moduleName)) {
                     teb = new Label(moduleName);
-                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAddToMetadata"), "icons/accept.png", moduleName, this, Constants.ACTION_ADD);
+                    TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnAddToMetadata"), "icons/accept.png", moduleName, this, Constants.ACTION_ADD);
                     woItem.getItemProperty("actions").setValue(tlb);
                 }
                 woItem.getItemProperty("order").setValue(String.valueOf(i));

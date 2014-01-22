@@ -60,9 +60,9 @@ public class GroupWindow extends PbWindow implements ClickListener {
     public void initUI() {
         try {
             if (group == null) {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newGroup"));
+                setCaption(ProcessbaseApplication.getString("newGroup"));
             } else {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("group"));
+                setCaption(ProcessbaseApplication.getString("group"));
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -70,12 +70,12 @@ public class GroupWindow extends PbWindow implements ClickListener {
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
-            groupName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupName"));
-            groupLabel = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupLabel"));
-            groupDescription = new TextArea(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupDescription"));
-            parentGroup = new ComboBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupParent"));
+            cancelBtn = new Button(ProcessbaseApplication.getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
+            groupName = new TextField(ProcessbaseApplication.getString("groupName"));
+            groupLabel = new TextField(ProcessbaseApplication.getString("groupLabel"));
+            groupDescription = new TextArea(ProcessbaseApplication.getString("groupDescription"));
+            parentGroup = new ComboBox(ProcessbaseApplication.getString("groupParent"));
             
             groupName.setRequired(true);
              

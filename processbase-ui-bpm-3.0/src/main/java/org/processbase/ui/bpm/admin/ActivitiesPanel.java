@@ -60,20 +60,20 @@ public class ActivitiesPanel extends TablePanel {
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionAction"), null, null);
-        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionType"), null, null);
-        table.addContainerProperty("createdDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCreatedDate"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getString("tableCaptionAction"), null, null);
+        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getString("tableCaptionType"), null, null);
+        table.addContainerProperty("createdDate", Date.class, null, ProcessbaseApplication.getString("tableCaptionCreatedDate"), null, null);
         table.addGeneratedColumn("createdDate", new PbColumnGenerator());
         table.setColumnWidth("createdDate", 100);
-        table.addContainerProperty("startdeDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionStartedDate"), null, null);
+        table.addContainerProperty("startdeDate", Date.class, null, ProcessbaseApplication.getString("tableCaptionStartedDate"), null, null);
         table.addGeneratedColumn("startdeDate", new PbColumnGenerator());
         table.setColumnWidth("startdeDate", 100);
-        table.addContainerProperty("endDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionFinishedDate"), null, null);
+        table.addContainerProperty("endDate", Date.class, null, ProcessbaseApplication.getString("tableCaptionFinishedDate"), null, null);
         table.addGeneratedColumn("endDate", new PbColumnGenerator());
         table.setColumnWidth("endDate", 100);
-        table.addContainerProperty("candidates", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCandidates"), null, null);
-        table.addContainerProperty("taskuser", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTaskUser"), null, null);
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("candidates", String.class, null, ProcessbaseApplication.getString("tableCaptionCandidates"), null, null);
+        table.addContainerProperty("taskuser", String.class, null, ProcessbaseApplication.getString("tableCaptionTaskUser"), null, null);
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getString("tableCaptionState"), null, null);
         table.setColumnWidth("state", 90);
         table.setPageLength(5);
     }
@@ -91,11 +91,11 @@ public class ActivitiesPanel extends TablePanel {
                 if (lai.isAutomatic() || lai.isTask()) {
                     Item woItem = table.addItem(lai);
                     woItem.getItemProperty("name").setValue(lai.getActivityLabel());
-                    woItem.getItemProperty("type").setValue(lai.isTask() ? ProcessbaseApplication.getCurrent().getPbMessages().getString("task") : ProcessbaseApplication.getCurrent().getPbMessages().getString("automatic"));
+                    woItem.getItemProperty("type").setValue(lai.isTask() ? ProcessbaseApplication.getString("task") : ProcessbaseApplication.getString("automatic"));
                     woItem.getItemProperty("createdDate").setValue(lai.getReadyDate());
                     woItem.getItemProperty("startdeDate").setValue(lai.getStartedDate());
                     woItem.getItemProperty("endDate").setValue(lai.getEndedDate());
-                    woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(lai.getState().toString()));
+                    woItem.getItemProperty("state").setValue(ProcessbaseApplication.getString(lai.getState().toString()));
                     
                     if (lai.isTask()) {
                     	

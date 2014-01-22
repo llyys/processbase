@@ -90,7 +90,7 @@ public class NewProcessDefinitionWindow extends PbWindow
     public void initUI() {
         try {
         	
-            setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newProcessDefinition"));
+            setCaption(ProcessbaseApplication.getString("newProcessDefinition"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -99,7 +99,7 @@ public class NewProcessDefinitionWindow extends PbWindow
             cbDisableOtherInstances=new CheckBox(ProcessbaseApplication.getString("newProcessLeavOldActive"));
             
             // prepare upload button
-            upload.setButtonCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnUpload"));
+            upload.setButtonCaption(ProcessbaseApplication.getString("btnUpload"));
             upload.addListener((Upload.SucceededListener) this);
             upload.addListener((Upload.FailedListener) this);
             addComponent(upload);
@@ -130,7 +130,7 @@ public class NewProcessDefinitionWindow extends PbWindow
 
 
                 BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(file);
-                ProcessDefinition deployResult = bpmModule.deploy(businessArchive, ProcessbaseApplication.getCurrent().getPbMessages().getString("emptyCategory"));
+                ProcessDefinition deployResult = bpmModule.deploy(businessArchive, ProcessbaseApplication.getString("emptyCategory"));
                 
                 if(cbDisableOtherInstances.booleanValue()==false)//disable other instances
                 {
@@ -165,11 +165,11 @@ public class NewProcessDefinitionWindow extends PbWindow
             	BarResource bar=BarResource.getBarResource(businessArchive.getProcessUUID());
             	bpmModule.updateUserGroups(businessArchive.getProcessUUID());
             	
-                showInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processUploaded") + ": " + deployResult.getLabel());
+                showInformation(ProcessbaseApplication.getString("processUploaded") + ": " + deployResult.getLabel());
                 close();
             } else if (FILE_JAR.equals(this.fileType)) {
                 bpmModule.deployJar(originalFilename, readData);
-                showWarning(ProcessbaseApplication.getCurrent().getPbMessages().getString("jarUploaded") + ": " + originalFilename);
+                showWarning(ProcessbaseApplication.getString("jarUploaded") + ": " + originalFilename);
             }else{
             	 showWarning(ProcessbaseApplication.getString("error.incorrectFileType"));
             }

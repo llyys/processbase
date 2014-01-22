@@ -84,20 +84,20 @@ public class BPMMonitoringPanel extends PbPanelModule
 
     private void prepareButtonBar() {
         // prepare dashboardProcessBtn button
-        dashboardProcessBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("startedProcesses"), this);
+        dashboardProcessBtn = new Button(ProcessbaseApplication.getString("startedProcesses"), this);
         dashboardProcessBtn.setStyleName("special");
         dashboardProcessBtn.setEnabled(false);
         buttonBar.addComponent(dashboardProcessBtn, 0);
         buttonBar.setComponentAlignment(dashboardProcessBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardPerformersBtn button
-        dashboardPerformersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByPerformers"), this);
+        dashboardPerformersBtn = new Button(ProcessbaseApplication.getString("taskByPerformers"), this);
         dashboardPerformersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardPerformersBtn, 1);
         buttonBar.setComponentAlignment(dashboardPerformersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare dashboardUsersBtn button
-        dashboardUsersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByUser"), this);
+        dashboardUsersBtn = new Button(ProcessbaseApplication.getString("taskByUser"), this);
         dashboardUsersBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(dashboardUsersBtn, 2);
         buttonBar.setComponentAlignment(dashboardUsersBtn, Alignment.MIDDLE_LEFT);
@@ -109,7 +109,7 @@ public class BPMMonitoringPanel extends PbPanelModule
 
 
         // prepare refresh button
-        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 4);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 

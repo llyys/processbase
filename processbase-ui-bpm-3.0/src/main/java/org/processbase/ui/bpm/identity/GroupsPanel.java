@@ -50,13 +50,13 @@ public class GroupsPanel extends PagedTablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionName"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLabel"), null, null);
+        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getString("tableCaptionLabel"), null, null);
         table.setColumnExpandRatio("label", 1);
-        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionDescription"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getString("tableCaptionDescription"), null, null);
         table.setColumnExpandRatio("description", 1);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
         table.setImmediate(true);
 
         setInitialized(true);
@@ -141,10 +141,10 @@ public class GroupsPanel extends PagedTablePanel implements
 
     private void removeGroup(final Group group) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeGroup") + "?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("removeGroup") + "?",
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

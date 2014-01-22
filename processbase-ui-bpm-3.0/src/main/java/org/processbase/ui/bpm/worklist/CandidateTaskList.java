@@ -83,29 +83,30 @@ public class CandidateTaskList extends PagedTablePanel implements IPbTable,  But
         table.setItemIconPropertyId("accepted");
         table.setColumnWidth("accepted", 30);
         
-        table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcedure"), null, null);
+        table.addContainerProperty("processName", Component.class, null, ProcessbaseApplication.getString("tableCaptionProcedure"), null, null);
         table.setColumnExpandRatio("processName", 1);
         
-        table.addContainerProperty("taskName", Label.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
+        table.addContainerProperty("taskName", Label.class, null, ProcessbaseApplication.getString("tableCaptionTask"), null, null);
         table.setColumnExpandRatio("taskName", 2);
         
         table.addContainerProperty("initiator", String.class, null, getText("tableCaptionInitiator"), null, null);
 		table.setColumnWidth("initiator", 100);
         
-        table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        table.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getString("tableCaptionLastUpdatedDate"), null, null);
         table.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         ////table.setColumnWidth("lastUpdate", 1);
         
-        table.addContainerProperty("expectedEndDate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionExpectedEndDate"), null, null);
+        table.addContainerProperty("expectedEndDate", Date.class, null, ProcessbaseApplication.getString("tableCaptionExpectedEndDate"), null, null);
         table.addGeneratedColumn("expectedEndDate", new PbColumnGenerator());
         //table.setColumnWidth("expectedEndDate", 1);
         
-        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getString("tableCaptionState"), null, null);
         
         table.setVisibleColumns(new Object[]{"processName", "taskName", "initiator", "lastUpdate", "expectedEndDate", "state"});
 
         setInitialized(true);
     }
+
 
     @Override
     public int load(int startPosition, int maxResults) {
@@ -228,7 +229,7 @@ public class CandidateTaskList extends PagedTablePanel implements IPbTable,  But
 			woItem.getItemProperty("taskName").setValue(new Label("<b>" + taskTitle + "</b><i>" + taskDescription + "</i>", Label.CONTENT_XHTML));
 			woItem.getItemProperty("lastUpdate").setValue(task.getLastUpdateDate());
 			woItem.getItemProperty("expectedEndDate").setValue(task.getExpectedEndDate());
-			woItem.getItemProperty("state").setValue(ProcessbaseApplication.getCurrent().getPbMessages().getString(task.getState().toString()));
+			woItem.getItemProperty("state").setValue(ProcessbaseApplication.getString(task.getState().toString()));
 			
 			
 			ProcessInstanceUUID processUuid = task.getProcessInstanceUUID();

@@ -22,7 +22,7 @@ implements IPbTable
 	    public void initUI() {
 	        super.initUI();
 	        
-	        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionState"), null, null);
+	        table.addContainerProperty("state", String.class, null, ProcessbaseApplication.getString("tableCaptionState"), null, null);
 	        
 	        table.setVisibleColumns(new String[]{"name", "version", "deployedBy", "deployedDate"});
 	    }

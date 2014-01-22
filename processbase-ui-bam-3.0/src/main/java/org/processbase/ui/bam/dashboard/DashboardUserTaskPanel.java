@@ -165,7 +165,7 @@ public class DashboardUserTaskPanel extends DashboardPanel {
         chartConfig.getGeneralChartConfig().getMargin().setRight(0);
         chartConfig.getGeneralChartConfig().getMargin().setBottom(0);
         chartConfig.getGeneralChartConfig().getMargin().setLeft(0);
-        chartConfig.getTitle().setText(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByUser"));
+        chartConfig.getTitle().setText(ProcessbaseApplication.getString("taskByUser"));
 
         chartConfig.getTooltip().setFormatterJsFunc(
                 "function() {"

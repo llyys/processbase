@@ -166,7 +166,7 @@ public class LegislationEditView extends PbWindow{
 
 	private String getMessage(String key){
 		try {
-			return ProcessbaseApplication.getCurrent().getPbMessages().getString(key);
+			return ProcessbaseApplication.getString(key);
 		} catch (Exception e) {
 			//ignore
 		}

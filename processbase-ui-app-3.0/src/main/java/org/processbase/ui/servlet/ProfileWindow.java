@@ -57,6 +57,7 @@ public class ProfileWindow extends PbWindow
         implements ClickListener, TabSheet.SelectedTabChangeListener {
 
     private PbUser user = null;
+    private User bonitaUser = null;
     private ButtonBar buttons = new ButtonBar();
     private VerticalLayout userInfofmation = new VerticalLayout();
     private VerticalLayout userMembership = new VerticalLayout();
@@ -83,10 +84,11 @@ public class ProfileWindow extends PbWindow
     public void initUI() {
         try {
             if (user == null) {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newUser"));
+                setCaption(ProcessbaseApplication.getString("newUser"));
             } else {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("user"));
+                setCaption(ProcessbaseApplication.getString("user"));
             }
+            bonitaUser = ProcessbaseApplication.getCurrent().getBpmModule().findUserByUserName(user.username);
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
@@ -94,15 +96,15 @@ public class ProfileWindow extends PbWindow
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
             layout.setSizeFull();
 
-            addBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
-            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
-            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
-            userFirstName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userFirstName"));
-            userLastName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userLastName"));
-            userName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userName"));
-            userEmail = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userEmail"));
-            userJobTitle = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("userJobTitle"));
-            password = new PasswordField(ProcessbaseApplication.getCurrent().getPbMessages().getString("password"));
+            addBtn = new Button(ProcessbaseApplication.getString("btnAdd"), this);
+            closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
+            userFirstName = new TextField(ProcessbaseApplication.getString("userFirstName"));
+            userLastName = new TextField(ProcessbaseApplication.getString("userLastName"));
+            userName = new TextField(ProcessbaseApplication.getString("userName"));
+            userEmail = new TextField(ProcessbaseApplication.getString("userEmail"));
+            userJobTitle = new TextField(ProcessbaseApplication.getString("userJobTitle"));
+            password = new PasswordField(ProcessbaseApplication.getString("password"));
 
             // prepare user information
             userInfofmation.setMargin(true);
@@ -137,9 +139,9 @@ public class ProfileWindow extends PbWindow
 
 
             // prepare tabSheet
-            tabSheet.addTab(userInfofmation, ProcessbaseApplication.getCurrent().getPbMessages().getString("userInfofmation"), null);
-            tabSheet.addTab(userMembership, ProcessbaseApplication.getCurrent().getPbMessages().getString("userMembership"), null);
-            tabSheet.addTab(userMetadata, ProcessbaseApplication.getCurrent().getPbMessages().getString("userMetadata"), null);
+            tabSheet.addTab(userInfofmation, ProcessbaseApplication.getString("userInfofmation"), null);
+            tabSheet.addTab(userMembership, ProcessbaseApplication.getString("userMembership"), null);
+            tabSheet.addTab(userMetadata, ProcessbaseApplication.getString("userMetadata"), null);
             tabSheet.addListener((TabSheet.SelectedTabChangeListener) this);
             tabSheet.setImmediate(true);
             tabSheet.setSizeFull();
@@ -147,11 +149,14 @@ public class ProfileWindow extends PbWindow
             layout.setExpandRatio(tabSheet, 1);
 
             addBtn.setVisible(false);
-            buttons.addButton(addBtn);
-            buttons.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
-            buttons.addButton(saveBtn);
-            buttons.setComponentAlignment(saveBtn, Alignment.MIDDLE_RIGHT);
-            buttons.setExpandRatio(saveBtn, 1);
+            if(!isProfileView)
+            {
+                buttons.addButton(addBtn);
+                buttons.setComponentAlignment(addBtn, Alignment.MIDDLE_RIGHT);
+                buttons.addButton(saveBtn);
+                buttons.setComponentAlignment(saveBtn, Alignment.MIDDLE_RIGHT);
+                buttons.setExpandRatio(saveBtn, 1);
+            }
             buttons.addButton(closeBtn);
             buttons.setComponentAlignment(closeBtn, Alignment.MIDDLE_RIGHT);
             buttons.setMargin(false);
@@ -265,18 +270,21 @@ public class ProfileWindow extends PbWindow
     }
 
     private void prepareTableMembership() {
-        tableMembership.addContainerProperty("group", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionGroup"), null, null);
-        tableMembership.addContainerProperty("role", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionRole"), null, null);
-        tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
-        tableMembership.setColumnWidth("actions", 30);
+        tableMembership.addContainerProperty("group", Component.class, null, ProcessbaseApplication.getString("tableCaptionGroup"), null, null);
+        tableMembership.addContainerProperty("role", Component.class, null, ProcessbaseApplication.getString("tableCaptionRole"), null, null);
+        if(!isProfileView)
+        {
+            tableMembership.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
+            tableMembership.setColumnWidth("actions", 30);
+        }
         tableMembership.setImmediate(true);
         tableMembership.setSizeFull();
         tableMembership.setPageLength(7);
     }
 
     private void prepareTableMetadata() {
-        tableMetadata.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionName"), null, null);
-        tableMetadata.addContainerProperty("value", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionValue"), null, null);
+        tableMetadata.addContainerProperty("name", String.class, null, ProcessbaseApplication.getString("tableCaptionName"), null, null);
+        tableMetadata.addContainerProperty("value", Component.class, null, ProcessbaseApplication.getString("tableCaptionValue"), null, null);
         tableMetadata.setImmediate(true);
         tableMetadata.setSizeFull();
         tableMetadata.setPageLength(7);
@@ -285,9 +293,9 @@ public class ProfileWindow extends PbWindow
     private void refreshTableMembership() {
         try {
             tableMembership.removeAllItems();
-//            for (Membership membership : user.getMemberships()) {
-//                addTableMembershipRow(membership);
-//            }
+            for (Membership membership : bonitaUser.getMemberships()) {
+                addTableMembershipRow(membership);
+            }
         } catch (Exception ex) {
         }
     }
@@ -310,11 +318,11 @@ public class ProfileWindow extends PbWindow
     }
 
     private String getUserMetadataValue(String metadataName) {
-//        for (ProfileMetadata profileMetadata : user.getMetadata().keySet()) {
-//            if (profileMetadata.getName().equals(metadataName)) {
-//                return user.getMetadata().get(profileMetadata);
-//            }
-//        }
+        for (ProfileMetadata profileMetadata : bonitaUser.getMetadata().keySet()) {
+            if (profileMetadata.getName().equals(metadataName)) {
+                return bonitaUser.getMetadata().get(profileMetadata);
+            }
+        }
         return null;
     }
 
@@ -346,7 +354,7 @@ public class ProfileWindow extends PbWindow
             roles.setValue(membership != null ? membership.getRole().getUUID() : null);
             woItem.getItemProperty("role").setValue(roles);
         }
-        TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
+        TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", uuid, this, Constants.ACTION_DELETE);
         woItem.getItemProperty("actions").setValue(tlb);
     }
 
@@ -404,8 +412,9 @@ public class ProfileWindow extends PbWindow
         return container;
     }
 
-
+    boolean isProfileView=false;
     public void setProfileView(){
-        tabSheet.getTab(userMembership).setVisible(false);
+        isProfileView=true;
+       // tabSheet.getTab(userMembership).setVisible(false);
     }
 }

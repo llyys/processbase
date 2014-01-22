@@ -71,9 +71,9 @@ public class KPIWindow extends PbWindow
     public void initUI() {
         try {
             if (metaKpi == null) {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newKPI"));
+                setCaption(ProcessbaseApplication.getString("newKPI"));
             } else {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("kpi") + " " + metaKpi.getCode());
+                setCaption(ProcessbaseApplication.getString("kpi") + " " + metaKpi.getCode());
             }
             setModal(true);
             setContent(layout);
@@ -81,16 +81,16 @@ public class KPIWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
-            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
-            code = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("code"));
-            name = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("name"));
-            description = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("description"));
+            closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
+            code = new TextField(ProcessbaseApplication.getString("code"));
+            name = new TextField(ProcessbaseApplication.getString("name"));
+            description = new TextField(ProcessbaseApplication.getString("description"));
 
             code.setWidth("270px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getCurrent().getPbMessages().getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getString("codeValidatorError")));
             layout.addComponent(code, 0, 0);
             name.setWidth("275px");
             name.setMaxLength(500);
@@ -109,8 +109,8 @@ public class KPIWindow extends PbWindow
 
             dimensions.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             dimensions.setWidth("570px");
-            dimensions.setLeftColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensionsAvailable"));
-            dimensions.setRightColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("dimensionsSelected"));
+            dimensions.setLeftColumnCaption(ProcessbaseApplication.getString("dimensionsAvailable"));
+            dimensions.setRightColumnCaption(ProcessbaseApplication.getString("dimensionsSelected"));
             layout.addComponent(dimensions, 0, 2, 1, 2);
 
             // preparing facts
@@ -122,8 +122,8 @@ public class KPIWindow extends PbWindow
 
             facts.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT);
             facts.setWidth("570px");
-            facts.setLeftColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("factsAvailable"));
-            facts.setRightColumnCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("factsSelected"));
+            facts.setLeftColumnCaption(ProcessbaseApplication.getString("factsAvailable"));
+            facts.setRightColumnCaption(ProcessbaseApplication.getString("factsSelected"));
             layout.addComponent(facts, 0, 3, 1, 3);
 
             if (metaKpi != null) {
@@ -215,7 +215,7 @@ public class KPIWindow extends PbWindow
                 if (x.isEmpty() || x.get(0).getId() > 0) {
                     ProcessbaseApplication.getCurrent().getBpmModule().execute(new UpdateMetaKpi(metaKpi));
                 } else {
-                    throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueKpiCode"));
+                    throw new Exception(ProcessbaseApplication.getString("uniqueKpiCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

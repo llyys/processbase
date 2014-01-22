@@ -64,10 +64,10 @@ public class TaskCompleted extends TreeTablePanel implements IHandle<TaskListEve
     @Override
     public void initUI() {
         super.initUI();
-        treeTable.addContainerProperty("processName", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
-        treeTable.addContainerProperty("taskName", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionTask"), null, null);
+        treeTable.addContainerProperty("processName", String.class, null, ProcessbaseApplication.getString("tableCaptionProcess"), null, null);
+        treeTable.addContainerProperty("taskName", String.class, null, ProcessbaseApplication.getString("tableCaptionTask"), null, null);
         treeTable.setColumnExpandRatio("taskName", 1);
-        treeTable.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionLastUpdatedDate"), null, null);
+        treeTable.addContainerProperty("lastUpdate", Date.class, null, ProcessbaseApplication.getString("tableCaptionLastUpdatedDate"), null, null);
         treeTable.addGeneratedColumn("lastUpdate", new PbColumnGenerator());
         treeTable.setColumnWidth("lastUpdate", 110);
     }
@@ -177,7 +177,7 @@ public class TaskCompleted extends TreeTablePanel implements IHandle<TaskListEve
                 XMLProcessDefinition xmlProcess = barResource.getXmlProcessDefinition(processDefinition.getName());
                 XMLTaskDefinition taskDef = xmlProcess.getTasks().get(task.getActivityName());
                 if (!taskDef.isByPassFormsGeneration() /*check that forms is not defined*/) {
-                    showError(ProcessbaseApplication.getCurrent().getPbMessages().getString("ERROR_UI_NOT_DEFINED"));
+                    showError(ProcessbaseApplication.getString("ERROR_UI_NOT_DEFINED"));
                 } else if (!taskDef.isByPassFormsGeneration() /*check that forms is defined*/) {
                     GeneratedWindow genWindow = new GeneratedWindow(task.getActivityLabel());
                     genWindow.setTask(bpmModule.getTaskInstance(task.getUUID()));

@@ -45,13 +45,13 @@ public class DimensionsPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
-        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
-        table.addContainerProperty("valueType", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("valueType"), null, null);
-        table.addContainerProperty("length", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("length"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getString("code"), null, null);
+        table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getString("name"), null, null);
+        table.addContainerProperty("valueType", String.class, null, ProcessbaseApplication.getString("valueType"), null, null);
+        table.addContainerProperty("length", String.class, null, ProcessbaseApplication.getString("length"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -69,7 +69,7 @@ public class DimensionsPanel extends TablePanel implements
                 woItem.getItemProperty("name").setValue(metaDim.getName());
                 woItem.getItemProperty("valueType").setValue(metaDim.getValueType());
                 woItem.getItemProperty("length").setValue(metaDim.getValueLength());
-                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", metaDim, this, Constants.ACTION_DELETE);
                 woItem.getItemProperty("actions").setValue(tlb);
             }
             table.setSortContainerPropertyId("id");
@@ -105,10 +105,10 @@ public class DimensionsPanel extends TablePanel implements
 
     private void removeMetaDim(final MetaDim metaDim) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeDimension") + "?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("removeDimension") + "?",
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

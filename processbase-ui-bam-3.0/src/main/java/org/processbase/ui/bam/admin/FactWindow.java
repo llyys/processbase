@@ -58,9 +58,9 @@ public class FactWindow extends PbWindow
     public void initUI() {
         try {
             if (metaFact == null) {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newFact"));
+                setCaption(ProcessbaseApplication.getString("newFact"));
             } else {
-                setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("fact") + metaFact.getCode());
+                setCaption(ProcessbaseApplication.getString("fact") + metaFact.getCode());
             }
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
@@ -68,15 +68,15 @@ public class FactWindow extends PbWindow
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            closeBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnClose"), this);
-            saveBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
-            code = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("code"));
-            name = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("name"));
+            closeBtn = new Button(ProcessbaseApplication.getString("btnClose"), this);
+            saveBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
+            code = new TextField(ProcessbaseApplication.getString("code"));
+            name = new TextField(ProcessbaseApplication.getString("name"));
 
             code.setWidth("265px");
             code.setMaxLength(20);
             code.setRequired(true);
-            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getCurrent().getPbMessages().getString("codeValidatorError")));
+            code.addValidator(new RegexpValidator("^[A-Z]\\w{1,15}$", ProcessbaseApplication.getString("codeValidatorError")));
             addComponent(code);
             name.setWidth("265px");
             name.setMaxLength(500);
@@ -119,7 +119,7 @@ public class FactWindow extends PbWindow
                 if (metaFacts.isEmpty()) {
                      ProcessbaseApplication.getCurrent().getBpmModule().execute(new AddMetaFact(metaFact));
                 } else {
-                    throw new Exception(ProcessbaseApplication.getCurrent().getPbMessages().getString("uniqueFactCode"));
+                    throw new Exception(ProcessbaseApplication.getString("uniqueFactCode"));
                 }
                 close();
             } else if (event.getButton().equals(closeBtn)) {

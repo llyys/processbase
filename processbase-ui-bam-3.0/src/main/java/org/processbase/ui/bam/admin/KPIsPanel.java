@@ -45,14 +45,14 @@ public class KPIsPanel extends TablePanel implements
     @Override
         public void initUI() {
         super.initUI();
-        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("id"), null, null);
+        table.addContainerProperty("id", String.class, null, ProcessbaseApplication.getString("id"), null, null);
 //        table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("code"), null, null);
-        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("name"), null, null);
-        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("description"), null, null);
-        table.addContainerProperty("owner", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("owner"), null, null);
-        table.addContainerProperty("status", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("State"), null, null);
-        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionActions"), null, null);
+        table.addContainerProperty("code", String.class, null, ProcessbaseApplication.getString("code"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getString("name"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getString("description"), null, null);
+        table.addContainerProperty("owner", String.class, null, ProcessbaseApplication.getString("owner"), null, null);
+        table.addContainerProperty("status", String.class, null, ProcessbaseApplication.getString("State"), null, null);
+        table.addContainerProperty("actions", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionActions"), null, null);
         table.setColumnWidth("actions", 100);
         table.setImmediate(true);
     }
@@ -72,7 +72,7 @@ public class KPIsPanel extends TablePanel implements
                 woItem.getItemProperty("description").setValue(metaKpi.getDescription());
                 woItem.getItemProperty("owner").setValue(metaKpi.getOwner());
                  woItem.getItemProperty("status").setValue(metaKpi.getStatus());
-                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
+                TableLinkButton tlb = new TableLinkButton(ProcessbaseApplication.getString("btnDelete"), "icons/cancel.png", metaKpi, this, Constants.ACTION_DELETE);
                 tlb.setEnabled(metaKpi.getStatus().equals("EDITABLE"));
                 woItem.getItemProperty("actions").setValue(tlb);
             } 
@@ -109,10 +109,10 @@ public class KPIsPanel extends TablePanel implements
 
     private void removeMetaKpi(final MetaKpi metaKpi) {
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("removeKPI") + "?",
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("removeKPI") + "?",
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

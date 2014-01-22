@@ -317,8 +317,8 @@ public class MainWindow extends PbWindow implements SelectedTabChangeListener {
     private void openProfileWindow() {
         ProfileWindow nuw = new ProfileWindow(user);
         getWindow().addWindow(nuw);
-        nuw.initUI();
         nuw.setProfileView();
+        nuw.initUI();
     }
 
     public PbApplication getPbApplication()

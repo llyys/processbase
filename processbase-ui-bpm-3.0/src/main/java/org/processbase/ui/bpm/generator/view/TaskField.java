@@ -105,7 +105,7 @@ public class TaskField {
 			if (widget.isMandatory() != null) {
 				((AbstractField) this.component).setRequired(widget.isMandatory());
 			}
-			((AbstractField) this.component).setRequiredError(widget.getLabel() + ProcessbaseApplication.getCurrent().getPbMessages().getString("fieldRequired"));
+			((AbstractField) this.component).setRequiredError(widget.getLabel() + ProcessbaseApplication.getString("fieldRequired"));
 			((AbstractField) this.component).setDescription(widget.getTitle() != null ? widget.getTitle() : "");
 			((AbstractField) this.component).setInvalidCommitted(false);
 			((AbstractField) this.component).setWriteThrough(false);

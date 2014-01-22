@@ -78,26 +78,26 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
         addComponent(processDescription);
         
         
-        btnDownload = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDownload"), this);
+        btnDownload = new Button(ProcessbaseApplication.getString("btnDownload"), this);
         getParentWindow().getButtons().addButton(btnDownload);
         getParentWindow().getButtons().setComponentAlignment(btnDownload, Alignment.MIDDLE_RIGHT);
        
-        btnDeleteAll = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDeleteAll"), this);
-        btnDeleteAll.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteProcessDefinition"));
+        btnDeleteAll = new Button(ProcessbaseApplication.getString("btnDeleteAll"), this);
+        btnDeleteAll.setDescription(ProcessbaseApplication.getString("deleteProcessDefinition"));
         getParentWindow().getButtons().addButton(btnDeleteAll);
         getParentWindow().getButtons().setComponentAlignment(btnDeleteAll, Alignment.MIDDLE_RIGHT);
         
-        btnDeleteInstances = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnDeleteInstances"), this);
-        btnDeleteInstances.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("deleteProcessInstances"));
+        btnDeleteInstances = new Button(ProcessbaseApplication.getString("btnDeleteInstances"), this);
+        btnDeleteInstances.setDescription(ProcessbaseApplication.getString("deleteProcessInstances"));
         getParentWindow().getButtons().addButton(btnDeleteInstances);
         getParentWindow().getButtons().setComponentAlignment(btnDeleteInstances, Alignment.MIDDLE_RIGHT);
        
-        chbEnable = new CheckBox(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnEnable"), this);
+        chbEnable = new CheckBox(ProcessbaseApplication.getString("btnEnable"), this);
         chbEnable.setValue(processDefinition.getState().equals(ProcessState.ENABLED));
         getParentWindow().getButtons().addButton(chbEnable);
         getParentWindow().getButtons().setComponentAlignment(chbEnable, Alignment.MIDDLE_RIGHT);
 
-//        btnArchive = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnArchive"), this);
+//        btnArchive = new Button(ProcessbaseApplication.getString("btnArchive"), this);
 //        getParentWindow().getButtons().addButton(btnArchive);
 //        getParentWindow().getButtons().setComponentAlignment(btnArchive, Alignment.MIDDLE_RIGHT);
 
@@ -169,10 +169,10 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
 	        final ProcessbaseApplication processbase = ProcessbaseApplication.getCurrent();
 	        final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
 	        ConfirmDialog.show(mainWindow,
-	                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-	                ProcessbaseApplication.getCurrent().getPbMessages().getString("questionDeleteProcessAndInstances"),
-	                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-	                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+	                ProcessbaseApplication.getString("windowCaptionConfirm"),
+	                ProcessbaseApplication.getString("questionDeleteProcessAndInstances"),
+	                ProcessbaseApplication.getString("btnYes"),
+	                ProcessbaseApplication.getString("btnNo"),
 	                new ConfirmDialog.Listener() {
 
 	                    public void onClose(ConfirmDialog dialog) {
@@ -204,12 +204,12 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
         final ProcessbaseApplication processbase = ProcessbaseApplication.getCurrent();
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
                 chbEnable.booleanValue()
-                ? ProcessbaseApplication.getCurrent().getPbMessages().getString("questionEnableProcessDefinition")
-                : ProcessbaseApplication.getCurrent().getPbMessages().getString("questionDisableProcessDefinition"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ? ProcessbaseApplication.getString("questionEnableProcessDefinition")
+                : ProcessbaseApplication.getString("questionDisableProcessDefinition"),
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -234,10 +234,10 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
         final ProcessbaseApplication processbase = ProcessbaseApplication.getCurrent();
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(mainWindow,
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("questionDeleteInstances"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("questionDeleteInstances"),
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {
@@ -259,10 +259,10 @@ public class DescriptionPanel extends PbPanel implements ITabsheetPanel, ClickLi
         final ProcessbaseApplication processbase = ProcessbaseApplication.getCurrent();
         final PbWindow mainWindow = (PbWindow) getApplication().getMainWindow();
         ConfirmDialog.show(getApplication().getMainWindow(),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("windowCaptionConfirm"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("questionArchiveProcessDefinition"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnYes"),
-                ProcessbaseApplication.getCurrent().getPbMessages().getString("btnNo"),
+                ProcessbaseApplication.getString("windowCaptionConfirm"),
+                ProcessbaseApplication.getString("questionArchiveProcessDefinition"),
+                ProcessbaseApplication.getString("btnYes"),
+                ProcessbaseApplication.getString("btnNo"),
                 new ConfirmDialog.Listener() {
 
                     public void onClose(ConfirmDialog dialog) {

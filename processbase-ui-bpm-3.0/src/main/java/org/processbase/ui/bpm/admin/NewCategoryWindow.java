@@ -47,20 +47,20 @@ public class NewCategoryWindow extends PbWindow implements ClickListener {
 
     public void initUI() {
         try {
-            setCaption(ProcessbaseApplication.getCurrent().getPbMessages().getString("newCategory"));
+            setCaption(ProcessbaseApplication.getString("newCategory"));
             setModal(true);
             VerticalLayout layout = (VerticalLayout) this.getContent();
             layout.setMargin(true);
             layout.setSpacing(true);
             layout.setStyleName(Reindeer.LAYOUT_WHITE);
 
-            categoryName = new TextField(ProcessbaseApplication.getCurrent().getPbMessages().getString("categoryName"));
+            categoryName = new TextField(ProcessbaseApplication.getString("categoryName"));
             categoryName.setRequired(true);
             categoryName.setWidth("270px");
             addComponent(categoryName);
 
-            cancelBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnCancel"), this);
-            applyBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnSave"), this);
+            cancelBtn = new Button(ProcessbaseApplication.getString("btnCancel"), this);
+            applyBtn = new Button(ProcessbaseApplication.getString("btnSave"), this);
             
             buttons.addButton(applyBtn);
             buttons.setComponentAlignment(applyBtn, Alignment.MIDDLE_RIGHT);

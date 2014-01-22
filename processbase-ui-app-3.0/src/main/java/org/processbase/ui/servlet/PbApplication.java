@@ -256,6 +256,8 @@ public class PbApplication extends ProcessbaseApplication implements PbPanelModu
         this.messages = messages;
     }
 
+
+
     public int getApplicationType() {
         return ProcessbaseApplication.STANDALONE;
     }

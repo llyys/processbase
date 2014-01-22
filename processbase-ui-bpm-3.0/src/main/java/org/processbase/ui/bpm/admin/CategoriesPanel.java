@@ -51,9 +51,9 @@ public class CategoriesPanel extends TablePanel implements
     @Override
     public void initUI() {
         super.initUI();
-        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionCategory"), null, null);
+        table.addContainerProperty("name", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionCategory"), null, null);
         table.setColumnExpandRatio("name", 1);
-        table.addContainerProperty("uuid", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionUUID"), null, null);
+        table.addContainerProperty("uuid", String.class, null, ProcessbaseApplication.getString("tableCaptionUUID"), null, null);
 //        table.setColumnWidth("uuid", 50);
 //        table.addContainerProperty("deployedBy", String.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedBy"), null, null);
 //        table.addContainerProperty("deployedDate", Date.class, null, ProcessbasePortlet.getCurrent().messages.getString("tableCaptionDeployedDate"), null, null);

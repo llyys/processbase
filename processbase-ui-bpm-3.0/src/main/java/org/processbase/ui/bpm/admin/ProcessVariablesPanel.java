@@ -39,12 +39,12 @@ public class ProcessVariablesPanel extends TablePanel {
 	}
 	
 	public void initUI(){
-		table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("variableName"), null, null);
-        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("variableLabel"), null, null);
-        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("variableType"), null, null);
-        table.addContainerProperty("value", Component.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("variableValue"), null, null);
+		table.addContainerProperty("name", String.class, null, ProcessbaseApplication.getString("variableName"), null, null);
+        table.addContainerProperty("label", String.class, null, ProcessbaseApplication.getString("variableLabel"), null, null);
+        table.addContainerProperty("type", String.class, null, ProcessbaseApplication.getString("variableType"), null, null);
+        table.addContainerProperty("value", Component.class, null, ProcessbaseApplication.getString("variableValue"), null, null);
 
-        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("variableDesc"), null, null);
+        table.addContainerProperty("description", String.class, null, ProcessbaseApplication.getString("variableDesc"), null, null);
 
         table.setPageLength(15);
         table.setSizeFull();

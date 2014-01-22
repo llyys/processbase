@@ -147,7 +147,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
         InvientChartsConfig chartConfig = new InvientChartsConfig();
         chartConfig.getGeneralChartConfig().setType(SeriesType.BAR);
 
-        chartConfig.getTitle().setText(ProcessbaseApplication.getCurrent().getPbMessages().getString("taskByPerformers"));
+        chartConfig.getTitle().setText(ProcessbaseApplication.getString("taskByPerformers"));
         chartConfig.getSubtitle().setText("Source: PROCESSBASE BPMS");
 
         CategoryAxis xAxisMain = new CategoryAxis();
@@ -158,7 +158,7 @@ public class DashboardPerformerTaskPanel extends DashboardPanel {
 
         NumberYAxis yAxis = new NumberYAxis();
         yAxis.setAllowDecimals(false);
-        yAxis.setTitle(new AxisTitle(ProcessbaseApplication.getCurrent().getPbMessages().getString("processCount")));
+        yAxis.setTitle(new AxisTitle(ProcessbaseApplication.getString("processCount")));
         yAxis.getTitle().setAlign(AxisTitleAlign.HIGH);
         LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
         yAxesSet.add(yAxis);

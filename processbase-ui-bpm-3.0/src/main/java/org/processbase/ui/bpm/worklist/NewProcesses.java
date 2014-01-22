@@ -72,11 +72,11 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
     	
         super.initUI();
         treeTable.addContainerProperty("category", AbstractComponent.class, null, ProcessbaseApplication.getString("tableCaptionCategory"), null, null);
-        //treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionProcess"), null, null);
+        //treeTable.addContainerProperty("processName", TableLinkButton.class, null, ProcessbaseApplication.getString("tableCaptionProcess"), null, null);
         //treeTable.setColumnExpandRatio("processName", 1);
         treeTable.addContainerProperty("processDescription", String.class, null, ProcessbaseApplication.getString("tableCaptionDescription"), null, null);
         treeTable.setColumnExpandRatio("processDescription", 2);
-        //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getCurrent().getPbMessages().getString("tableCaptionVersion"), null, null);
+        //treeTable.addContainerProperty("version", String.class, null, ProcessbaseApplication.getString("tableCaptionVersion"), null, null);
         treeTable.addContainerProperty("processLegislations", Component.class, null, ProcessbaseApplication.getString("processLegislationInfo"), null, null);
         treeTable.setColumnExpandRatio("processLegislations", 1);
         treeTable.setVisibleColumns(new Object[]{"category", "processDescription", "processLegislations"/*, "version"*/});
@@ -221,7 +221,7 @@ public class NewProcesses extends TreeTablePanel implements IPbTable, Button.Cli
                      genWindow.initUI();
                  } else {
                      ProcessbaseApplication.getCurrent().getBpmModule().startNewProcess(process.getUUID());
-                     showImportantInformation(ProcessbaseApplication.getCurrent().getPbMessages().getString("processStarted"));
+                     showImportantInformation(ProcessbaseApplication.getString("processStarted"));
                  }*/
             }
         }catch (FileNotFoundException ex){ 

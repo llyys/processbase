@@ -110,26 +110,26 @@ public class IdentityPanel extends PbPanelModule
     private void prepareButtonBar() {
         buttonBar.removeAllComponents();
         // prepare usersBtn button
-        usersBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("usersBtn"), this);
+        usersBtn = new Button(ProcessbaseApplication.getString("usersBtn"), this);
         usersBtn.setStyleName("special");
         usersBtn.setEnabled(false);
         buttonBar.addComponent(usersBtn, 0);
         buttonBar.setComponentAlignment(usersBtn, Alignment.MIDDLE_LEFT);
 
         // prepare rolesBtn button
-        rolesBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("rolesBtn"), this);
+        rolesBtn = new Button(ProcessbaseApplication.getString("rolesBtn"), this);
         rolesBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(rolesBtn, 1);
         buttonBar.setComponentAlignment(rolesBtn, Alignment.MIDDLE_LEFT);
 
         // prepare groupsBtn button
-        groupsBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("groupsBtn"), this);
+        groupsBtn = new Button(ProcessbaseApplication.getString("groupsBtn"), this);
         groupsBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(groupsBtn, 2);
         buttonBar.setComponentAlignment(groupsBtn, Alignment.MIDDLE_LEFT);
 
         // prepare metadataBtn button
-        metadataBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("metadataBtn"), this);
+        metadataBtn = new Button(ProcessbaseApplication.getString("metadataBtn"), this);
         metadataBtn.setStyleName(Reindeer.BUTTON_LINK);
         buttonBar.addComponent(metadataBtn, 3);
         buttonBar.setComponentAlignment(metadataBtn, Alignment.MIDDLE_LEFT);
@@ -140,19 +140,19 @@ public class IdentityPanel extends PbPanelModule
         buttonBar.setExpandRatio(expandLabel, 1);
 
         // prepare refresh button
-        refreshBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnRefresh"), this);
+        refreshBtn = new Button(ProcessbaseApplication.getString("btnRefresh"), this);
         buttonBar.addComponent(refreshBtn, 5);
         buttonBar.setComponentAlignment(refreshBtn, Alignment.MIDDLE_RIGHT);
 
         // prepare add button
-        btnAdd = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("btnAdd"), this);
+        btnAdd = new Button(ProcessbaseApplication.getString("btnAdd"), this);
         buttonBar.addComponent(btnAdd, 6);
         buttonBar.setComponentAlignment(btnAdd, Alignment.MIDDLE_RIGHT);
 
         // prepare sync button
 
-       /* syncBtn = new Button(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtn"), this);
-        syncBtn.setDescription(ProcessbaseApplication.getCurrent().getPbMessages().getString("syncBtnDescription"));
+       /* syncBtn = new Button(ProcessbaseApplication.getString("syncBtn"), this);
+        syncBtn.setDescription(ProcessbaseApplication.getString("syncBtnDescription"));
         buttonBar.addComponent(syncBtn, 7);
         buttonBar.setComponentAlignment(syncBtn, Alignment.MIDDLE_RIGHT);
         if (ProcessbaseApplication.getCurrent().getApplicationType() == ProcessbaseApplication.LIFERAY_PORTAL) {

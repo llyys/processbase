@@ -341,7 +341,7 @@ public class LegislationsTableView  extends WorkPanel implements IPbTable, Butto
 	
 	private String getMessage(String key){
 		try {
-			return ProcessbaseApplication.getCurrent().getPbMessages().getString(key);
+			return ProcessbaseApplication.getString(key);
 		} catch (Exception e) {
 			//ignore
 		}
