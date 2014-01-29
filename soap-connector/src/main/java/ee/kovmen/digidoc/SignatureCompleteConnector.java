@@ -55,14 +55,13 @@ public class SignatureCompleteConnector extends ProcessConnector {
             RuntimeAPI runtimeAPI = AccessorUtil.getRuntimeAPI();
             runtimeAPI.createDocument(file.getName(), getProcessInstanceUUID(), fileName + ".ddoc", "application/octet-stream", doc2.getBytes());
             //AccessorUtil.getRuntimeAPI().addDocumentVersion(file.getUUID(), true, fileName + ".ddoc", "application/octet-stream", doc2.getBytes());
-            FileUtils.deleteDirectory(new File(path));
+            FileUtils.deleteDirectory(new File(path));//remove this only if everything was ok, if there was an error, keep this file for later analysis.
         }catch (Exception e){
             logger.error("error on executing connector", e);
             errors.add(new ConnectorError("allkiri", e));
-            FileUtils.deleteDirectory(new File(path));
            // throw e;
         }
-	}
+    }
 
 	@Override
 	protected List<ConnectorError> validateValues() {

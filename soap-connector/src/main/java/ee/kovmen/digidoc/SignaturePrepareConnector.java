@@ -70,7 +70,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
                     }
                 }
             }
-            session = signer.startSession(documentFiles);
+            session = signer.startSession(documentFiles, true);
 
             if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
             {
