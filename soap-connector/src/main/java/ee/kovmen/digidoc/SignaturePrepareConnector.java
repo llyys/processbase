@@ -23,6 +23,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	private List files;
 	// DO NOT REMOVE NOR RENAME THIS FIELD
 	private java.lang.String cert;
+	private java.lang.String certId;
 	private String signatureHash;
     private List<ConnectorError> errors = new ArrayList<ConnectorError>();
 
@@ -135,6 +136,13 @@ public class SignaturePrepareConnector extends ProcessConnector {
 	 */
 	public void setCert(java.lang.String cert) {
 		this.cert = cert;
+	}
+    /**
+     * Setter for input argument 'certId'
+     * DO NOT REMOVE NOR RENAME THIS SETTER, unless you also change the related entry in the XML descriptor file
+     */
+	public void setCertId(java.lang.String certId) {
+		this.certId = certId;
 	}
 
 	/**

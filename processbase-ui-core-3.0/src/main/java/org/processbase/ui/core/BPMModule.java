@@ -1974,4 +1974,10 @@ public class BPMModule {
 		return currentDomain;
 	}
 
+    public String getCurrentDomainFolder(){
+        String bonitaHome = BonitaConstants.getBonitaHomeFolder();
+        String currentDomain = getCurrentDomain();
+        return bonitaHome+"/server/"+currentDomain;
+    }
+
 }

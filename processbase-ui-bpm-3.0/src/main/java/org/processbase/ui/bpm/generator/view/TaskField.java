@@ -1,5 +1,6 @@
 package org.processbase.ui.bpm.generator.view;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,13 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bonitasoft.forms.server.exception.InvalidFormDefinitionException;
 import org.bonitasoft.forms.server.validator.RegexFieldValidator;
 import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.services.Document;
+import org.ow2.bonita.util.BonitaConstants;
 import org.ow2.bonita.util.GroovyException;
 import org.ow2.bonita.util.GroovyExpression;
 import org.ow2.bonita.util.GroovyUtil;
@@ -284,10 +288,9 @@ public class TaskField {
 					
 					for (String expression : expressions) {
 						Object value = expression;
-						if (GroovyExpression.isGroovyExpression(expression)) {
+						if (isScriptOrGroovyExpression(expression)) {
 							try {
-								value = taskManager
-										.evalGroovyExpression(expression);
+								value = evalScriptOrGroovyExpression(expression);
 							} catch (Exception e) {
 								LOG.warn("could not evaluate " + expression, e);
 							}
@@ -323,10 +326,9 @@ public class TaskField {
                     
                     for (String expression : expressions) {
 						Object value = expression;
-						if (GroovyExpression.isGroovyExpression(expression)) {
+						if (isScriptOrGroovyExpression(expression)) {
 							try {
-								value = taskManager
-										.evalGroovyExpression(expression);
+								value = evalScriptOrGroovyExpression(expression);
 							} catch (Exception e) {
 								LOG.warn("could not evaluate " + expression, e);
 							}
@@ -383,16 +385,34 @@ public class TaskField {
 		
 		return new Label("");
 	}
-	
-	public Object getInitialValue() throws Exception {
+
+    private boolean isScriptOrGroovyExpression(String expression) {
+        if(expression.startsWith("script:"))
+            return true;
+        return GroovyExpression.isGroovyExpression(expression);
+    }
+
+    private Object evalScriptOrGroovyExpression(String expression) throws Exception {
+        if(expression.startsWith("script:"))
+        {
+            final String scriptSrc = expression.substring(expression.indexOf(":")+1);
+            String currentDomainFolder = ProcessbaseApplication.getCurrent().getBpmModule().getCurrentDomainFolder()+"/conf/scripts/";
+            File f=new File(currentDomainFolder, scriptSrc);
+            if(f.exists())
+                expression = "${" + FileUtils.readFileToString(f) + "}";
+        }
+        return taskManager.evalGroovyExpression(expression);
+    }
+
+    public Object getInitialValue() throws Exception {
 
 		if (widget.getInitialValue() != null
 				&& widget.getInitialValue().getExpression() != null) {
 
 			String expression = widget.getInitialValue().getExpression();
-			if (GroovyExpression.isGroovyExpression(expression)) {
+			if (isScriptOrGroovyExpression(expression)) {
 				try {
-					return taskManager.evalGroovyExpression(expression);
+					return evalScriptOrGroovyExpression(expression);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -400,20 +420,20 @@ public class TaskField {
 				return expression;
 			}
 		}
-		
+
 		return null;
 	}
 
 
-	public Object updateComponentValue() throws Exception{
+    public Object updateComponentValue() throws Exception{
 		if (widget.getInitialValue() != null 
 				&& widget.getInitialValue().getExpression() != null) {
 			
 			String expression = widget.getInitialValue().getExpression();
 			
-			if(GroovyExpression.isGroovyExpression(expression))
+			if(isScriptOrGroovyExpression(expression))
 				try {
-					value = taskManager.evalGroovyExpression(expression);
+					value = evalScriptOrGroovyExpression(expression);
 				} catch (Exception e) {
 					throw new Exception(expression, e);
 				}
@@ -430,7 +450,7 @@ public class TaskField {
 		AvailableValues availableValues = widget.getAvailableValues();
 		if (availableValues != null) {
 			if (availableValues.getExpression() != null) {
-				options = (Collection) taskManager.evalGroovyExpression(availableValues.getExpression());
+				options = (Collection) evalScriptOrGroovyExpression(availableValues.getExpression());
 			} else if (!availableValues.getValuesList().getAvailableValues().isEmpty()) {
 				options = new ArrayList<String>();
 				for (ValuesList.AvailableValue avalue : availableValues.getValuesList()
@@ -452,11 +472,11 @@ public class TaskField {
 				return ((CheckBox) component).booleanValue();
 			}
 			else if (component instanceof Button) {
-				if(GroovyExpression.isGroovyExpression(action.getExpression())){
+				if(isScriptOrGroovyExpression(action.getExpression())){
 					ProcessManager processManager = taskManager.getProcessManager();
 					Object result;
 					try {
-						result = taskManager.evalGroovyExpression(action.getExpression());
+						result = evalScriptOrGroovyExpression(action.getExpression());
 						return result;
 					} catch (GroovyException e) {
 						throw new RuntimeException(e);						
@@ -615,7 +635,7 @@ public class TaskField {
 			return;
 		for (Action action : actions) {
 			String expression="";
-			if(GroovyExpression.isGroovyExpression(action.getExpression()))				
+			if(isScriptOrGroovyExpression(action.getExpression()))
 				expression=TaskManager.stripGroovyExpression(action.getExpression());
 			else
 				expression=action.getExpression();
@@ -738,7 +758,7 @@ public class TaskField {
 	}
 
 	public String getVariableBound() {
-		if(GroovyExpression.isGroovyExpression(widget.getVariableBound()))				
+		if(isScriptOrGroovyExpression(widget.getVariableBound()))
 			return TaskManager.stripGroovyExpression(widget.getVariableBound());
 		else
 			return widget.getVariableBound();

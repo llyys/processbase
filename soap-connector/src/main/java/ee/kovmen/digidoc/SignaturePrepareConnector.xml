@@ -17,6 +17,13 @@
       </parameters>
     </setter>
     <setter>
+      <setterName>setCertId</setterName>
+      <required></required>
+      <parameters>
+        <string></string>
+      </parameters>
+    </setter>
+    <setter>
       <setterName>setFiles</setterName>
       <required></required>
       <parameters>
@@ -40,9 +47,15 @@
           <size>20</size>
           <maxChar>40</maxChar>
         </text>
+        <text>
+          <labelId>certId</labelId>
+          <setter reference="/connector/inputs/setter[2]"/>
+          <size>20</size>
+          <maxChar>40</maxChar>
+        </text>
         <list>
           <labelId>files</labelId>
-          <setter reference="/connector/inputs/setter[2]"/>
+          <setter reference="/connector/inputs/setter[3]"/>
           <maxRows>0</maxRows>
         </list>
       </widgets>

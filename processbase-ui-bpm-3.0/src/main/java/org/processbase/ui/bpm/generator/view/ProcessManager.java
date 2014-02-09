@@ -171,7 +171,8 @@ public class ProcessManager extends PbPanel {
 			else 
 				return getBpmModule().evaluateGroovyExpression(expression, taskInstance.getUUID(), groovyContext, false, false);
 			}
-		//return GroovyUtil.evaluate(expression, groovyContext, processDefinitionUUID, true);		
+		//return GroovyUtil.evaluate(expressio
+		// n, groovyContext, processDefinitionUUID, true);
 	}
 	
 	public BarResource getBarResource() {
