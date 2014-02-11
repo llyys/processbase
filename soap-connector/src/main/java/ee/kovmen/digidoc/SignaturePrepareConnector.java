@@ -73,12 +73,12 @@ public class SignaturePrepareConnector extends ProcessConnector {
             }
             session = signer.startSession(documentFiles, true);
 
-            if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
-            {
-                cert=new String(Base64.decodeBase64(cert));
-            }
+//            if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
+//            {
+//                cert=new String(Base64.decodeBase64(cert));
+//            }
             //kui on cert topelt kodeeritud (sest cerdi andmed on sisestatud <input type="text"> valjale ja see soob ara reavahetused ning cert selle tottu ei toota
-            signatureHash=signer.PrepareSignature(session, cert, "S0", "", "", "", "", "", "");
+            signatureHash=signer.PrepareSignature(session, cert, certId, "", "", "", "", "", "");
             SignatureHelper.serializeToDisc(path, "Signature.obj", session);
 
         }catch (Exception e){

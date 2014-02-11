@@ -66,7 +66,7 @@
         <dependency>
             <groupId>esteid</groupId>
             <artifactId>esteid</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
 		<dependency>
 			<groupId>log4j</groupId>

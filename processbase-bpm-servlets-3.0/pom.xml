@@ -58,7 +58,7 @@
         <dependency>
             <groupId>esteid</groupId>
             <artifactId>esteid</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
 		<dependency>
 			<groupId>javax</groupId>
@@ -123,7 +123,7 @@
                 <configuration>
                     <!-- if you don't specify any modules, the plugin will find them -->
                     <!-- <modules> <module>esteid.gwt.MyWidgetSet</module> </modules> -->
-                    <webappDirectory>${project.build.directory}/${project.build.finalName}/test/VAADIN/widgetsets</webappDirectory>
+                    <webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
                     <!-- On Mac running Snow Leopard, add "-d32" -->
                     <!-- This causes error messages (but build works) in phase "package": two processes would use the same debug
                       port -->
