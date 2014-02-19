@@ -71,7 +71,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
                     }
                 }
             }
-            session = signer.startSession(documentFiles, true);
+            session = signer.startSession(documentFiles, false);
 
 //            if(!cert.startsWith("-----BEGIN CERTIFICATE-----"))
 //            {
@@ -85,7 +85,7 @@ public class SignaturePrepareConnector extends ProcessConnector {
             logger.error("executeConnector", e);
             errors.add(new ConnectorError("allkiri", e));
             FileUtils.deleteDirectory(new File(path));
-            // throw e;
+             throw e;
         }
 	}
 
